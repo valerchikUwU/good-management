@@ -24,6 +24,7 @@ export class AuthService {
   async authenticate(
     auth: ReadUserDto,
   ): Promise<UserVkAuthDto> {
+    console.log(JSON.stringify(auth))
     const user = await this.userService.findOne(auth.id);
     console.log(JSON.stringify(user))
     if (!user) {
