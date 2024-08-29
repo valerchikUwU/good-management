@@ -45,9 +45,9 @@ export class AuthController {
             );
 
             const profile = data.response[0];
-
+            const newUserId = this.generatorService.generateUUID()
             let user: CreateUserVkDto = {
-                id: this.generatorService.generateUUID(),
+                id: newUserId,
                 vk_id: authData.data.user_id,
                 firstName: `${profile.first_name}`,
                 lastName: `${profile.last_name}`,
