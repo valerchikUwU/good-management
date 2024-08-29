@@ -6,9 +6,10 @@ import { ConfigModule, ConfigService } from 'nestjs-config';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from 'src/controllers/auth.controller';
 import { UsersModule } from './users.module';
+import { GeneratorModule } from './generator.module';
 
 @Module({
-    imports: [HttpModule,
+    imports: [GeneratorModule, HttpModule,
         ConfigModule,
         UsersModule,
         PassportModule.register({ defaultStrategy: "jwt" }),
