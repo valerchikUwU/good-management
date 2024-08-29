@@ -2,8 +2,6 @@ import { IsUUID } from 'class-validator';
 
 export class UserVkAuthDto {
 
-  @IsUUID()
-  id: string;
   firstName: string;
   lastName: string;
   telephoneNumber: string;
