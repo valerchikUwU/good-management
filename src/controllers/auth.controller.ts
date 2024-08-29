@@ -10,8 +10,9 @@ import { UserVkAuthDto } from "../contracts/user-vkauth-dto";
 import { AuthVK } from '../contracts/auth-vk.dto'
 import { AuthService } from "../application/services/auth/auth.service";
 import { UsersService } from "../application/services/users/users.service";
-import { CreateUserVkDto } from "src/contracts/create-userVk.dto";
 import { GeneratorUUID } from "src/application/services/GeneratorUUID/generator.service";
+import { ReadUserDto } from "src/contracts/read-user.dto";
+import { CreateUserDto } from "src/contracts/create-user.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -46,8 +47,7 @@ export class AuthController {
 
             const profile = data.response[0];
             const newUserId = this.generatorService.generateUUID()
-            let user: CreateUserVkDto = {
-                id: newUserId,
+            let user: CreateUserDto = {
                 vk_id: authData.data.user_id,
                 firstName: `${profile.first_name}`,
                 lastName: `${profile.last_name}`,
@@ -56,8 +56,8 @@ export class AuthController {
                 telephoneNumber: profile.mobile_phone ? profile.mobile_phone : null
             };
             await this.userService.create(user);
-
-            return this.authService.authenticate(user);
+            const newUser = await this.userService.getByVkId(authData.data.user_id)
+            return this.authService.authenticate(newUser);
         } catch (err) {
             console.log(err);
             throw new UnprocessableEntityException(err);
