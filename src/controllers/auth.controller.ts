@@ -32,7 +32,7 @@ export class AuthController {
             throw new UnprocessableEntityException("Wrong VK code");
         }
 
-        console.log(JSON.stringify(authData))
+        console.log(JSON.stringify(authData.data))
         const _user = await this.userService.getByVkId(authData.data.user_id);
         
         if (_user) {
