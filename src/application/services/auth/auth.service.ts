@@ -4,11 +4,8 @@ import { HttpService } from '@nestjs/axios';
 import { ReadUserDto } from "src/contracts/read-user.dto";
 import { JwtService } from '@nestjs/jwt';
 import { UserVkAuthDto } from "src/contracts/user-vkauth-dto";
-import { map, Observable } from "rxjs";
-import { AxiosResponse } from "axios";
 import { JwtPayloadInterface } from "src/utils/jwt-payload.interface";
 import { User } from "src/domains/user.entity";
-import { CreateUserDto } from "src/contracts/create-user.dto";
 
 
 @Injectable()
@@ -31,6 +28,8 @@ export class AuthService {
       throw new BadRequestException();
     }
     try{
+      const accessToken = await this.jwtService.sign({ id: user.id });
+      console.log(`ACCESS TOKEN: ${accessToken}`)
       return {
         id: user.id,
         vk_id: user.vk_id,
@@ -38,7 +37,7 @@ export class AuthService {
         lastName: user.lastName,
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
-        token: await this.jwtService.sign({ id: user.id }),
+        token: accessToken
       };
     }
     catch(err){
