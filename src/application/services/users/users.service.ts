@@ -47,7 +47,7 @@ export class UsersService {
         return readUserDto;
     }
 
-    async findOneByTelegramId(telegramId: string): Promise<ReadUserDto | null> {
+    async findOneByTelegramId(telegramId: number): Promise<ReadUserDto | null> {
         const user = await this.usersRepository.findOneBy({ telegramId });
         if (!user) return null;
 
@@ -74,17 +74,48 @@ export class UsersService {
         user.firstName = createUserDto.firstName;
         user.lastName = createUserDto.lastName;
         user.telephoneNumber = createUserDto.telephoneNumber;
+        user.avatar_url = createUserDto.avatar_url;
+        user.vk_id = createUserDto.vk_id
+        user.telegramId = createUserDto.telegramId;
         // Присваиваем значения из DTO объекту пользователя
         return await this.usersRepository.save(user);
     }
 
 
-    async getByTelegramId(telegramId: string): Promise<ReadUserDto | null> {
-        return await this.usersRepository.findByTelegramId(telegramId);
+    async getByTelegramId(telegramId: number): Promise<ReadUserDto | null> {
+        const user = await this.usersRepository.findOneBy({ telegramId });
+        if (!user) return null;
+
+        // Преобразование объекта User в ReadUserDto
+        const readUserDto: ReadUserDto = {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            telegramId: user.telegramId,
+            telephoneNumber: user.telephoneNumber,
+            avatar_url: user.avatar_url,
+            vk_id: user.vk_id
+        };
+
+        return readUserDto;
     }
 
-    async findByVkId(vk_id: number): Promise<ReadUserDto | null> {
-        return await this.usersRepository.findByVkId(vk_id);
+    async getByVkId(vk_id: number): Promise<ReadUserDto | null> {
+        const user = await this.usersRepository.findOneBy({ vk_id });
+        if (!user) return null;
+
+        // Преобразование объекта User в ReadUserDto
+        const readUserDto: ReadUserDto = {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            telegramId: user.telegramId,
+            telephoneNumber: user.telephoneNumber,
+            avatar_url: user.avatar_url,
+            vk_id: user.vk_id
+        };
+
+        return readUserDto;
     }
 
 }

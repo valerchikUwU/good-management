@@ -19,7 +19,7 @@ export class UsersController {
     }
 
     @Get('telegram/:telegramId')
-    findOneByTelegramId(@Param('telegramId') telegramId: string): Promise<ReadUserDto | null> {
+    findOneByTelegramId(@Param('telegramId') telegramId: number): Promise<ReadUserDto | null> {
         return this.usersService.findOneByTelegramId(telegramId);
     }
 

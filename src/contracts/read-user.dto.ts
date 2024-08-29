@@ -5,7 +5,7 @@ export class ReadUserDto {
     id: string;
     firstName: string;
     lastName: string;
-    telegramId: string;
+    telegramId: number;
     telephoneNumber: string;
     avatar_url: string;
     vk_id: number;

@@ -10,7 +10,7 @@ export class UsersRepository extends Repository<User> {
     super(User, dataSource.createEntityManager());
   }
 
-  async findByTelegramId(telegramId: string) {
+  async findByTelegramId(telegramId: number) {
     return await this.findOne({ where: { telegramId } });
   }
 

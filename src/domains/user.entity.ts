@@ -14,9 +14,9 @@ export class User {
   lastName: string;
 
   @Column({ nullable: true })
-  telegramId: string;
+  telegramId: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   telephoneNumber: string;
 
   @Column({ nullable: true })
