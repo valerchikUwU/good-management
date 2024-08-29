@@ -12,7 +12,7 @@ import * as path from 'path';
 
 @Module({
   imports: [
-    ConfigModule.load(path.resolve(__dirname, 'config', '**', '!(*.d).{ts,js}')), 
+    ConfigModule.load(path.resolve(__dirname, 'config', '*.{ts,js}')), 
   TypeOrmModule.forRootAsync({
     inject: [ConfigService],
     useFactory: async (configService: ConfigService) => (configService.get('database'))
