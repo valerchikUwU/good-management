@@ -25,7 +25,7 @@ export class AuthService {
     auth: ReadUserDto,
   ): Promise<UserVkAuthDto> {
     const user = await this.userService.findOne(auth.id);
-
+    console.log(JSON.stringify(user))
     if (!user) {
       throw new BadRequestException();
     }

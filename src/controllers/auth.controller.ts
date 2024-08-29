@@ -32,7 +32,6 @@ export class AuthController {
             throw new UnprocessableEntityException("Wrong VK code");
         }
 
-        console.log(JSON.stringify(authData.data))
         const _user = await this.userService.getByVkId(authData.data.user_id);
         
         if (_user) {
@@ -56,7 +55,6 @@ export class AuthController {
                 telegramId: null,
                 telephoneNumber: profile.mobile_phone ? profile.mobile_phone : null
             };
-            console.log(JSON.stringify(user))
             await this.userService.create(user);
 
             return this.authService.authenticate(user);
