@@ -30,16 +30,21 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException();
     }
-
-    return {
-      id: user.id,
-      vk_id: user.vk_id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      telephoneNumber: user.telephoneNumber,
-      avatar_url: user.avatar_url,
-      token: await this.jwtService.sign({ id: user.id }),
-    };
+    try{
+      return {
+        id: user.id,
+        vk_id: user.vk_id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        telephoneNumber: user.telephoneNumber,
+        avatar_url: user.avatar_url,
+        token: await this.jwtService.sign({ id: user.id }),
+      };
+    }
+    catch(err){
+      console.log(err)
+    }
+    
   }
 
   async getVkToken(code: string): Promise<any> {
