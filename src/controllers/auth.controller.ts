@@ -30,7 +30,7 @@ export class AuthController {
     ) { }
 
     @Post("/login/vk")
-    @Header("User-Agent", 'none')
+    @Header("User-Agent", 'User-Agent')
     async vk(@Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string): Promise<{_user: UserVkAuthDto; refreshTokenId: string}> {
         let authData;
         try {
