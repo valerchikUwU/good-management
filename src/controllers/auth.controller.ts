@@ -43,11 +43,11 @@ export class AuthController {
         const _user = await this.userService.getByVkId(authData.data.user_id);
 
         console.log(user_agent);
-        console.log(auth.fingerprint);
+        console.log(auth.fingerprint); 
         console.log(ip);
 
         if (_user) {
-            let newSession: CreateRefreshSessionDto = {
+            const newSession: CreateRefreshSessionDto = {
                 user_agent: user_agent,
                 fingerprint: auth.fingerprint,
                 ip: ip,
@@ -77,7 +77,7 @@ export class AuthController {
             const newUser = await this.userService.getByVkId(authData.data.user_id);
             
             console.log(`UAUAUAUAUAUUAUAUA: ${user_agent}`);
-            let newSession: CreateRefreshSessionDto = {
+            const newSession: CreateRefreshSessionDto = {
                 user_agent: user_agent,
                 fingerprint: auth.fingerprint,
                 ip: ip,
