@@ -84,7 +84,7 @@ export class AuthController {
                 expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
                 user: newUser
             }
-            
+            console.error(`NEW SESSION ${newSession.user_agent}`)
             await this.refreshSession.create(newSession);
             return this.authService.authenticate(newUser, newSession);
         } catch (err) {

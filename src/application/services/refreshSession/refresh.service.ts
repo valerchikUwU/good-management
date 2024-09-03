@@ -33,11 +33,11 @@ export class RefreshService {
 
     async create(createSessionDto: CreateRefreshSessionDto): Promise<RefreshSession> {
         const session = new RefreshSession();
-            user_agent: createSessionDto.user_agent;
-            fingerprint: createSessionDto.fingerprint;
-            ip: createSessionDto.ip;
-            expiresIn: createSessionDto.expiresIn;
-            user: createSessionDto.user;
+        session.user_agent = createSessionDto.user_agent;
+        session.fingerprint = createSessionDto.fingerprint;
+        session.ip = createSessionDto.ip;
+        session.expiresIn = createSessionDto.expiresIn;
+        session.user = createSessionDto.user;
         // Присваиваем значения из DTO объекту пользователя
         return await this.sessionsRepository.save(session);
     }
