@@ -7,13 +7,14 @@ import { User } from '../domains/user.entity';
 import { InjectConfig, ConfigService } from 'nestjs-config';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly authService: AuthService,
+    @InjectConfig() config: ConfigService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_ACCESS_SECRET,
+      secretOrKey: config.get('jwt.secretOrPrivateKey'),
     });
   }
 

@@ -8,16 +8,17 @@ import { AuthController } from 'src/controllers/auth.controller';
 import { UsersModule } from './users.module';
 import { GeneratorModule } from './generator.module';
 import { RefreshModule } from './refresh.module';
-import { RefreshTokenStrategy } from 'src/config/refresh-jwt-strategy';
-import { JwtStrategy } from 'src/config/access-jwt-strategy';
 
 @Module({
     imports: [RefreshModule, GeneratorModule, HttpModule,
         ConfigModule,
         UsersModule,
         PassportModule.register({ defaultStrategy: "jwt" }),
-        JwtModule.registerAsync({}),],
-    providers: [AuthService, RefreshTokenStrategy, JwtStrategy],
+        JwtModule.registerAsync({
+            useFactory: (config: ConfigService) => config.get("jwt"),
+            inject: [ConfigService],
+        }),],
+    providers: [AuthService],
     controllers: [AuthController]
 })
 export class AuthModule { }

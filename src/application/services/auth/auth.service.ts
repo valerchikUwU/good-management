@@ -7,17 +7,15 @@ import { UserVkAuthDto } from "src/contracts/user-vkauth-dto";
 import { JwtPayloadInterface } from "src/utils/jwt-payload.interface";
 import { User } from "src/domains/user.entity";
 import * as argon2 from 'argon2';
-import { ReadRefreshSessionDto } from "src/contracts/read-refreshSession.dto";
 import { CreateRefreshSessionDto } from "src/contracts/create-refreshSession.dto";
 import { RefreshService } from "../refreshSession/refresh.service";
-import { session } from "passport";
 
 @Injectable()
 export class AuthService {
   constructor(private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
-    private readonly refreshService: RefreshService
+    private readonly refreshService: RefreshService,
   ) { }
 
   async validateUser(payload: JwtPayloadInterface): Promise<User | null> {
@@ -32,18 +30,18 @@ export class AuthService {
       if (!user) {
         throw new BadRequestException();
       }
-      
+
       const newSession: CreateRefreshSessionDto = {
         user_agent: user_agent,
         fingerprint: fingerprint,
         ip: ip,
         expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
-        refreshToken: await this.jwtService.signAsync({ id: user.id }),
+        refreshToken: await this.jwtService.signAsync({ id: user.id }, { secret: process.env.JWT_REFRESH_SECRET, expiresIn: process.env.JWT_REFRESH_EXPIRESIN }),
         user: auth
-    }
-    await this.refreshService.create(newSession);
-    
-    const _newSession = await this.refreshService.findOneByFingerprint(newSession.fingerprint);
+      }
+      await this.refreshService.create(newSession);
+
+      const _newSession = await this.refreshService.findOneByFingerprint(newSession.fingerprint);
       const _user: UserVkAuthDto = {
         id: user.id,
         vk_id: user.vk_id,
@@ -92,7 +90,7 @@ export class AuthService {
     return argon2.hash(data);
   }
 
-  async updateTokens(fingerprint: string, refreshTokenId: string): Promise<{newRefreshTokenId: string; newAccessToken: string}> {
+  async updateTokens(fingerprint: string, refreshTokenId: string): Promise<{ newRefreshTokenId: string; newAccessToken: string }> {
     const session = await this.refreshService.findOneByIdAndFingerprint(refreshTokenId, fingerprint)
     if (!session) {
       throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
@@ -103,22 +101,22 @@ export class AuthService {
       throw new UnauthorizedException('TOKEN_EXPIRED');
     };
     const newSession: CreateRefreshSessionDto = {
-      
+
       user_agent: session.user_agent,
       fingerprint: session.fingerprint,
       ip: session.ip,
       expiresIn: session.expiresIn,
       user: session.user
     };
-    newSession.refreshToken = await this.jwtService.signAsync({ id: newSession.user.id })
+    newSession.refreshToken = await this.jwtService.signAsync({ id: newSession.user.id }, { secret: process.env.JWT_REFRESH_SECRET, expiresIn: process.env.JWT_REFRESH_EXPIRESIN })
     await this.refreshService.remove(session.id);
-    
+
     await this.refreshService.create(newSession)
 
     const id = await this.refreshService.getId(newSession.refreshToken);
-    
+
     const _newAccessToken = await this.jwtService.signAsync({ id: newSession.user.id })
-    return {newRefreshTokenId: id, newAccessToken: _newAccessToken}
+    return { newRefreshTokenId: id, newAccessToken: _newAccessToken }
 
   }
 
