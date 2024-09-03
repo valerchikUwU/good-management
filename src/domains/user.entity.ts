@@ -15,18 +15,18 @@ export class User {
   lastName: string;
 
   @Column({ nullable: true })
-  telegramId: number;
+  telegramId: number | null;
 
   @Column({ nullable: true })
-  telephoneNumber: string;
+  telephoneNumber: string | null;
 
   @Column({ nullable: true })
-  avatar_url: string;
+  avatar_url: string | null;
 
   @Column({
     nullable: true,
   })
-  vk_id: number;
+  vk_id: number | null;
 
   @OneToMany(() => RefreshSession, (refreshSession) => refreshSession.user)
   refreshSessions: RefreshSession[];

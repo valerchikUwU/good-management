@@ -12,18 +12,18 @@ export class CreateUserDto {
 
   @IsInt()
   @IsOptional()
-  vk_id: number
+  vk_id: number | null
 
   @IsInt()
   @IsOptional()
-  telegramId: number
+  telegramId: number | null
 
   @IsString()
   @IsOptional()
-  avatar_url: string
+  avatar_url: string | null
 
   @IsString()
   @IsOptional()
-  telephoneNumber: string;
+  telephoneNumber: string | null;
 
 }

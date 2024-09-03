@@ -6,9 +6,9 @@ export class UserVkAuthDto {
   id: string;
   firstName: string;
   lastName: string;
-  telephoneNumber: string;
-  vk_id: number;
-  avatar_url: string;
+  telephoneNumber: string | null;
+  vk_id: number | null;
+  avatar_url: string | null;
   token: string;
 
   // Вы можете добавить дополнительные поля в соответствии с вашими требованиями
