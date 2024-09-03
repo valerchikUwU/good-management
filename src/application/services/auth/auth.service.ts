@@ -1,49 +1,56 @@
-import { Injectable, BadRequestException } from "@nestjs/common";
+import { Injectable, BadRequestException, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { HttpService } from '@nestjs/axios';
 import { ReadUserDto } from "src/contracts/read-user.dto";
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { UserVkAuthDto } from "src/contracts/user-vkauth-dto";
 import { JwtPayloadInterface } from "src/utils/jwt-payload.interface";
 import { User } from "src/domains/user.entity";
-
+import * as argon2 from 'argon2';
+import { ReadRefreshSessionDto } from "src/contracts/read-refreshSession.dto";
+import { CreateRefreshSessionDto } from "src/contracts/create-refreshSession.dto";
+import { RefreshService } from "../refreshSession/refresh.service";
+import { session } from "passport";
 
 @Injectable()
 export class AuthService {
   constructor(private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-    private readonly userService: UsersService) { }
+    private readonly usersService: UsersService,
+    private readonly refreshService: RefreshService
+  ) { }
 
   async validateUser(payload: JwtPayloadInterface): Promise<User | null> {
-    return await this.userService.findOne(payload.id);
+    return await this.usersService.findOne(payload.id);
   }
 
   async authenticate(
-    auth: ReadUserDto,
-  ): Promise<UserVkAuthDto> {
-    console.log(JSON.stringify(auth))
-    const user = await this.userService.findOne(auth.id);
-    console.log(JSON.stringify(user))
-    if (!user) {
-      throw new BadRequestException();
-    }
-    try{
-      const accessToken = await this.jwtService.sign({ id: user.id });
-      console.log(`ACCESS TOKEN: ${accessToken}`)
-      return {
+    auth: ReadUserDto, session: CreateRefreshSessionDto
+  ): Promise<{ _user: UserVkAuthDto; refreshTokenId: string }> {
+
+    try {
+      const user = await this.usersService.findOne(auth.id);
+      const _session = await this.refreshService.findOneByFingerprint(session.fingerprint);
+      _session.refreshToken = await this.jwtService.signAsync({ id: user.id })
+      await this.refreshService.updateRefreshTokenById(_session.id, _session.refreshToken)
+      if (!user) {
+        throw new BadRequestException();
+      }
+      const _user: UserVkAuthDto = {
         id: user.id,
         vk_id: user.vk_id,
         firstName: user.firstName,
         lastName: user.lastName,
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
-        token: accessToken
-      };
+        token: await this.jwtService.signAsync({ id: user.id })
+      }
+      return { _user: _user, refreshTokenId: _session.id };
     }
-    catch(err){
+    catch (err) {
       console.log(err)
     }
-    
+
   }
 
   async getVkToken(code: string): Promise<any> {
@@ -72,24 +79,39 @@ export class AuthService {
       )
       .toPromise();
   }
-  // async getVkToken(code: string): Promise<Observable<Object[]>> {
-  //     const VKDATA = {
-  //       client_id: process.env.CLIENT_ID,
-  //       client_secret: process.env.CLIENT_SECRET,
-  //     };
 
-  //     const host =
-  //       process.env.NODE_ENV === "prod"
-  //         ? process.env.APP_HOST
-  //         : process.env.APP_LOCAL;
+  hashData(data: string) {
+    return argon2.hash(data);
+  }
 
-  //     return this.httpService
-  //       .get(
-  //         `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${host}/signin&code=${code}`
-  //       ).pipe(
-  //         map((axiosResponse: AxiosResponse) => {
-  //           return axiosResponse.data;
-  //         })
-  //       );
-  //   }
+  async updateTokens(fingerprint: string, refreshTokenId: string): Promise<{newRefreshTokenId: string; newAccessToken: string}> {
+    const session = await this.refreshService.findOneByIdAndFingerprint(refreshTokenId, fingerprint)
+    if (!session) {
+      throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
+    }
+    const currentTime = Math.floor(Date.now() / 1000);
+    const isExpired = currentTime > session.expiresIn;
+    if (isExpired) {
+      throw new UnauthorizedException('TOKEN_EXPIRED');
+    };
+    const newSession: CreateRefreshSessionDto = {
+      
+      user_agent: session.user_agent,
+      fingerprint: session.fingerprint,
+      ip: session.ip,
+      expiresIn: session.expiresIn,
+      user: session.user
+    };
+    newSession.refreshToken = await this.jwtService.signAsync({ id: newSession.user.id })
+    await this.refreshService.remove(session.id);
+    
+    await this.refreshService.create(newSession)
+
+    const id = await this.refreshService.getId(newSession.refreshToken);
+    
+    const _newAccessToken = await this.jwtService.signAsync({ id: newSession.user.id })
+    return {newRefreshTokenId: id, newAccessToken: _newAccessToken}
+
+  }
+
 }

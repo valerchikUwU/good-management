@@ -23,7 +23,8 @@ export class UsersService {
             telegramId: user.telegramId,
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
-            vk_id: user.vk_id
+            vk_id: user.vk_id,
+            refreshSessions: user.refreshSessions
             // Добавьте любые другие поля, которые должны быть включены в ответ
         }));
     }
@@ -41,7 +42,8 @@ export class UsersService {
             telegramId: user.telegramId,
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
-            vk_id: user.vk_id
+            vk_id: user.vk_id,
+            refreshSessions: user.refreshSessions
         };
 
         return readUserDto;
@@ -59,15 +61,17 @@ export class UsersService {
             telegramId: user.telegramId,
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
-            vk_id: user.vk_id
+            vk_id: user.vk_id,
+            refreshSessions: user.refreshSessions
         };
 
         return readUserDto;
     }
 
-    async remove(id: number): Promise<void> {
+    async remove(id: string): Promise<void> {
         await this.usersRepository.delete(id);
     }
+
 
     async create(createUserDto: CreateUserDto): Promise<User> {
         const user = new User();
@@ -94,7 +98,8 @@ export class UsersService {
             telegramId: user.telegramId,
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
-            vk_id: user.vk_id
+            vk_id: user.vk_id,
+            refreshSessions: user.refreshSessions
         };
 
         return readUserDto;
@@ -112,7 +117,8 @@ export class UsersService {
             telegramId: user.telegramId,
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
-            vk_id: user.vk_id
+            vk_id: user.vk_id,
+            refreshSessions: user.refreshSessions
         };
 
         return readUserDto;

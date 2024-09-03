@@ -1,6 +1,6 @@
 export default {
-    secretOrPrivateKey: 'asdasdasdasd',
+    secretOrPrivateKey: process.env.JWT_ACCESS_SECRET,
     signOptions: {
-      expiresIn: '60s',
+      expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
     },
   };

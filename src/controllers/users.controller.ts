@@ -25,7 +25,7 @@ export class UsersController {
 
 
     @Delete(':id')
-    remove(@Param('id') id: number): Promise<void> {
+    remove(@Param('id') id: string): Promise<void> {
         return this.usersService.remove(id);
     }
 
@@ -33,4 +33,5 @@ export class UsersController {
     create(@Body() createUserDto: CreateUserDto): Promise<CreateUserDto> {
         return this.usersService.create(createUserDto);
     }
+
 }

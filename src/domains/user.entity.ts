@@ -1,5 +1,6 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
+import { RefreshSession } from './refreshSession.entity';
 
 
 @Entity()
@@ -26,4 +27,7 @@ export class User {
     nullable: true,
   })
   vk_id: number;
+
+  @OneToMany(() => RefreshSession, (refreshSession) => refreshSession.user)
+  refreshSessions: RefreshSession[];
 }
