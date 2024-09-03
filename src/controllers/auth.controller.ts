@@ -31,8 +31,7 @@ export class AuthController {
     ) { }
 
     @Post("/login/vk")
-    @Header("content-type", "application/json")
-    async vk(@Headers() headers: Record<string, string>, @Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string): Promise<{_user: UserVkAuthDto; refreshTokenId: string}> {
+    async vk(@Headers('User-Agent') user_agent: string, @Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string): Promise<{_user: UserVkAuthDto; refreshTokenId: string}> {
         let authData;
         try {
             authData = await this.authService.getVkToken(auth.code);
@@ -43,13 +42,13 @@ export class AuthController {
 
         const _user = await this.userService.getByVkId(authData.data.user_id);
 
-        console.log(headers);
+        console.log(user_agent);
         console.log(auth.fingerprint);
         console.log(ip);
 
         if (_user) {
             let newSession: CreateRefreshSessionDto = {
-                user_agent: req.headers['User-Agent'],
+                user_agent: user_agent,
                 fingerprint: auth.fingerprint,
                 ip: ip,
                 expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
