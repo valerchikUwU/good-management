@@ -7,6 +7,7 @@ import {
     Req,
     Ip,
     Res,
+    Header,
 } from "@nestjs/common";
 import { Request as ExpressRequest } from 'express';
 import { Response as ExpressResponse } from "express";
@@ -29,6 +30,7 @@ export class AuthController {
     ) { }
 
     @Post("/login/vk")
+    @Header("User-Agent", 'none')
     async vk(@Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string): Promise<{_user: UserVkAuthDto; refreshTokenId: string}> {
         let authData;
         try {
