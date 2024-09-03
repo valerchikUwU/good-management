@@ -40,6 +40,10 @@ export class AuthController {
 
         const _user = await this.userService.getByVkId(authData.data.user_id);
 
+        console.log(req.headers['user_agent']);
+        console.log(auth.fingerprint);
+        console.log(ip);
+
         if (_user) {
             let newSession: CreateRefreshSessionDto = {
                 user_agent: req.headers['user_agent'],
