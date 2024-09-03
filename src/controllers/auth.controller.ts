@@ -43,7 +43,7 @@ export class AuthController {
 
         const _user = await this.userService.getByVkId(authData.data.user_id);
 
-        console.log(req.headers['User-Agent']);
+        console.log(headers);
         console.log(auth.fingerprint);
         console.log(ip);
 
