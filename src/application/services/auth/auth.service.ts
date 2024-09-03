@@ -25,17 +25,25 @@ export class AuthService {
   }
 
   async authenticate(
-    auth: ReadUserDto, session: CreateRefreshSessionDto
-  ): Promise<{ _user: UserVkAuthDto; refreshTokenId: string }> {
+    auth: ReadUserDto, ip: string, user_agent: string, fingerprint: string): Promise<{ _user: UserVkAuthDto; refreshTokenId: string }> {
 
     try {
       const user = await this.usersService.findOne(auth.id);
-      const _session = await this.refreshService.findOneByFingerprint(session.fingerprint);
-      _session.refreshToken = await this.jwtService.signAsync({ id: user.id })
-      await this.refreshService.updateRefreshTokenById(_session.id, _session.refreshToken)
       if (!user) {
         throw new BadRequestException();
       }
+      
+      const newSession: CreateRefreshSessionDto = {
+        user_agent: user_agent,
+        fingerprint: fingerprint,
+        ip: ip,
+        expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
+        refreshToken: await this.jwtService.signAsync({ id: user.id }),
+        user: auth
+    }
+    await this.refreshService.create(newSession);
+    
+    const _newSession = await this.refreshService.findOneByFingerprint(newSession.fingerprint);
       const _user: UserVkAuthDto = {
         id: user.id,
         vk_id: user.vk_id,
@@ -45,7 +53,7 @@ export class AuthService {
         avatar_url: user.avatar_url,
         token: await this.jwtService.signAsync({ id: user.id })
       }
-      return { _user: _user, refreshTokenId: _session.id };
+      return { _user: _user, refreshTokenId: _newSession.id };
     }
     catch (err) {
       console.log(err)

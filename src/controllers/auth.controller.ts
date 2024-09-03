@@ -19,15 +19,12 @@ import { UsersService } from "../application/services/users/users.service";
 import { GeneratorUUID } from "src/application/services/GeneratorUUID/generator.service";
 import { CreateUserDto } from "src/contracts/create-user.dto";
 import { RefreshService } from "src/application/services/refreshSession/refresh.service";
-import { CreateRefreshSessionDto } from "src/contracts/create-refreshSession.dto";
 
 @Controller("auth")
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
         private readonly userService: UsersService,
-        private readonly generatorService: GeneratorUUID,
-        private readonly refreshSession: RefreshService
     ) { }
 
     @Post("/login/vk")
@@ -47,15 +44,7 @@ export class AuthController {
         console.log(ip);
 
         if (_user) {
-            const newSession: CreateRefreshSessionDto = {
-                user_agent: user_agent,
-                fingerprint: auth.fingerprint,
-                ip: ip,
-                expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
-                user: _user
-            }
-            await this.refreshSession.create(newSession);
-            return await this.authService.authenticate(_user, newSession);
+            return await this.authService.authenticate(_user, ip, user_agent, auth.fingerprint);
         }
 
         try {
@@ -76,17 +65,7 @@ export class AuthController {
             await this.userService.create(user);
             const newUser = await this.userService.getByVkId(authData.data.user_id);
             
-            console.log(`UAUAUAUAUAUUAUAUA: ${user_agent}`);
-            const newSession: CreateRefreshSessionDto = {
-                user_agent: user_agent,
-                fingerprint: auth.fingerprint,
-                ip: ip,
-                expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
-                user: newUser
-            }
-            console.error(`NEW SESSION ${newSession.user_agent}`)
-            await this.refreshSession.create(newSession);
-            return this.authService.authenticate(newUser, newSession);
+            return this.authService.authenticate(newUser, ip, user_agent, auth.fingerprint);
         } catch (err) {
             console.log(err);
             throw new UnprocessableEntityException(err);
