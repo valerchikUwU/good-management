@@ -9,6 +9,7 @@ import { User } from "src/domains/user.entity";
 import * as argon2 from 'argon2';
 import { CreateRefreshSessionDto } from "src/contracts/create-refreshSession.dto";
 import { RefreshService } from "../refreshSession/refresh.service";
+import { ConfigService, InjectConfig } from "nestjs-config";
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly refreshService: RefreshService,
+    @InjectConfig() private readonly config: ConfigService,
   ) { }
 
   async validateUser(payload: JwtPayloadInterface): Promise<User | null> {
@@ -36,7 +38,10 @@ export class AuthService {
         fingerprint: fingerprint,
         ip: ip,
         expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
-        refreshToken: await this.jwtService.signAsync({ id: user.id }, { secret: process.env.JWT_REFRESH_SECRET, expiresIn: process.env.JWT_REFRESH_EXPIRESIN }),
+        refreshToken: await this.jwtService.signAsync({ id: user.id }, {
+          secret: this.config.get('jwt.refresh.secretOrPrivateKey'),
+          expiresIn: this.config.get('jwt.refresh.signOptions.expiresIn'),
+        }),
         user: auth
       }
       await this.refreshService.create(newSession);
@@ -49,7 +54,10 @@ export class AuthService {
         lastName: user.lastName,
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
-        token: await this.jwtService.signAsync({ id: user.id })
+        token: await this.jwtService.signAsync({ id: user.id }, {
+          secret: this.config.get('jwt.access.secretOrPrivateKey'),
+          expiresIn: this.config.get('jwt.access.signOptions.expiresIn'),
+        })
       }
       return { _user: _user, refreshTokenId: _newSession.id };
     }
@@ -108,7 +116,10 @@ export class AuthService {
       expiresIn: session.expiresIn,
       user: session.user
     };
-    newSession.refreshToken = await this.jwtService.signAsync({ id: newSession.user.id }, { secret: process.env.JWT_REFRESH_SECRET, expiresIn: process.env.JWT_REFRESH_EXPIRESIN })
+    newSession.refreshToken = await this.jwtService.signAsync({ id: newSession.user.id }, {
+      secret: this.config.get('jwt.refresh.secretOrPrivateKey'),
+      expiresIn: this.config.get('jwt.refresh.signOptions.expiresIn'),
+    })
     await this.refreshService.remove(session.id);
 
     await this.refreshService.create(newSession)

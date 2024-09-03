@@ -10,11 +10,10 @@ export class RefreshTokenStrategy extends PassportStrategy(
   'jwt-refresh',
 ) {
     
-  constructor(
-    @InjectConfig() config: ConfigService,) {
+  constructor(@InjectConfig() config: ConfigService,) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: config.get('refresh-jwt.secretOrPrivateKey'),
+      secretOrKey: config.get('jwt.refresh.secretOrPrivateKey'),
       passReqToCallback: true,
     });
   }

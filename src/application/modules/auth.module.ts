@@ -10,16 +10,19 @@ import { GeneratorModule } from './generator.module';
 import { RefreshModule } from './refresh.module';
 
 @Module({
-    imports: [RefreshModule, GeneratorModule, HttpModule,
-        ConfigModule,
-        UsersModule,
-        PassportModule.register({ defaultStrategy: "jwt" }),
-        JwtModule.registerAsync({
-            useFactory: (config: ConfigService) => config.get("jwt"),
-            inject: [ConfigService],
-        }),],
-    providers: [AuthService],
-    controllers: [AuthController]
+  imports: [
+    RefreshModule,
+    GeneratorModule,
+    HttpModule,
+    ConfigModule,
+    UsersModule,
+    PassportModule.register({ defaultStrategy: "jwt" }),
+    JwtModule.registerAsync({
+      useFactory: (config: ConfigService) => config.get("jwt"),
+      inject: [ConfigService],
+    }),
+  ],
+  providers: [AuthService],
+  controllers: [AuthController]
 })
 export class AuthModule { }
-
