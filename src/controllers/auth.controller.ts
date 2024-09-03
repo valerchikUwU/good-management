@@ -76,6 +76,7 @@ export class AuthController {
             await this.userService.create(user);
             const newUser = await this.userService.getByVkId(authData.data.user_id);
             
+            console.log(`UAUAUAUAUAUUAUAUA: ${user_agent}`);
             let newSession: CreateRefreshSessionDto = {
                 user_agent: user_agent,
                 fingerprint: auth.fingerprint,
