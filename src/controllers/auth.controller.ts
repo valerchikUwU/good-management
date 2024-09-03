@@ -77,7 +77,7 @@ export class AuthController {
             const newUser = await this.userService.getByVkId(authData.data.user_id);
             
             let newSession: CreateRefreshSessionDto = {
-                user_agent: req.headers['user_agent'],
+                user_agent: user_agent,
                 fingerprint: auth.fingerprint,
                 ip: ip,
                 expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
