@@ -44,6 +44,7 @@ export class AuthService {
         }),
         user: auth
       }
+      console.log(`${JSON.stringify(newSession)}`);
       await this.refreshService.create(newSession);
 
       const _newSession = await this.refreshService.findOneByFingerprint(newSession.fingerprint);
@@ -59,6 +60,8 @@ export class AuthService {
           expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRESIN'),
         })
       }
+      
+      console.log(`${JSON.stringify(UserVkAuthDto)}`);
       return { _user: _user, refreshTokenId: _newSession.id };
     }
     catch (err) {
