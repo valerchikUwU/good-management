@@ -120,8 +120,8 @@ export class AuthService {
       user: session.user
     };
     newSession.refreshToken = await this.jwtService.signAsync({ id: newSession.user.id }, {
-      secret: this.config.get('jwt.refresh.secretOrPrivateKey'),
-      expiresIn: this.config.get('jwt.refresh.signOptions.expiresIn'),
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
     })
     await this.refreshService.remove(session.id);
 
@@ -130,8 +130,8 @@ export class AuthService {
     const id = await this.refreshService.getId(newSession.refreshToken);
 
     const _newAccessToken = await this.jwtService.signAsync({ id: newSession.user.id }, {
-      secret: this.config.get('jwt.refresh.secretOrPrivateKey'),
-      expiresIn: this.config.get('jwt.refresh.signOptions.expiresIn'),
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
     })
     return { newRefreshTokenId: id, newAccessToken: _newAccessToken }
 
