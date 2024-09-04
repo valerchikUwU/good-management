@@ -28,7 +28,7 @@ export class AuthController {
     ) { }
 
     @Post("/login/vk")
-    async vk(@Headers('User-Agent') user_agent: string, @Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string): Promise<{_user: UserVkAuthDto; refreshTokenId: string}> {
+    async vk(@Headers('User-Agent') user_agent: string, @Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string, @Res({ passthrough: true }) res: ExpressResponse): Promise<UserVkAuthDto> {
         let authData;
         try {
             authData = await this.authService.getVkToken(auth.code);
@@ -40,11 +40,14 @@ export class AuthController {
         const _user = await this.userService.getByVkId(authData.data.user_id);
 
         console.log(user_agent);
-        console.log(auth.fingerprint); 
+        console.log(auth.fingerprint);
         console.log(ip);
 
         if (_user) {
-            return await this.authService.authenticate(_user, ip, user_agent, auth.fingerprint);
+            
+            const authenticateResponse = await this.authService.authenticate(_user, ip, user_agent, auth.fingerprint);
+            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId)
+            return authenticateResponse._user;
         }
 
         try {
@@ -64,8 +67,9 @@ export class AuthController {
             };
             await this.userService.create(user);
             const newUser = await this.userService.getByVkId(authData.data.user_id);
-            
-            return this.authService.authenticate(newUser, ip, user_agent, auth.fingerprint);
+            const authenticateResponse = await this.authService.authenticate(newUser, ip, user_agent, auth.fingerprint);
+            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId)
+            return authenticateResponse._user
         } catch (err) {
             console.log(err);
             throw new UnprocessableEntityException(err);
@@ -74,10 +78,10 @@ export class AuthController {
 
 
     @Post('refresh-tokens')
-    async refreshTokens(@Body() fingerprint: string, @Req() req: ExpressRequest, @Res({passthrough: true}) res: ExpressResponse): Promise<{newAccessToken: string}>{
+    async refreshTokens(@Body() fingerprint: string, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: ExpressResponse): Promise<{ newAccessToken: string }> {
         const refreshTokenId = req.cookies['refresh-tokenId']
         const data = await this.authService.updateTokens(fingerprint, refreshTokenId);
         res.cookie('refresh-tokenId', data.newRefreshTokenId)
-        return {newAccessToken: data.newAccessToken}
+        return { newAccessToken: data.newAccessToken }
     }
 }
