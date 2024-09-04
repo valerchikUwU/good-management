@@ -93,7 +93,7 @@ export class AuthController {
 
     @UseGuards(AccessTokenGuard)
     @Post('logout')
-    async logout(@Body() fingerprint: string, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: ExpressResponse): Promise<void> {
+    async logout(@Body() fingerprint: string, @Req() req: ExpressRequest): Promise<void> {
         const refreshTokenId = req.cookies['refresh-tokenId']
         await this.authService.logout(req.body.fingerprint, refreshTokenId);
     }

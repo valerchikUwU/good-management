@@ -103,49 +103,62 @@ export class AuthService {
   }
 
   async updateTokens(fingerprint: string, refreshTokenId: string): Promise<{ newRefreshTokenId: string; newAccessToken: string }> {
-    const session = await this.refreshService.findOneByIdAndFingerprint(String(refreshTokenId), String(fingerprint));
-    if (!session) {
-      throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
+    try {
+      
+      console.error(typeof fingerprint)
+      
+      console.error(typeof refreshTokenId)
+      const session = await this.refreshService.findOneByIdAndFingerprint(String(refreshTokenId), String(fingerprint));
+      if (!session) {
+        throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
+      }
+      const currentTime = Math.floor(Date.now() / 1000);
+      const isExpired = currentTime > session.expiresIn;
+      if (isExpired) {
+        throw new UnauthorizedException('TOKEN_EXPIRED');
+      };
+      console.log(`${JSON.stringify(session)}`)
+      console.log(`${JSON.stringify(session.user)}`)
+      const newSession: CreateRefreshSessionDto = {
+
+        user_agent: session.user_agent,
+        fingerprint: session.fingerprint,
+        ip: session.ip,
+        expiresIn: session.expiresIn,
+        refreshToken: await this.jwtService.signAsync({ id: session.user.id }, {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
+        }),
+        user: session.user
+      };
+
+      console.log(`${JSON.stringify(newSession)}`)
+      console.log(`${JSON.stringify(newSession.user)}`)
+      await this.refreshService.remove(session.id);
+
+      await this.refreshService.create(newSession)
+
+      const id = await this.refreshService.getId(newSession.refreshToken);
+
+      const _newAccessToken = await this.jwtService.signAsync({ id: newSession.user.id }, {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
+      })
+      return { newRefreshTokenId: id, newAccessToken: _newAccessToken }
     }
-    const currentTime = Math.floor(Date.now() / 1000);
-    const isExpired = currentTime > session.expiresIn;
-    if (isExpired) {
-      throw new UnauthorizedException('TOKEN_EXPIRED');
-    };
-    console.log(`${JSON.stringify(session)}`)
-    console.log(`${JSON.stringify(session.user)}`)
-    const newSession: CreateRefreshSessionDto = {
+    catch (err) {
+      console.log(err)
+    }
 
-      user_agent: session.user_agent,
-      fingerprint: session.fingerprint,
-      ip: session.ip,
-      expiresIn: session.expiresIn,
-      refreshToken: await this.jwtService.signAsync({ id: session.user.id }, {
-        secret: process.env.JWT_REFRESH_SECRET,
-        expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
-      }),
-      user: session.user
-    };
-
-    console.log(`${JSON.stringify(newSession)}`)
-    console.log(`${JSON.stringify(newSession.user)}`)
-    await this.refreshService.remove(session.id);
-
-    await this.refreshService.create(newSession)
-
-    const id = await this.refreshService.getId(newSession.refreshToken);
-
-    const _newAccessToken = await this.jwtService.signAsync({ id: newSession.user.id }, {
-      secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
-    })
-    return { newRefreshTokenId: id, newAccessToken: _newAccessToken }
 
   }
 
 
   async logout(fingerprint: string, refreshTokenId: string): Promise<void> {
     try {
+      console.error(typeof fingerprint)
+      
+      console.error(typeof refreshTokenId)
       const session = await this.refreshService.findOneByIdAndFingerprint(String(refreshTokenId), String(fingerprint));
       if (!session) {
         throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
