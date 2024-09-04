@@ -95,7 +95,6 @@ export class AuthController {
     @Post('logout')
     async logout(@Body() fingerprint: string, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: ExpressResponse): Promise<void> {
         const refreshTokenId = req.cookies['refresh-tokenId']
-        this.authService.logout(req.body.fingerprint, refreshTokenId);
-        res.status(204).json({message: 'Succesfully logout!'})
+        await this.authService.logout(req.body.fingerprint, refreshTokenId);
     }
 }
