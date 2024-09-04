@@ -9,7 +9,7 @@ import { User } from "src/domains/user.entity";
 import * as argon2 from 'argon2';
 import { CreateRefreshSessionDto } from "src/contracts/create-refreshSession.dto";
 import { RefreshService } from "../refreshSession/refresh.service";
-import { ConfigService } from '@nestjs/config';
+import { InjectConfig, ConfigService } from "nestjs-config";
 
 @Injectable()
 export class AuthService {
@@ -17,7 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly refreshService: RefreshService,
-    private configService: ConfigService,
+    @InjectConfig() private readonly config: ConfigService,
   ) { }
 
   async validateUser(payload: JwtPayloadInterface): Promise<User | null> {
@@ -39,8 +39,8 @@ export class AuthService {
         ip: ip,
         expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
         refreshToken: await this.jwtService.signAsync({ id: user.id }, {
-          secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-          expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRESIN'),
+          secret: this.config.get('jwt.refresh.secretOrPrivateKey'),
+          expiresIn: this.config.get('jwt.refresh.signOptions.expiresIn'),
         }),
         user: auth
       }
@@ -56,8 +56,8 @@ export class AuthService {
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
         token: await this.jwtService.signAsync({ id: user.id }, {
-          secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-          expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRESIN'),
+          secret: this.config.get('jwt.access.secretOrPrivateKey'),
+          expiresIn: this.config.get('jwt.access.signOptions.expiresIn'),
         })
       }
       
@@ -120,8 +120,8 @@ export class AuthService {
       user: session.user
     };
     newSession.refreshToken = await this.jwtService.signAsync({ id: newSession.user.id }, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRESIN'),
+      secret: this.config.get('jwt.refresh.secretOrPrivateKey'),
+      expiresIn: this.config.get('jwt.refresh.signOptions.expiresIn'),
     })
     await this.refreshService.remove(session.id);
 
@@ -130,8 +130,8 @@ export class AuthService {
     const id = await this.refreshService.getId(newSession.refreshToken);
 
     const _newAccessToken = await this.jwtService.signAsync({ id: newSession.user.id }, {
-      secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRESIN'),
+      secret: this.config.get('jwt.refresh.secretOrPrivateKey'),
+      expiresIn: this.config.get('jwt.refresh.signOptions.expiresIn'),
     })
     return { newRefreshTokenId: id, newAccessToken: _newAccessToken }
 

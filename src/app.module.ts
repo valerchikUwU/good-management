@@ -13,7 +13,6 @@ import * as path from 'path';
 
 @Module({
   imports: [
-    Conf.forRoot({ isGlobal: true }),
     ConfigModule.load(path.resolve(__dirname, 'config', '**', '!(*.d).{ts,js}')), 
   TypeOrmModule.forRootAsync({
     inject: [ConfigService],

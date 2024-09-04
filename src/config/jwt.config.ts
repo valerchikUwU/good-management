@@ -18,15 +18,15 @@ export interface JwtConfig {
 
 export const jwtConfig: JwtConfig = {
   access: {
-    secretOrPrivateKey: process.env.JWT_ACCESS_SECRET,
+    secretOrPrivateKey: `${process.env.JWT_ACCESS_SECRET}`,
     signOptions: {
-      expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
+      expiresIn: `${process.env.JWT_ACCESS_EXPIRESIN}`,
     },
   },
   refresh: {
-    secretOrPrivateKey: process.env.JWT_REFRESH_SECRET,
+    secretOrPrivateKey: `${process.env.JWT_REFRESH_SECRET}`,
     signOptions: {
-      expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
+      expiresIn: `${process.env.JWT_REFRESH_EXPIRESIN}`,
     },
   },
 };
