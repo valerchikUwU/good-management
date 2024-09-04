@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { AuthService } from '../services/auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from 'nestjs-config';
+import {ConfigService } from '@nestjs/config';
 import { AuthController } from 'src/controllers/auth.controller';
 import { UsersModule } from './users.module';
 import { GeneratorModule } from './generator.module';
@@ -15,11 +15,11 @@ import { RefreshJwtStrategy } from 'src/config/refresh-jwt-strategy';
     RefreshModule,
     GeneratorModule,
     HttpModule,
-    ConfigModule,
     UsersModule,
-    JwtModule.registerAsync({}),
+    JwtModule.register({}),
   ],
-  providers: [AuthService, AccessJwtStrategy, RefreshJwtStrategy],
+  providers: [AuthService, AccessJwtStrategy, RefreshJwtStrategy, 
+    ConfigService],
   controllers: [AuthController]
 })
 export class AuthModule { }
