@@ -68,7 +68,7 @@ export class AuthController {
             await this.userService.create(user);
             const newUser = await this.userService.getByVkId(authData.data.user_id);
             const authenticateResponse = await this.authService.authenticate(newUser, ip, user_agent, auth.fingerprint);
-            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId)
+            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId, {httpOnly: true})
             return authenticateResponse._user
         } catch (err) {
             console.log(err);
@@ -81,7 +81,7 @@ export class AuthController {
     async refreshTokens(@Body() fingerprint: string, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: ExpressResponse): Promise<{ newAccessToken: string }> {
         const refreshTokenId = req.cookies['refresh-tokenId']
         const data = await this.authService.updateTokens(req.body.fingerprint, refreshTokenId);
-        res.cookie('refresh-tokenId', data.newRefreshTokenId, {httpOnly: true, maxAge: parseInt(process.env.COOKIE_EXPIRESIN)})
+        res.cookie('refresh-tokenId', data.newRefreshTokenId, {httpOnly: true, maxAge: 5184000000 })
         return { newAccessToken: data.newAccessToken }
     }
 }
