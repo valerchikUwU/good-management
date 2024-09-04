@@ -103,7 +103,7 @@ export class AuthService {
   }
 
   async updateTokens(fingerprint: string, refreshTokenId: string): Promise<{ newRefreshTokenId: string; newAccessToken: string }> {
-    const session = await this.refreshService.findOneByIdAndFingerprint(refreshTokenId, fingerprint);
+    const session = await this.refreshService.findOneByIdAndFingerprint(String(refreshTokenId), String(fingerprint));
     if (!session) {
       throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
     }
