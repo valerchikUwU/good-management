@@ -119,6 +119,9 @@ export class AuthService {
       expiresIn: session.expiresIn,
       user: session.user
     };
+    
+    console.log(`${JSON.stringify(newSession)}`)
+    console.log(`${JSON.stringify(newSession.user)}`)
     newSession.refreshToken = await this.jwtService.signAsync({ id: newSession.user.id }, {
       secret: process.env.JWT_REFRESH_SECRET,
       expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
