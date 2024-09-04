@@ -11,7 +11,6 @@ import { UpdateRefreshSessionDto } from "src/contracts/update-refreshSession.dto
 @Injectable()
 export class RefreshService {
     constructor(
-        @InjectRepository(RefreshSession)
         private sessionsRepository: RefreshSessionRepository,
     ) { }
 

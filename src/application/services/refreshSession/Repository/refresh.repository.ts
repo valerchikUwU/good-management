@@ -32,7 +32,7 @@ export class RefreshSessionRepository extends Repository<RefreshSession> {
             where: { fingerprint: fingerprint, id: id }
         });
         if (!session) return null;
-        return session
+        return session;
     }
 
 

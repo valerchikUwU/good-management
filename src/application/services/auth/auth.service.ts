@@ -13,7 +13,8 @@ import { InjectConfig, ConfigService } from "nestjs-config";
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly httpService: HttpService,
+  constructor(
+    private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly refreshService: RefreshService,
@@ -102,7 +103,7 @@ export class AuthService {
   }
 
   async updateTokens(fingerprint: string, refreshTokenId: string): Promise<{ newRefreshTokenId: string; newAccessToken: string }> {
-    const session = await this.refreshService.findOneByIdAndFingerprint(refreshTokenId, fingerprint)
+    const session = await this.refreshService.findOneByIdAndFingerprint(refreshTokenId, fingerprint);
     if (!session) {
       throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
     }
