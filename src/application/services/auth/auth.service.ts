@@ -39,8 +39,8 @@ export class AuthService {
         ip: ip,
         expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
         refreshToken: await this.jwtService.signAsync({ id: user.id }, {
-          secret: this.config.get('jwt.refresh.secretOrPrivateKey'),
-          expiresIn: this.config.get('jwt.refresh.signOptions.expiresIn'),
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: +process.env.JWT_REFRESH_EXPIRESIN,
         }),
         user: auth
       }
@@ -56,8 +56,8 @@ export class AuthService {
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
         token: await this.jwtService.signAsync({ id: user.id }, {
-          secret: this.config.get('jwt.access.secretOrPrivateKey'),
-          expiresIn: this.config.get('jwt.access.signOptions.expiresIn'),
+          secret: process.env.JWT_ACCESS_SECRET,
+          expiresIn: +process.env.JWT_ACCESS_EXPIRESIN,
         })
       }
       
