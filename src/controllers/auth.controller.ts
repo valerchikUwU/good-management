@@ -80,7 +80,7 @@ export class AuthController {
     @Post('refresh-tokens')
     async refreshTokens(@Body() fingerprint: string, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: ExpressResponse): Promise<{ newAccessToken: string }> {
         const refreshTokenId = req.cookies['refresh-tokenId']
-        const data = await this.authService.updateTokens(fingerprint, refreshTokenId);
+        const data = await this.authService.updateTokens(req.body.fingerprint, refreshTokenId);
         res.cookie('refresh-tokenId', data.newRefreshTokenId, {httpOnly: true, maxAge: parseInt(process.env.COOKIE_EXPIRESIN, 10)})
         return { newAccessToken: data.newAccessToken }
     }

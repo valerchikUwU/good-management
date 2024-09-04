@@ -17,6 +17,15 @@ export class RefreshSessionRepository extends Repository<RefreshSession> {
         });
     }
 
+    async findOneByFingerprint(fingerprint: string): Promise<RefreshSession | null> {
+        const session = await this.findOne({
+            relations: ['user'], 
+            where: { fingerprint: fingerprint }
+        });
+        if (!session) return null;
+        return session;
+    }
+
 
     // ...
 }
