@@ -22,7 +22,6 @@ export class RefreshSessionRepository extends Repository<RefreshSession> {
             relations: ['user'],
             where: { fingerprint: fingerprint }
         });
-        if (!session) return null;
         return session;
     }
 
@@ -31,7 +30,6 @@ export class RefreshSessionRepository extends Repository<RefreshSession> {
             relations: ['user'],
             where: { fingerprint: fingerprint, id: id }
         });
-        if (!session) return null;
         return session;
     }
 

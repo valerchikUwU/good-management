@@ -156,9 +156,9 @@ export class AuthService {
 
   async logout(fingerprint: string, refreshTokenId: string): Promise<void> {
     try {
-      console.error(typeof fingerprint)
+      console.error( fingerprint)
       
-      console.error(typeof refreshTokenId)
+      console.error( refreshTokenId)
       const session = await this.refreshService.findOneByIdAndFingerprint(String(refreshTokenId), String(fingerprint));
       if (!session) {
         throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
