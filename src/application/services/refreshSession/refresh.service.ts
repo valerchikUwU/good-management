@@ -65,7 +65,7 @@ export class RefreshService {
       
       console.error( id)
         const session = await this.sessionsRepository.findOneByIdAndFingerprint(id, fingerprint);
-        console.log(`SERVICE ${session}`)
+        console.log(`SERVICE ${JSON.stringify(session)}`)
         if (!session) return null;
 
         // Преобразование объекта User в ReadUserDto
