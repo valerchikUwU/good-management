@@ -37,6 +37,7 @@ export class RefreshService {
         session.fingerprint = createSessionDto.fingerprint;
         session.ip = createSessionDto.ip;
         session.expiresIn = createSessionDto.expiresIn;
+        session.refreshToken = createSessionDto.refreshToken;
         session.user = createSessionDto.user;
         // Присваиваем значения из DTO объекту пользователя
         return await this.sessionsRepository.save(session);
