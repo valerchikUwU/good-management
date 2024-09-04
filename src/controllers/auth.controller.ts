@@ -8,7 +8,11 @@ import {
     Ip,
     Res,
     Header,
-    Headers
+    Headers,
+    UseGuards,
+    Get,
+    HttpCode,
+    Delete
 } from "@nestjs/common";
 import { Request as ExpressRequest } from 'express';
 import { Response as ExpressResponse } from "express";
@@ -19,6 +23,8 @@ import { UsersService } from "../application/services/users/users.service";
 import { GeneratorUUID } from "src/application/services/GeneratorUUID/generator.service";
 import { CreateUserDto } from "src/contracts/create-user.dto";
 import { RefreshService } from "src/application/services/refreshSession/refresh.service";
+import { AccessTokenGuard } from "src/guards/accessToken.guard";
+import { RefreshTokenGuard } from "src/guards/refreshToken.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -44,9 +50,9 @@ export class AuthController {
         console.log(ip);
 
         if (_user) {
-            
+
             const authenticateResponse = await this.authService.authenticate(_user, ip, user_agent, auth.fingerprint);
-            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId, {httpOnly: true})
+            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId, { httpOnly: true })
             return authenticateResponse._user;
         }
 
@@ -68,7 +74,7 @@ export class AuthController {
             await this.userService.create(user);
             const newUser = await this.userService.getByVkId(authData.data.user_id);
             const authenticateResponse = await this.authService.authenticate(newUser, ip, user_agent, auth.fingerprint);
-            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId, {httpOnly: true})
+            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId, { httpOnly: true })
             return authenticateResponse._user
         } catch (err) {
             console.log(err);
@@ -76,12 +82,20 @@ export class AuthController {
         }
     }
 
-
+    @UseGuards(RefreshTokenGuard)
     @Post('refresh-tokens')
     async refreshTokens(@Body() fingerprint: string, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: ExpressResponse): Promise<{ newAccessToken: string }> {
         const refreshTokenId = req.cookies['refresh-tokenId']
         const data = await this.authService.updateTokens(req.body.fingerprint, refreshTokenId);
-        res.cookie('refresh-tokenId', data.newRefreshTokenId, {httpOnly: true, maxAge: 5184000000 })
+        res.cookie('refresh-tokenId', data.newRefreshTokenId, { httpOnly: true, maxAge: 5184000000 })
         return { newAccessToken: data.newAccessToken }
+    }
+
+    @UseGuards(AccessTokenGuard)
+    @Post('logout')
+    async logout(@Body() fingerprint: string, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: ExpressResponse): Promise<void> {
+        const refreshTokenId = req.cookies['refresh-tokenId']
+        this.authService.logout(req.body.fingerprint, refreshTokenId);
+        res.status(204).json({message: 'Succesfully logout!'})
     }
 }

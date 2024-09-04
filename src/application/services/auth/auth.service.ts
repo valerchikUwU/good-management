@@ -61,7 +61,7 @@ export class AuthService {
           expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
         })
       }
-      
+
       console.log(`${JSON.stringify(UserVkAuthDto)}`);
       return { _user: _user, refreshTokenId: _newSession.id };
     }
@@ -126,7 +126,7 @@ export class AuthService {
       }),
       user: session.user
     };
-    
+
     console.log(`${JSON.stringify(newSession)}`)
     console.log(`${JSON.stringify(newSession.user)}`)
     await this.refreshService.remove(session.id);
@@ -140,6 +140,26 @@ export class AuthService {
       expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
     })
     return { newRefreshTokenId: id, newAccessToken: _newAccessToken }
+
+  }
+
+
+  async logout(fingerprint: string, refreshTokenId: string): Promise<void> {
+    try {
+      const session = await this.refreshService.findOneByIdAndFingerprint(String(refreshTokenId), String(fingerprint));
+      if (!session) {
+        throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
+      }
+      const currentTime = Math.floor(Date.now() / 1000);
+      const isExpired = currentTime > session.expiresIn;
+      if (isExpired) {
+        throw new UnauthorizedException('TOKEN_EXPIRED');
+      };
+      await this.refreshService.remove(session.id);
+    }
+    catch (err) {
+      console.log(err);
+    }
 
   }
 
