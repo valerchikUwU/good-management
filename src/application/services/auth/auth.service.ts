@@ -111,21 +111,23 @@ export class AuthService {
     if (isExpired) {
       throw new UnauthorizedException('TOKEN_EXPIRED');
     };
+    console.log(`${JSON.stringify(session)}`)
+    console.log(`${JSON.stringify(session.user)}`)
     const newSession: CreateRefreshSessionDto = {
 
       user_agent: session.user_agent,
       fingerprint: session.fingerprint,
       ip: session.ip,
       expiresIn: session.expiresIn,
+      refreshToken: await this.jwtService.signAsync({ id: session.user.id }, {
+        secret: process.env.JWT_REFRESH_SECRET,
+        expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
+      }),
       user: session.user
     };
     
     console.log(`${JSON.stringify(newSession)}`)
     console.log(`${JSON.stringify(newSession.user)}`)
-    newSession.refreshToken = await this.jwtService.signAsync({ id: newSession.user.id }, {
-      secret: process.env.JWT_REFRESH_SECRET,
-      expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
-    })
     await this.refreshService.remove(session.id);
 
     await this.refreshService.create(newSession)

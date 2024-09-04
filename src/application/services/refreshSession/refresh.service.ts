@@ -61,7 +61,7 @@ export class RefreshService {
     }
 
     async findOneByIdAndFingerprint(id: string, fingerprint: string): Promise<ReadRefreshSessionDto | null> {
-        const session = await this.sessionsRepository.findOneBy({ id, fingerprint });
+        const session = await this.sessionsRepository.findOneByIdAndFingerprint(id, fingerprint);
         if (!session) return null;
 
         // Преобразование объекта User в ReadUserDto
