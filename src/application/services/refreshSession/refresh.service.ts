@@ -2,9 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { RefreshSession } from "src/domains/refreshSession.entity";
 import { RefreshSessionRepository } from "./Repository/refresh.repository";
-import { ReadRefreshSessionDto } from "src/contracts/read-refreshSession.dto";
-import { CreateRefreshSessionDto } from "src/contracts/create-refreshSession.dto";
-import { UpdateRefreshSessionDto } from "src/contracts/update-refreshSession.dto";
+import { ReadRefreshSessionDto } from "src/contracts/refreshSession/read-refreshSession.dto";
+import { CreateRefreshSessionDto } from "src/contracts/refreshSession/create-refreshSession.dto";
+import { UpdateRefreshSessionDto } from "src/contracts/refreshSession/update-refreshSession.dto";
 
 
 
@@ -24,6 +24,8 @@ export class RefreshService {
             ip: session.ip,
             expiresIn: session.expiresIn,
             refreshToken: session.refreshToken,
+            createdAt: session.createdAt,
+            updatedAt: session.updatedAt,
             user: session.user
             // Добавьте любые другие поля, которые должны быть включены в ответ
         }))
@@ -53,6 +55,8 @@ export class RefreshService {
             ip: session.ip,
             expiresIn: session.expiresIn,
             refreshToken: session.refreshToken,
+            createdAt: session.createdAt,
+            updatedAt: session.updatedAt,
             user: session.user
         };
 
@@ -61,9 +65,9 @@ export class RefreshService {
 
     async findOneByIdAndFingerprint(id: string, fingerprint: string): Promise<ReadRefreshSessionDto | null> {
         
-      console.error( fingerprint)
+      console.error(fingerprint)
       
-      console.error( id)
+      console.error(id)
         const session = await this.sessionsRepository.findOneByIdAndFingerprint(id, fingerprint);
         console.log(`SERVICE ${JSON.stringify(session)}`)
         if (!session) return null;
@@ -77,6 +81,8 @@ export class RefreshService {
             ip: session.ip,
             expiresIn: session.expiresIn,
             refreshToken: session.refreshToken,
+            createdAt: session.createdAt,
+            updatedAt: session.updatedAt,
             user: session.user
         };
 

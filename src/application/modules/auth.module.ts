@@ -10,6 +10,7 @@ import { GeneratorModule } from './generator.module';
 import { RefreshModule } from './refresh.module';
 import { AccessJwtStrategy } from 'src/config/access-jwt-strategy';
 import { RefreshTokenStrategy } from 'src/config/refresh-jwt-strategy';
+import { EventsModule } from './events.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RefreshTokenStrategy } from 'src/config/refresh-jwt-strategy';
     HttpModule,
     ConfigModule,
     UsersModule,
+    EventsModule,
     PassportModule.register({}),
     JwtModule.register({}),
   ],

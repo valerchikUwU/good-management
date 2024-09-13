@@ -1,9 +1,10 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { User } from '../../../domains/user.entity'
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from 'src/contracts/create-user.dto';
-import { ReadUserDto } from 'src/contracts/read-user.dto';
+import { CreateUserDto } from 'src/contracts/user/create-user.dto';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { UsersRepository } from './Repository/users.repository';
+import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -24,7 +25,17 @@ export class UsersService {
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
             vk_id: user.vk_id,
-            refreshSessions: user.refreshSessions
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            post: user.post,
+            refreshSessions: user.refreshSessions,
+            goals: user.goals,
+            policies: user.policies,
+            strategies: user.strategies,
+            targetHolders: user.targetHolders,
+            organization: user.organization,
+            account: user.account
+
             // Добавьте любые другие поля, которые должны быть включены в ответ
         }));
     }
@@ -43,7 +54,44 @@ export class UsersService {
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
             vk_id: user.vk_id,
-            refreshSessions: user.refreshSessions
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            post: user.post,
+            refreshSessions: user.refreshSessions,
+            goals: user.goals,
+            policies: user.policies,
+            strategies: user.strategies,
+            targetHolders: user.targetHolders,
+            organization: user.organization,
+            account: user.account
+        };
+
+        return readUserDto;
+    }
+
+    async findOneByTelephoneNumber(telephoneNumber: string): Promise<ReadUserDto | null> {
+        const user = await this.usersRepository.findOneBy({ telephoneNumber });
+        if (!user) return null;
+
+        // Преобразование объекта User в ReadUserDto
+        const readUserDto: ReadUserDto = {
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            telegramId: user.telegramId,
+            telephoneNumber: user.telephoneNumber,
+            avatar_url: user.avatar_url,
+            vk_id: user.vk_id,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            post: user.post,
+            refreshSessions: user.refreshSessions,
+            goals: user.goals,
+            policies: user.policies,
+            strategies: user.strategies,
+            targetHolders: user.targetHolders,
+            organization: user.organization,
+            account: user.account
         };
 
         return readUserDto;
@@ -62,7 +110,16 @@ export class UsersService {
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
             vk_id: user.vk_id,
-            refreshSessions: user.refreshSessions
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            post: user.post,
+            refreshSessions: user.refreshSessions,
+            goals: user.goals,
+            policies: user.policies,
+            strategies: user.strategies,
+            targetHolders: user.targetHolders,
+            organization: user.organization,
+            account: user.account
         };
 
         return readUserDto;
@@ -86,26 +143,8 @@ export class UsersService {
     }
 
 
-    async getByTelegramId(telegramId: number): Promise<ReadUserDto | null> {
-        const user = await this.usersRepository.findOneBy({ telegramId });
-        if (!user) return null;
 
-        // Преобразование объекта User в ReadUserDto
-        const readUserDto: ReadUserDto = {
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            telegramId: user.telegramId,
-            telephoneNumber: user.telephoneNumber,
-            avatar_url: user.avatar_url,
-            vk_id: user.vk_id,
-            refreshSessions: user.refreshSessions
-        };
-
-        return readUserDto;
-    }
-
-    async getByVkId(vk_id: number): Promise<ReadUserDto | null> {
+    async findByVkId(vk_id: number): Promise<ReadUserDto | null> {
         const user = await this.usersRepository.findOneBy({ vk_id });
         if (!user) return null;
 
@@ -118,10 +157,31 @@ export class UsersService {
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
             vk_id: user.vk_id,
-            refreshSessions: user.refreshSessions
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            post: user.post,
+            refreshSessions: user.refreshSessions,
+            goals: user.goals,
+            policies: user.policies,
+            strategies: user.strategies,
+            targetHolders: user.targetHolders,
+            organization: user.organization,
+            account: user.account
         };
 
         return readUserDto;
+    }
+
+
+    async updateByPhoneNumber(telephoneNumber: string, telegramId: number): Promise<ReadUserDto | null>{
+        const user = await this.usersRepository.findOneBy({ telephoneNumber });
+        if (!user) return null;
+        const updateUserDto: UpdateUserDto = {
+            telegramId: telegramId
+        }
+        user.telegramId = updateUserDto.telegramId;
+
+        return user;
     }
 
 }

@@ -12,25 +12,35 @@ import {
     UseGuards,
     Get,
     HttpCode,
-    Delete
+    Delete,
+    NotFoundException
 } from "@nestjs/common";
 import { Request as ExpressRequest } from 'express';
 import { Response as ExpressResponse } from "express";
-import { UserVkAuthDto } from "../contracts/user-vkauth-dto";
+import { UserVkAuthDto } from "../contracts/user/user-vkauth-dto";
 import { AuthVK } from '../contracts/auth-vk.dto'
 import { AuthService } from "../application/services/auth/auth.service";
 import { UsersService } from "../application/services/users/users.service";
-import { GeneratorUUID } from "src/application/services/GeneratorUUID/generator.service";
-import { CreateUserDto } from "src/contracts/create-user.dto";
+import { CreateUserDto } from "src/contracts/user/create-user.dto";
 import { RefreshService } from "src/application/services/refreshSession/refresh.service";
 import { AccessTokenGuard } from "src/guards/accessToken.guard";
 import { RefreshTokenGuard } from "src/guards/refreshToken.guard";
+import { EventsGateway } from "src/gateways/events.gateway";
+import { UpdateUserDto } from "src/contracts/user/update-user.dto";
+import { CreateRefreshSessionDto } from "src/contracts/refreshSession/create-refreshSession.dto";
+import { JwtService } from "@nestjs/jwt";
 
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Auth')
 @Controller("auth")
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
         private readonly userService: UsersService,
+
+        private readonly jwtService: JwtService,
+        private readonly eventsGateway: EventsGateway
     ) { }
 
     @Post("/login/vk")
@@ -43,7 +53,7 @@ export class AuthController {
             throw new UnprocessableEntityException("Wrong VK code");
         }
 
-        const _user = await this.userService.getByVkId(authData.data.user_id);
+        const _user = await this.userService.findByVkId(authData.data.user_id);
 
         console.log(user_agent);
         console.log(auth.fingerprint);
@@ -72,7 +82,7 @@ export class AuthController {
                 telephoneNumber: profile.mobile_phone ? profile.mobile_phone : null
             };
             await this.userService.create(user);
-            const newUser = await this.userService.getByVkId(authData.data.user_id);
+            const newUser = await this.userService.findByVkId(authData.data.user_id);
             const authenticateResponse = await this.authService.authenticate(newUser, ip, user_agent, auth.fingerprint);
             res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId, { httpOnly: true })
             return authenticateResponse._user
@@ -96,5 +106,49 @@ export class AuthController {
     async logout(@Body() fingerprint: string, @Req() req: ExpressRequest): Promise<void> {
         const refreshTokenId = req.cookies['refresh-tokenId']
         await this.authService.logout(req.body.fingerprint, refreshTokenId);
+    }
+
+
+
+
+
+    @Post('login/tg')
+    async tg(@Body() telephoneNumber: string, telegramId: number, clientId: string, user_agent: string, ip: string, token: string) {
+
+        const foundNumber = await this.userService.findOneByTelephoneNumber(telephoneNumber);
+
+        // Запрашиваем у клиента необходимую информацию
+        const requiredInfo = ['fingerprint', 'userAgent', 'token'];
+        const clientInfo = await this.eventsGateway.requestInfoFromClient(clientId, requiredInfo);
+        if (!clientInfo) {
+            return { message: 'Не удалось получить информацию о клиенте' };
+        }
+        if (clientInfo.token === token) {
+            if (foundNumber) {
+                const user = await this.userService.updateByPhoneNumber(telephoneNumber, telegramId);
+                const userId = user.id;
+                // СОЗДАТЬ СЕССИЮ
+                const newSession: CreateRefreshSessionDto = {
+                    user_agent: user_agent,
+                    fingerprint: 'fingerprint',
+                    ip: ip,
+                    expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
+                    refreshToken: await this.jwtService.signAsync({ id: user.id }, {
+                        secret: process.env.JWT_REFRESH_SECRET,
+                        expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
+                    }),
+                    user: user
+                }
+                await this.eventsGateway.sendTokenToClient(clientId, userId)
+
+            }
+            else {
+                throw new NotFoundException('No such number')
+            }
+        } else {
+            await this.eventsGateway.sendTokenToClient(clientId, 'false')
+        }
+           
+
     }
 }

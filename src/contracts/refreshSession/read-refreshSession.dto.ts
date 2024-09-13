@@ -6,7 +6,9 @@ export class ReadRefreshSessionDto {
     fingerprint: string;
     ip: string;
     expiresIn: number;
-    refreshToken: string
+    refreshToken: string;
+    createdAt: Date;
+    updatedAt: Date;
     user: User
   }
   

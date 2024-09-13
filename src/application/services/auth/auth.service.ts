@@ -1,15 +1,15 @@
 import { Injectable, BadRequestException, UnauthorizedException } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { HttpService } from '@nestjs/axios';
-import { ReadUserDto } from "src/contracts/read-user.dto";
+import { ReadUserDto } from "src/contracts/user/read-user.dto";
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
-import { UserVkAuthDto } from "src/contracts/user-vkauth-dto";
+import { UserVkAuthDto } from "src/contracts/user/user-vkauth-dto";
 import { JwtPayloadInterface } from "src/utils/jwt-payload.interface";
 import { User } from "src/domains/user.entity";
-import * as argon2 from 'argon2';
-import { CreateRefreshSessionDto } from "src/contracts/create-refreshSession.dto";
+import { CreateRefreshSessionDto } from "src/contracts/refreshSession/create-refreshSession.dto";
 import { RefreshService } from "../refreshSession/refresh.service";
 import { InjectConfig, ConfigService } from "nestjs-config";
+import { Session } from "inspector";
 
 @Injectable()
 export class AuthService {
@@ -62,7 +62,6 @@ export class AuthService {
         })
       }
 
-      console.log(`${JSON.stringify(UserVkAuthDto)}`);
       return { _user: _user, refreshTokenId: _newSession.id };
     }
     catch (err) {
@@ -85,8 +84,7 @@ export class AuthService {
     return this.httpService
       .get(
         `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${host}/gm&code=${code}`
-      )
-      .toPromise();
+      ).toPromise();
   }
 
 
@@ -98,9 +96,7 @@ export class AuthService {
       .toPromise();
   }
 
-  hashData(data: string) {
-    return argon2.hash(data);
-  }
+  
 
   async updateTokens(fingerprint: string, refreshTokenId: string): Promise<{ newRefreshTokenId: string; newAccessToken: string }> {
     try {
@@ -175,5 +171,10 @@ export class AuthService {
     }
 
   }
+
+
+  // async telegramAuthenticate(telephoneNumber: string, telegramId: number, clientId: string, user_agent: string, ip: string, token: string): Promise {}
+
+
 
 }
