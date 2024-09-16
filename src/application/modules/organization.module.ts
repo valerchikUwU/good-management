@@ -14,6 +14,7 @@ import { UsersModule } from "./users.module";
         UsersModule
     ],
     controllers: [OrganizationController],
-    providers: [OrganizationService, OrganizationRepository]
+    providers: [OrganizationService, OrganizationRepository],
+    exports: [OrganizationService]
 })
 export class OrganizationModule { }

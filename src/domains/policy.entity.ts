@@ -1,5 +1,4 @@
 import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 import { RefreshSession } from './refreshSession.entity';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';

@@ -52,7 +52,7 @@ export class GoalService{
         goal.goalName = goalCreateDto.goalName;
         goal.orderNumber = goalCreateDto.orderNumber;
         goal.content = goalCreateDto.content;
-        await this.goalToOrganizationService.createSeveral(goal, goalCreateDto.goalToOrganizations)
+        goal.goalToOrganizations = await this.goalToOrganizationService.createSeveral(goal, goalCreateDto.goalToOrganizations)
 
         return await this.goalRepository.save(goal);
     }

@@ -8,6 +8,6 @@ export class AccountReadDto {
     accountName: string;
     createdAt: Date;
     updatedAt: Date;
-    user: User;
-    organizations: Organization[];
+    user?: User;
+    organizations?: Organization[];
 }

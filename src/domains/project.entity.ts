@@ -1,13 +1,8 @@
 import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { Account } from './account.entity';
-import { User } from './user.entity';
-import { Post } from './post.entity';
-import { Strategy } from './strategy.entity';
 import { Target } from './target.entity';
-import { Organization } from './organization.entity';
 import { ProjectToOrganization } from './projectToOrganization.entity';
 
-enum Type {
+export enum Type {
     PROJECT = 'Проект',
     PROGRAM = 'Программа'
 }

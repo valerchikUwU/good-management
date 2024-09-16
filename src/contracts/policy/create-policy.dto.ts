@@ -8,5 +8,6 @@ export class PolicyCreateDto{
     path: string;
     size: number;
     mimetype: string;
-    user: User
+    user: User;
+    policyToOrganizations: string[]
 }

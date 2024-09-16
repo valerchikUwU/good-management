@@ -24,8 +24,6 @@ export class AccountService{
             accountName: account.accountName,
             createdAt: account.createdAt,
             updatedAt: account.updatedAt,
-            user: account.user,
-            organizations: account.organizations,
         }))
     }
 
@@ -38,8 +36,6 @@ export class AccountService{
             accountName: account.accountName,
             createdAt: account.createdAt,
             updatedAt: account.updatedAt,
-            user: account.user,
-            organizations: account.organizations,
         }
 
         return accountReadDto;

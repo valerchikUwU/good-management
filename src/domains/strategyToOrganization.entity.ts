@@ -1,6 +1,5 @@
 import { CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Organization } from "./organization.entity";
-import { Project } from "./project.entity";
 import { Strategy } from "./strategy.entity";
 
 

@@ -1,9 +1,8 @@
 import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
-import { User } from './user.entity';
 import { TargetHolder } from './targetHolder.entity';
 import { Project } from './project.entity';
 
-enum Type {
+export enum Type {
     WORK = 'Обычная',
     METRIC = 'Статистика',
     RULE = 'Правила',

@@ -1,13 +1,10 @@
 import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, Generated } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
-import { RefreshSession } from './refreshSession.entity';
 import { User } from './user.entity';
-import { Organization } from './organization.entity';
 import { Objective } from './objective.entity';
 import { StrategyToOrganization } from './strategyToOrganization.entity';
 
 
-enum State {
+export enum State {
     DRAFT = 'Черновик',
     ACTIVE = 'Активный',
     REJECTED = 'Завершено'

@@ -5,7 +5,6 @@ import { Post } from './post.entity';
 import { GoalToOrganization } from './goalToOrganization.entity';
 import { ObjectiveToOrganization } from './objectiveToOrganization.entity';
 import { PolicyToOrganization } from './policyToOrganization.entity';
-import { Project } from './project.entity';
 import { ProjectToOrganization } from './projectToOrganization.entity';
 import { StrategyToOrganization } from './strategyToOrganization.entity';
 
