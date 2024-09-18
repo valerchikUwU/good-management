@@ -25,6 +25,6 @@ export class PolicyCreateDto{
     @Exclude({ toPlainOnly: true })
     account: Account;
     
-    @ApiProperty({ description: 'IDs организаций, к которым привязать политику', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f' })
+    @ApiProperty({ description: 'IDs организаций, к которым привязать политику', example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'] })
     policyToOrganizations: string[]
 }
