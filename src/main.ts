@@ -14,6 +14,11 @@ async function bootstrap() {
     logger: WinstonModule.createLogger(winstonConfig), // используем конфигурацию
   });;
   app.use(cookieParser());
+  // Enable CORS
+  app.enableCors({
+    // true for all origins
+    origin: true,
+  });
 
   const swaggerApi = new DocumentBuilder()
     .setTitle('Good-Management API')
