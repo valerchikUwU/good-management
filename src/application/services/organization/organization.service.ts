@@ -3,6 +3,7 @@ import { OrganizationRepository } from "./repository/organization.repository";
 import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
 import { OrganizationCreateDto } from "src/contracts/organization/create-organization.dto";
 import { Organization } from "src/domains/organization.entity";
+import { AccountReadDto } from "src/contracts/account/read-account.dto";
 
 
 @Injectable()
@@ -11,8 +12,8 @@ export class OrganizationService {
 
     }
 
-    async findAll(): Promise<OrganizationReadDto[]> {
-        const organizations = await this.organizationRepository.find();
+    async findAllForAccount(account: AccountReadDto): Promise<OrganizationReadDto[]> {
+        const organizations = await this.organizationRepository.find({where: {account: account}});
         return organizations.map(organization => ({
             id: organization.id,
             organizationName: organization.organizationName,

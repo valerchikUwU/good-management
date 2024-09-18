@@ -5,11 +5,11 @@ import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Account')
-@Controller('accounts')
+@Controller(':userId/accounts')
 export class AccountController {
     constructor(private readonly accountService: AccountService) { }
 
-    @Get(':id')
+    @Get(':accountId')
     @ApiOperation({ summary: 'Найти аккаунт по ID' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",

@@ -6,7 +6,8 @@ import { User } from "src/domains/user.entity";
 
 export class PolicyReadDto{
     id: string
-    policyName: string
+    policyName: string;
+    policyNumber: number
     state: State;
     type: Type;
     dateActive: Date;

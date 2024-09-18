@@ -6,6 +6,7 @@ import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
 import { PolicyCreateDto } from "src/contracts/policy/create-policy.dto";
 import { PolicyToOrganizationService } from "../policyToOrganization/policyToOrganization.service";
 import { ReadUserDto } from "src/contracts/user/read-user.dto";
+import { AccountReadDto } from "src/contracts/account/read-account.dto";
 
 
 
@@ -19,12 +20,13 @@ export class PolicyService {
 
     }
 
-    async findAll(): Promise<PolicyReadDto[]> {
-        const policies = await this.policyRepository.find();
+    async findAllForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
+        const policies = await this.policyRepository.find({where: {account: account}});
 
         return policies.map(policy => ({
             id: policy.id,
             policyName: policy.policyName,
+            policyNumber: policy.policyNumber,
             state: policy.state,
             type: policy.type,
             dateActive: policy.dateActive,
@@ -44,6 +46,7 @@ export class PolicyService {
         const policyReadDto: PolicyReadDto = {
             id: policy.id,
             policyName: policy.policyName,
+            policyNumber: policy.policyNumber,
             state: policy.state,
             type: policy.type,
             dateActive: policy.dateActive,
@@ -74,17 +77,17 @@ export class PolicyService {
     }
 
 
-    async findDirectives(): Promise<PolicyReadDto[]>{ 
+    async findDirectivesForAccount(account: AccountReadDto): Promise<PolicyReadDto[]>{ 
         // Поиск всех политик с типом DIRECTIVE
-        const directives = await this.policyRepository.findBy({ type: Type.DIRECTIVE });
+        const directives = await this.policyRepository.findBy({ type: Type.DIRECTIVE, account: account });
         
         return directives;
     }
 
-    async findInstructions(): Promise<PolicyReadDto[]>{ 
+    async findInstructionsForAccount(account: AccountReadDto): Promise<PolicyReadDto[]>{ 
         
         // Поиск всех политик с типом INSTRUCTION
-        const instructions = await this.policyRepository.findBy({ type: Type.INSTRUCTION });
+        const instructions = await this.policyRepository.findBy({ type: Type.INSTRUCTION, account: account });
         return instructions
     }
 }

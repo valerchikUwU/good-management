@@ -34,8 +34,9 @@ export class AppController implements OnModuleInit {
     return { user_agent, ip, token };
   }
 
-
   onModuleInit() {
-    this.telegramBotService.startBot();
+    if(process.env.NODE_ENV === 'prod'){
+      this.telegramBotService.startBot();
+    }
   }
 }

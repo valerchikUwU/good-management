@@ -6,11 +6,12 @@ import { PolicyRepository } from "../services/policy/repository/policy.repositor
 import { PolicyController } from "src/controllers/policy.controller";
 import { PolicyToOrganizationModule } from "./policyToOrganization.module";
 import { UsersModule } from "./users.module";
+import { OrganizationModule } from "./organization.module";
 
 
 @Module({
     imports: [TypeOrmModule.forFeature([Policy]),
-    PolicyToOrganizationModule, UsersModule],
+    PolicyToOrganizationModule, UsersModule, OrganizationModule],
     controllers: [PolicyController],
     providers: [PolicyService, PolicyRepository],
     exports: [PolicyService]

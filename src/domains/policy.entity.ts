@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne, Generated } from 'typeorm';
 import { RefreshSession } from './refreshSession.entity';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
@@ -24,6 +24,11 @@ export class Policy{
 
     @Column({nullable: false})
     policyName: string
+
+    
+    @Column()
+    @Generated('increment')
+    policyNumber: number;
 
     @Column({
         type: 'enum',

@@ -167,6 +167,7 @@ export class AuthController {
 
 
     @Post('login/tg')
+    @ApiOperation({ summary: 'НЕ ЧИПАТЬ!' })
     async tg(@Body() authTg: AuthTG) {
         try {
             const foundNumber = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
