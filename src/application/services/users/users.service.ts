@@ -45,7 +45,6 @@ export class UsersService {
     async findOne(id: string): Promise<ReadUserDto | null> {
         const user = await this.usersRepository.findOne({ where: {id}, relations: ['account', 'organization'] });
         if (!user) return null;
-        console.log(`user: ${JSON.stringify(user)}`)
         // Преобразование объекта User в ReadUserDto
         const readUserDto: ReadUserDto = {
             id: user.id,

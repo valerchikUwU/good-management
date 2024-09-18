@@ -7,6 +7,7 @@ import { PolicyCreateDto } from "src/contracts/policy/create-policy.dto";
 import { PolicyToOrganizationService } from "../policyToOrganization/policyToOrganization.service";
 import { ReadUserDto } from "src/contracts/user/read-user.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
+import { Account } from "src/domains/account.entity";
 
 
 
@@ -21,7 +22,7 @@ export class PolicyService {
     }
 
     async findAllForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
-        const policies = await this.policyRepository.find({where: {account: account}});
+        const policies = await this.policyRepository.find({ where: { account: { id: account.id } }});
 
         return policies.map(policy => ({
             id: policy.id,
@@ -67,27 +68,27 @@ export class PolicyService {
         policy.policyName = policyCreateDto.policyName;
         policy.state = policyCreateDto.state;
         policy.type = policyCreateDto.type,
-        policy.content = policyCreateDto.content;
+            policy.content = policyCreateDto.content;
         policy.user = policyCreateDto.user;
         policy.account = policyCreateDto.account;
         const createdPolicy = await this.policyRepository.save(policy);
         await this.policyToOrganizationService.createSeveral(createdPolicy, policyCreateDto.policyToOrganizations);
 
-        return createdPolicy 
+        return createdPolicy
     }
 
 
-    async findDirectivesForAccount(account: AccountReadDto): Promise<PolicyReadDto[]>{ 
+    async findDirectivesForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
         // Поиск всех политик с типом DIRECTIVE
-        const directives = await this.policyRepository.findBy({ type: Type.DIRECTIVE, account: account });
-        
+        const directives = await this.policyRepository.find({ where: { type: Type.DIRECTIVE, account: { id: account.id } } });
+
         return directives;
     }
 
-    async findInstructionsForAccount(account: AccountReadDto): Promise<PolicyReadDto[]>{ 
-        
+    async findInstructionsForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
+
         // Поиск всех политик с типом INSTRUCTION
-        const instructions = await this.policyRepository.findBy({ type: Type.INSTRUCTION, account: account });
+        const instructions = await this.policyRepository.find({ where: { type: Type.DIRECTIVE, account: { id: account.id } } });
         return instructions
     }
 }
