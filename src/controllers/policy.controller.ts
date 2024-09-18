@@ -23,8 +23,32 @@ export class PolicyController {
     @ApiOperation({ summary: 'Все политики' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
-        example: {
-        }
+        example: 
+            [
+                {
+                  id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
+                  policyName: "asdasd",
+                  policyNumber: 1,
+                  state: "Черновик",
+                  type: "Директива",
+                  dateActive: null,
+                  content: "string",
+                  createdAt: "2024-09-18T14:59:47.010Z",
+                  updatedAt: "2024-09-18T14:59:47.010Z"
+                },
+                {
+                  id: "f6e3ac1f-afd9-42c1-a9f3-d189961c325c",
+                  policyName: "Пипка",
+                  policyNumber: 2,
+                  state: "Черновик",
+                  type: "Директива",
+                  dateActive: null,
+                  content: "попа",
+                  createdAt: "2024-09-18T15:06:52.222Z",
+                  updatedAt: "2024-09-18T15:06:52.222Z"
+                }
+              ]
+        
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
@@ -41,7 +65,51 @@ export class PolicyController {
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
         example: {
-        }
+            
+                directives: [
+                  {
+                    id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
+                    policyName: "asdasd",
+                    policyNumber: 1,
+                    state: "Черновик",
+                    type: "Директива",
+                    dateActive: null,
+                    content: "string",
+                    createdAt: "2024-09-18T14:59:47.010Z",
+                    updatedAt: "2024-09-18T14:59:47.010Z"
+                  }
+                ],
+                instructions: [],
+                policies: [
+                  {
+                    id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
+                    policyName: "asdasd",
+                    policyNumber: 1,
+                    state: "Черновик",
+                    type: "Директива",
+                    dateActive: null,
+                    content: "string",
+                    createdAt: "2024-09-18T14:59:47.010Z",
+                    updatedAt: "2024-09-18T14:59:47.010Z",
+                    account: {
+                      id: "a1118813-8985-465b-848e-9a78b1627f11",
+                      accountName: "OOO PIPKA",
+                      createdAt: "2024-09-16T12:53:29.593Z",
+                      updatedAt: "2024-09-16T12:53:29.593Z"
+                    }
+                  }
+                ],
+                organizations: [
+                  {
+                    id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                    organizationName: "soplya firma",
+                    parentOrganizationId: null,
+                    createdAt: "2024-09-16T14:24:33.841Z",
+                    updatedAt: "2024-09-16T14:24:33.841Z"
+                  }
+                ]
+              }
+        
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
@@ -60,7 +128,45 @@ export class PolicyController {
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
         example: {
-        }
+            currentPolicy: {
+              id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
+              policyName: "asdasd",
+              policyNumber: 1,
+              state: "Черновик",
+              type: "Директива",
+              dateActive: null,
+              content: "string",
+              createdAt: "2024-09-18T14:59:47.010Z",
+              updatedAt: "2024-09-18T14:59:47.010Z"
+            },
+            directives: [
+              {
+                id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
+                policyName: "asdasd",
+                policyNumber: 1,
+                state: "Черновик",
+                type: "Директива",
+                dateActive: null,
+                content: "string",
+                createdAt: "2024-09-18T14:59:47.010Z",
+                updatedAt: "2024-09-18T14:59:47.010Z"
+              }
+            ],
+            instructions: [],
+            policies: [
+              {
+                id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
+                policyName: "asdasd",
+                policyNumber: 1,
+                state: "Черновик",
+                type: "Директива",
+                dateActive: null,
+                content: "string",
+                createdAt: "2024-09-18T14:59:47.010Z",
+                updatedAt: "2024-09-18T14:59:47.010Z"
+              }
+            ]
+          }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
