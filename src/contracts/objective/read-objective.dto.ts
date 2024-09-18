@@ -1,4 +1,4 @@
-import { ObjectiveToOrganization } from "src/domains/objectiveToOrganization.entity";
+import { Account } from "src/domains/account.entity";
 import { Strategy } from "src/domains/strategy.entity";
 
 
@@ -11,6 +11,6 @@ export class ObjectiveReadDto{
     rootCause: string;
     createdAt: Date;
     updatedAt: Date;
-    objectiveToOrganizations: ObjectiveToOrganization[]
     strategy: Strategy
+    account: Account
 }

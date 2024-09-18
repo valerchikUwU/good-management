@@ -31,7 +31,9 @@ export class ProjectService {
             content: project.content,
             type: project.type,
             projectToOrganizations: project.projectToOrganizations,
-            targets: project.targets
+            targets: project.targets,
+            account: project.account,
+            user: project.user
         }))
     }
 
@@ -45,7 +47,9 @@ export class ProjectService {
             content: project.content,
             type: project.type,
             projectToOrganizations: project.projectToOrganizations,
-            targets: project.targets
+            targets: project.targets,
+            account: project.account,
+            user: project.user
         }
 
         return projectReadDto;

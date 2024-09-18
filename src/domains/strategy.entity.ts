@@ -2,6 +2,8 @@ import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyT
 import { User } from './user.entity';
 import { Objective } from './objective.entity';
 import { StrategyToOrganization } from './strategyToOrganization.entity';
+import { Project } from './project.entity';
+import { Account } from './account.entity';
 
 
 export enum State {
@@ -25,14 +27,8 @@ export class Strategy{
     @Column({type: 'timestamp', nullable: true})
     dateActive: Date
 
-    @Column({nullable: false})
-    path: string;
-
-    @Column({nullable: false})
-    size: number;
-
-    @Column({nullable: false})
-    mimetype: string;
+    @Column({type: 'text', nullable: false})
+    content: string
 
     @Column({
         type: 'enum',
@@ -51,9 +47,15 @@ export class Strategy{
     @ManyToOne(() => User, (user) => user.strategies, {nullable: false})
     user: User
 
+    @ManyToOne(() => Account, (account) => account.strategies, {nullable: false})
+    account: Account
+
     @OneToMany(() => StrategyToOrganization, (strategyToOrganization) => strategyToOrganization.strategy)
     strategyToOrganizations: StrategyToOrganization[]
 
     @OneToMany(() => Objective, (objective) => objective.strategy)
     objectives: Objective[]
+    
+    @OneToMany(() => Project, (project) => project.strategy)
+    projects: Project[]
 }

@@ -1,26 +1,86 @@
-import { Controller, Get, HttpStatus, Param } from "@nestjs/common";
-import { ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Controller, Get, Post, HttpStatus, Param, Body } from "@nestjs/common";
+import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { all } from "axios";
 import { GoalService } from "src/application/services/goal/goal.service";
+import { UsersService } from "src/application/services/users/users.service";
+import { GoalCreateDto } from "src/contracts/goal/create-goal.dto";
 import { GoalReadDto } from "src/contracts/goal/read-goal.dto";
+import { Goal } from "src/domains/goal.entity";
 
 
 
 @ApiTags('Goal')
 @Controller(':userId/goals')
 export class GoalController{
-    constructor(private readonly goalService: GoalService){}
+    constructor(private readonly goalService: GoalService,
+        private readonly usersService: UsersService
+    ){}
 
     @Get()
     @ApiOperation({summary: 'Все цели'})
     @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
         example: {
-          user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-          ip: "192.168.1.100",
-          token: "dd31cc25926db1b45f2e"
         }})
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
     @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
-    async findAll(@Param() userId: string): Promise<GoalReadDto[]>{
+    async findAll(@Param('userId') userId: string): Promise<GoalReadDto[]>{
         return await this.goalService.findAll()
     }
+
+
+    @Get(':goalId')
+    async findOne(@Param('userId') userId: string, goalId: string): Promise<{currentGoal: GoalReadDto, allGoals: GoalReadDto[]}>{
+        const goal = await this.goalService.findeOneById(goalId);
+        const allGoals = await this.goalService.findAll();
+
+        return {currentGoal: goal, allGoals: allGoals};
+    }
+
+
+    
+
+    @Post('new')
+    @ApiOperation({ summary: 'Создать цель' })
+    @ApiBody({
+        description: 'ДТО для создания цели',
+        type: GoalCreateDto,
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example: {  
+            id: "f23c5846-f69d-4553-84a6-9d5f4a176e9d",
+            goalName: "Стать пердуном №1",
+            orderNumber: 1,
+            content: "Надо перепукать шмата",
+            user: {
+              id: "3b809c42-2824-46c1-9686-dd666403402a",
+              firstName: "Maxik",
+              lastName: "Koval",
+              telegramId: 453120600,
+              telephoneNumber: null,
+              avatar_url: null,
+              vk_id: null,
+              createdAt: "2024-09-16T14:03:31.000Z",
+              updatedAt: "2024-09-16T14:03:31.000Z",
+              account: {
+                id: "a1118813-8985-465b-848e-9a78b1627f11",
+                accountName: "OOO PIPKA",
+                createdAt: "2024-09-16T12:53:29.593Z",
+                updatedAt: "2024-09-16T12:53:29.593Z"
+              }
+            },
+            createdAt: "2024-09-17T09:25:52.964Z",
+            updatedAt: "2024-09-17T09:25:52.964Z"
+        }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+    async create(@Param('userId') userId: string, @Body() goalCreateDto: GoalCreateDto): Promise<Goal>{
+            const user = await this.usersService.findOne(userId);
+            goalCreateDto.user = user;
+            goalCreateDto.account = user.account;
+            return await this.goalService.create(goalCreateDto);
+    }
+
 }

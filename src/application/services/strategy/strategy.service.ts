@@ -26,15 +26,15 @@ export class StrategyService {
             strategyNumber: strategy.strategyNumber,
             strategyName: strategy.strategyName,
             dateActive: strategy.dateActive,
-            path: strategy.path,
-            size: strategy.size,
-            mimetype: strategy.mimetype,
+            content: strategy.content,
             state: strategy.state,
             createdAt: strategy.createdAt,
             updatedAt: strategy.updatedAt,
             user: strategy.user,
+            account: strategy.account,
             strategyToOrganizations: strategy.strategyToOrganizations,
-            objectives: strategy.objectives
+            objectives: strategy.objectives,
+            projects: strategy.projects
         }))
     }
 
@@ -47,15 +47,15 @@ export class StrategyService {
             strategyNumber: strategy.strategyNumber,
             strategyName: strategy.strategyName,
             dateActive: strategy.dateActive,
-            path: strategy.path,
-            size: strategy.size,
-            mimetype: strategy.mimetype,
+            content: strategy.content,
             state: strategy.state,
             createdAt: strategy.createdAt,
             updatedAt: strategy.updatedAt,
             user: strategy.user,
+            account: strategy.account,
             strategyToOrganizations: strategy.strategyToOrganizations,
-            objectives: strategy.objectives
+            objectives: strategy.objectives,
+            projects: strategy.projects
         }
 
         return strategyReadDto;
@@ -63,15 +63,13 @@ export class StrategyService {
 
     async create(strategyCreateDto: StrategyCreateDto): Promise<Strategy> {
         const strategy = new Strategy();
-        strategy.strategyNumber = strategyCreateDto.strategyNumber;
         strategy.strategyName = strategyCreateDto.strategyName;
-        strategy.path = strategyCreateDto.path;
-        strategy.size = strategyCreateDto.size;
-        strategy.mimetype = strategyCreateDto.mimetype;
+        strategy.content = strategyCreateDto.content
         strategy.state = strategyCreateDto.state;
         strategy.user = strategyCreateDto.user;
-        strategy.strategyToOrganizations = await this.strategyToOrganizationService.createSeveral(strategy, strategyCreateDto.strategyToOrganizations);
+        const createdStrategy = await this.strategyRepository.save(strategy);
+        await this.strategyToOrganizationService.createSeveral(createdStrategy, strategyCreateDto.strategyToOrganizations);
 
-        return await this.strategyRepository.save(strategy);
+        return createdStrategy;
     }
 }

@@ -33,6 +33,7 @@ export class UsersService {
             policies: user.policies,
             strategies: user.strategies,
             targetHolders: user.targetHolders,
+            projects: user.projects,
             organization: user.organization,
             account: user.account
 
@@ -42,9 +43,9 @@ export class UsersService {
 
 
     async findOne(id: string): Promise<ReadUserDto | null> {
-        const user = await this.usersRepository.findOneBy({ id });
+        const user = await this.usersRepository.findOne({ where: {id}, relations: ['account', 'organization'] });
         if (!user) return null;
-
+        console.log(`user: ${JSON.stringify(user)}`)
         // Преобразование объекта User в ReadUserDto
         const readUserDto: ReadUserDto = {
             id: user.id,
@@ -62,6 +63,7 @@ export class UsersService {
             policies: user.policies,
             strategies: user.strategies,
             targetHolders: user.targetHolders,
+            projects: user.projects,
             organization: user.organization,
             account: user.account
         };
@@ -90,6 +92,7 @@ export class UsersService {
             policies: user.policies,
             strategies: user.strategies,
             targetHolders: user.targetHolders,
+            projects: user.projects,
             organization: user.organization,
             account: user.account
         };
@@ -118,6 +121,7 @@ export class UsersService {
             policies: user.policies,
             strategies: user.strategies,
             targetHolders: user.targetHolders,
+            projects: user.projects,
             organization: user.organization,
             account: user.account
         };
@@ -165,6 +169,7 @@ export class UsersService {
             policies: user.policies,
             strategies: user.strategies,
             targetHolders: user.targetHolders,
+            projects: user.projects,
             organization: user.organization,
             account: user.account
         };

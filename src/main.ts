@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { WinstonModule } from 'nest-winston';
+import { winstonConfig } from './utils/winston-logger';
 import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -8,7 +10,9 @@ dotenv.config();
 
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: WinstonModule.createLogger(winstonConfig), // используем конфигурацию
+  });;
   app.use(cookieParser());
 
   const swaggerApi = new DocumentBuilder()

@@ -28,14 +28,15 @@ export class AccountService{
     }
 
     async findeOneById(id: string): Promise<AccountReadDto | null>{
-        const account = await this.accountRepository.findOneBy({id});
-        
+        const account = await this.accountRepository.findOne({where: {id}, relations: ['users', 'organizations']});
         if (!account) return null;
         const accountReadDto: AccountReadDto = {
             id: account.id,
             accountName: account.accountName,
             createdAt: account.createdAt,
             updatedAt: account.updatedAt,
+            users: account.users,
+            organizations: account.organizations
         }
 
         return accountReadDto;

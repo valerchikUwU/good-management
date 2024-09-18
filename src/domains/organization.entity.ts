@@ -3,7 +3,6 @@ import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Post } from './post.entity';
 import { GoalToOrganization } from './goalToOrganization.entity';
-import { ObjectiveToOrganization } from './objectiveToOrganization.entity';
 import { PolicyToOrganization } from './policyToOrganization.entity';
 import { ProjectToOrganization } from './projectToOrganization.entity';
 import { StrategyToOrganization } from './strategyToOrganization.entity';
@@ -34,9 +33,6 @@ export class Organization {
 
     @OneToMany(() => GoalToOrganization, (goalToOrganization) => goalToOrganization.organization)
     goalToOrganizations: GoalToOrganization[]
-
-    @OneToMany(() => ObjectiveToOrganization, (objectiveToOrganization) => objectiveToOrganization.organization)
-    objectiveToOrganizations: ObjectiveToOrganization[]
 
     @OneToMany(() => PolicyToOrganization, (policyToOrganization) => policyToOrganization.organization)
     policyToOrganizations: PolicyToOrganization[]

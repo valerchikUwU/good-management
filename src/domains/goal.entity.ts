@@ -2,6 +2,8 @@ import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyT
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
 import { GoalToOrganization } from './goalToOrganization.entity';
+import { Exclude } from 'class-transformer';
+import { Account } from './account.entity';
 
 
 @Entity()
@@ -23,9 +25,12 @@ export class Goal{
   
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
-
+    
     @ManyToOne(() => User, (user) => user.goals, {nullable: false})
     user: User
+
+    @ManyToOne(() => Account, (account) => account.goals, {nullable: false})
+    account: Account
 
     @OneToMany(() => GoalToOrganization, (goalToOrganization) => goalToOrganization.goal)
     goalToOrganizations: GoalToOrganization[]

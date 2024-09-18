@@ -5,10 +5,13 @@ import { GoalService } from "../services/goal/goal.service";
 import { GoalRepository } from "../services/goal/repository/goal.repository";
 import { GoalController } from "src/controllers/goal.controller";
 import { GoalToOrganizationModule } from "./goalToOrganization.module";
+import { UsersModule } from "./users.module";
+import { GeneratorModule } from "./generator.module";
 
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Goal]), GoalToOrganizationModule],
+    imports: [TypeOrmModule.forFeature([Goal]), GoalToOrganizationModule,
+    UsersModule, GeneratorModule],
     controllers: [GoalController],
     providers: [GoalService, GoalRepository]
 })

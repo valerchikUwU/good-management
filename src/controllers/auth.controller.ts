@@ -14,7 +14,9 @@ import {
     HttpCode,
     Delete,
     NotFoundException,
-    HttpStatus
+    HttpStatus,
+    InternalServerErrorException,
+    UnauthorizedException
 } from "@nestjs/common";
 import { Request as ExpressRequest } from 'express';
 import { Response as ExpressResponse } from "express";
@@ -31,7 +33,8 @@ import { UpdateUserDto } from "src/contracts/user/update-user.dto";
 import { CreateRefreshSessionDto } from "src/contracts/refreshSession/create-refreshSession.dto";
 import { JwtService } from "@nestjs/jwt";
 
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AuthTG } from "src/contracts/tg-auth.dto";
 
 @ApiTags('Auth')
 @Controller("auth")
@@ -45,14 +48,18 @@ export class AuthController {
     ) { }
 
     @Post("/login/vk")
-    @ApiOperation({summary: 'Войти через ВК'})
-    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
+    @ApiOperation({ summary: 'Войти через ВК' })
+    @ApiBody({
+        description: 'ДТО для логина',
+        type: AuthVK,
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
         example: {
-          user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-          ip: "192.168.1.100",
-          token: "dd31cc25926db1b45f2e"
-        }})
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
+        }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     async vk(@Headers('User-Agent') user_agent: string, @Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string, @Res({ passthrough: true }) res: ExpressResponse): Promise<UserVkAuthDto> {
         let authData;
         try {
@@ -103,14 +110,28 @@ export class AuthController {
 
     @UseGuards(RefreshTokenGuard)
     @Post('refresh-tokens')
-    @ApiOperation({summary: 'Обновить токены'})
-    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
+    @ApiOperation({ summary: 'Обновить токены' })
+    @ApiBody({
+        description: 'Данные для аутентификации',
+        type: String,
+        schema: {
+            type: 'object',
+            properties: {
+                fingerprint: {
+                    type: 'string',
+                    description: 'Уникальный идентификатор устройства'
+                }
+            },
+            required: ['fingerprint']
+        },
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
         example: {
-          user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-          ip: "192.168.1.100",
-          token: "dd31cc25926db1b45f2e"
-        }})
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
+        }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     async refreshTokens(@Body() fingerprint: string, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: ExpressResponse): Promise<{ newAccessToken: string }> {
         const refreshTokenId = req.cookies['refresh-tokenId']
         const data = await this.authService.updateTokens(req.body.fingerprint, refreshTokenId);
@@ -120,6 +141,22 @@ export class AuthController {
 
     @UseGuards(AccessTokenGuard)
     @Post('logout')
+    @ApiOperation({ summary: 'Выход' })
+    @ApiBody({
+        description: 'Данные для выхода',
+        type: String,
+        schema: {
+            type: 'object',
+            properties: {
+                fingerprint: {
+                    type: 'string',
+                    description: 'Уникальный идентификатор устройства'
+                }
+            },
+            required: ['fingerprint']
+        },
+        required: true,
+    })
     async logout(@Body() fingerprint: string, @Req() req: ExpressRequest): Promise<void> {
         const refreshTokenId = req.cookies['refresh-tokenId']
         await this.authService.logout(req.body.fingerprint, refreshTokenId);
@@ -130,33 +167,27 @@ export class AuthController {
 
 
     @Post('login/tg')
-    @ApiOperation({summary: 'Войти через телеграмм'})
-    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
-        example: {
-          user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-          ip: "192.168.1.100",
-          token: "dd31cc25926db1b45f2e"
-        }})
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
-    async tg(@Body() telephoneNumber: string, telegramId: number, clientId: string, user_agent: string, ip: string, token: string) {
-
-        const foundNumber = await this.userService.findOneByTelephoneNumber(telephoneNumber);
-
-        // Запрашиваем у клиента необходимую информацию
-        const requiredInfo = ['fingerprint', 'userAgent', 'token'];
-        const clientInfo = await this.eventsGateway.requestInfoFromClient(clientId, requiredInfo);
-        if (!clientInfo) {
-            return { message: 'Не удалось получить информацию о клиенте' };
-        }
-        if (clientInfo.token === token) {
-            if (foundNumber) {
-                const user = await this.userService.updateByPhoneNumber(telephoneNumber, telegramId);
+    async tg(@Body() authTg: AuthTG) {
+        try {
+            const foundNumber = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
+            console.log(authTg.telephoneNumber)
+            console.log(authTg.telegramId)
+            console.log(`WEBSOCKET CLIENT ${authTg.clientId}`)
+            console.log(authTg.token)
+            // Запрашиваем у клиента необходимую информацию
+            const requiredInfo = ['fingerprint', 'userAgent', 'ip', 'token'];
+            const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo);
+            if (!clientInfo) {
+            }
+            if (clientInfo.token === authTg.token) {
+                const user = await this.userService.updateByPhoneNumber(authTg.telephoneNumber, authTg.telegramId);
                 const userId = user.id;
+                console.log(`userID: ${userId}`)
                 // СОЗДАТЬ СЕССИЮ
                 const newSession: CreateRefreshSessionDto = {
-                    user_agent: user_agent,
-                    fingerprint: 'fingerprint',
-                    ip: ip,
+                    user_agent: clientInfo.user_agent,
+                    fingerprint: clientInfo.fingerprint,
+                    ip: clientInfo.ip,
                     expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
                     refreshToken: await this.jwtService.signAsync({ id: user.id }, {
                         secret: process.env.JWT_REFRESH_SECRET,
@@ -164,16 +195,15 @@ export class AuthController {
                     }),
                     user: user
                 }
-                await this.eventsGateway.sendTokenToClient(clientId, userId)
+                await this.eventsGateway.sendTokenToClient(authTg.clientId, userId)
 
+            } else {
+                await this.eventsGateway.sendTokenToClient(authTg.clientId, 'false');
+                throw new UnauthorizedException('Неуспешный вход!')
             }
-            else {
-                throw new NotFoundException('No such number')
-            }
-        } else {
-            await this.eventsGateway.sendTokenToClient(clientId, 'false')
         }
-           
-
+        catch (err) {
+            throw new InternalServerErrorException('Ой, что - то пошло не так');
+        }
     }
 }

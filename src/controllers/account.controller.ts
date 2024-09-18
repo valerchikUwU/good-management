@@ -5,7 +5,7 @@ import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Account')
-@Controller(':userId/account')
+@Controller('accounts')
 export class AccountController {
     constructor(private readonly accountService: AccountService) { }
 
@@ -15,14 +15,36 @@ export class AccountController {
         status: HttpStatus.OK, description: "ОК!",
         example: {
 
-            id: '1c64b108-5023-4a76-a3ba-2b1657ed0c9f',
-            accountName: 'ООО Группа',
-            createdAt: "1900-01-01 00:00:00",
-            updatedAt: "1900-01-01 00:00:00",
+            id: "a1118813-8985-465b-848e-9a78b1627f11",
+            accountName: "OOO PIPKA",
+            createdAt: "2024-09-16T12:53:29.593Z",
+            updatedAt: "2024-09-16T12:53:29.593Z",
+            users: [
+                {
+                    id: "3b809c42-2824-46c1-9686-dd666403402a",
+                    firstName: "Maxik",
+                    lastName: "Koval",
+                    telegramId: 453120600,
+                    telephoneNumber: null,
+                    avatar_url: null,
+                    vk_id: null,
+                    createdAt: "2024-09-16T14:03:31.000Z",
+                    updatedAt: "2024-09-16T14:03:31.000Z"
+                }
+            ],
+            organizations: [
+                {
+                    id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                    organizationName: "soplya firma",
+                    parentOrganizationId: null,
+                    createdAt: "2024-09-16T14:24:33.841Z",
+                    updatedAt: "2024-09-16T14:24:33.841Z"
+                }
+            ]
+
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async findUsersAccount(@Param('id') id: string): Promise<AccountReadDto | null> {
         return this.accountService.findeOneById(id)
     }
@@ -44,9 +66,8 @@ export class AccountController {
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async create(@Body() accountCreateDto: AccountCreateDto): Promise<AccountCreateDto> {
-        return this.accountService.create(accountCreateDto);
+        return await this.accountService.create(accountCreateDto);
     }
 
 }

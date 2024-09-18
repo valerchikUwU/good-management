@@ -3,14 +3,12 @@ import { ObjectiveRepository } from "./repository/objective.repository";
 import { ObjectiveReadDto } from "src/contracts/objective/read-objective.dto";
 import { Objective } from "src/domains/objective.entity";
 import { ObjectiveCreateDto } from "src/contracts/objective/create-objective.dto";
-import { ObjectiveToOrganizationService } from "../objectiveToOrganization/objectiveToOrganization.service";
 
 
 
 @Injectable()
 export class ObjectiveService{
     constructor(private readonly objectiveRepository: ObjectiveRepository,
-        private readonly objectiveToOrganizationService: ObjectiveToOrganizationService
     ){}
 
     
@@ -25,8 +23,8 @@ export class ObjectiveService{
             rootCause: objective.rootCause,
             createdAt: objective.createdAt,
             updatedAt: objective.updatedAt,
-            objectiveToOrganizations: objective.objectiveToOrganizations,
-            strategy: objective.strategy
+            strategy: objective.strategy,
+            account: objective.account
         }))
     }
 
@@ -42,8 +40,8 @@ export class ObjectiveService{
             rootCause: objective.rootCause,
             createdAt: objective.createdAt,
             updatedAt: objective.updatedAt,
-            objectiveToOrganizations: objective.objectiveToOrganizations,
-            strategy: objective.strategy
+            strategy: objective.strategy,
+            account: objective.account
         }
 
         return objectiveReadDto;
@@ -56,7 +54,7 @@ export class ObjectiveService{
         objective.content = objectiveCreateDto.content;
         objective.rootCause = objectiveCreateDto.rootCause;
         objective.strategy = objectiveCreateDto.strategy;
-        objective.objectiveToOrganizations = await this.objectiveToOrganizationService.createSeveral(objective, objectiveCreateDto.objectiveToOrganizations);
+        objective.account = objectiveCreateDto.account;
 
         return await this.objectiveRepository.save(objective);
     }

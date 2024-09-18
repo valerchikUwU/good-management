@@ -7,6 +7,7 @@ import { Strategy } from 'src/domains/strategy.entity';
 import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Account } from 'src/domains/account.entity';
+import { Project } from 'src/domains/project.entity';
 
 export class ReadUserDto {
     @IsUUID()
@@ -25,6 +26,7 @@ export class ReadUserDto {
     policies: Policy[];
     strategies: Strategy[];
     targetHolders: TargetHolder[];
+    projects: Project[];
     organization: Organization;
     account: Account;
   

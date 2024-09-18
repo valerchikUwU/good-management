@@ -1,6 +1,7 @@
 import { CreateDateColumn, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Goal } from "./goal.entity";
 import { Organization } from "./organization.entity";
+import { Exclude } from "class-transformer";
 
 
 @Entity()
@@ -18,5 +19,6 @@ export class GoalToOrganization{
     goal: Goal
 
     @ManyToOne(() => Organization, (organization) => organization.goalToOrganizations)
+    @Exclude({toPlainOnly: true})
     organization: Organization
 }

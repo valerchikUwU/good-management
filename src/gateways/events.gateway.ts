@@ -1,11 +1,13 @@
-import { Logger } from '@nestjs/common';
+import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway()
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(
+    @Inject('winston') private readonly logger: Logger, // инъекция логгера
+  ) {}
   private clients: Map<string, Socket> = new Map();
-  private logger: Logger = new Logger('MessageGateway');
   @WebSocketServer() ws: Server;
   afterInit(server: Server) {
     this.logger.log('Initialized');
@@ -54,7 +56,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     } else {
       this.logger.warn(`Client ${clientId} not found`);
-      return null;
     }
   }
   

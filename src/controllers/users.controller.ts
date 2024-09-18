@@ -11,44 +11,75 @@ export class UsersController {
     constructor(private readonly usersService: UsersService) { }
 
     @Get()
-    @ApiOperation({summary: 'Все организации'})
-    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
-        example: {
-          user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-          ip: "192.168.1.100",
-          token: "dd31cc25926db1b45f2e"
-        }})
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
-    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+    @ApiOperation({ summary: 'Все пользователи' })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        type: ReadUserDto,
+        isArray: true,
+        example:
+            [
+                {
+                    id: '98ea2391-3643-40f3-9fe8-779d266faef6',
+                    firstName: 'Maxik',
+                    lastName: 'Koval',
+                    telegramId: 1313131313,
+                    telephoneNumber: '+79787513901',
+                    avatar_url: 'https://avatar/img.png',
+                    vk_id: 123123123,
+                    createdAt: "1900-01-01 00:00:00",
+                    updatedAt: "1900-01-01 00:00:00",
+                }
+            ]
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async findAll(): Promise<ReadUserDto[]> {
         return this.usersService.findAll();
     }
 
 
     @Get(':id')
-    @ApiOperation({summary: 'Получить пользователя по Id'})
-    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
+    @ApiOperation({ summary: 'Получить пользователя по Id' })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        type: ReadUserDto,
         example: {
-          user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-          ip: "192.168.1.100",
-          token: "dd31cc25926db1b45f2e"
-        }})
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
-    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+
+            id: '98ea2391-3643-40f3-9fe8-779d266faef6',
+            firstName: 'Maxik',
+            lastName: 'Koval',
+            telegramId: 1313131313,
+            telephoneNumber: '+79787513901',
+            avatar_url: 'https://avatar/img.png',
+            vk_id: 123123123,
+            createdAt: "1900-01-01 00:00:00",
+            updatedAt: "1900-01-01 00:00:00",
+        }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async findOne(@Param('id') id: string): Promise<ReadUserDto | null> {
         return this.usersService.findOne(id);
     }
 
     @Get('telegram/:telegramId')
-    @ApiOperation({summary: 'Получить пользователя по телеграм Id'})
-    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
+    @ApiOperation({ summary: 'Получить пользователя по телеграм Id' })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
         example: {
-          user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-          ip: "192.168.1.100",
-          token: "dd31cc25926db1b45f2e"
-        }})
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
-    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+            id: '98ea2391-3643-40f3-9fe8-779d266faef6',
+            firstName: 'Maxik',
+            lastName: 'Koval',
+            telegramId: 1313131313,
+            telephoneNumber: '+79787513901',
+            avatar_url: 'https://avatar/img.png',
+            vk_id: 123123123,
+            createdAt: "1900-01-01 00:00:00",
+            updatedAt: "1900-01-01 00:00:00",
+        }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async findOneByTelegramId(@Param('telegramId') telegramId: number): Promise<ReadUserDto | null> {
         return this.usersService.findOneByTelegramId(telegramId);
     }

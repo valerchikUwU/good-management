@@ -3,12 +3,13 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Objective } from "src/domains/objective.entity";
 import { ObjectiveService } from "../services/objective/objective.service";
 import { ObjectiveRepository } from "../services/objective/repository/objective.repository";
-import { ObjectiveToOrganizationModule } from "./objectiveToOrganization.module";
 import { ObjectiveController } from "src/controllers/objective.controller";
+import { UsersModule } from "./users.module";
+import { StrategyModule } from "./strategy.module";
 
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Objective]), ObjectiveToOrganizationModule],
+    imports: [TypeOrmModule.forFeature([Objective]), UsersModule, StrategyModule],
     controllers: [ObjectiveController],
     providers: [ObjectiveService, ObjectiveRepository]
 })

@@ -7,6 +7,7 @@ import { Policy } from './policy.entity';
 import { Strategy } from './strategy.entity';
 import { TargetHolder } from './targetHolder.entity';
 import { Account } from './account.entity';
+import { Project } from './project.entity';
 
 
 @Entity()
@@ -45,7 +46,7 @@ export class User {
 
 
    
-  @OneToOne(() => Post, (post) => post.user)
+  @OneToOne(() => Post, (post) => post.user, {nullable: true})
   post: Post;
 
   @OneToMany(() => RefreshSession, (refreshSession) => refreshSession.user)
@@ -63,9 +64,12 @@ export class User {
   @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.user)
   targetHolders: TargetHolder[];
 
-  @ManyToOne(() => Organization, (organization) => organization.users, {nullable: false})
+  @OneToMany(() => Project, (project) => project.user)
+  projects: Project[];
+
+  @ManyToOne(() => Organization, (organization) => organization.users, {nullable: true})
   organization: Organization;
 
-  @ManyToOne(() => Account, (account) => account.user, {nullable: false})
+  @ManyToOne(() => Account, (account) => account.users, {nullable: false})
   account: Account;
 }
