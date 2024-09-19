@@ -5,6 +5,7 @@ import { CreateUserDto } from 'src/contracts/user/create-user.dto';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { UsersRepository } from './Repository/users.repository';
 import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
+import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,32 @@ export class UsersService {
 
     async findAll(): Promise<ReadUserDto[]> {
         const users = await this.usersRepository.find();
+        return users.map(user => ({
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            telegramId: user.telegramId,
+            telephoneNumber: user.telephoneNumber,
+            avatar_url: user.avatar_url,
+            vk_id: user.vk_id,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+            post: user.post,
+            refreshSessions: user.refreshSessions,
+            goals: user.goals,
+            policies: user.policies,
+            strategies: user.strategies,
+            targetHolders: user.targetHolders,
+            projects: user.projects,
+            organization: user.organization,
+            account: user.account
+
+            // Добавьте любые другие поля, которые должны быть включены в ответ
+        }));
+    }
+
+    async findAllForAccount(account: AccountReadDto): Promise<ReadUserDto[]> {
+        const users = await this.usersRepository.find({where: {account: {id: account.id}}});
         return users.map(user => ({
             id: user.id,
             firstName: user.firstName,

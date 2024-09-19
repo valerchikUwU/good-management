@@ -25,7 +25,8 @@ export class StrategyController{
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
     @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
     async findAll(@Param('userId') userId: string): Promise<StrategyReadDto[]>{
-        return await this.strategyService.findAll()
+        const user = await this.userService.findOne(userId);
+        return await this.strategyService.findAllForAccount(user.account)
     }
 
     @Post('new')
@@ -35,6 +36,10 @@ export class StrategyController{
         type: StrategyCreateDto,
         required: true,
     })
+    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
+        example: {
+        }})
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
     @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
     async create(@Param('userId') userId: string, @Body() strategyCreateDto: StrategyCreateDto): Promise<Strategy>{
         const user = await this.userService.findOne(userId);

@@ -3,10 +3,10 @@ import { TargetHolder } from './targetHolder.entity';
 import { Project } from './project.entity';
 
 export enum Type {
-    WORK = 'Обычная',
-    METRIC = 'Статистика',
+    COMMON = 'Обычная',
+    STATISTIC = 'Статистика',
     RULE = 'Правила',
-    MAIN = 'Продукт'
+    PRODUCT = 'Продукт'
 }
 
 @Entity()
@@ -17,13 +17,21 @@ export class Target{
     @Column({
         type: 'enum',
         enum: Type,
-        default: Type.WORK,
         nullable: false
     })
     type: Type;
 
-    @Column({nullable: false, default: 1})
-    orderNumber: number;
+    @Column({nullable: true})
+    commonNumber: number;
+
+    @Column({nullable: true})
+    statisticNumber: number;
+
+    @Column({nullable: true})
+    ruleNumber: number;
+
+    @Column({nullable: true})
+    productNumber: number;
 
     @Column({type: 'text', nullable: false})
     content: string;
@@ -48,4 +56,5 @@ export class Target{
 
     @ManyToOne(() => Project, (project) => project.targets) //хуй знает
     project: Project
+
 }

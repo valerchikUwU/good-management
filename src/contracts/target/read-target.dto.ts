@@ -5,7 +5,10 @@ import { TargetHolder } from "src/domains/targetHolder.entity";
 export class TargetReadDto{
     id: string;
     type: Type;
-    orderNumber: number;
+    commonNumber: number | null;
+    statisticNumber: number | null;
+    ruleNumber: number | null;
+    productNumber: number | null;
     content: string;
     dateStart: Date
     deadline: Date

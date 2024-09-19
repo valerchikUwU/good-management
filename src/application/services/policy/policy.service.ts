@@ -22,7 +22,7 @@ export class PolicyService {
     }
 
     async findAllForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
-        const policies = await this.policyRepository.find({ where: { account: { id: account.id } }});
+        const policies = await this.policyRepository.find({ where: { account: { id: account.id } } });
 
         return policies.map(policy => ({
             id: policy.id,
@@ -67,8 +67,8 @@ export class PolicyService {
         const policy = new Policy();
         policy.policyName = policyCreateDto.policyName;
         policy.state = policyCreateDto.state;
-        policy.type = policyCreateDto.type,
-            policy.content = policyCreateDto.content;
+        policy.type = policyCreateDto.type;
+        policy.content = policyCreateDto.content;
         policy.user = policyCreateDto.user;
         policy.account = policyCreateDto.account;
         const createdPolicy = await this.policyRepository.save(policy);

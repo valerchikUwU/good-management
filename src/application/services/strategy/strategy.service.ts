@@ -5,6 +5,7 @@ import { StrategyToOrganizationService } from "../strategyToOrganization/strateg
 import { StrategyRepository } from "./repository/strategy.repository";
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
 import { StrategyCreateDto } from "src/contracts/strategy/create-strategy.dto";
+import { AccountReadDto } from "src/contracts/account/read-account.dto";
 
 
 
@@ -18,8 +19,8 @@ export class StrategyService {
 
     }
 
-    async findAll(): Promise<StrategyReadDto[]> {
-        const strategies = await this.strategyRepository.find();
+    async findAllForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+        const strategies = await this.strategyRepository.find({where: {account: {id: account.id}}});
 
         return strategies.map(strategy => ({
             id: strategy.id,

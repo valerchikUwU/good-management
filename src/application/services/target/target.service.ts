@@ -4,6 +4,9 @@ import { Target } from "src/domains/target.entity";
 import { TargetRepository } from "./repository/target.repository";
 import { TargetReadDto } from "src/contracts/target/read-target.dto";
 import { TargetCreateDto } from "src/contracts/target/create-target.dto";
+import { TargetHolderService } from "../targetHolder/targetHolder.service";
+import { UsersService } from "../users/users.service";
+import { TargetHolderCreateDto } from "src/contracts/targetHolder/create-targetHolder.dto";
 
 
 
@@ -12,6 +15,8 @@ export class TargetService {
     constructor(
         @InjectRepository(Target)
         private readonly targetRepository: TargetRepository,
+        private readonly targetHolderService: TargetHolderService,
+        private readonly userService: UsersService
     ) {
 
     }
@@ -22,7 +27,10 @@ export class TargetService {
         return targets.map(target => ({
             id: target.id,
             type: target.type,
-            orderNumber: target.orderNumber,
+            commonNumber: target.commonNumber,
+            statisticNumber: target.statisticNumber,
+            ruleNumber: target.ruleNumber,
+            productNumber: target.productNumber,
             content: target.content,
             dateStart: target.dateStart,
             deadline: target.deadline,
@@ -41,7 +49,10 @@ export class TargetService {
         const targetReadDto: TargetReadDto = {
             id: target.id,
             type: target.type,
-            orderNumber: target.orderNumber,
+            commonNumber: target.commonNumber,
+            statisticNumber: target.statisticNumber,
+            ruleNumber: target.ruleNumber,
+            productNumber: target.productNumber,
             content: target.content,
             dateStart: target.dateStart,
             deadline: target.deadline,
@@ -58,13 +69,21 @@ export class TargetService {
     async create(targetCreateDto: TargetCreateDto): Promise<Target> {
         const target = new Target();
         target.type = targetCreateDto.type;
-        target.orderNumber = targetCreateDto.orderNumber;
+        target.commonNumber = targetCreateDto.commonNumber;
+        target.statisticNumber = targetCreateDto.statisticNumber;
+        target.ruleNumber = targetCreateDto.ruleNumber;
+        target.productNumber = targetCreateDto.productNumber;
         target.content = targetCreateDto.content;
         target.dateStart = new Date()
         target.deadline = targetCreateDto.deadline
-        target.targetHolder = targetCreateDto.targetHolder;
         target.project = targetCreateDto.project
-
-        return await this.targetRepository.save(target);
+        const createdTarget = await this.targetRepository.save(target);
+        const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
+        const targetHolderCreateDto: TargetHolderCreateDto = {
+            target: createdTarget,
+            user: holderUser
+        }
+        await this.targetHolderService.create(targetHolderCreateDto)
+        return createdTarget;
     }
 }

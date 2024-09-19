@@ -6,6 +6,7 @@ import { Goal } from "src/domains/goal.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { GoalToOrganizationService } from "../goalToOrganization/goalToOrganization.service";
 import { GeneratorUUID } from "../GeneratorUUID/generator.service";
+import { AccountReadDto } from "src/contracts/account/read-account.dto";
 
 
 @Injectable()
@@ -15,8 +16,8 @@ export class GoalService {
         private readonly goalRepository: GoalRepository,
         private readonly goalToOrganizationService: GoalToOrganizationService) { }
 
-    async findAll(): Promise<GoalReadDto[]> {
-        const goals = await this.goalRepository.find({relations: ['goalToOrganizations', 'goalToOrganizations.organization']});
+    async findAllForAccount(account: AccountReadDto): Promise<GoalReadDto[]> {
+        const goals = await this.goalRepository.find({ where: {account: {id: account.id}}, relations: ['goalToOrganizations', 'goalToOrganizations.organization']});
         return goals.map(goal => ({
             id: goal.id,
             goalName: goal.goalName,

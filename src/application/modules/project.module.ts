@@ -6,11 +6,13 @@ import { ProjectService } from "../services/project/project.service";
 import { ProjectRepository } from "../services/project/repository/project.repository";
 import { ProjectController } from "src/controllers/project.controller";
 import { UsersModule } from "./users.module";
+import { StrategyModule } from "./strategy.module";
+import { TargetModule } from "./target.module";
 
 
 @Module({
     imports: [TypeOrmModule.forFeature([Project]),
-    ProjectToOrganizationModule, UsersModule],
+    ProjectToOrganizationModule, UsersModule, StrategyModule, TargetModule],
     controllers: [ProjectController],
     providers: [ProjectService, ProjectRepository]
 })

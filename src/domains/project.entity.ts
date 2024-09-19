@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, Generated } from 'typeorm';
 import { Target } from './target.entity';
 import { ProjectToOrganization } from './projectToOrganization.entity';
 import { Strategy } from './strategy.entity';
@@ -14,6 +14,10 @@ export enum Type {
 export class Project{
     @PrimaryGeneratedColumn('uuid')
     id: string;
+
+    @Column()
+    @Generated('increment')
+    projectNumber: number;
 
     @Column({type: 'uuid', nullable: true})
     programId: string;

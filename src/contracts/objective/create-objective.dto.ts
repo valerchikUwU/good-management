@@ -7,21 +7,24 @@ import { Strategy } from "src/domains/strategy.entity";
 
 export class ObjectiveCreateDto{
     
-    @ApiProperty({ description: 'Порядковый номер краткосрочной цели'})
+    @ApiProperty({ description: 'Порядковый номер краткосрочной цели', example: 1})
     orderNumber: number;
     
-    @ApiProperty({ description: 'Ситуация' })
+    @ApiProperty({ description: 'Ситуация', example: 'Текст' })
     situation: string;
 
-    @ApiProperty({ description: 'Контент краткосрочной цели' })
-    content: string
+    @ApiProperty({ description: 'Контент краткосрочной цели', example: 'Контент' })
+    content: string;
 
-    @ApiProperty({ description: 'Целевая причина' })
+    @ApiProperty({ description: 'Целевая причина', example: 'Причина' })
     rootCause: string;
 
-    @Exclude({toPlainOnly: true})
-    strategy: Strategy
+    @ApiProperty({ description: 'Id стратегии, с которой связать краткосрочную цель', example: 'a4448813-8985-465b-848e-9a78b1627f11' })
+    strategyId: string;
 
     @Exclude({toPlainOnly: true})
-    account: Account
+    strategy: Strategy;
+
+    @Exclude({toPlainOnly: true})
+    account: Account;
 }

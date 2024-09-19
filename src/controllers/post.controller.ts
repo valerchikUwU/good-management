@@ -7,6 +7,7 @@ import { PostService } from "src/application/services/post/post.service";
 import { UsersService } from "src/application/services/users/users.service";
 import { PostCreateDto } from "src/contracts/post/create-post.dto";
 import { PostReadDto } from "src/contracts/post/read-post.dto";
+import { ReadUserDto } from "src/contracts/user/read-user.dto";
 import { Organization } from "src/domains/organization.entity";
 import { User } from "src/domains/user.entity";
 
@@ -48,6 +49,17 @@ export class PostController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async findAll(@Param('userId') userId: string): Promise<PostReadDto[]> {
         return await this.postService.findAll()
+    }
+
+
+    @Get(':postId')
+    async findOne(@Param('userId') userId: string, @Param('postId') postId: string): Promise<{postReadDto: PostReadDto, workers: ReadUserDto[], posts: PostReadDto[]}>{
+        const user = await this.userService.findOne(userId);
+        const post = await this.postService.findeOneById(postId);
+        const workers = await this.userService.findAllForAccount(user.account);
+        const posts = await this.postService.findAllForAccount(user.account);
+
+        return {postReadDto: post, workers: workers, posts: posts}
     }
 
 

@@ -4,10 +4,13 @@ import { TargetHolder } from "src/domains/targetHolder.entity";
 
 export class TargetCreateDto{
     type: Type;
-    orderNumber: number;
+    commonNumber?: number | null;
+    statisticNumber?: number | null;
+    ruleNumber?: number | null;
+    productNumber?: number | null;
     content: string;
-    dateStart: Date
-    deadline: Date
-    targetHolder: TargetHolder;
-    project: Project
+    holderUserId: string;
+    dateStart: Date;
+    deadline: Date;
+    project: Project;
 }

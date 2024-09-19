@@ -1,7 +1,7 @@
 import { Controller, Get, Post, HttpStatus, Param, Body } from "@nestjs/common";
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { all } from "axios";
 import { GoalService } from "src/application/services/goal/goal.service";
+import { OrganizationService } from "src/application/services/organization/organization.service";
 import { UsersService } from "src/application/services/users/users.service";
 import { GoalCreateDto } from "src/contracts/goal/create-goal.dto";
 import { GoalReadDto } from "src/contracts/goal/read-goal.dto";
@@ -13,7 +13,7 @@ import { Goal } from "src/domains/goal.entity";
 @Controller(':userId/goals')
 export class GoalController {
     constructor(private readonly goalService: GoalService,
-        private readonly usersService: UsersService
+        private readonly userService: UsersService,
     ) { }
 
     @Get()
@@ -26,7 +26,8 @@ export class GoalController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async findAll(@Param('userId') userId: string): Promise<GoalReadDto[]> {
-        return await this.goalService.findAll()
+        const user = await this.userService.findOne(userId);
+        return await this.goalService.findAllForAccount(user.account)
     }
 
 
@@ -42,7 +43,8 @@ export class GoalController {
     @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
     async findOne(@Param('userId') userId: string, goalId: string): Promise<{ currentGoal: GoalReadDto, allGoals: GoalReadDto[] }> {
         const goal = await this.goalService.findeOneById(goalId);
-        const allGoals = await this.goalService.findAll();
+        const user = await this.userService.findOne(userId)
+        const allGoals = await this.goalService.findAllForAccount(user.account);
 
         return { currentGoal: goal, allGoals: allGoals };
     }
@@ -94,7 +96,7 @@ export class GoalController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async create(@Param('userId') userId: string, @Body() goalCreateDto: GoalCreateDto): Promise<Goal> {
-        const user = await this.usersService.findOne(userId);
+        const user = await this.userService.findOne(userId);
         goalCreateDto.user = user;
         goalCreateDto.account = user.account;
         return await this.goalService.create(goalCreateDto);

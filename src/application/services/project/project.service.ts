@@ -9,6 +9,7 @@ import { ProjectRepository } from "./repository/project.repository";
 import { ProjectReadDto } from "src/contracts/project/read-project.dto";
 import { ProjectCreateDto } from "src/contracts/project/create-project.dto";
 import { ProjectToOrganizationService } from "../projectToOrganization/projectToOrganization.service";
+import { AccountReadDto } from "src/contracts/account/read-account.dto";
 
 
 
@@ -22,8 +23,8 @@ export class ProjectService {
 
     }
 
-    async findAll(): Promise<ProjectReadDto[]> {
-        const projects = await this.projectRepository.find();
+    async findAllForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
+        const projects = await this.projectRepository.find({where: {account: {id: account.id}}});
 
         return projects.map(project => ({
             id: project.id,
@@ -60,8 +61,12 @@ export class ProjectService {
         project.programId = projectCreateDto.programId;
         project.content = projectCreateDto.content;
         project.type = projectCreateDto.type;
-        project.projectToOrganizations = await this.projectToOrganizationService.createSeveral(project, projectCreateDto.projectToOrganizations);
+        project.user = projectCreateDto.user;
+        project.account = projectCreateDto.account;
+        project.strategy = projectCreateDto.strategy;
+        const projectCreated = await this.projectRepository.save(project);
+        await this.projectToOrganizationService.createSeveral(projectCreated, projectCreateDto.projectToOrganizations);
 
-        return await this.projectRepository.save(project);
+        return projectCreated;
     }
 }

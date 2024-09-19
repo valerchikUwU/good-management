@@ -3,6 +3,7 @@ import { ObjectiveRepository } from "./repository/objective.repository";
 import { ObjectiveReadDto } from "src/contracts/objective/read-objective.dto";
 import { Objective } from "src/domains/objective.entity";
 import { ObjectiveCreateDto } from "src/contracts/objective/create-objective.dto";
+import { AccountReadDto } from "src/contracts/account/read-account.dto";
 
 
 
@@ -12,8 +13,8 @@ export class ObjectiveService{
     ){}
 
     
-    async findAll(): Promise<ObjectiveReadDto[]> {
-        const objectives = await this.objectiveRepository.find();
+    async findAllForAccount(account: AccountReadDto): Promise<ObjectiveReadDto[]> {
+        const objectives = await this.objectiveRepository.find({where: {account: {id: account.id}}});
 
         return objectives.map(objective => ({
             id: objective.id,

@@ -9,6 +9,7 @@ import { TargetHolderController } from "src/controllers/targetHolder.controller"
 @Module({
     imports: [TypeOrmModule.forFeature([TargetHolder])],
     controllers: [TargetHolderController],
-    providers: [TargetHolderService, TargetHolderRepository]
+    providers: [TargetHolderService, TargetHolderRepository],
+    exports: [TargetHolderService]
 })
 export class TargetHolderModule{}

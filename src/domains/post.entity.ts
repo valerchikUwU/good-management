@@ -3,6 +3,7 @@ import { User } from './user.entity';
 import { Organization } from './organization.entity';
 import { Policy } from './policy.entity';
 import { Statistic } from './statistic.entity';
+import { Account } from './account.entity';
 
 
 @Entity()
@@ -46,5 +47,8 @@ export class Post {
 
     @ManyToOne(() => Organization, organization => organization.posts, {nullable: false})
     organization: Organization
+
+    @ManyToOne(() => Account, account => account.posts, {nullable: false})
+    account: Account
 
 }
