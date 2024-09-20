@@ -10,7 +10,7 @@ export class PolicyCreateDto{
     @ApiProperty({ description: 'Название политики', example: 'Политика' })
     policyName: string
     
-    @ApiProperty({required: false, description: 'Состояние политики', example: 'Черновик', examples: ['Черновик', 'Активный', 'Отменён'] })
+    @ApiProperty({description: 'Состояние политики', required: false,  example: 'Черновик', examples: ['Черновик', 'Активный', 'Отменён'] })
     state?: State;
     
     @ApiProperty({ description: 'Тип политики', example: 'Директива', examples: ['Директива', 'Инструкция'] })

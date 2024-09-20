@@ -6,6 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { PolicyToOrganizationRepository } from "./repository/policyToOrganization.repository";
 import { PolicyToOrganization } from "src/domains/policyToOrganization.entity";
 import { Policy } from "src/domains/policy.entity";
+import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
 
 
 @Injectable()
@@ -40,6 +41,10 @@ export class PolicyToOrganizationService{
         }
     
         return createdRelations;
+    }
+
+    async remove(policy: PolicyReadDto): Promise<void>{
+        await this.policyToOrganizationRepository.delete({policy: policy});
     }
     
 

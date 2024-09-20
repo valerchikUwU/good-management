@@ -24,7 +24,7 @@ export class ProjectService {
     }
 
     async findAllForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
-        const projects = await this.projectRepository.find({where: {account: {id: account.id}}});
+        const projects = await this.projectRepository.find({where: {account: {id: account.id}}, relations: ['targets', 'projectToOrganizations', 'projectToOrganizations.organization']});
 
         return projects.map(project => ({
             id: project.id,
@@ -39,7 +39,7 @@ export class ProjectService {
     }
 
     async findeOneById(id: string): Promise<ProjectReadDto | null> {
-        const project = await this.projectRepository.findOneBy({ id });
+        const project = await this.projectRepository.findOne({ where: {id: id}, relations: ['targets', 'projectToOrganizations', 'projectToOrganizations.organization'] });
 
         if (!project) return null;
         const projectReadDto: ProjectReadDto = {

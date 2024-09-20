@@ -60,7 +60,7 @@ export class PostService {
     }
     
     async findAllForAccount(account: AccountReadDto): Promise<PostReadDto[]> {
-        const posts = await this.postRepository.find({where: {account: {id: account.id}}});
+        const posts = await this.postRepository.find({where: {account: {id: account.id}}, relations: ['user', 'organization']});
 
         return posts.map(post => ({
 
@@ -111,6 +111,7 @@ export class PostService {
         post.user = postCreateDto.user;
         post.organization = postCreateDto.organization;
         post.policy = postCreateDto.policy;
+        post.account = postCreateDto.account;
 
         return await this.postRepository.save(post);
     }

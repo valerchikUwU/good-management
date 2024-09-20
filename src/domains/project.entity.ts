@@ -51,6 +51,6 @@ export class Project{
     @ManyToOne(() => Account, (account) => account.projects, {nullable: false})
     account: Account
 
-    @ManyToOne(() => Account, (account) => account.users, {nullable: false})
+    @ManyToOne(() => User, (user) => user.projects, {nullable: false})
     user: User
 }

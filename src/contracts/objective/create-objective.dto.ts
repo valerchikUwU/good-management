@@ -19,7 +19,7 @@ export class ObjectiveCreateDto{
     @ApiProperty({ description: 'Целевая причина', example: 'Причина' })
     rootCause: string;
 
-    @ApiProperty({ description: 'Id стратегии, с которой связать краткосрочную цель', example: 'a4448813-8985-465b-848e-9a78b1627f11' })
+    @ApiProperty({ description: 'Id стратегии, с которой связать краткосрочную цель', example: '21dcf96d-1e6a-4c8c-bc12-c90589b40e93' })
     strategyId: string;
 
     @Exclude({toPlainOnly: true})

@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Param, Body, Post, Inject, Ip, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Param, Body, Post, Inject, Ip, InternalServerErrorException, NotFoundException, Patch } from "@nestjs/common";
 import { PolicyService } from "src/application/services/policy/policy.service";
 import { UsersService } from "src/application/services/users/users.service";
 import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
@@ -9,6 +9,7 @@ import { OrganizationService } from "src/application/services/organization/organ
 import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
+import { PolicyUpdateDto } from "src/contracts/policy/update-policy.dto";
 
 @ApiTags('Policy')
 @Controller(':userId/policies')
@@ -65,6 +66,9 @@ export class PolicyController {
             throw new InternalServerErrorException('Ой, что - то пошло не так!')
         }
     }
+
+
+
 
 
 
@@ -136,6 +140,35 @@ export class PolicyController {
             this.logger.error(err)
             throw new InternalServerErrorException('Ой, что - то пошло не так!')
         }
+    }
+
+
+    @Patch(':policyId/update')
+    @ApiOperation({ summary: 'Обновить политику по Id' })
+    @ApiBody({
+        description: 'ДТО для обновления политики',
+        type: PolicyUpdateDto,
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example: {
+            id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
+            policyName: "только название",
+            policyNumber: 1,
+            state: "Черновик",
+            type: "Инструкция",
+            dateActive: null,
+            content: "HTML",
+            createdAt: "2024-09-18T14:59:47.010Z",
+            updatedAt: "2024-09-20T11:51:20.848Z"
+          }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
+    async update(@Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto): Promise<PolicyReadDto>{
+        return await this.policyService.update(policyId, policyUpdateDto);
     }
 
     @Get(':policyId')
@@ -262,6 +295,7 @@ export class PolicyController {
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<Policy> {
         try {
 
@@ -275,5 +309,7 @@ export class PolicyController {
             this.logger.error(err)
         }
     }
+
+
 
 }

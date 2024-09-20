@@ -17,7 +17,7 @@ export class TargetHolderService {
     }
 
     async findAll(): Promise<TargetHolderReadDto[]> {
-        const targetHolders = await this.targetHolderRepository.find();
+        const targetHolders = await this.targetHolderRepository.find({relations: ['user', 'target']});
 
         return targetHolders.map(targetHolder => ({
             id: targetHolder.id,

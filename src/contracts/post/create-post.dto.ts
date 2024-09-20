@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
+import { Account } from "src/domains/account.entity";
 import { Organization } from "src/domains/organization.entity";
 import { Policy } from "src/domains/policy.entity";
 import { User } from "src/domains/user.entity";
@@ -29,6 +30,9 @@ export class PostCreateDto {
 
     @Exclude({toPlainOnly: true})
     policy: Policy;
+
+    @Exclude({toPlainOnly: true})
+    account: Account;
 
     @ApiProperty({ description:'ID организации, с которой связать пост', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
     organizationId?: string

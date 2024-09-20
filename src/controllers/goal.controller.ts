@@ -20,8 +20,30 @@ export class GoalController {
     @ApiOperation({ summary: 'Все цели' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
-        example: {
-        }
+        example: [
+            {
+              id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
+              goalName: "Перепукать шматика №1",
+              orderNumber: 1,
+              content: "Надо перепукать шмутзеля",
+              createdAt: "2024-09-18T14:11:27.918Z",
+              updatedAt: "2024-09-18T14:11:27.918Z",
+              goalToOrganizations: [
+                {
+                  id: "00eb152b-43a5-483d-9085-c46c23873a3d",
+                  createdAt: "2024-09-18T14:11:28.433Z",
+                  updatedAt: "2024-09-18T14:11:28.433Z",
+                  organization: {
+                    id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                    organizationName: "soplya firma",
+                    parentOrganizationId: null,
+                    createdAt: "2024-09-16T14:24:33.841Z",
+                    updatedAt: "2024-09-16T14:24:33.841Z"
+                  }
+                }
+              ]
+            }
+          ]
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
@@ -36,7 +58,57 @@ export class GoalController {
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
         example: {
-        }
+            currentGoal: {
+              id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
+              goalName: "Перепукать шматика №1",
+              orderNumber: 1,
+              content: "Надо перепукать шмутзеля",
+              createdAt: "2024-09-18T14:11:27.918Z",
+              updatedAt: "2024-09-18T14:11:27.918Z",
+              user: {
+                id: "3b809c42-2824-46c1-9686-dd666403402a",
+                firstName: "Maxik",
+                lastName: "Koval",
+                telegramId: 453120600,
+                telephoneNumber: null,
+                avatar_url: null,
+                vk_id: null,
+                createdAt: "2024-09-16T14:03:31.000Z",
+                updatedAt: "2024-09-16T14:03:31.000Z"
+              },
+              goalToOrganizations: [
+                {
+                  id: "00eb152b-43a5-483d-9085-c46c23873a3d",
+                  createdAt: "2024-09-18T14:11:28.433Z",
+                  updatedAt: "2024-09-18T14:11:28.433Z"
+                }
+              ]
+            },
+            allGoals: [
+              {
+                id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
+                goalName: "Перепукать шматика №1",
+                orderNumber: 1,
+                content: "Надо перепукать шмутзеля",
+                createdAt: "2024-09-18T14:11:27.918Z",
+                updatedAt: "2024-09-18T14:11:27.918Z",
+                goalToOrganizations: [
+                  {
+                    id: "00eb152b-43a5-483d-9085-c46c23873a3d",
+                    createdAt: "2024-09-18T14:11:28.433Z",
+                    updatedAt: "2024-09-18T14:11:28.433Z",
+                    organization: {
+                      id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                      organizationName: "soplya firma",
+                      parentOrganizationId: null,
+                      createdAt: "2024-09-16T14:24:33.841Z",
+                      updatedAt: "2024-09-16T14:24:33.841Z"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })

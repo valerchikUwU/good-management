@@ -68,6 +68,7 @@ export class StrategyService {
         strategy.content = strategyCreateDto.content
         strategy.state = strategyCreateDto.state;
         strategy.user = strategyCreateDto.user;
+        strategy.account = strategyCreateDto.account;
         const createdStrategy = await this.strategyRepository.save(strategy);
         await this.strategyToOrganizationService.createSeveral(createdStrategy, strategyCreateDto.strategyToOrganizations);
 

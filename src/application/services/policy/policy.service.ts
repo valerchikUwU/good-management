@@ -1,13 +1,14 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PolicyRepository } from "./repository/policy.repository";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Policy, Type } from "src/domains/policy.entity";
+import { Policy, State, Type } from "src/domains/policy.entity";
 import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
 import { PolicyCreateDto } from "src/contracts/policy/create-policy.dto";
 import { PolicyToOrganizationService } from "../policyToOrganization/policyToOrganization.service";
 import { ReadUserDto } from "src/contracts/user/read-user.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { Account } from "src/domains/account.entity";
+import { PolicyUpdateDto } from "src/contracts/policy/update-policy.dto";
 
 
 
@@ -90,5 +91,25 @@ export class PolicyService {
         // Поиск всех политик с типом INSTRUCTION
         const instructions = await this.policyRepository.find({ where: { type: Type.INSTRUCTION, account: { id: account.id } } });
         return instructions
+    }
+
+    async update(_id: string, updatePolicyDto: PolicyUpdateDto): Promise<PolicyReadDto> {
+        const policy = await this.policyRepository.findOne({ where: { id: _id } });
+        if (!policy) {
+            throw new NotFoundException(`Политика с ID ${_id} не найдена`);
+        }
+        // Обновить свойства, если они указаны в DTO
+        if (updatePolicyDto.policyName) policy.policyName = updatePolicyDto.policyName;
+        if (updatePolicyDto.state) policy.state = updatePolicyDto.state;
+        if (updatePolicyDto.type) policy.type = updatePolicyDto.type;
+        if (updatePolicyDto.content) policy.content = updatePolicyDto.content;
+        if (updatePolicyDto.state === State.ACTIVE) policy.dateActive = new Date();
+
+        if(updatePolicyDto.policyToOrganizations){
+            await this.policyToOrganizationService.remove(policy);
+            await this.policyToOrganizationService.createSeveral(policy, updatePolicyDto.policyToOrganizations);
+        }
+
+        return this.policyRepository.save(policy);
     }
 }
