@@ -55,16 +55,10 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<PolicyReadDto[]> {
-        try {
-            const user = await this.userService.findOne(userId);
-            const policies = await this.policyService.findAllForAccount(user.account);
-            this.logger.info(`${yellow('OK!')} - ${red(ip)} - POLICIES: ${JSON.stringify(policies)} - ВСЕ ПОЛИТИКИ!`);
-            return policies
-        }
-        catch (err) {
-            this.logger.error(err);
-            throw new InternalServerErrorException('Ой, что - то пошло не так!')
-        }
+        const user = await this.userService.findOne(userId);
+        const policies = await this.policyService.findAllForAccount(user.account);
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - POLICIES: ${JSON.stringify(policies)} - ВСЕ ПОЛИТИКИ!`);
+        return policies
     }
 
 
@@ -120,11 +114,11 @@ export class PolicyController {
                     updatedAt: "2024-09-16T14:24:33.841Z"
                 },
                 {
-                  id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
-                  organizationName: "OOO BOBRIK",
-                  parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-                  createdAt: "2024-09-16T15:09:48.995Z",
-                  updatedAt: "2024-09-16T15:09:48.995Z"
+                    id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+                    organizationName: "OOO BOBRIK",
+                    parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                    createdAt: "2024-09-16T15:09:48.995Z",
+                    updatedAt: "2024-09-16T15:09:48.995Z"
                 }
             ]
         }
@@ -133,20 +127,14 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ directives: PolicyReadDto[], instructions: PolicyReadDto[], policies: PolicyReadDto[], organizations: OrganizationReadDto[] }> {
-        try {
-            const user = await this.userService.findOne(userId)
-            const directives = await this.policyService.findDirectivesForAccount(user.account);
-            const instructions = await this.policyService.findInstructionsForAccount(user.account);
-            const organizations = await this.organizationService.findAllForAccount(user.account);
-            const policies = await this.policyService.findAllForAccount(user.account)
+        const user = await this.userService.findOne(userId)
+        const directives = await this.policyService.findDirectivesForAccount(user.account);
+        const instructions = await this.policyService.findInstructionsForAccount(user.account);
+        const organizations = await this.organizationService.findAllForAccount(user.account);
+        const policies = await this.policyService.findAllForAccount(user.account)
 
-            this.logger.info(`${yellow('OK!')} - ${red(ip)} - DIRECTIVES: ${JSON.stringify(directives)} - INSTRUCTIONS: ${JSON.stringify(instructions)} - ORGANIZATIONS: ${JSON.stringify(organizations)} - POLICIES: ${JSON.stringify(policies)} - Получить данные для создания новой политики!`);
-            return { directives: directives, instructions: instructions, policies: policies, organizations: organizations }
-        }
-        catch (err) {
-            this.logger.error(err)
-            throw new InternalServerErrorException('Ой, что - то пошло не так!')
-        }
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - DIRECTIVES: ${JSON.stringify(directives)} - INSTRUCTIONS: ${JSON.stringify(instructions)} - ORGANIZATIONS: ${JSON.stringify(organizations)} - POLICIES: ${JSON.stringify(policies)} - Получить данные для создания новой политики!`);
+        return { directives: directives, instructions: instructions, policies: policies, organizations: organizations }
     }
 
 
@@ -169,13 +157,16 @@ export class PolicyController {
             content: "HTML",
             createdAt: "2024-09-18T14:59:47.010Z",
             updatedAt: "2024-09-20T11:51:20.848Z"
-          }
+        }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
-    async update(@Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto): Promise<PolicyReadDto>{
-        return await this.policyService.update(policyId, policyUpdateDto);
+    async update(@Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<PolicyReadDto> {
+        const updatedPolicy = await this.policyService.update(policyId, policyUpdateDto);
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POLICY: ${JSON.stringify(policyUpdateDto)} - Политика успешно обновлена!`);
+        return updatedPolicy;
     }
 
     @Get(':policyId')
@@ -224,25 +215,17 @@ export class PolicyController {
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
-    async findOne(@Param('userId') userId: string, policyId: string, @Ip() ip: string): Promise<{ currentPolicy: PolicyReadDto, directives: PolicyReadDto[], instructions: PolicyReadDto[], policies: PolicyReadDto[] }> {
-        try {
-            const policy = await this.policyService.findeOneById(policyId);
-            if(!policy){
-                throw new NotFoundException('Политика не найдена!');
-            }
-            const user = await this.userService.findOne(userId)
-            const directives = await this.policyService.findDirectivesForAccount(user.account);
-            const instructions = await this.policyService.findInstructionsForAccount(user.account);
-            const policies = await this.policyService.findAllForAccount(user.account)
-            this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POLICY: ${JSON.stringify(policy)} - DIRECTIVES: ${JSON.stringify(directives)} - INSTRUCTIONS: ${JSON.stringify(instructions)} - POLICIES: ${JSON.stringify(policies)} - Получить политику по ID!`)
-            return { currentPolicy: policy, directives: directives, instructions: instructions, policies: policies }
-        }
-        catch (err) {
-            this.logger.error(err);
-            throw new InternalServerErrorException('Ой, что - то пошло не так!')
-        }
+    async findOne(@Param('userId') userId: string, @Param('policyId') policyId: string, @Ip() ip: string): Promise<{ currentPolicy: PolicyReadDto, directives: PolicyReadDto[], instructions: PolicyReadDto[], policies: PolicyReadDto[] }> {
+        const policy = await this.policyService.findeOneById(policyId);
+        const user = await this.userService.findOne(userId)
+        const directives = await this.policyService.findDirectivesForAccount(user.account);
+        const instructions = await this.policyService.findInstructionsForAccount(user.account);
+        const policies = await this.policyService.findAllForAccount(user.account)
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POLICY: ${JSON.stringify(policy)} - DIRECTIVES: ${JSON.stringify(directives)} - INSTRUCTIONS: ${JSON.stringify(instructions)} - POLICIES: ${JSON.stringify(policies)} - Получить политику по ID!`);
+        return { currentPolicy: policy, directives: directives, instructions: instructions, policies: policies }
     }
 
 
@@ -302,20 +285,14 @@ export class PolicyController {
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<Policy> {
-        try {
-            const user = await this.userService.findOne(userId);
-            policyCreateDto.user = user;
-            policyCreateDto.account = user.account;
-            this.logger.info(`${yellow('OK!')} - ${red(ip)} - policyCreateDto: ${JSON.stringify(policyCreateDto)} - Создана новая политика!`)
-            return await this.policyService.create(policyCreateDto)
-        }
-        catch (err) {
-            this.logger.error(err)
-        }
+        const user = await this.userService.findOne(userId);
+        policyCreateDto.user = user;
+        policyCreateDto.account = user.account;
+        const createdPolicy = await this.policyService.create(policyCreateDto)
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - policyCreateDto: ${JSON.stringify(policyCreateDto)} - Создана новая политика!`)
+        return createdPolicy;
     }
-
-
-
 }

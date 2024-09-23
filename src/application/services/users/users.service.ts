@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { User } from '../../../domains/user.entity'
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from 'src/contracts/user/create-user.dto';
@@ -6,6 +6,7 @@ import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { UsersRepository } from './Repository/users.repository';
 import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
+import { Logger } from 'winston';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +14,7 @@ export class UsersService {
     constructor(
         @InjectRepository(User)
         private usersRepository: UsersRepository,
+        @Inject('winston') private readonly logger: Logger,
     ) { }
 
 
@@ -43,7 +45,7 @@ export class UsersService {
     }
 
     async findAllForAccount(account: AccountReadDto): Promise<ReadUserDto[]> {
-        const users = await this.usersRepository.find({where: {account: {id: account.id}}});
+        const users = await this.usersRepository.find({ where: { account: { id: account.id } } });
         return users.map(user => ({
             id: user.id,
             firstName: user.firstName,
@@ -70,31 +72,47 @@ export class UsersService {
 
 
     async findOne(id: string): Promise<ReadUserDto | null> {
-        const user = await this.usersRepository.findOne({ where: {id}, relations: ['account', 'organization'] });
-        if (!user) return null;
-        // Преобразование объекта User в ReadUserDto
-        const readUserDto: ReadUserDto = {
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            telegramId: user.telegramId,
-            telephoneNumber: user.telephoneNumber,
-            avatar_url: user.avatar_url,
-            vk_id: user.vk_id,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            post: user.post,
-            refreshSessions: user.refreshSessions,
-            goals: user.goals,
-            policies: user.policies,
-            strategies: user.strategies,
-            targetHolders: user.targetHolders,
-            projects: user.projects,
-            organization: user.organization,
-            account: user.account
-        };
+        try {
+            const user = await this.usersRepository.findOne({ where: { id }, relations: ['account', 'organization'] });
+            if (!user) throw new NotFoundException(`Пользователь с ${id} не найден!`);
+            // Преобразование объекта User в ReadUserDto
+            const readUserDto: ReadUserDto = {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                telegramId: user.telegramId,
+                telephoneNumber: user.telephoneNumber,
+                avatar_url: user.avatar_url,
+                vk_id: user.vk_id,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+                post: user.post,
+                refreshSessions: user.refreshSessions,
+                goals: user.goals,
+                policies: user.policies,
+                strategies: user.strategies,
+                targetHolders: user.targetHolders,
+                projects: user.projects,
+                organization: user.organization,
+                account: user.account
+            };
 
-        return readUserDto;
+            return readUserDto;
+        }
+        catch (err) {
+
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+
+                this.logger.error(err);
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении пользователя');
+        }
+
     }
 
     async findOneByTelephoneNumber(telephoneNumber: string): Promise<ReadUserDto | null> {
@@ -204,7 +222,7 @@ export class UsersService {
     }
 
 
-    async updateByPhoneNumber(telephoneNumber: string, telegramId: number): Promise<ReadUserDto | null>{
+    async updateByPhoneNumber(telephoneNumber: string, telegramId: number): Promise<ReadUserDto | null> {
         const user = await this.usersRepository.findOneBy({ telephoneNumber });
         if (!user) return null;
         const updateUserDto: UpdateUserDto = {
