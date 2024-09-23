@@ -44,6 +44,11 @@ export class GoalToOrganizationService{
     
         return createdRelations;
     }
+
+    
+    async remove(goal: GoalReadDto): Promise<void>{
+        await this.goalToOrganizationRepository.delete({goal: goal});
+    }
     
 
 }

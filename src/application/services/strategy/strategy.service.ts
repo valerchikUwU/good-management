@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Strategy } from "src/domains/strategy.entity";
 import { StrategyToOrganizationService } from "../strategyToOrganization/strategyToOrganization.service";
@@ -6,6 +6,7 @@ import { StrategyRepository } from "./repository/strategy.repository";
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
 import { StrategyCreateDto } from "src/contracts/strategy/create-strategy.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
+import { StrategyUpdateDto } from "src/contracts/strategy/update-strategy.dto";
 
 
 
@@ -73,5 +74,23 @@ export class StrategyService {
         await this.strategyToOrganizationService.createSeveral(createdStrategy, strategyCreateDto.strategyToOrganizations);
 
         return createdStrategy;
+    }
+
+
+    async update(_id: string, updateStrategyDto: StrategyUpdateDto): Promise<StrategyReadDto> {
+        const strategy = await this.strategyRepository.findOne({ where: { id: _id } });
+        if (!strategy) {
+            throw new NotFoundException(`Стратегия с ID ${_id} не найдена`);
+        }
+        // Обновить свойства, если они указаны в DTO
+        if (updateStrategyDto.strategyName) strategy.strategyName = updateStrategyDto.strategyName;
+        if (updateStrategyDto.content) strategy.content = updateStrategyDto.content;
+
+        if(updateStrategyDto.strategyToOrganizations){
+            await this.strategyToOrganizationService.remove(strategy);
+            await this.strategyToOrganizationService.createSeveral(strategy, updateStrategyDto.strategyToOrganizations);
+        }
+
+        return this.strategyRepository.save(strategy);
     }
 }

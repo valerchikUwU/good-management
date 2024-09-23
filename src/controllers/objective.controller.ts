@@ -1,10 +1,11 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Query } from "@nestjs/common";
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ObjectiveService } from "src/application/services/objective/objective.service";
 import { StrategyService } from "src/application/services/strategy/strategy.service";
 import { UsersService } from "src/application/services/users/users.service";
 import { ObjectiveCreateDto } from "src/contracts/objective/create-objective.dto";
 import { ObjectiveReadDto } from "src/contracts/objective/read-objective.dto";
+import { ObjectiveUpdateDto } from "src/contracts/objective/update-objective.dto";
 import { Objective } from "src/domains/objective.entity";
 
 
@@ -39,6 +40,20 @@ export class ObjectiveController {
         const user = await this.userService.findOne(userId);
         return await this.objectiveService.findAllForAccount(user.account);
     }
+
+
+    @Patch(':objectiveId/update')
+    @ApiOperation({summary: 'Обновить краткосрочную цель по ID'})    
+    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
+        example: {
+        }})
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
+    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+    @ApiParam({name: 'objectiveId', required: true, description: 'Id краткосрочной цели'})
+    async update(@Param('userId') userId: string, @Param('organizationId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto): Promise<ObjectiveReadDto>{
+        return await this.objectiveService.update(objectiveId, objectiveUpdateDto)
+    }
+
 
 
 

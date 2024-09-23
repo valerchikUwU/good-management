@@ -1,9 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { ObjectiveRepository } from "./repository/objective.repository";
 import { ObjectiveReadDto } from "src/contracts/objective/read-objective.dto";
 import { Objective } from "src/domains/objective.entity";
 import { ObjectiveCreateDto } from "src/contracts/objective/create-objective.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
+import { ObjectiveUpdateDto } from "src/contracts/objective/update-objective.dto";
 
 
 
@@ -58,5 +59,20 @@ export class ObjectiveService{
         objective.account = objectiveCreateDto.account;
 
         return await this.objectiveRepository.save(objective);
+    }
+
+    
+    async update(_id: string, updateObjectiveDto: ObjectiveUpdateDto): Promise<ObjectiveReadDto> {
+        const objective = await this.objectiveRepository.findOne({ where: { id: _id } });
+        if (!objective) {
+            throw new NotFoundException(`Краткосрочная цель с ID ${_id} не найдена`);
+        }
+        // Обновить свойства, если они указаны в DTO
+        if (updateObjectiveDto.orderNumber) objective.orderNumber = updateObjectiveDto.orderNumber;
+        if (updateObjectiveDto.situation) objective.situation = updateObjectiveDto.situation;
+        if (updateObjectiveDto.content) objective.content = updateObjectiveDto.content;
+        if (updateObjectiveDto.rootCause) objective.rootCause = updateObjectiveDto.rootCause;
+
+        return this.objectiveRepository.save(objective);
     }
 }

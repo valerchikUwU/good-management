@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/common";
 import { OrganizationService } from "src/application/services/organization/organization.service";
 import { UsersService } from "src/application/services/users/users.service";
 import { OrganizationCreateDto } from "src/contracts/organization/create-organization.dto";
@@ -6,6 +6,7 @@ import { OrganizationReadDto } from "src/contracts/organization/read-organizatio
 
 
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { OrganizationUpdateDto } from "src/contracts/organization/update-organization.dto";
 
 @ApiTags('Organization')
 @Controller(':userId/organizations')
@@ -27,8 +28,18 @@ export class OrganizationController{
         const user = await this.userService.findOne(userId)
         return await this.organizationService.findAllForAccount(user.account);
     }
-    
 
+    @Patch(':organizationId/update')
+    @ApiOperation({summary: 'Обновить данные об организации по ID'})    
+    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
+        example: {
+        }})
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
+    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+    @ApiParam({name: 'organizationId', required: true, description: 'Id организации'})
+    async update(@Param('userId') userId: string, @Param('organizationId') organizationId: string, @Body() organizationUpdateDto: OrganizationUpdateDto): Promise<OrganizationReadDto>{
+        return await this.organizationService.update(organizationId, organizationUpdateDto)
+    }
 
     @Post('new')
     @ApiOperation({summary: 'Добавить организацию'})

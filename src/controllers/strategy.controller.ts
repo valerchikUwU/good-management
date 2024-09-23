@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/common";
 
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
@@ -7,6 +7,7 @@ import { StrategyCreateDto } from "src/contracts/strategy/create-strategy.dto";
 import { UsersService } from "src/application/services/users/users.service";
 import { Strategy } from "src/domains/strategy.entity";
 import { GoalCreateDto } from "src/contracts/goal/create-goal.dto";
+import { StrategyUpdateDto } from "src/contracts/strategy/update-strategy.dto";
 
 @ApiTags('Strategy')
 @Controller(':userId/strategies')
@@ -38,6 +39,23 @@ export class StrategyController {
     async findAll(@Param('userId') userId: string): Promise<StrategyReadDto[]> {
         const user = await this.userService.findOne(userId);
         return await this.strategyService.findAllForAccount(user.account)
+    }
+
+
+    @Patch(':strategyId/update')
+    @ApiOperation({ summary: 'Обновить стратегию по Id' })
+    @ApiBody({
+        description: 'ДТО для обновления стратегии',
+        type: StrategyUpdateDto,
+        required: true,
+    })
+    @ApiResponse({
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'strategyId', required: true, description: 'Id политики' })
+    async update(@Param('strategyId') strategyId: string, @Body() strategyUpdateDto: StrategyUpdateDto): Promise<StrategyReadDto>{
+        return await this.strategyService.update(strategyId, strategyUpdateDto);
     }
 
     @Post('new')

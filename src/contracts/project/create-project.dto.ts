@@ -35,7 +35,7 @@ export class ProjectCreateDto {
     user: User;
 
     @ApiProperty({
-        description: 'Название политики', example: 
+        description: 'Список задач', example: 
         [
             {
                 type: 'Продукт',
@@ -47,7 +47,29 @@ export class ProjectCreateDto {
                 holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
-            }
+            },
+            {
+                type: 'Обычная',
+                commonNumber: 1,
+                statisticNumber: null,
+                ruleNumber: null,
+                productNumber: null,
+                content: 'Контент задачи',
+                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                dateStart: '2024-09-18T14:59:47.010Z',
+                deadline: '2024-09-18T14:59:47.010Z',
+            },
+            {
+                type: 'Правила',
+                commonNumber: null,
+                statisticNumber: null,
+                ruleNumber: 1,
+                productNumber: null,
+                content: 'Контент задачи',
+                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                dateStart: '2024-09-18T14:59:47.010Z',
+                deadline: '2024-09-18T14:59:47.010Z',
+            },
         ]
     })
     targetCreateDtos: TargetCreateDto[]
