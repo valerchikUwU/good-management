@@ -56,7 +56,7 @@ export class PolicyController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<PolicyReadDto[]> {
         try {
-            const user = await this.userService.findOne(userId)
+            const user = await this.userService.findOne(userId);
             const policies = await this.policyService.findAllForAccount(user.account);
             this.logger.info(`${yellow('OK!')} - ${red(ip)} - POLICIES: ${JSON.stringify(policies)} - ВСЕ ПОЛИТИКИ!`);
             return policies
@@ -118,6 +118,13 @@ export class PolicyController {
                     parentOrganizationId: null,
                     createdAt: "2024-09-16T14:24:33.841Z",
                     updatedAt: "2024-09-16T14:24:33.841Z"
+                },
+                {
+                  id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+                  organizationName: "OOO BOBRIK",
+                  parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                  createdAt: "2024-09-16T15:09:48.995Z",
+                  updatedAt: "2024-09-16T15:09:48.995Z"
                 }
             ]
         }
@@ -298,7 +305,6 @@ export class PolicyController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<Policy> {
         try {
-
             const user = await this.userService.findOne(userId);
             policyCreateDto.user = user;
             policyCreateDto.account = user.account;
