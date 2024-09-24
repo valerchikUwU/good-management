@@ -183,7 +183,22 @@ export class PolicyController {
                 dateActive: null,
                 content: "string",
                 createdAt: "2024-09-18T14:59:47.010Z",
-                updatedAt: "2024-09-18T14:59:47.010Z"
+                updatedAt: "2024-09-18T14:59:47.010Z",
+                policyToOrganizations: [
+                  {
+                    id: "ea83fa12-2153-4851-ad0a-cc5fc29450ab",
+                    createdAt: "2024-09-18T14:59:47.577Z",
+                    updatedAt: "2024-09-18T14:59:47.577Z",
+                    organization: {
+                      id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                      organizationName: "soplya firma",
+                      parentOrganizationId: null,
+                      createdAt: "2024-09-16T14:24:33.841Z",
+                      updatedAt: "2024-09-16T14:24:33.841Z"
+                    }
+                  }
+                ]
+              
             },
             directives: [
                 {
