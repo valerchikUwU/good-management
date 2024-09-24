@@ -218,14 +218,15 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
-    async findOne(@Param('userId') userId: string, @Param('policyId') policyId: string, @Ip() ip: string): Promise<{ currentPolicy: PolicyReadDto, directives: PolicyReadDto[], instructions: PolicyReadDto[], policies: PolicyReadDto[] }> {
+    async findOne(@Param('userId') userId: string, @Param('policyId') policyId: string, @Ip() ip: string): Promise<{ currentPolicy: PolicyReadDto, directives: PolicyReadDto[], instructions: PolicyReadDto[], policies: PolicyReadDto[], organizations: OrganizationReadDto[] }> {
         const policy = await this.policyService.findeOneById(policyId);
         const user = await this.userService.findOne(userId)
         const directives = await this.policyService.findDirectivesForAccount(user.account);
         const instructions = await this.policyService.findInstructionsForAccount(user.account);
-        const policies = await this.policyService.findAllForAccount(user.account)
-        this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POLICY: ${JSON.stringify(policy)} - DIRECTIVES: ${JSON.stringify(directives)} - INSTRUCTIONS: ${JSON.stringify(instructions)} - POLICIES: ${JSON.stringify(policies)} - Получить политику по ID!`);
-        return { currentPolicy: policy, directives: directives, instructions: instructions, policies: policies }
+        const policies = await this.policyService.findAllForAccount(user.account);
+        const organizations = await this.organizationService.findAllForAccount(user.account);
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POLICY: ${JSON.stringify(policy)} - Получить политику по ID!`);
+        return { currentPolicy: policy, directives: directives, instructions: instructions, policies: policies, organizations: organizations }
     }
 
 
