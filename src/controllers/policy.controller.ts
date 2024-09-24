@@ -54,11 +54,12 @@ export class PolicyController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
-    async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<PolicyReadDto[]> {
+    async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<{policies: PolicyReadDto[], directives: PolicyReadDto[], instructions: PolicyReadDto[]}> {
         const user = await this.userService.findOne(userId);
         const policies = await this.policyService.findAllForAccount(user.account);
-        this.logger.info(`${yellow('OK!')} - ${red(ip)} - POLICIES: ${JSON.stringify(policies)} - ВСЕ ПОЛИТИКИ!`);
-        return policies
+        const directives = await this.policyService.findDirectivesForAccount(user.account);
+        const instructions = await this.policyService.findInstructionsForAccount(user.account);
+        return {policies: policies, directives: directives, instructions: instructions}
     }
 
 
@@ -132,8 +133,6 @@ export class PolicyController {
         const instructions = await this.policyService.findInstructionsForAccount(user.account);
         const organizations = await this.organizationService.findAllForAccount(user.account);
         const policies = await this.policyService.findAllForAccount(user.account)
-
-        this.logger.info(`${yellow('OK!')} - ${red(ip)} - DIRECTIVES: ${JSON.stringify(directives)} - INSTRUCTIONS: ${JSON.stringify(instructions)} - ORGANIZATIONS: ${JSON.stringify(organizations)} - POLICIES: ${JSON.stringify(policies)} - Получить данные для создания новой политики!`);
         return { directives: directives, instructions: instructions, policies: policies, organizations: organizations }
     }
 
@@ -200,33 +199,6 @@ export class PolicyController {
                 ]
               
             },
-            directives: [
-                {
-                    id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
-                    policyName: "asdasd",
-                    policyNumber: 1,
-                    state: "Черновик",
-                    type: "Директива",
-                    dateActive: null,
-                    content: "string",
-                    createdAt: "2024-09-18T14:59:47.010Z",
-                    updatedAt: "2024-09-18T14:59:47.010Z"
-                }
-            ],
-            instructions: [],
-            policies: [
-                {
-                    id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
-                    policyName: "asdasd",
-                    policyNumber: 1,
-                    state: "Черновик",
-                    type: "Директива",
-                    dateActive: null,
-                    content: "string",
-                    createdAt: "2024-09-18T14:59:47.010Z",
-                    updatedAt: "2024-09-18T14:59:47.010Z"
-                }
-            ],
             organizations: [
               {
                 id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
@@ -249,15 +221,12 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
-    async findOne(@Param('userId') userId: string, @Param('policyId') policyId: string, @Ip() ip: string): Promise<{ currentPolicy: PolicyReadDto, directives: PolicyReadDto[], instructions: PolicyReadDto[], policies: PolicyReadDto[], organizations: OrganizationReadDto[] }> {
-        const policy = await this.policyService.findeOneById(policyId);
+    async findOne(@Param('userId') userId: string, @Param('policyId') policyId: string, @Ip() ip: string): Promise<{ currentPolicy: PolicyReadDto, organizations: OrganizationReadDto[] }> {
+        const policy = await this.policyService.findOneById(policyId);
         const user = await this.userService.findOne(userId)
-        const directives = await this.policyService.findDirectivesForAccount(user.account);
-        const instructions = await this.policyService.findInstructionsForAccount(user.account);
-        const policies = await this.policyService.findAllForAccount(user.account);
         const organizations = await this.organizationService.findAllForAccount(user.account);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POLICY: ${JSON.stringify(policy)} - Получить политику по ID!`);
-        return { currentPolicy: policy, directives: directives, instructions: instructions, policies: policies, organizations: organizations }
+        return { currentPolicy: policy, organizations: organizations }
     }
 
 
