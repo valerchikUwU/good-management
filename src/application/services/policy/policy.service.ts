@@ -52,7 +52,7 @@ export class PolicyService {
 
     async findeOneById(id: string): Promise<PolicyReadDto | null> {
         try {
-            const policy = await this.policyRepository.findOneBy({ id });
+            const policy = await this.policyRepository.findOne({where: { id }, relations: ['policyToOrganizations.organization']});
             if (!policy) throw new NotFoundException(`Политика с ID: ${id} не найдена`);
             const policyReadDto: PolicyReadDto = {
                 id: policy.id,
