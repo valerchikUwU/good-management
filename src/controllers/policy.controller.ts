@@ -211,6 +211,22 @@ export class PolicyController {
                     createdAt: "2024-09-18T14:59:47.010Z",
                     updatedAt: "2024-09-18T14:59:47.010Z"
                 }
+            ],
+            organizations: [
+              {
+                id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                organizationName: "soplya firma",
+                parentOrganizationId: null,
+                createdAt: "2024-09-16T14:24:33.841Z",
+                updatedAt: "2024-09-16T14:24:33.841Z"
+              },
+              {
+                id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+                organizationName: "OOO BOBRIK",
+                parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                createdAt: "2024-09-16T15:09:48.995Z",
+                updatedAt: "2024-09-16T15:09:48.995Z"
+              }
             ]
         }
     })
