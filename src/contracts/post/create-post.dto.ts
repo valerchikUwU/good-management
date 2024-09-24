@@ -35,5 +35,5 @@ export class PostCreateDto {
     account: Account;
 
     @ApiProperty({ description:'ID организации, с которой связать пост', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
-    organizationId?: string
+    organizationId: string
 }

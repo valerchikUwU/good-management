@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
+import { IsString } from "class-validator";
 import { Account } from "src/domains/account.entity";
 import { State, Type } from "src/domains/policy.entity";
 import { User } from "src/domains/user.entity";

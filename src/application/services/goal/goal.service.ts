@@ -76,6 +76,20 @@ export class GoalService {
 
     async create(goalCreateDto: GoalCreateDto): Promise<Goal> {
         try {
+
+            // Проверка на наличие обязательных данных
+            if (!goalCreateDto.goalName) {
+                throw new BadRequestException('У цели обязательно наличие названия!');
+            }
+            if (!goalCreateDto.orderNumber) {
+                throw new BadRequestException('У цели должен быть порядковый номер!');
+            }
+            if (!goalCreateDto.content) {
+                throw new BadRequestException('Цель не может быть пустой!');
+            }
+            if (!goalCreateDto.goalToOrganizations) {
+                throw new BadRequestException('Выберите хотя бы одну организацию для цели!');
+            }
             const goal = new Goal();
             goal.goalName = goalCreateDto.goalName;
             goal.orderNumber = goalCreateDto.orderNumber;
@@ -99,21 +113,36 @@ export class GoalService {
 
 
     async update(_id: string, updateGoalDto: GoalUpdateDto): Promise<GoalReadDto> {
-        const goal = await this.goalRepository.findOne({ where: { id: _id } });
-        if (!goal) {
-            throw new NotFoundException(`Политика с ID ${_id} не найдена`);
-        }
-        // Обновить свойства, если они указаны в DTO
-        if (updateGoalDto.goalName) goal.goalName = updateGoalDto.goalName;
-        if (updateGoalDto.orderNumber) goal.orderNumber = updateGoalDto.orderNumber;
-        if (updateGoalDto.content) goal.content = updateGoalDto.content;
+        try{
 
-        if (updateGoalDto.goalToOrganizations) {
-            await this.goalToOrganizationService.remove(goal);
-            await this.goalToOrganizationService.createSeveral(goal, updateGoalDto.goalToOrganizations);
+            const goal = await this.goalRepository.findOne({ where: { id: _id } });
+            if (!goal) {
+                throw new NotFoundException(`Политика с ID ${_id} не найдена`);
+            }
+            // Обновить свойства, если они указаны в DTO
+            if (updateGoalDto.goalName) goal.goalName = updateGoalDto.goalName;
+            if (updateGoalDto.orderNumber) goal.orderNumber = updateGoalDto.orderNumber;
+            if (updateGoalDto.content) goal.content = updateGoalDto.content;
+    
+            if (updateGoalDto.goalToOrganizations) {
+                await this.goalToOrganizationService.remove(goal);
+                await this.goalToOrganizationService.createSeveral(goal, updateGoalDto.goalToOrganizations);
+            }
+    
+            return this.goalRepository.save(goal);
         }
+        catch(err){
+            
 
-        return this.goalRepository.save(goal);
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при обновлении цели');
+        }
     }
 
 }

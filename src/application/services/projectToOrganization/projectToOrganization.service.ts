@@ -5,6 +5,7 @@ import { PolicyToOrganization } from "src/domains/policyToOrganization.entity";
 import { ProjectToOrganization } from "src/domains/projectToOrganization.entity";
 import { ProjectToOrganizationRepository } from "./repository/projectToOrganization.repository";
 import { Project } from "src/domains/project.entity";
+import { ProjectReadDto } from "src/contracts/project/read-project.dto";
 
 
 @Injectable()
@@ -39,6 +40,11 @@ export class ProjectToOrganizationService{
         }
     
         return createdRelations;
+    }
+
+    
+    async remove(project: ProjectReadDto): Promise<void>{
+        await this.projectToOrganizationRepository.delete({project: project});
     }
     
 

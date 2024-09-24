@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Post } from "src/domains/post.entity";
 import { PostRepository } from "./repository/post.repository";
@@ -6,6 +6,7 @@ import { PostReadDto } from "src/contracts/post/read-post.dto";
 import { PostCreateDto } from "src/contracts/post/create-post.dto";
 import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
+import { Logger } from "winston";
 
 
 
@@ -13,7 +14,8 @@ import { AccountReadDto } from "src/contracts/account/read-account.dto";
 export class PostService {
     constructor(
         @InjectRepository(Post)
-        private readonly postRepository: PostRepository
+        private readonly postRepository: PostRepository,
+        @Inject('winston') private readonly logger: Logger
     ) {
 
     }
@@ -40,79 +42,136 @@ export class PostService {
 
         
     async findAllForOrganization(organization: OrganizationReadDto): Promise<PostReadDto[]> {
-        const posts = await this.postRepository.find({where: {organization: {id: organization.id}}});
+        try{
+            const posts = await this.postRepository.find({where: {organization: {id: organization.id}}});
 
-        return posts.map(post => ({
+            return posts.map(post => ({
+    
+                id: post.id,
+                postName: post.postName,
+                divisionName: post.divisionName,
+                parentId: post.parentId,
+                product: post.product,
+                purpose: post.purpose,
+                createdAt: post.createdAt,
+                updatedAt: post.updatedAt,
+                user: post.user,
+                policy: post.policy,
+                statistics: post.statistics,
+                organization: post.organization
+            }))
+        }
+        catch(err){
 
-            id: post.id,
-            postName: post.postName,
-            divisionName: post.divisionName,
-            parentId: post.parentId,
-            product: post.product,
-            purpose: post.purpose,
-            createdAt: post.createdAt,
-            updatedAt: post.updatedAt,
-            user: post.user,
-            policy: post.policy,
-            statistics: post.statistics,
-            organization: post.organization
-        }))
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех постов!');
+
+        }
     }
     
     async findAllForAccount(account: AccountReadDto): Promise<PostReadDto[]> {
-        const posts = await this.postRepository.find({where: {account: {id: account.id}}, relations: ['user', 'organization']});
+        try{
 
-        return posts.map(post => ({
+            const posts = await this.postRepository.find({where: {account: {id: account.id}}, relations: ['user', 'organization']});
 
-            id: post.id,
-            postName: post.postName,
-            divisionName: post.divisionName,
-            parentId: post.parentId,
-            product: post.product,
-            purpose: post.purpose,
-            createdAt: post.createdAt,
-            updatedAt: post.updatedAt,
-            user: post.user,
-            policy: post.policy,
-            statistics: post.statistics,
-            organization: post.organization
-        }))
+            return posts.map(post => ({
+    
+                id: post.id,
+                postName: post.postName,
+                divisionName: post.divisionName,
+                parentId: post.parentId,
+                product: post.product,
+                purpose: post.purpose,
+                createdAt: post.createdAt,
+                updatedAt: post.updatedAt,
+                user: post.user,
+                policy: post.policy,
+                statistics: post.statistics,
+                organization: post.organization
+            }))
+        }
+        catch(err){
+
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех постов!');
+        }
     }
 
     async findeOneById(id: string): Promise<PostReadDto | null> {
-        const post = await this.postRepository.findOneBy({ id });
+        try{
 
-        if (!post) return null;
-        const postReadDto: PostReadDto = {
-            id: post.id,
-            postName: post.postName,
-            divisionName: post.divisionName,
-            parentId: post.parentId,
-            product: post.product,
-            purpose: post.purpose,
-            createdAt: post.createdAt,
-            updatedAt: post.updatedAt,
-            user: post.user,
-            policy: post.policy,
-            statistics: post.statistics,
-            organization: post.organization
+            const post = await this.postRepository.findOneBy({ id });
+
+            if (!post) throw new NotFoundException(`Пост с ID: ${id} не найден`);
+            const postReadDto: PostReadDto = {
+                id: post.id,
+                postName: post.postName,
+                divisionName: post.divisionName,
+                parentId: post.parentId,
+                product: post.product,
+                purpose: post.purpose,
+                createdAt: post.createdAt,
+                updatedAt: post.updatedAt,
+                user: post.user,
+                policy: post.policy,
+                statistics: post.statistics,
+                organization: post.organization
+            }
+    
+            return postReadDto;
         }
+        catch(err){
 
-        return postReadDto;
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении поста');
+
+        }
     }
 
     async create(postCreateDto: PostCreateDto): Promise<Post> {
+        try{
+        // Проверка на наличие обязательных данных
+        if (!postCreateDto.postName) {
+            throw new BadRequestException('У поста обязательно наличие названия!');
+        }
+        if (!postCreateDto.product) {
+            throw new BadRequestException('Выберите продукт поста!');
+        }
+        if (!postCreateDto.purpose) {
+            throw new BadRequestException('Выберите предназначение поста!');
+        }
+        if (!postCreateDto.organizationId) {
+            throw new BadRequestException('Выберите организацию для поста!');
+        }
+
         const post = new Post();
         post.postName = postCreateDto.postName;
         post.divisionName = postCreateDto.divisionName;
-        post.parentId = postCreateDto.parentId,
-        post.product = postCreateDto.product,
-        post.purpose = postCreateDto.purpose,
+        post.parentId = postCreateDto.parentId;
+        post.product = postCreateDto.product;
+        post.purpose = postCreateDto.purpose;
         post.user = postCreateDto.user;
         post.organization = postCreateDto.organization;
         post.policy = postCreateDto.policy;
         post.account = postCreateDto.account;
 
         return await this.postRepository.save(post);
+        }
+        catch(err){
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof BadRequestException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+            throw new InternalServerErrorException('Ошибка при создании политики')
+        }
     }
 }

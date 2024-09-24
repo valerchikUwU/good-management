@@ -1,9 +1,10 @@
-import { Account } from "src/domains/account.entity";
-import { Strategy } from "src/domains/strategy.entity";
+import { IsUUID } from "class-validator";
 
 
 
 export class ObjectiveUpdateDto{
+    
+    @IsUUID()
     _id: string;
     orderNumber?: number;
     situation?: string;

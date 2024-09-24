@@ -1,9 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { GoalToOrganization } from "src/domains/goalToOrganization.entity";
+import { IsUUID } from "class-validator";
 
 export class GoalUpdateDto{
     
     @ApiProperty({ description: 'Id цели' })
+    @IsUUID()
     _id: string;
     
     @ApiProperty({ description: 'Название цели' })

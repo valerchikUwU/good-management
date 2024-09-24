@@ -1,15 +1,17 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Inject, Ip, Param, Post, Query } from "@nestjs/common";
 
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { OrganizationService } from "src/application/services/organization/organization.service";
 import { PolicyService } from "src/application/services/policy/policy.service";
 import { PostService } from "src/application/services/post/post.service";
 import { UsersService } from "src/application/services/users/users.service";
+import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
 import { PostCreateDto } from "src/contracts/post/create-post.dto";
 import { PostReadDto } from "src/contracts/post/read-post.dto";
 import { ReadUserDto } from "src/contracts/user/read-user.dto";
-import { Organization } from "src/domains/organization.entity";
-import { User } from "src/domains/user.entity";
+import { Post as PostModel}  from "src/domains/post.entity";
+import { Logger } from 'winston';
+import { blue, red, green, yellow, bold } from 'colorette';
 
 
 
@@ -21,7 +23,8 @@ export class PostController {
     constructor(private readonly postService: PostService,
         private readonly userService: UsersService,
         private readonly policyService: PolicyService,
-        private readonly organizationService: OrganizationService
+        private readonly organizationService: OrganizationService,
+        @Inject('winston') private readonly logger: Logger
     ) { }
 
     @Get()
@@ -62,9 +65,53 @@ export class PostController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
-    async findAll(@Param('userId') userId: string): Promise<PostReadDto[]> {
+    async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<PostReadDto[]> {
         const user = await this.userService.findOne(userId);
-        return await this.postService.findAllForAccount(user.account)
+        const posts = await this.postService.findAllForAccount(user.account);
+        return posts;
+    }
+
+    @Get('new')
+    @ApiOperation({summary: 'Получить данные для создания поста'})
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example:
+        {
+          workers: [
+            {
+              id: "3b809c42-2824-46c1-9686-dd666403402a",
+              firstName: "Maxik",
+              lastName: "Koval",
+              telegramId: 453120600,
+              telephoneNumber: null,
+              avatar_url: null,
+              vk_id: null,
+              createdAt: "2024-09-16T14:03:31.000Z",
+              updatedAt: "2024-09-16T14:03:31.000Z"
+            }
+          ],
+          policies: [
+            {
+              id: "f6e3ac1f-afd9-42c1-a9f3-d189961c325c",
+              policyName: "Пипка",
+              policyNumber: 2,
+              state: "Черновик",
+              type: "Директива",
+              dateActive: null,
+              content: "попа",
+              createdAt: "2024-09-18T15:06:52.222Z",
+              updatedAt: "2024-09-18T15:06:52.222Z"
+            }
+          ]
+        }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{workers: ReadUserDto[], policies: PolicyReadDto[]}>{
+      const user = await this.userService.findOne(userId);
+      const policies = await this.policyService.findAllForAccount(user.account);
+      const workers = await this.userService.findAllForAccount(user.account);
+      return {workers: workers, policies: policies}
     }
 
 
@@ -130,13 +177,14 @@ export class PostController {
           }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Пост не найден!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
-    async findOne(@Param('userId') userId: string, @Param('postId') postId: string): Promise<{postReadDto: PostReadDto, workers: ReadUserDto[], posts: PostReadDto[]}>{
+    async findOne(@Param('userId') userId: string, @Param('postId') postId: string, @Ip() ip: string): Promise<{postReadDto: PostReadDto, workers: ReadUserDto[], posts: PostReadDto[]}>{
         const user = await this.userService.findOne(userId);
         const post = await this.postService.findeOneById(postId);
         const workers = await this.userService.findAllForAccount(user.account);
         const posts = await this.postService.findAllForAccount(user.account);
-
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`);
         return {postReadDto: post, workers: workers, posts: posts}
     }
 
@@ -211,18 +259,23 @@ export class PostController {
           }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
     @ApiQuery({ name: 'addPolicyId', required: false, description: 'Id политики' })
-    async create(@Param('userId') userId: string, @Body() postCreateDto: PostCreateDto, @Query('addPolicyId') addPolicyId?: string): Promise<PostCreateDto>{
+    async create(@Param('userId') userId: string, @Body() postCreateDto: PostCreateDto, @Ip() ip: string, @Query('addPolicyId') addPolicyId?: string): Promise<PostModel>
+    //PostModel из за конфликтующих импортов
+    {
         const user = await this.userService.findOne(userId);
         if(addPolicyId !== undefined){
-            const policy = await this.policyService.findeOneById(addPolicyId)
+            const policy = await this.policyService.findOneById(addPolicyId)
             postCreateDto.policy = policy
         }
         postCreateDto.user = user;
         postCreateDto.account = user.account;
         const organization = await this.organizationService.findOneById(postCreateDto.organizationId)
         postCreateDto.organization = organization;
-        return this.postService.create(postCreateDto);
+        const createdPost = await this.postService.create(postCreateDto);
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - postCreateDto: ${JSON.stringify(postCreateDto)} - Создан новый пост!`)
+        return createdPost;
     }
 }   

@@ -40,7 +40,7 @@ export class StrategyService {
         }))
     }
 
-    async findeOneById(id: string): Promise<StrategyReadDto | null> {
+    async findOneById(id: string): Promise<StrategyReadDto | null> {
         const strategy = await this.strategyRepository.findOneBy({ id });
 
         if (!strategy) return null;
