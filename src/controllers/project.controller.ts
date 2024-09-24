@@ -202,7 +202,7 @@ export class ProjectController {
     @ApiOperation({ summary: 'Обновить проект по Id' })
     @ApiBody({
         description: 'ДТО для обновления политики',
-        type: PolicyUpdateDto,
+        type: ProjectUpdateDto,
         required: true,
     })
     @ApiResponse({

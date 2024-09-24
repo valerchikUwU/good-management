@@ -67,6 +67,19 @@ export class ProjectUpdateDto {
         ]
     })
     targetCreateDtos?: TargetCreateDto[];
-    
+
+
+    @ApiProperty({
+        description: 'Список задач', example: 
+        [
+            {
+                _id: '7a269e8f-26ba-46da-9ef9-e1b17475b6d9',
+                content: 'Контент задачи обновленный',
+                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                dateStart: '2023-09-18T14:59:47.010Z',
+                deadline: '2023-09-18T14:59:47.010Z',
+            }
+        ]
+    })
     targetUpdateDtos?: TargetUpdateDto[]
 }
