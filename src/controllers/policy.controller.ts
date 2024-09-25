@@ -160,7 +160,7 @@ export class PolicyController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
     async update(@Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<PolicyReadDto> {
         const updatedPolicy = await this.policyService.update(policyId, policyUpdateDto);
@@ -219,7 +219,7 @@ export class PolicyController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
     async findOne(@Param('userId') userId: string, @Param('policyId') policyId: string, @Ip() ip: string): Promise<{ currentPolicy: PolicyReadDto, organizations: OrganizationReadDto[] }> {
         const policy = await this.policyService.findOneById(policyId);
@@ -287,7 +287,7 @@ export class PolicyController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<Policy> {
         const user = await this.userService.findOne(userId);
         policyCreateDto.user = user;

@@ -62,7 +62,7 @@ export class ProjectController {
         ]
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findAll(@Param('userId') userId: string): Promise<ProjectReadDto[]> {
         const user = await this.userService.findOne(userId)
         return await this.projectService.findAllForAccount(user.account)
@@ -114,7 +114,7 @@ export class ProjectController {
 
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{workers: ReadUserDto[], projects: ProjectReadDto[], organizations: OrganizationReadDto[]}> {
         const user = await this.userService.findOne(userId);
         const workers = await this.userService.findAllForAccount(user.account);
@@ -183,7 +183,7 @@ export class ProjectController {
           }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto): Promise<Project> {
         const user = await this.userService.findOne(userId);
         const strategy = await this.strategyService.findOneById(projectCreateDto.strategyId);
@@ -212,7 +212,7 @@ export class ProjectController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Проект не найден!` })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
     async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<ProjectReadDto> {
         const updatedProject = await this.projectService.update(projectId, projectUpdateDto);
@@ -270,7 +270,7 @@ export class ProjectController {
           }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'projectId', required: true, description: 'Id пользователя' })
     async findOne(@Param('userId') userId: string, @Param('projectId') projectId: string): Promise<ProjectReadDto> {
         return await this.projectService.findeOneById(projectId);

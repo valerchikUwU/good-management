@@ -65,7 +65,7 @@ export class PostController {
           ]
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<PostReadDto[]> {
         const user = await this.userService.findOne(userId);
         const posts = await this.postService.findAllForAccount(user.account);
@@ -86,7 +86,7 @@ export class PostController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Пост не найдена!` })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'postId', required: true, description: 'Id поста' })
     async update(@Param('postId') postId: string, @Body() postUpdateDto: PostUpdateDto, @Ip() ip: string): Promise<PostReadDto> {
         const updatedPost = await this.postService.update(postId, postUpdateDto);
@@ -129,7 +129,7 @@ export class PostController {
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{workers: ReadUserDto[], policies: PolicyReadDto[]}>{
       const user = await this.userService.findOne(userId);
       const policies = await this.policyService.findAllForAccount(user.account);
@@ -201,7 +201,7 @@ export class PostController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Пост не найден!` })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findOne(@Param('userId') userId: string, @Param('postId') postId: string, @Ip() ip: string): Promise<{postReadDto: PostReadDto, workers: ReadUserDto[], posts: PostReadDto[]}>{
         const user = await this.userService.findOne(userId);
         const post = await this.postService.findeOneById(postId);
@@ -283,7 +283,7 @@ export class PostController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiQuery({ name: 'addPolicyId', required: false, description: 'Id политики' })
     async create(@Param('userId') userId: string, @Body() postCreateDto: PostCreateDto, @Ip() ip: string, @Query('addPolicyId') addPolicyId?: string): Promise<PostModel>
     //PostModel из за конфликтующих импортов

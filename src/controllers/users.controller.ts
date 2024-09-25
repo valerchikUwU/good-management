@@ -32,7 +32,7 @@ export class UsersController {
             ]
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findAll(): Promise<ReadUserDto[]> {
         return this.usersService.findAll();
     }
@@ -57,7 +57,7 @@ export class UsersController {
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findOne(@Param('id') id: string): Promise<ReadUserDto | null> {
         return this.usersService.findOne(id);
     }
@@ -79,7 +79,7 @@ export class UsersController {
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findOneByTelegramId(@Param('telegramId') telegramId: number): Promise<ReadUserDto | null> {
         return this.usersService.findOneByTelegramId(telegramId);
     }

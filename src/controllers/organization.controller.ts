@@ -23,7 +23,7 @@ export class OrganizationController{
         example: {
         }})
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
-    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+    @ApiParam({name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a'})
     async findOrganization(@Param('userId') userId: string): Promise<OrganizationReadDto[]>{
         const user = await this.userService.findOne(userId)
         return await this.organizationService.findAllForAccount(user.account);
@@ -35,7 +35,7 @@ export class OrganizationController{
         example: {
         }})
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
-    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+    @ApiParam({name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a'})
     @ApiParam({name: 'organizationId', required: true, description: 'Id организации'})
     async update(@Param('userId') userId: string, @Param('organizationId') organizationId: string, @Body() organizationUpdateDto: OrganizationUpdateDto): Promise<OrganizationReadDto>{
         return await this.organizationService.update(organizationId, organizationUpdateDto)
@@ -57,7 +57,7 @@ export class OrganizationController{
         updatedAt: "2024-09-16T14:24:33.841Z"
       }})
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
-    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+    @ApiParam({name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a'})
     async create(@Param('userId') userId: string, @Body() organizationCreateDto: OrganizationCreateDto): Promise<OrganizationCreateDto>{
         const user = await this.userService.findOne(userId)
         organizationCreateDto.account = user.account;
