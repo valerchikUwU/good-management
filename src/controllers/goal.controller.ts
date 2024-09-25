@@ -104,31 +104,7 @@ export class GoalController {
             updatedAt: "2024-09-18T14:11:28.433Z"
           }
         ]
-      },
-      allGoals: [
-        {
-          id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
-          goalName: "Перепукать шматика №1",
-          orderNumber: 1,
-          content: "Надо перепукать шмутзеля",
-          createdAt: "2024-09-18T14:11:27.918Z",
-          updatedAt: "2024-09-18T14:11:27.918Z",
-          goalToOrganizations: [
-            {
-              id: "00eb152b-43a5-483d-9085-c46c23873a3d",
-              createdAt: "2024-09-18T14:11:28.433Z",
-              updatedAt: "2024-09-18T14:11:28.433Z",
-              organization: {
-                id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-                organizationName: "soplya firma",
-                parentOrganizationId: null,
-                createdAt: "2024-09-16T14:24:33.841Z",
-                updatedAt: "2024-09-16T14:24:33.841Z"
-              }
-            }
-          ]
-        }
-      ]
+      }
     }
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
