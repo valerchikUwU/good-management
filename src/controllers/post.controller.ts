@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Inject, Ip, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Inject, Ip, Param, Patch, Post, Query } from "@nestjs/common";
 
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { OrganizationService } from "src/application/services/organization/organization.service";
@@ -12,6 +12,7 @@ import { ReadUserDto } from "src/contracts/user/read-user.dto";
 import { Post as PostModel}  from "src/domains/post.entity";
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
+import { PostUpdateDto } from "src/contracts/post/update-post.dto";
 
 
 
@@ -69,6 +70,28 @@ export class PostController {
         const user = await this.userService.findOne(userId);
         const posts = await this.postService.findAllForAccount(user.account);
         return posts;
+    }
+
+    @Patch(':postId/update')
+    @ApiOperation({ summary: 'Обновить пост по Id' })
+    @ApiBody({
+        description: 'ДТО для обновления поста',
+        type: PostUpdateDto,
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example: {
+        }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Пост не найдена!` })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'postId', required: true, description: 'Id поста' })
+    async update(@Param('postId') postId: string, @Body() postUpdateDto: PostUpdateDto, @Ip() ip: string): Promise<PostReadDto> {
+        const updatedPost = await this.postService.update(postId, postUpdateDto);
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POST: ${JSON.stringify(postUpdateDto)} - Пост успешно обновлен!`);
+        return updatedPost;
     }
 
     @Get('new')

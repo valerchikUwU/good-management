@@ -7,6 +7,7 @@ import { PostCreateDto } from "src/contracts/post/create-post.dto";
 import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { Logger } from "winston";
+import { PostUpdateDto } from "src/contracts/post/update-post.dto";
 
 
 
@@ -171,7 +172,36 @@ export class PostService {
             if (err instanceof BadRequestException) {
                 throw err; // Пробрасываем исключение дальше
             }
-            throw new InternalServerErrorException('Ошибка при создании политики')
+            throw new InternalServerErrorException('Ошибка при создании поста')
+        }
+    }
+
+
+    async update(_id: string, updatePostDto: PostUpdateDto): Promise<PostReadDto> {
+        try {
+            const post = await this.postRepository.findOne({ where: { id: _id } });
+            if (!post) {
+                throw new NotFoundException(`Пост с ID ${_id} не найден`);
+            }
+            // Обновить свойства, если они указаны в DTO
+            if (updatePostDto.postName) post.postName = updatePostDto.postName;
+            if (updatePostDto.divisionName) post.divisionName = updatePostDto.divisionName;
+            if (updatePostDto.parentId) post.parentId = updatePostDto.parentId;
+            if (updatePostDto.product) post.product = updatePostDto.product;
+            if (updatePostDto.purpose) post.purpose = updatePostDto.purpose;
+
+            return this.postRepository.save(post);
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при обновлении поста');
         }
     }
 }
