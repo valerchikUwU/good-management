@@ -17,7 +17,7 @@ export class Goal{
     @Column({nullable: false, default: 1})
     orderNumber: number;
 
-    @Column({type: 'text', nullable: true})
+    @Column({type: 'text', nullable: false})
     content: string;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
