@@ -7,11 +7,12 @@ import { GoalController } from "src/controllers/goal.controller";
 import { GoalToOrganizationModule } from "./goalToOrganization.module";
 import { UsersModule } from "./users.module";
 import { GeneratorModule } from "./generator.module";
+import { OrganizationModule } from "./organization.module";
 
 
 @Module({
     imports: [TypeOrmModule.forFeature([Goal]), GoalToOrganizationModule,
-    UsersModule, GeneratorModule],
+    UsersModule, GeneratorModule, OrganizationModule],
     controllers: [GoalController],
     providers: [GoalService, GoalRepository]
 })
