@@ -111,7 +111,6 @@ export class GoalController {
   @ApiResponse({
     status: HttpStatus.OK, description: "ОК!",
     example: {
-      currentGoal: {
         id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
         goalName: "Перепукать шматика №1",
         orderNumber: 1,
@@ -136,13 +135,12 @@ export class GoalController {
             updatedAt: "2024-09-18T14:11:28.433Z"
           }
         ]
-      }
     }
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
-  async findOne(@Param('userId') userId: string, goalId: string, @Ip() ip: string): Promise<GoalReadDto> {
+  async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<GoalReadDto> {
     const goal = await this.goalService.findeOneById(goalId);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT GOAL: ${JSON.stringify(goal)} - Получить цель по ID!`);
     return goal;

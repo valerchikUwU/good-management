@@ -44,7 +44,7 @@ export class GoalService {
 
     async findeOneById(id: string): Promise<GoalReadDto | null> {
         try {
-            const goal = await this.goalRepository.findOne({ where: { id }, relations: ['user', 'goalToOrganizations'] });
+            const goal = await this.goalRepository.findOne({ where: { id: id }, relations: ['user', 'goalToOrganizations'] });
 
             if (!goal) throw new NotFoundException(`Цель с ID: ${id} не найдена!`);
             const goalReadDto: GoalReadDto = {
@@ -58,7 +58,6 @@ export class GoalService {
                 account: goal.account,
                 goalToOrganizations: goal.goalToOrganizations
             }
-
             return goalReadDto;
         }
         catch (err) {
