@@ -46,8 +46,8 @@ export class User {
 
 
    
-  @OneToOne(() => Post, (post) => post.user, {nullable: true})
-  post: Post;
+  @OneToMany(() => Post, (post) => post.user, {nullable: true})
+  posts: Post[];
 
   @OneToMany(() => RefreshSession, (refreshSession) => refreshSession.user)
   refreshSessions: RefreshSession[];

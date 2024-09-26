@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Strategy } from "src/domains/strategy.entity";
+import { State, Strategy } from "src/domains/strategy.entity";
 import { StrategyToOrganizationService } from "../strategyToOrganization/strategyToOrganization.service";
 import { StrategyRepository } from "./repository/strategy.repository";
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
@@ -26,6 +26,37 @@ export class StrategyService {
         try {
 
             const strategies = await this.strategyRepository.find({ where: { account: { id: account.id } } });
+
+            return strategies.map(strategy => ({
+                id: strategy.id,
+                strategyNumber: strategy.strategyNumber,
+                strategyName: strategy.strategyName,
+                dateActive: strategy.dateActive,
+                content: strategy.content,
+                state: strategy.state,
+                createdAt: strategy.createdAt,
+                updatedAt: strategy.updatedAt,
+                user: strategy.user,
+                account: strategy.account,
+                strategyToOrganizations: strategy.strategyToOrganizations,
+                objectives: strategy.objectives,
+                projects: strategy.projects
+            }))
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех стратегий!');
+
+        }
+    }
+
+
+    async findAllActiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+        try {
+
+            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE } });
 
             return strategies.map(strategy => ({
                 id: strategy.id,
@@ -133,6 +164,8 @@ export class StrategyService {
         // Обновить свойства, если они указаны в DTO
         if (updateStrategyDto.strategyName) strategy.strategyName = updateStrategyDto.strategyName;
         if (updateStrategyDto.content) strategy.content = updateStrategyDto.content;
+        if (updateStrategyDto.state) strategy.state = updateStrategyDto.state;
+        if (updateStrategyDto.state === State.ACTIVE) strategy.dateActive = new Date();
 
         if (updateStrategyDto.strategyToOrganizations) {
             await this.strategyToOrganizationService.remove(strategy);

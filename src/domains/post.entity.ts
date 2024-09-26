@@ -33,8 +33,7 @@ export class Post {
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
-    @OneToOne(() => User, user => user.post, {nullable: false})
-    @JoinColumn()
+    @ManyToOne(() => User, user => user.posts, {nullable: false})
     user: User;
 
     @OneToOne(() => Policy, (policy) => policy.post, {nullable: true})

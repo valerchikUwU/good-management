@@ -82,6 +82,45 @@ export class PostController {
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
         example: {
+          id: "2420fabb-3e37-445f-87e6-652bfd5a050c",
+          postName: "Чурка",
+          divisionName: "Отдел дубней",
+          parentId: "87af2eb9-a17d-4e78-b847-9d512cb9a0c9",
+          product: "Продукт",
+          purpose: "Предназначение поста",
+          createdAt: "2024-09-20T15:09:14.997Z",
+          updatedAt: "2024-09-26T15:44:35.934Z",
+          user: {
+            id: "3b809c42-2824-46c1-9686-dd666403402a",
+            firstName: "Maxik",
+            lastName: "Koval",
+            telegramId: 453120600,
+            telephoneNumber: null,
+            avatar_url: null,
+            vk_id: null,
+            createdAt: "2024-09-16T14:03:31.000Z",
+            updatedAt: "2024-09-16T14:03:31.000Z",
+            organization: {
+              id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+              organizationName: "soplya firma",
+              parentOrganizationId: null,
+              createdAt: "2024-09-16T14:24:33.841Z",
+              updatedAt: "2024-09-16T14:24:33.841Z"
+            },
+            account: {
+              id: "a1118813-8985-465b-848e-9a78b1627f11",
+              accountName: "OOO PIPKA",
+              createdAt: "2024-09-16T12:53:29.593Z",
+              updatedAt: "2024-09-16T12:53:29.593Z"
+            }
+          },
+          organization: {
+            id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+            organizationName: "OOO BOBRIK",
+            parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+            createdAt: "2024-09-16T15:09:48.995Z",
+            updatedAt: "2024-09-16T15:09:48.995Z"
+          }
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
@@ -89,6 +128,14 @@ export class PostController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'postId', required: true, description: 'Id поста' })
     async update(@Param('postId') postId: string, @Body() postUpdateDto: PostUpdateDto, @Ip() ip: string): Promise<PostReadDto> {
+        if(postUpdateDto.userId) {
+          const responsibleUser = await this.userService.findOne(postUpdateDto.userId)
+          postUpdateDto.user = responsibleUser;
+        } 
+        if(postUpdateDto.organizationId) {
+          const organization = await this.organizationService.findOneById(postUpdateDto.organizationId)
+          postUpdateDto.organization = organization;
+        } 
         const updatedPost = await this.postService.update(postId, postUpdateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POST: ${JSON.stringify(postUpdateDto)} - Пост успешно обновлен!`);
         return updatedPost;
@@ -144,7 +191,7 @@ export class PostController {
         status: HttpStatus.OK, description: "ОК!",
         example:
         {
-            postReadDto: {
+            currentPost: {
               id: "2420fabb-3e37-445f-87e6-652bfd5a050c",
               postName: "Директор",
               divisionName: "Отдел продаж",
@@ -202,13 +249,13 @@ export class PostController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Пост не найден!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async findOne(@Param('userId') userId: string, @Param('postId') postId: string, @Ip() ip: string): Promise<{postReadDto: PostReadDto, workers: ReadUserDto[], posts: PostReadDto[]}>{
+    async findOne(@Param('userId') userId: string, @Param('postId') postId: string, @Ip() ip: string): Promise<{currentPost: PostReadDto, workers: ReadUserDto[], posts: PostReadDto[]}>{
         const user = await this.userService.findOne(userId);
         const post = await this.postService.findeOneById(postId);
         const workers = await this.userService.findAllForAccount(user.account);
         const posts = await this.postService.findAllForAccount(user.account);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`);
-        return {postReadDto: post, workers: workers, posts: posts}
+        return {currentPost: post, workers: workers, posts: posts}
     }
 
 
@@ -293,7 +340,8 @@ export class PostController {
             const policy = await this.policyService.findOneById(addPolicyId)
             postCreateDto.policy = policy
         }
-        postCreateDto.user = user;
+        const responsibleUser = await this.userService.findOne(postCreateDto.userId);
+        postCreateDto.user = responsibleUser;
         postCreateDto.account = user.account;
         const organization = await this.organizationService.findOneById(postCreateDto.organizationId)
         postCreateDto.organization = organization;

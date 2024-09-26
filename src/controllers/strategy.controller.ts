@@ -157,7 +157,47 @@ export class StrategyController {
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
         example: {
-        }
+            currentStrategy: {
+              id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
+              strategyNumber: 2,
+              strategyName: "Стратегия",
+              dateActive: null,
+              content: "HTML текст",
+              state: "Черновик",
+              createdAt: "2024-09-20T14:35:56.273Z",
+              updatedAt: "2024-09-20T14:35:56.273Z",
+              strategyToOrganizations: [
+                {
+                  id: "8acc62ce-47dc-4f09-a3f8-83927a6e1efe",
+                  createdAt: "2024-09-20T14:35:56.918Z",
+                  updatedAt: "2024-09-20T14:35:56.918Z",
+                  organization: {
+                    id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                    organizationName: "soplya firma",
+                    parentOrganizationId: null,
+                    createdAt: "2024-09-16T14:24:33.841Z",
+                    updatedAt: "2024-09-16T14:24:33.841Z"
+                  }
+                }
+              ]
+            },
+            organizations: [
+              {
+                id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                organizationName: "soplya firma",
+                parentOrganizationId: null,
+                createdAt: "2024-09-16T14:24:33.841Z",
+                updatedAt: "2024-09-16T14:24:33.841Z"
+              },
+              {
+                id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+                organizationName: "OOO BOBRIK",
+                parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                createdAt: "2024-09-16T15:09:48.995Z",
+                updatedAt: "2024-09-16T15:09:48.995Z"
+              }
+            ]
+          }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Стратегия не найдена!` })

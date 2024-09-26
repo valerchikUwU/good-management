@@ -19,6 +19,7 @@ import { OrganizationReadDto } from "src/contracts/organization/read-organizatio
 import { PolicyUpdateDto } from "src/contracts/policy/update-policy.dto";
 import { ProjectUpdateDto } from "src/contracts/project/update-project.dto";
 import { TargetUpdateDto } from "src/contracts/target/update-target.dto";
+import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
 
 
 
@@ -86,12 +87,16 @@ export class ProjectController {
               updatedAt: "2024-09-16T14:03:31.000Z"
             }
           ],
-          projects: [
+          strategies: [
             {
-              id: "f2c217bc-367b-4d72-99c3-37d725306786",
-              programId: null,
-              content: "Контент политики",
-              type: "Проект"
+              id: "2a72e4ed-9d95-4a10-8223-4a201a5d6f2e",
+              strategyNumber: 3,
+              strategyName: "Стратегия",
+              dateActive: null,
+              content: "HTML текст",
+              state: "Активный",
+              createdAt: "2024-09-26T15:33:30.985Z",
+              updatedAt: "2024-09-26T15:33:30.985Z"
             }
           ],
           organizations: [
@@ -115,12 +120,12 @@ export class ProjectController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{workers: ReadUserDto[], projects: ProjectReadDto[], organizations: OrganizationReadDto[]}> {
+    async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{workers: ReadUserDto[], strategies: StrategyReadDto[], organizations: OrganizationReadDto[]}> {
         const user = await this.userService.findOne(userId);
         const workers = await this.userService.findAllForAccount(user.account);
-        const projects = await this.projectService.findAllForAccount(user.account);
+        const strategies = await this.strategyService.findAllActiveForAccount(user.account);
         const organizations = await this.organizationService.findAllForAccount(user.account)
-        return {workers: workers, projects: projects, organizations: organizations}
+        return {workers: workers, strategies: strategies, organizations: organizations}
     }
 
     @Post('new')

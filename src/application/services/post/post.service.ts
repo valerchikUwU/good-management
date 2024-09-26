@@ -193,6 +193,8 @@ export class PostService {
             if (updatePostDto.parentId) post.parentId = updatePostDto.parentId;
             if (updatePostDto.product) post.product = updatePostDto.product;
             if (updatePostDto.purpose) post.purpose = updatePostDto.purpose;
+            if (updatePostDto.user) post.user = updatePostDto.user;
+            if (updatePostDto.organization) post.organization = updatePostDto.organization;
 
             return this.postRepository.save(post);
         }

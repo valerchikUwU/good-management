@@ -20,7 +20,7 @@ export class ReadUserDto {
     vk_id: number;
     createdAt: Date;
     updatedAt: Date;
-    post: Post;
+    posts: Post[];
     refreshSessions: ReadRefreshSessionDto[];
     goals: Goal[];
     policies: Policy[];

@@ -54,14 +54,14 @@ export class ObjectiveController {
         status: HttpStatus.OK, description: "ОК!",
         example: [
             {
-              id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
-              strategyNumber: 2,
+              id: "2a72e4ed-9d95-4a10-8223-4a201a5d6f2e",
+              strategyNumber: 3,
               strategyName: "Стратегия",
               dateActive: null,
               content: "HTML текст",
-              state: "Черновик",
-              createdAt: "2024-09-20T14:35:56.273Z",
-              updatedAt: "2024-09-20T14:35:56.273Z"
+              state: "Активный",
+              createdAt: "2024-09-26T15:33:30.985Z",
+              updatedAt: "2024-09-26T15:33:30.985Z"
             }
           ]
 
@@ -70,7 +70,7 @@ export class ObjectiveController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<StrategyReadDto[]> {
         const user = await this.userService.findOne(userId)
-        const strategies = await this.strategyService.findAllForAccount(user.account)
+        const strategies = await this.strategyService.findAllActiveForAccount(user.account)
         return strategies; 
     }
 

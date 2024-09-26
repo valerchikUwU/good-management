@@ -33,6 +33,7 @@ export class Goal{
     account: Account
 
     @OneToMany(() => GoalToOrganization, (goalToOrganization) => goalToOrganization.goal)
+    // МОЖЕТ ЛИ БЫТЬ nullable и так везде?????????
     goalToOrganizations: GoalToOrganization[]
 
 }

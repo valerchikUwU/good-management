@@ -16,7 +16,7 @@ export class PostUpdateDto {
     @ApiProperty({required: false, description: 'Название отдела', example: 'Отдел продаж' })
     divisionName?: string;
     
-    @ApiProperty({required: false, description: 'Родительский пост', example: 'b2218813-8985-465b-848e-9a78b1627f11' })
+    @ApiProperty({required: false, description: 'Родительский пост', example: '87af2eb9-a17d-4e78-b847-9d512cb9a0c9' })
     parentId?: string;
 
     @ApiProperty({ description: 'Продукт поста', example: 'Продукт' })
@@ -24,5 +24,17 @@ export class PostUpdateDto {
     
     @ApiProperty({ description: 'Назначение поста', example: 'Предназначение поста' })
     purpose?: string
+
+    @ApiProperty({ description:'ID ответственного, с которым связать пост', example: '3b809c42-2824-46c1-9686-dd666403402a'})
+    userId?: string
+
+    @ApiProperty({ description:'ID организации, с которой связать пост', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
+    organizationId?: string
+
+    @Exclude({toPlainOnly: true})
+    user: User;
+
+    @Exclude({toPlainOnly: true})
+    organization: Organization
     
 }
