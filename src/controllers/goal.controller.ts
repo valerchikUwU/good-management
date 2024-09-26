@@ -100,7 +100,7 @@ export class GoalController {
   })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
-  async update(@Param('userId') userId: string, goalId: string, @Body() goalUpdateDto: GoalUpdateDto, @Ip() ip: string): Promise<GoalReadDto> {
+  async update(@Param('userId') userId: string, @Param('goalId') goalId: string, @Body() goalUpdateDto: GoalUpdateDto, @Ip() ip: string): Promise<GoalReadDto> {
     const updatedGoal = await this.goalService.update(goalId, goalUpdateDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED GOAL: ${JSON.stringify(goalUpdateDto)} - Цель успешно обновлена!`);
     return 
@@ -111,6 +111,7 @@ export class GoalController {
   @ApiResponse({
     status: HttpStatus.OK, description: "ОК!",
     example: {
+      currentGoal: {
         id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
         goalName: "Перепукать шматика №1",
         orderNumber: 1,
@@ -135,15 +136,34 @@ export class GoalController {
             updatedAt: "2024-09-18T14:11:28.433Z"
           }
         ]
-    }
+    },
+    organizations: [
+      {
+        id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+        organizationName: "soplya firma",
+        parentOrganizationId: null,
+        createdAt: "2024-09-16T14:24:33.841Z",
+        updatedAt: "2024-09-16T14:24:33.841Z"
+      },
+      {
+        id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+        organizationName: "OOO BOBRIK",
+        parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+        createdAt: "2024-09-16T15:09:48.995Z",
+        updatedAt: "2024-09-16T15:09:48.995Z"
+      }
+    ]
+  }
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
-  async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<GoalReadDto> {
+  async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<{currentGoal: GoalReadDto, organizations: OrganizationReadDto[]}> {
+    const user = await this.userService.findOne(userId)
     const goal = await this.goalService.findeOneById(goalId);
+    const organizations = await this.organizationService.findAllForAccount(user.account);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT GOAL: ${JSON.stringify(goal)} - Получить цель по ID!`);
-    return goal;
+    return {currentGoal: goal, organizations: organizations};
   }
 
 
