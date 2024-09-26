@@ -37,7 +37,8 @@ export class PostService {
             user: post.user,
             policy: post.policy,
             statistics: post.statistics,
-            organization: post.organization
+            organization: post.organization,
+            account: post.account
         }))
     }
 
@@ -59,7 +60,8 @@ export class PostService {
                 user: post.user,
                 policy: post.policy,
                 statistics: post.statistics,
-                organization: post.organization
+                organization: post.organization,
+                account: post.account
             }))
         }
         catch(err){
@@ -89,7 +91,8 @@ export class PostService {
                 user: post.user,
                 policy: post.policy,
                 statistics: post.statistics,
-                organization: post.organization
+                organization: post.organization,
+                account: post.account
             }))
         }
         catch(err){
@@ -118,7 +121,8 @@ export class PostService {
                 user: post.user,
                 policy: post.policy,
                 statistics: post.statistics,
-                organization: post.organization
+                organization: post.organization,
+                account: post.account
             }
     
             return postReadDto;

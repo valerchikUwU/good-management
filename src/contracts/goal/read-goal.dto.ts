@@ -24,10 +24,10 @@ export class GoalReadDto{
     updatedAt: Date;
     
     @ApiProperty({ description: 'Id связанного юзера' })
-    user: User
+    user?: User
 
     @ApiProperty({ description: 'Id связанного юзера' })
-    account: Account
+    account?: Account
     
     @ApiProperty({ description: 'Список ID организаций, принадлежащих цели', isArray: true  })
     goalToOrganizations: GoalToOrganization[]

@@ -17,7 +17,6 @@ export class StatisticData{
     @Column()
     value: number;
 
-    @OneToOne(() => Statistic, (statistic) => statistic.statisticData)
-    @JoinColumn()
+    @ManyToOne(() => Statistic, (statistic) => statistic.statisticDatas, {eager: false})
     statistic: Statistic;
 }

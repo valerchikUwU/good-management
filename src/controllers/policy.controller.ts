@@ -53,7 +53,7 @@ export class PolicyController {
 
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<{policies: PolicyReadDto[], directives: PolicyReadDto[], instructions: PolicyReadDto[]}> {
         const user = await this.userService.findOne(userId);
         const policies = await this.policyService.findAllForAccount(user.account);
@@ -126,7 +126,7 @@ export class PolicyController {
 
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ directives: PolicyReadDto[], instructions: PolicyReadDto[], policies: PolicyReadDto[], organizations: OrganizationReadDto[] }> {
         const user = await this.userService.findOne(userId)
         const directives = await this.policyService.findDirectivesForAccount(user.account);

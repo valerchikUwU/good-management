@@ -12,6 +12,7 @@ import { OrganizationModule } from "./organization.module";
 @Module({
     imports: [TypeOrmModule.forFeature([Post]), UsersModule, PolicyModule, OrganizationModule],
     controllers: [PostController],
-    providers: [PostService, PostRepository]
+    providers: [PostService, PostRepository],
+    exports: [PostService]
 })
 export class PostModule{}

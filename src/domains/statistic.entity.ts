@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Post } from "./post.entity";
 import { StatisticData } from "./statisticData.entity";
+import { Account } from "./account.entity";
 
 export enum Type {
     DIRECT = 'Прямая',
@@ -33,9 +34,13 @@ export class Statistic{
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
-    @OneToOne(() => StatisticData, (statisticData) => statisticData.statistic)
-    statisticData: StatisticData;
+    @OneToMany(() => StatisticData, (statisticData) => statisticData.statistic)
+    statisticDatas: StatisticData[];
 
     @ManyToOne(() => Post, (post) => post.statistics)
     post: Post;
+
+    @ManyToOne(() => Account, (account) => account.statistics, {nullable: false})
+    account: Account
+
 }

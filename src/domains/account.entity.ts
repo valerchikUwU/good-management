@@ -7,6 +7,7 @@ import { Policy } from './policy.entity';
 import { Project } from './project.entity';
 import { Strategy } from './strategy.entity';
 import { Post } from './post.entity';
+import { Statistic } from './statistic.entity';
 
 
 @Entity()
@@ -46,5 +47,8 @@ export class Account {
 
     @OneToMany(() => Post, (post) => post.account)
     posts: Post[];
+
+    @OneToMany(() => Statistic, (statistic) => statistic.account)
+    statistics: Statistic[];
 
 }

@@ -98,12 +98,39 @@ export class GoalController {
     type: GoalUpdateDto,
     required: true,
   })
+  @ApiResponse({
+    status: HttpStatus.OK, description: "ОК!",
+    example: {
+      id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
+      goalName: "Старое 222",
+      orderNumber: 2,
+      content: "Новый гыгыгы",
+      createdAt: "2024-09-18T14:11:27.918Z",
+      updatedAt: "2024-09-26T14:52:56.081Z",
+      goalToOrganizations: [
+        {
+          id: "7df11a6e-13e1-428a-9484-c7f8c96c0de8",
+          createdAt: "2024-09-26T14:28:30.905Z",
+          updatedAt: "2024-09-26T14:28:30.905Z",
+          organization: {
+            id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+            organizationName: "soplya firma",
+            parentOrganizationId: null,
+            createdAt: "2024-09-16T14:24:33.841Z",
+            updatedAt: "2024-09-16T14:24:33.841Z"
+          }
+        }
+      ]
+    }
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Цель не найдена!" })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
   async update(@Param('userId') userId: string, @Param('goalId') goalId: string, @Body() goalUpdateDto: GoalUpdateDto, @Ip() ip: string): Promise<GoalReadDto> {
     const updatedGoal = await this.goalService.update(goalId, goalUpdateDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED GOAL: ${JSON.stringify(goalUpdateDto)} - Цель успешно обновлена!`);
-    return 
+    return updatedGoal;
   }
 
   @Get(':goalId')
@@ -179,40 +206,18 @@ export class GoalController {
   @ApiResponse({
     status: HttpStatus.OK, description: "ОК!",
     example: {
-      id: "f23c5846-f69d-4553-84a6-9d5f4a176e9d",
-      goalName: "Стать пердуном №1",
+      id: "da1787cb-a79a-4663-8232-c13cacfdb953",
+      goalName: "asdasd",
       orderNumber: 1,
-      content: "Надо перепукать шмата",
-      user: {
-        id: "3b809c42-2824-46c1-9686-dd666403402a",
-        firstName: "Maxik",
-        lastName: "Koval",
-        telegramId: 453120600,
-        telephoneNumber: null,
-        avatar_url: null,
-        vk_id: null,
-        createdAt: "2024-09-16T14:03:31.000Z",
-        updatedAt: "2024-09-16T14:03:31.000Z",
-        account: {
-          id: "a1118813-8985-465b-848e-9a78b1627f11",
-          accountName: "OOO PIPKA",
-          createdAt: "2024-09-16T12:53:29.593Z",
-          updatedAt: "2024-09-16T12:53:29.593Z"
-        }
-      },
-      account: {
-        id: "a1118813-8985-465b-848e-9a78b1627f11",
-        accountName: "OOO PIPKA",
-        createdAt: "2024-09-16T12:53:29.593Z",
-        updatedAt: "2024-09-16T12:53:29.593Z"
-      },
-      createdAt: "2024-09-17T09:25:52.964Z",
-      updatedAt: "2024-09-17T09:25:52.964Z"
+      content: "Валера даун",
+      createdAt: "2024-09-26T14:47:03.569Z",
+      updatedAt: "2024-09-26T14:47:03.569Z"
     }
   })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async create(@Param('userId') userId: string, @Body() goalCreateDto: GoalCreateDto, @Ip() ip: string): Promise<Goal> {
+  async create(@Param('userId') userId: string, @Body() goalCreateDto: GoalCreateDto, @Ip() ip: string): Promise<GoalReadDto> {
     const user = await this.userService.findOne(userId);
     goalCreateDto.user = user;
     goalCreateDto.account = user.account;

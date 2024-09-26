@@ -9,6 +9,8 @@ import { ObjectiveUpdateDto } from "src/contracts/objective/update-objective.dto
 import { Objective } from "src/domains/objective.entity";
 import { Logger } from "winston";
 import { blue, red, green, yellow, bold } from 'colorette';
+import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
+import { strategies } from "passport";
 
 
 @ApiTags('Objective')
@@ -46,6 +48,32 @@ export class ObjectiveController {
         return objectives;
     }
 
+    @Get('new')
+    @ApiOperation({ summary: 'Получить данные для создания новой краткосрочной цели' })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example: [
+            {
+              id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
+              strategyNumber: 2,
+              strategyName: "Стратегия",
+              dateActive: null,
+              content: "HTML текст",
+              state: "Черновик",
+              createdAt: "2024-09-20T14:35:56.273Z",
+              updatedAt: "2024-09-20T14:35:56.273Z"
+            }
+          ]
+
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<StrategyReadDto[]> {
+        const user = await this.userService.findOne(userId)
+        const strategies = await this.strategyService.findAllForAccount(user.account)
+        return strategies; 
+    }
+
 
     @Patch(':objectiveId/update')
     @ApiOperation({summary: 'Обновить краткосрочную цель по ID'})    
@@ -53,9 +81,9 @@ export class ObjectiveController {
         example: {
         }})
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
-    @ApiParam({name: 'userId', required: true, description: 'Id пользователя'})
+    @ApiParam({name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({name: 'objectiveId', required: true, description: 'Id краткосрочной цели'})
-    async update(@Param('userId') userId: string, @Param('organizationId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto, @Ip() ip: string): Promise<ObjectiveReadDto>{
+    async update(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto, @Ip() ip: string): Promise<ObjectiveReadDto>{
         const updatedObjective = await this.objectiveService.update(objectiveId, objectiveUpdateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED OBJECTIVE: ${JSON.stringify(objectiveUpdateDto)} - Краткосрочная цель успешно обновлена!`);
         return updatedObjective;
@@ -100,6 +128,7 @@ export class ObjectiveController {
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async create(@Param('userId') userId: string, @Body() objectiveCreateDto: ObjectiveCreateDto, @Ip() ip: string): Promise<Objective> {
         const chosenStrategy = await this.strategyService.findOneById(objectiveCreateDto.strategyId);
         objectiveCreateDto.strategy = chosenStrategy;
@@ -126,10 +155,10 @@ export class ObjectiveController {
           }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a'  })
     @ApiParam({ name: 'objectiveId', required: true, description: 'Id краткосрочной цели' })
-    async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<ObjectiveReadDto> {
-        const objective = await this.objectiveService.findeOneById(goalId);
+    async findOne(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Ip() ip: string): Promise<ObjectiveReadDto> {
+        const objective = await this.objectiveService.findeOneById(objectiveId);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT OBJECTIVE: ${JSON.stringify(objective)} - Получить краткосрочную цель по ID!`);
         return objective;
     }

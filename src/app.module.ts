@@ -25,6 +25,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { RequestLoggerMiddleware } from './middleware/request-logger.middleware';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './utils/winston-logger';
+import { StatisticModule } from './application/modules/statistic.module';
 
 
 
@@ -37,7 +38,7 @@ import { winstonConfig } from './utils/winston-logger';
     }),
     WinstonModule.forRoot(winstonConfig),
     UsersModule, AuthModule, EventsModule, TelegramModule, OrganizationModule, AccountModule,
-    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule
+    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule
   ],
   controllers: [AppController],
   providers: [AppService],

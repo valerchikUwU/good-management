@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Inject, Ip, Param, Patch, Post } from "@nestjs/common";
 
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
@@ -8,13 +8,19 @@ import { UsersService } from "src/application/services/users/users.service";
 import { Strategy } from "src/domains/strategy.entity";
 import { GoalCreateDto } from "src/contracts/goal/create-goal.dto";
 import { StrategyUpdateDto } from "src/contracts/strategy/update-strategy.dto";
+import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
+import { OrganizationService } from "src/application/services/organization/organization.service";
+import { Logger } from 'winston';
+import { blue, red, green, yellow, bold } from 'colorette';
 
 @ApiTags('Strategy')
 @Controller(':userId/strategies')
 export class StrategyController {
     constructor(
         private readonly strategyService: StrategyService,
-        private readonly userService: UsersService
+        private readonly userService: UsersService,
+        private readonly organizationService: OrganizationService,
+        @Inject('winston') private readonly logger: Logger,
     ) { }
 
     @Get()
@@ -41,6 +47,34 @@ export class StrategyController {
         return await this.strategyService.findAllForAccount(user.account)
     }
 
+    @Get('new')
+    @ApiOperation({ summary: 'Получить данные для создания новой стратегии' })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example: [
+            {
+              id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+              organizationName: "soplya firma",
+              parentOrganizationId: null,
+              createdAt: "2024-09-16T14:24:33.841Z",
+              updatedAt: "2024-09-16T14:24:33.841Z"
+            },
+            {
+              id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+              organizationName: "OOO BOBRIK",
+              parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+              createdAt: "2024-09-16T15:09:48.995Z",
+              updatedAt: "2024-09-16T15:09:48.995Z"
+            }
+          ]
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<OrganizationReadDto[]> {
+        const user = await this.userService.findOne(userId)
+        const organizations = await this.organizationService.findAllForAccount(user.account);
+        return organizations
+    }
 
     @Patch(':strategyId/update')
     @ApiOperation({ summary: 'Обновить стратегию по Id' })
@@ -117,4 +151,24 @@ export class StrategyController {
         strategyCreateDto.account = user.account
         return await this.strategyService.create(strategyCreateDto)
     }
+
+    @Get(':strategyId')
+    @ApiOperation({ summary: 'Получить стратегию по ID' })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example: {
+        }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Стратегия не найдена!` })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    @ApiParam({ name: 'strategyId', required: true, description: 'Id политики' })
+    async findOne(@Param('userId') userId: string, @Param('strategyId') strategyId: string, @Ip() ip: string): Promise<{ currentStrategy: StrategyReadDto, organizations: OrganizationReadDto[] }> {
+        const strategy = await this.strategyService.findOneById(strategyId);
+        const user = await this.userService.findOne(userId)
+        const organizations = await this.organizationService.findAllForAccount(user.account);
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT STRATEGY: ${JSON.stringify(strategy)} - Получить стратегию по ID!`);
+        return { currentStrategy: strategy, organizations: organizations }
+    }
+
 }

@@ -6,6 +6,7 @@ import { ObjectiveRepository } from "../services/objective/repository/objective.
 import { ObjectiveController } from "src/controllers/objective.controller";
 import { UsersModule } from "./users.module";
 import { StrategyModule } from "./strategy.module";
+import { OrganizationModule } from "./organization.module";
 
 
 @Module({

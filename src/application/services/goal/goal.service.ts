@@ -54,8 +54,6 @@ export class GoalService {
                 content: goal.content,
                 createdAt: goal.createdAt,
                 updatedAt: goal.updatedAt,
-                user: goal.user,
-                account: goal.account,
                 goalToOrganizations: goal.goalToOrganizations
             }
             return goalReadDto;
@@ -73,7 +71,7 @@ export class GoalService {
         }
     }
 
-    async create(goalCreateDto: GoalCreateDto): Promise<Goal> {
+    async create(goalCreateDto: GoalCreateDto): Promise<GoalReadDto> {
         try {
 
             // Проверка на наличие обязательных данных
@@ -97,7 +95,16 @@ export class GoalService {
             goal.account = goalCreateDto.account;
             const createdGoal = await this.goalRepository.save(goal);
             await this.goalToOrganizationService.createSeveral(createdGoal, goalCreateDto.goalToOrganizations);
-            return createdGoal;
+            const readGoalDto: GoalReadDto = {
+                id: createdGoal.id,
+                goalName: createdGoal.goalName,
+                orderNumber: createdGoal.orderNumber,
+                content: createdGoal.content,
+                createdAt: createdGoal.createdAt,
+                updatedAt: createdGoal.updatedAt,
+                goalToOrganizations: createdGoal.goalToOrganizations
+            }
+            return readGoalDto;
         }
         catch (err) {
             this.logger.error(err);
@@ -114,7 +121,7 @@ export class GoalService {
     async update(_id: string, updateGoalDto: GoalUpdateDto): Promise<GoalReadDto> {
         try{
 
-            const goal = await this.goalRepository.findOne({ where: { id: _id } });
+            const goal = await this.goalRepository.findOne({ where: { id: _id }, relations: ['goalToOrganizations.organization'] });
             if (!goal) {
                 throw new NotFoundException(`Политика с ID ${_id} не найдена`);
             }
@@ -127,8 +134,18 @@ export class GoalService {
                 await this.goalToOrganizationService.remove(goal);
                 await this.goalToOrganizationService.createSeveral(goal, updateGoalDto.goalToOrganizations);
             }
-    
-            return this.goalRepository.save(goal);
+            const updatedGoal =  await this.goalRepository.save(goal);
+            console.log(updatedGoal.goalToOrganizations)
+            const readGoalDto: GoalReadDto = {
+                id: updatedGoal.id,
+                goalName: updatedGoal.goalName,
+                orderNumber: updatedGoal.orderNumber,
+                content: updatedGoal.content,
+                createdAt: updatedGoal.createdAt,
+                updatedAt: updatedGoal.updatedAt,
+                goalToOrganizations: updatedGoal.goalToOrganizations
+            }
+            return readGoalDto;
         }
         catch(err){
             
