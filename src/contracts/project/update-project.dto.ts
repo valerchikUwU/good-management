@@ -25,7 +25,7 @@ export class ProjectUpdateDto {
     @ApiProperty({ description: 'Тип проекта', example: 'Проект', examples: ['Проект', 'Программа'] })
     type?: Type;
 
-    @ApiProperty({ description: 'IDs организаций, которые связать с проектом', example: ['3388c410-2e2e-4fd3-8672-217a6121ed7a'] })
+    @ApiProperty({ description: 'IDs организаций, которые связать с проектом', example: ['1f1cca9a-2633-489c-8f16-cddd411ff2d0'] })
     projectToOrganizations?: string[];
 
     @ApiProperty({
@@ -38,7 +38,7 @@ export class ProjectUpdateDto {
                 ruleNumber: null,
                 productNumber: 1,
                 content: 'Контент задачи',
-                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -49,7 +49,7 @@ export class ProjectUpdateDto {
                 ruleNumber: null,
                 productNumber: null,
                 content: 'Контент задачи',
-                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -60,7 +60,7 @@ export class ProjectUpdateDto {
                 ruleNumber: 1,
                 productNumber: null,
                 content: 'Контент задачи',
-                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -75,7 +75,7 @@ export class ProjectUpdateDto {
             {
                 _id: '7a269e8f-26ba-46da-9ef9-e1b17475b6d9',
                 content: 'Контент задачи обновленный',
-                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2023-09-18T14:59:47.010Z',
                 deadline: '2023-09-18T14:59:47.010Z',
             }

@@ -40,7 +40,7 @@ export class TargetService {
             dateComplete: target.dateComplete,
             createdAt: target.createdAt,
             updatedAt: target.updatedAt,
-            targetHolder: target.targetHolder,
+            targetHolders: target.targetHolders,
             project: target.project,
         }))
     }
@@ -62,7 +62,7 @@ export class TargetService {
             dateComplete: target.dateComplete,
             createdAt: target.createdAt,
             updatedAt: target.updatedAt,
-            targetHolder: target.targetHolder,
+            targetHolders: target.targetHolders,
             project: target.project,
         }
 

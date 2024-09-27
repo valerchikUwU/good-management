@@ -206,7 +206,7 @@ export class ProjectController {
     @Patch(':projectId/update')
     @ApiOperation({ summary: 'Обновить проект по Id' })
     @ApiBody({
-        description: 'ДТО для обновления политики',
+        description: 'ДТО для обновления проекта',
         type: ProjectUpdateDto,
         required: true,
     })

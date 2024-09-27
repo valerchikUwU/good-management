@@ -15,6 +15,6 @@ export class TargetReadDto{
     dateComplete: Date
     createdAt: Date;
     updatedAt: Date;
-    targetHolder: TargetHolder;
+    targetHolders: TargetHolder[];
     project: Project
 }

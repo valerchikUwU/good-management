@@ -51,8 +51,8 @@ export class Target{
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
-    @OneToOne(() => TargetHolder, (targetHolder) => targetHolder.target)
-    targetHolder: TargetHolder;
+    @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.target)
+    targetHolders: TargetHolder[];
 
     @ManyToOne(() => Project, (project) => project.targets) //хуй знает
     project: Project

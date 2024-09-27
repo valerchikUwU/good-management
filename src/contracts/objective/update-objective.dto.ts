@@ -11,7 +11,7 @@ export class ObjectiveUpdateDto{
     @IsUUID()
     _id: string;
 
-    @ApiProperty({ description: 'Порядковый номер', required: true, example: '0ba305e6-1d80-4ff6-a436-93d118f99993' })
+    @ApiProperty({ description: 'Порядковый номер', required: true, example: 3 })
     orderNumber?: number;
 
     @ApiProperty({ description: 'Ситуация', required: true, example: 'Ситуация' })
