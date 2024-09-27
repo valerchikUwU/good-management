@@ -134,6 +134,9 @@ export class GoalService {
                 await this.goalToOrganizationService.remove(goal);
                 await this.goalToOrganizationService.createSeveral(goal, updateGoalDto.goalToOrganizations);
             }
+            else {
+                await this.goalToOrganizationService.remove(goal);
+            }
             const updatedGoal =  await this.goalRepository.save(goal);
             return updatedGoal;
         }
