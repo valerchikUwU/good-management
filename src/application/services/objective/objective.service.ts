@@ -125,6 +125,7 @@ export class ObjectiveService {
             if (updateObjectiveDto.situation) objective.situation = updateObjectiveDto.situation;
             if (updateObjectiveDto.content) objective.content = updateObjectiveDto.content;
             if (updateObjectiveDto.rootCause) objective.rootCause = updateObjectiveDto.rootCause;
+            if (updateObjectiveDto.strategy) objective.strategy = updateObjectiveDto.strategy;
 
             return this.objectiveRepository.save(objective);
         }

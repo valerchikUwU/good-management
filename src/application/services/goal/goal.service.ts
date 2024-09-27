@@ -121,7 +121,7 @@ export class GoalService {
     async update(_id: string, updateGoalDto: GoalUpdateDto): Promise<GoalReadDto> {
         try{
 
-            const goal = await this.goalRepository.findOne({ where: { id: _id }, relations: ['goalToOrganizations.organization'] });
+            const goal = await this.goalRepository.findOne({ where: { id: _id } });
             if (!goal) {
                 throw new NotFoundException(`Политика с ID ${_id} не найдена`);
             }
@@ -130,22 +130,12 @@ export class GoalService {
             if (updateGoalDto.orderNumber) goal.orderNumber = updateGoalDto.orderNumber;
             if (updateGoalDto.content) goal.content = updateGoalDto.content;
     
-            if (updateGoalDto.goalToOrganizations) {
+            if (updateGoalDto.goalToOrganizations.length > 0) {
                 await this.goalToOrganizationService.remove(goal);
                 await this.goalToOrganizationService.createSeveral(goal, updateGoalDto.goalToOrganizations);
             }
             const updatedGoal =  await this.goalRepository.save(goal);
-            console.log(updatedGoal.goalToOrganizations)
-            const readGoalDto: GoalReadDto = {
-                id: updatedGoal.id,
-                goalName: updatedGoal.goalName,
-                orderNumber: updatedGoal.orderNumber,
-                content: updatedGoal.content,
-                createdAt: updatedGoal.createdAt,
-                updatedAt: updatedGoal.updatedAt,
-                goalToOrganizations: updatedGoal.goalToOrganizations
-            }
-            return readGoalDto;
+            return updatedGoal;
         }
         catch(err){
             

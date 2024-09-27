@@ -79,11 +79,47 @@ export class ObjectiveController {
     @ApiOperation({summary: 'Обновить краткосрочную цель по ID'})    
     @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
         example: {
-        }})
+            id: "1c509c6d-aba9-41c1-8b04-dd196d0af0c7",
+            orderNumber: 2,
+            situation: "Вот это ситуация",
+            content: "Контент 18+",
+            rootCause: "Даун",
+            createdAt: "2024-09-27T10:18:26.882Z",
+            updatedAt: "2024-09-27T10:29:07.244Z",
+            strategy: {
+              id: "2a72e4ed-9d95-4a10-8223-4a201a5d6f2e",
+              strategyNumber: 3,
+              strategyName: "Стратегия",
+              dateActive: null,
+              content: "HTML текст",
+              state: "Активный",
+              createdAt: "2024-09-26T15:33:30.985Z",
+              updatedAt: "2024-09-26T15:33:30.985Z",
+              strategyToOrganizations: [
+                {
+                  id: "85199db7-f982-4c23-a567-10dde5143150",
+                  createdAt: "2024-09-26T15:33:31.179Z",
+                  updatedAt: "2024-09-26T15:33:31.179Z",
+                  organization: {
+                    id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                    organizationName: "soplya firma",
+                    parentOrganizationId: null,
+                    createdAt: "2024-09-16T14:24:33.841Z",
+                    updatedAt: "2024-09-16T14:24:33.841Z"
+                  }
+                }
+              ]
+            }
+          }
+        })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
     @ApiParam({name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({name: 'objectiveId', required: true, description: 'Id краткосрочной цели'})
     async update(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto, @Ip() ip: string): Promise<ObjectiveReadDto>{
+        if(objectiveUpdateDto.strategyId){
+            const strategy = await this.strategyService.findOneById(objectiveUpdateDto.strategyId);
+            objectiveUpdateDto.strategy = strategy
+        }
         const updatedObjective = await this.objectiveService.update(objectiveId, objectiveUpdateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED OBJECTIVE: ${JSON.stringify(objectiveUpdateDto)} - Краткосрочная цель успешно обновлена!`);
         return updatedObjective;

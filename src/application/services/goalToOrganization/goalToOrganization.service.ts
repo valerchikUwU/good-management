@@ -47,7 +47,7 @@ export class GoalToOrganizationService{
 
     
     async remove(goal: GoalReadDto): Promise<void>{
-        await this.goalToOrganizationRepository.delete({goal: goal});
+        await this.goalToOrganizationRepository.delete({goal: {id: goal.id}});
     }
     
 
