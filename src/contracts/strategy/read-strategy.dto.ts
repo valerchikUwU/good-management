@@ -17,6 +17,6 @@ export class StrategyReadDto{
     user: User
     account: Account
     strategyToOrganizations: StrategyToOrganization[];
-    objectives: Objective[];
+    objective: Objective;
     projects: Project[];
 }

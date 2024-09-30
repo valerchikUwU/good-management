@@ -39,7 +39,7 @@ export class StrategyService {
                 user: strategy.user,
                 account: strategy.account,
                 strategyToOrganizations: strategy.strategyToOrganizations,
-                objectives: strategy.objectives,
+                objective: strategy.objective,
                 projects: strategy.projects
             }))
         }
@@ -70,7 +70,7 @@ export class StrategyService {
                 user: strategy.user,
                 account: strategy.account,
                 strategyToOrganizations: strategy.strategyToOrganizations,
-                objectives: strategy.objectives,
+                objective: strategy.objective,
                 projects: strategy.projects
             }))
         }
@@ -100,7 +100,7 @@ export class StrategyService {
                 user: strategy.user,
                 account: strategy.account,
                 strategyToOrganizations: strategy.strategyToOrganizations,
-                objectives: strategy.objectives,
+                objective: strategy.objective,
                 projects: strategy.projects
             }
 

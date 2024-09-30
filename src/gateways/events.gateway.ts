@@ -1,28 +1,31 @@
-import { Inject, InternalServerErrorException, Logger } from '@nestjs/common';
+import { Inject, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, OnGatewayConnection, OnGatewayDisconnect, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { Logger } from 'winston';
 
-@WebSocketGateway()
+
+@WebSocketGateway(80)
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @Inject('winston') private readonly logger: Logger, // инъекция логгера
   ) {}
   private clients: Map<string, Socket> = new Map();
   @WebSocketServer() ws: Server;
+
   afterInit(server: Server) {
-    this.logger.log('Initialized');
+    this.logger.info(`WebSocket Initialized`);
   }
 
   handleDisconnect(client: Socket) {
-    this.logger.log(`Client Disconnected: ${client.id}`);
+    this.logger.info(`Client Disconnected: ${client.id}`);
     this.clients.delete(client.id);
   }
   
   handleConnection(client: Socket) {
-    this.logger.log(`Client Connected: ${client.id}`);
+    this.logger.info(`Client Connected: ${client.id}`);
     this.clients.set(client.id, client);
     const { sockets } = this.ws.sockets;
-    this.logger.debug(`Number of connected clients: ${sockets.size}`);
+    this.logger.info(`Number of connected clients: ${sockets.size}`);
   }
 
   @SubscribeMessage('getAuthData')
@@ -30,15 +33,16 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     return { clientId, fingerprint, user_agent, token };
   }
 
-  async sendTokenToClient(clientId: string, userId: string) {
+  async sendTokenToClient(clientId: string, userId: string, accessToken: string, refreshTokenId: string) {
     const client = this.clients.get(clientId);
     if (client) {
       const payload = {
         userId,
-        clientId
+        accessToken,
+        refreshTokenId
       };
-      client.emit('receiveClientId', payload);
-      this.logger.log(`Sent token to client ${payload}`);
+      client.emit('receiveAuthInfo', payload);
+      this.logger.info(`Sent token to client ${JSON.stringify(payload)}`);
     } else {
       this.logger.warn(`Client ${clientId} not found`);
     }
@@ -46,17 +50,31 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
   async requestInfoFromClient(clientId: string, expectedData: string[]): Promise<Record<string, any>> {
-    const client = this.clients.get(clientId);
-    if (client) {
-      return new Promise((resolve, reject) => {
-        client.once('responseFromClient', (data) => {
-          resolve(data);
+    try{
+      const client = this.clients.get(clientId);
+      if (client) {
+        return new Promise((resolve, reject) => {
+          client.once('responseFromClient', (data) => {
+            resolve(data);
+          });
+          client.emit('requestInfo', { expectedData, clientId });
         });
-        client.emit('requestInfo', { expectedData, clientId });
-      });
-    } else {
-      this.logger.warn(`Client ${clientId} not found`);
+      } else {
+        throw new NotFoundException(`WebSocket соединение не установлено, не найден клиент с ID: ${clientId}`)
+      }
     }
+    catch(err){
+
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+          throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при получении проекта');
+    }
+    
   }
   
 }

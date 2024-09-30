@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { Telegraf } from 'telegraf'
 import LocalSession from 'telegraf-session-local';
 import { UsersService } from "../users/users.service";
@@ -30,30 +30,29 @@ export class TelegramService {
                 const chatId = ctx.update.message?.chat.id || '';
                 // Извлекаем параметр после /start
                 const match = ctx.message.text.match(/^\/start ([\w-]+)$/);
-                console.log(match);
                 if (match) {
                     // Удаляем /start из начала строки
                     const command = match[1].replace("/start", "");
-                    console.log(`start: ${command}`);
+                    const dashIndex = command.indexOf('-');  // Находим индекс первого дефиса
                     // Разделяем строку на части по дефису
-                    const parts = command.split(/-(.*)/);
+                    const parts = [command.slice(0, dashIndex), command.slice(dashIndex + 1)];
                     const token = parts[0]; // Первая часть - токен
                     const clientId = parts[1]; // Вторая часть - clientId
-                    console.log(`start: ${token}`);
-                    console.log(`start: client ${clientId}`);
                     if (token) {
                         // Теперь можно безопасно сохранять данные в сессию
                         this.chatStorageService.setChatInfo(chatId, { token: token, clientId: clientId })
-
-                        const chat = this.chatStorageService.getChatInfo(chatId)
-                        console.log(`CHAT CHAT CHAT ${chat.token}`)
-                        console.log(chat.clientId)
                         const telegramId = ctx.message.from.id;
-                        console.log(telegramId)
-                        const user = await this.usersService.findOneByTelegramId(telegramId)
-                        console.log(`START USER:${JSON.stringify(user)}`)
+                        const user = await this.usersService.findOneByTelegramId(telegramId).catch((err) => {
+                            if (err instanceof NotFoundException) {
+                                return null;
+                            }
+                        })
                         if (user !== null) {
-                            await this.authRequest(user.telephoneNumber, user.telegramId, token, clientId, ctx);
+                            const authFlag = await this.authRequest(user.telephoneNumber, user.telegramId, token, clientId, ctx, false);
+                            this.chatStorageService.clearChatById(chatId);
+                            if (authFlag) {
+                                ctx.reply('Вход успешен!')
+                            }
                         } else {
                             ctx.reply(
                                 "Добро пожаловать в бота Чтобы зарегистрироваться отправьте номер вашего телефона, нажав на кнопку ниже:",
@@ -87,24 +86,12 @@ export class TelegramService {
                 const lastName = ctx.message.contact.last_name;
                 const telegramId = Number(ctx.message.contact.user_id);
                 const chat = this.chatStorageService.getChatInfo(chatId)
-                console.log(firstName);
-                console.log(lastName);
-                console.log(`CHAT CHAT CHAT ${chat.token}`)
-                console.log(chat.clientId)
-                console.log(telephoneNumber)
                 if (chat.token) {
-                    const createUserDto: CreateUserDto = {
-                        firstName: firstName,
-                        lastName: lastName,
-                        telegramId: telegramId,
-                        telephoneNumber: telephoneNumber
-                    }
-                    await this.usersService.create(createUserDto);
-                    await this.authRequest(telephoneNumber, telegramId, chat.token, chat.clientId, ctx)
+                    await this.authRequest(telephoneNumber, telegramId, chat.token, chat.clientId, ctx, true, firstName, lastName)
                 } else {
                     ctx.reply("Пожалуйста, используйте QR - код или ссылку из приложения!");
                 }
-
+                this.chatStorageService.clearChatById(chatId);
             }
             catch (err) {
                 console.log(err)
@@ -124,26 +111,29 @@ export class TelegramService {
         return phoneNumber;
     }
 
-    async authRequest(phoneNumber: string, telegramId: number, token: string, clientId: string, ctx: any): Promise<any> {
-        console.log(`post post post ${clientId}`);
-
-        console.log(`post post post ${token}`);
-        const response = await lastValueFrom(
-            this.httpService.post(`http://localhost:5000/auth/login/tg`, {
-                telephoneNumber: phoneNumber,
-                telegramId: telegramId,
-                clientId: clientId,
-                token: token,
-            })
-        ).then((response) => {
-             if (response.status === 500 || response.status === 401) {
-                ctx.reply("Что-то пошло не так!");
-            } else {
-                ctx.reply("Вход успешен!");
+    async authRequest(phoneNumber: string, telegramId: number, token: string, clientId: string, ctx: any, createUserFlag: boolean, firstName?: string, lastName?: string): Promise<any> {
+        try {
+            const response = await lastValueFrom(
+                this.httpService.post(`${process.env.API_HOST}${process.env.PORT}/auth/login/tg`, {
+                    telephoneNumber: phoneNumber,
+                    telegramId: telegramId,
+                    clientId: clientId,
+                    token: token,
+                    createUserFlag: createUserFlag,
+                    firstName: firstName === undefined ? null : firstName,
+                    lastName: lastName === undefined ? null : lastName,
+                })
+            )
+            return true;
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                ctx.reply('Попробуйте войти еще раз!')
+            } else if (error.response && error.response.status === 404) {
+                ctx.reply('Ой, что - то пошло не так!')
+            } else if (error.response && error.response.status === 500) {
+                ctx.reply('Ой, что - то пошло не так!')
             }
-        });
-
-
+        }
     }
     // Другие методы для управления ботом...
 }

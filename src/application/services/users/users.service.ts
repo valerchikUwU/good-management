@@ -145,32 +145,42 @@ export class UsersService {
     }
 
     async findOneByTelegramId(telegramId: number): Promise<ReadUserDto | null> {
-        const user = await this.usersRepository.findOneBy({ telegramId });
-        if (!user) return null;
+        try{
 
-        // Преобразование объекта User в ReadUserDto
-        const readUserDto: ReadUserDto = {
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            telegramId: user.telegramId,
-            telephoneNumber: user.telephoneNumber,
-            avatar_url: user.avatar_url,
-            vk_id: user.vk_id,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            posts: user.posts,
-            refreshSessions: user.refreshSessions,
-            goals: user.goals,
-            policies: user.policies,
-            strategies: user.strategies,
-            targetHolders: user.targetHolders,
-            projects: user.projects,
-            organization: user.organization,
-            account: user.account
-        };
+            const user = await this.usersRepository.findOneBy({ telegramId });
+            if (!user) throw new NotFoundException(`Пользователь с telegramID: ${telegramId} не найден!`);
+    
+            // Преобразование объекта User в ReadUserDto
+            const readUserDto: ReadUserDto = {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                telegramId: user.telegramId,
+                telephoneNumber: user.telephoneNumber,
+                avatar_url: user.avatar_url,
+                vk_id: user.vk_id,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+                posts: user.posts,
+                refreshSessions: user.refreshSessions,
+                goals: user.goals,
+                policies: user.policies,
+                strategies: user.strategies,
+                targetHolders: user.targetHolders,
+                projects: user.projects,
+                organization: user.organization,
+                account: user.account
+            };
+    
+            return readUserDto;
+        }
+        catch(err){
+            if (err instanceof NotFoundException){
+                throw err;
+            }
 
-        return readUserDto;
+            throw new InternalServerErrorException('Ой, что - то пошло не так!')
+        }
     }
 
     async remove(id: string): Promise<void> {
@@ -223,14 +233,29 @@ export class UsersService {
 
 
     async updateByPhoneNumber(telephoneNumber: string, telegramId: number): Promise<ReadUserDto | null> {
-        const user = await this.usersRepository.findOneBy({ telephoneNumber });
-        if (!user) return null;
-        const updateUserDto: UpdateUserDto = {
-            telegramId: telegramId
-        }
-        user.telegramId = updateUserDto.telegramId;
+        try {
+            const user = await this.usersRepository.findOneBy({ telephoneNumber });
 
-        return user;
+            if (!user) throw new NotFoundException("Не найден юзер с таким номером");
+            const updateUserDto: UpdateUserDto = {
+                telegramId: telegramId
+            }
+            user.telegramId = updateUserDto.telegramId;
+
+            return user;
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+      
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении юзера');
+        }
+
     }
 
 }

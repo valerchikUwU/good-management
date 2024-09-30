@@ -213,6 +213,13 @@ export class ProjectController {
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
         example: {
+          id: "ff6c48ae-8493-48cc-9c5d-cdd1393858e6",
+          projectNumber: 5,
+          programId: null,
+          content: "ОБНОВА ОБНОВА",
+          type: "Проект",
+          createdAt: "2024-09-20T14:45:41.103Z",
+          updatedAt: "2024-09-27T11:29:27.491Z"
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })

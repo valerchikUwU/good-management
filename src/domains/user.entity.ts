@@ -21,7 +21,7 @@ export class User {
   @Column({ length: 50, nullable: true  })
   lastName: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 0 })
   telegramId: number | null;
 
   @Column({ nullable: true })
@@ -70,6 +70,6 @@ export class User {
   @ManyToOne(() => Organization, (organization) => organization.users, {nullable: true})
   organization: Organization;
 
-  @ManyToOne(() => Account, (account) => account.users, {nullable: false})
+  @ManyToOne(() => Account, (account) => account.users, {nullable: true})
   account: Account;
 }

@@ -24,4 +24,8 @@ export class ChatStorageService {
   clearAllChats() {
     this.chats.clear();
   }
+
+  clearChatById(chatId: number | ""){
+    this.chats.delete(chatId);
+  }
 }

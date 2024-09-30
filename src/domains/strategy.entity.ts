@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, Generated } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, Generated, OneToOne } from 'typeorm';
 import { User } from './user.entity';
 import { Objective } from './objective.entity';
 import { StrategyToOrganization } from './strategyToOrganization.entity';
@@ -53,8 +53,8 @@ export class Strategy{
     @OneToMany(() => StrategyToOrganization, (strategyToOrganization) => strategyToOrganization.strategy)
     strategyToOrganizations: StrategyToOrganization[]
 
-    @OneToMany(() => Objective, (objective) => objective.strategy)
-    objectives: Objective[]
+    @OneToOne(() => Objective, (objective) => objective.strategy)
+    objective: Objective
     
     @OneToMany(() => Project, (project) => project.strategy)
     projects: Project[]

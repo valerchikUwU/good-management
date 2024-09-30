@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, OneToOne } from 'typeorm';
 import { Strategy } from './strategy.entity';
 import { Account } from './account.entity';
 
@@ -26,7 +26,8 @@ export class Objective{
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
-    @ManyToOne(() => Strategy, (strategy) => strategy.objectives, {nullable: false})
+    @OneToOne(() => Strategy, (strategy) => strategy.objective, {nullable: false})
+    @JoinColumn()
     strategy: Strategy
 
     @ManyToOne(() => Account, (account) => account.objectives, {nullable: false})

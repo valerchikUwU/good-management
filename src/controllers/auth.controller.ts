@@ -77,9 +77,9 @@ export class AuthController {
 
         if (_user) {
 
-            const authenticateResponse = await this.authService.authenticate(_user, ip, user_agent, auth.fingerprint);
-            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId, { httpOnly: true })
-            return authenticateResponse._user;
+            const authenticateResult = await this.authService.authenticateVK(_user, ip, user_agent, auth.fingerprint);
+            res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, { httpOnly: true })
+            return authenticateResult._user;
         }
 
         try {
@@ -94,14 +94,12 @@ export class AuthController {
                 firstName: `${profile.first_name}`,
                 lastName: `${profile.last_name}`,
                 avatar_url: profile.photo_400,
-                telegramId: null,
                 telephoneNumber: profile.mobile_phone ? profile.mobile_phone : null
             };
-            await this.userService.create(user);
-            const newUser = await this.userService.findByVkId(authData.data.user_id);
-            const authenticateResponse = await this.authService.authenticate(newUser, ip, user_agent, auth.fingerprint);
-            res.cookie('refresh-tokenId', authenticateResponse.refreshTokenId, { httpOnly: true })
-            return authenticateResponse._user
+            const newUser = await this.userService.create(user);
+            const authenticateResult = await this.authService.authenticateVK(newUser, ip, user_agent, auth.fingerprint);
+            res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, { httpOnly: true })
+            return authenticateResult._user
         } catch (err) {
             console.log(err);
             throw new UnprocessableEntityException(err);
@@ -168,43 +166,31 @@ export class AuthController {
 
     @Post('login/tg')
     @ApiOperation({ summary: 'НЕ ЧИПАТЬ!' })
-    async tg(@Body() authTg: AuthTG) {
-        try {
-            const foundNumber = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
-            console.log(authTg.telephoneNumber)
-            console.log(authTg.telegramId)
-            console.log(`WEBSOCKET CLIENT ${authTg.clientId}`)
-            console.log(authTg.token)
-            // Запрашиваем у клиента необходимую информацию
-            const requiredInfo = ['fingerprint', 'userAgent', 'ip', 'token'];
-            const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo);
-            if (!clientInfo) {
-            }
-            if (clientInfo.token === authTg.token) {
-                const user = await this.userService.updateByPhoneNumber(authTg.telephoneNumber, authTg.telegramId);
-                const userId = user.id;
-                console.log(`userID: ${userId}`)
-                // СОЗДАТЬ СЕССИЮ
-                const newSession: CreateRefreshSessionDto = {
-                    user_agent: clientInfo.user_agent,
-                    fingerprint: clientInfo.fingerprint,
-                    ip: clientInfo.ip,
-                    expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
-                    refreshToken: await this.jwtService.signAsync({ id: user.id }, {
-                        secret: process.env.JWT_REFRESH_SECRET,
-                        expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
-                    }),
-                    user: user
+    async tg(@Body() authTg: AuthTG, @Ip() ip: string): Promise<void> {
+        // Запрашиваем у клиента необходимую информацию
+        const requiredInfo = ['fingerprint', 'userAgent', 'ip', 'token'];
+        const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo);
+        if (clientInfo.token === authTg.token) {
+            if (authTg.createUserFlag) {
+                const createUserDto: CreateUserDto = {
+                    firstName: authTg.firstName,
+                    lastName: authTg.lastName,
+                    telegramId: authTg.telegramId,
+                    telephoneNumber: authTg.telephoneNumber
                 }
-                await this.eventsGateway.sendTokenToClient(authTg.clientId, userId)
-
-            } else {
-                await this.eventsGateway.sendTokenToClient(authTg.clientId, 'false');
-                throw new UnauthorizedException('Неуспешный вход!')
+                const newUser = await this.userService.create(createUserDto);
+                const authenticateResult = await this.authService.authenticateTG(newUser, clientInfo.ip, clientInfo.userAgent, clientInfo.fingerprint);
+                await this.eventsGateway.sendTokenToClient(authTg.clientId, authenticateResult._user.id, authenticateResult.refreshTokenId, authenticateResult._user.token)
             }
-        }
-        catch (err) {
-            throw new InternalServerErrorException('Ой, что - то пошло не так');
+            else {
+                const user = await this.userService.findOneByTelegramId(authTg.telegramId);
+                const authenticateResult = await this.authService.authenticateTG(user, clientInfo.ip, clientInfo.userAgent, clientInfo.fingerprint);
+                await this.eventsGateway.sendTokenToClient(authTg.clientId, authenticateResult._user.id, authenticateResult.refreshTokenId, authenticateResult._user.token)
+            }
+
+        } else {
+            await this.eventsGateway.sendTokenToClient(authTg.clientId, 'false', null, null);
+            throw new UnauthorizedException('Неуспешный вход!')
         }
     }
 }

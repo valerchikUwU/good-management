@@ -13,4 +13,14 @@ export class AuthTG {
     
     @ApiProperty({description: 'Фингерпринт браузера клиента'})
     token: string;
+
+    @ApiProperty({description: 'Флаг для создания пользователя'})
+    createUserFlag: boolean;
+
+    @ApiProperty({description: 'Имя юзера, если он логиниться через тг первый раз'})
+    firstName?: string;
+    
+    @ApiProperty({description: 'Фамилия юзера, если он логиниться через тг первый раз'})
+    lastName?: string;
+
   }

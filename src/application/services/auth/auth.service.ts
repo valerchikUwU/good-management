@@ -10,6 +10,7 @@ import { CreateRefreshSessionDto } from "src/contracts/refreshSession/create-ref
 import { RefreshService } from "../refreshSession/refresh.service";
 import { InjectConfig, ConfigService } from "nestjs-config";
 import { Session } from "inspector";
+import { UserTgAuthDto } from "src/contracts/user/user-tgauth-dto";
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
     return await this.usersService.findOne(payload.id);
   }
 
-  async authenticate(
+  async authenticateVK(
     auth: ReadUserDto, ip: string, user_agent: string, fingerprint: string): Promise<{ _user: UserVkAuthDto; refreshTokenId: string }> {
 
     try {
@@ -173,7 +174,48 @@ export class AuthService {
   }
 
 
-  // async telegramAuthenticate(telephoneNumber: string, telegramId: number, clientId: string, user_agent: string, ip: string, token: string): Promise {}
+  async authenticateTG(
+    auth: ReadUserDto, ip: string, user_agent: string, fingerprint: string): Promise<{ _user: UserTgAuthDto; refreshTokenId: string }> {
+
+    try {
+      const user = await this.usersService.findOne(auth.id);
+      if (!user) {
+        throw new BadRequestException();
+      }
+
+      const newSession: CreateRefreshSessionDto = {
+        user_agent: user_agent,
+        fingerprint: fingerprint,
+        ip: ip,
+        expiresIn: Math.floor(Date.now() / 1000) + (60 * 24 * 60 * 60), // Время жизни сессии в секундах (например, 60 дней),
+        refreshToken: await this.jwtService.signAsync({ id: user.id }, {
+          secret: process.env.JWT_REFRESH_SECRET,
+          expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
+        }),
+        user: auth
+      }
+      console.log(`${JSON.stringify(newSession)}`);
+      const _newSession = await this.refreshService.create(newSession);
+      const _user: UserTgAuthDto = {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        telephoneNumber: user.telephoneNumber,
+        telegramId: user.telegramId,
+        token: await this.jwtService.signAsync({ id: user.id }, {
+          secret: process.env.JWT_ACCESS_SECRET,
+          expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
+        })
+      }
+
+      return { _user: _user, refreshTokenId: _newSession.id };
+    }
+    catch (err) {
+      console.log(err)
+    }
+
+  }
+
 
 
 
