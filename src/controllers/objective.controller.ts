@@ -176,8 +176,8 @@ export class ObjectiveController {
     }
 
 
-    @Get(':objectiveId')
-    @ApiOperation({ summary: 'Получить цель по ID' })
+    @Get(':strategyId')
+    @ApiOperation({ summary: 'Получить цель по ID стратегии' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
         example: {
@@ -192,9 +192,9 @@ export class ObjectiveController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a'  })
-    @ApiParam({ name: 'objectiveId', required: true, description: 'Id краткосрочной цели' })
-    async findOne(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Ip() ip: string): Promise<ObjectiveReadDto> {
-        const objective = await this.objectiveService.findeOneById(objectiveId);
+    @ApiParam({ name: 'strategyId', required: true, description: 'Id стратегии' })
+    async findOne(@Param('userId') userId: string, @Param('strategyId') strategyId: string, @Ip() ip: string): Promise<ObjectiveReadDto> {
+        const objective = await this.objectiveService.findeOneByStrategyId(strategyId);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT OBJECTIVE: ${JSON.stringify(objective)} - Получить краткосрочную цель по ID!`);
         return objective;
     }

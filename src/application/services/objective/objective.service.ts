@@ -70,6 +70,37 @@ export class ObjectiveService {
         }
     }
 
+    async findeOneByStrategyId(strategyId: string): Promise<ObjectiveReadDto | null> {
+        try {
+            const objective = await this.objectiveRepository.findOne({where: {strategy: {id: strategyId} }, relations: ['strategy']});
+
+            if (!objective) throw new NotFoundException(`Краткосрочная цель с ID: ${strategyId} не найдена`);;
+            const objectiveReadDto: ObjectiveReadDto = {
+                id: objective.id,
+                orderNumber: objective.orderNumber,
+                situation: objective.situation,
+                content: objective.content,
+                rootCause: objective.rootCause,
+                createdAt: objective.createdAt,
+                updatedAt: objective.updatedAt,
+                strategy: objective.strategy,
+                account: objective.account
+            }
+
+            return objectiveReadDto;
+        }
+        catch (err) {
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении краткосрочной цели');
+        }
+    }
+
     async create(objectiveCreateDto: ObjectiveCreateDto): Promise<Objective> {
 
         try {
