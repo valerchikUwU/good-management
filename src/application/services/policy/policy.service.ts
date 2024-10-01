@@ -53,7 +53,7 @@ export class PolicyService {
 
     async findOneById(id: string): Promise<PolicyReadDto | null> {
         try {
-            const policy = await this.policyRepository.findOne({where: { id }, relations: ['policyToOrganizations.organization']});
+            const policy = await this.policyRepository.findOne({where: { id }, relations: ['policyToOrganizations.organization', 'files']});
             if (!policy) throw new NotFoundException(`Политика с ID: ${id} не найдена`);
             const policyReadDto: PolicyReadDto = {
                 id: policy.id,
