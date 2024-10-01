@@ -75,6 +75,21 @@ export class ObjectiveController {
     }
 
 
+    @Get('update')
+    @ApiOperation({summary: 'Получить данные для обновления краткосрочной цели по ID'})    
+    @ApiResponse({ status: HttpStatus.OK, description: "ОК!",
+        example: {
+          }
+        })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!"})
+    @ApiParam({name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    async beforeUpdate(@Param('userId') userId: string): Promise<StrategyReadDto[]>{
+        const user = await this.userService.findOne(userId)
+        const strategies = await this.strategyService.findAllRelatedForAccount(user.account)
+        return strategies;
+    }
+
+
     @Patch(':objectiveId/update')
     @ApiOperation({summary: 'Обновить краткосрочную цель по ID'})    
     @ApiResponse({ status: HttpStatus.OK, description: "ОК!",

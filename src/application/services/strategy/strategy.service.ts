@@ -8,7 +8,8 @@ import { StrategyCreateDto } from "src/contracts/strategy/create-strategy.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { StrategyUpdateDto } from "src/contracts/strategy/update-strategy.dto";
 import { Logger } from "winston";
-import { IsNull } from "typeorm";
+import { IsNull, Not } from "typeorm";
+import { IsNotEmpty } from "class-validator";
 
 
 
@@ -58,6 +59,36 @@ export class StrategyService {
         try {
 
             const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, objective: {id: IsNull()}}});
+
+            return strategies.map(strategy => ({
+                id: strategy.id,
+                strategyNumber: strategy.strategyNumber,
+                strategyName: strategy.strategyName,
+                dateActive: strategy.dateActive,
+                content: strategy.content,
+                state: strategy.state,
+                createdAt: strategy.createdAt,
+                updatedAt: strategy.updatedAt,
+                user: strategy.user,
+                account: strategy.account,
+                strategyToOrganizations: strategy.strategyToOrganizations,
+                objective: strategy.objective,
+                projects: strategy.projects
+            }))
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех стратегий!');
+
+        }
+    }
+
+    async findAllRelatedForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+        try {
+
+            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, objective: {id: Not(IsNull()) }}});
 
             return strategies.map(strategy => ({
                 id: strategy.id,
