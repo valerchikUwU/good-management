@@ -4,9 +4,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from 'src/application/services/file/file.service';
 import { PolicyService } from 'src/application/services/policy/policy.service';
 import { FileCreateDto } from 'src/contracts/file-upload/create-file.dto';
-import { ApiOperation, ApiParam, ApiQuery, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@Controller('file-upload')
+@ApiTags('File')
+@Controller(':userId/file-upload')
 export class FileUploadController {
   constructor(private readonly fileUploadService: FileUploadService,
     private readonly fileService: FileService,
