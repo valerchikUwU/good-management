@@ -43,7 +43,7 @@ export class ObjectiveService {
         try {
             const objective = await this.objectiveRepository.findOne({where: {id: id }, relations: ['strategy']});
 
-            if (!objective) throw new NotFoundException(`Краткосрочная цель с ID: ${id} не найдена`);;
+            if (!objective) throw new NotFoundException(`Краткосрочная цель с ID: ${id} не найдена`);
             const objectiveReadDto: ObjectiveReadDto = {
                 id: objective.id,
                 orderNumber: objective.orderNumber,
@@ -97,7 +97,7 @@ export class ObjectiveService {
             }
 
             // Обработка других ошибок
-            throw new InternalServerErrorException('Ошибка при получении краткосрочной цели');
+            throw new InternalServerErrorException('Ошибка при получении краткосрочной цели по id стратегии');
         }
     }
 
@@ -168,7 +168,7 @@ export class ObjectiveService {
             }
 
             // Обработка других ошибок
-            throw new InternalServerErrorException('Ошибка при обновлении политики');
+            throw new InternalServerErrorException('Ошибка при обновлении краткосрочной цели');
         }
     }
 }

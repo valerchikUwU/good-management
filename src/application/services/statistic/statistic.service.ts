@@ -39,7 +39,7 @@ export class StatisticService {
 
             this.logger.error(err);
             // Обработка других ошибок
-            throw new InternalServerErrorException('Ошибка при получении всех стратегий!');
+            throw new InternalServerErrorException('Ошибка при получении всех статистик!');
 
         }
     }

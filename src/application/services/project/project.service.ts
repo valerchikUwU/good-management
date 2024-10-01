@@ -157,7 +157,7 @@ export class ProjectService {
             }
 
             // Обработка других ошибок
-            throw new InternalServerErrorException('Ошибка при обновлении политики');
+            throw new InternalServerErrorException('Ошибка при обновлении проекта');
         }
 
     }

@@ -12,7 +12,7 @@ export class OrganizationCreateDto {
     organizationName: string;
     
     @ApiProperty({ description: 'ID родительской организации' })
-    parentOrganizationId: string | null
+    parentOrganizationId?: string | null
     
     @Exclude({toPlainOnly: true})
     account?: Account;

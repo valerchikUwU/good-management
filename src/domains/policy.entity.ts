@@ -1,10 +1,9 @@
 import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne, Generated } from 'typeorm';
-import { RefreshSession } from './refreshSession.entity';
 import { User } from './user.entity';
-import { Organization } from './organization.entity';
 import { PolicyToOrganization } from './policyToOrganization.entity';
 import { Post } from './post.entity';
 import { Account } from './account.entity';
+import { File } from './file.entity';
 
 export enum State {
     DRAFT = 'Черновик',
@@ -62,6 +61,9 @@ export class Policy{
 
     @OneToMany(() => PolicyToOrganization, (policyToOrganization) => policyToOrganization.policy)
     policyToOrganizations: PolicyToOrganization[]
+
+    @OneToMany(() => File, (file) => file.policy)
+    files: File[]
 
     @ManyToOne(() => User, (user) => user.policies, {nullable: false})
     user: User

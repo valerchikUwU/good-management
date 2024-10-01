@@ -85,7 +85,7 @@ export class StrategyService {
 
     async findOneById(id: string): Promise<StrategyReadDto | null> {
         try {
-            const strategy = await this.strategyRepository.findOne({where: {id: id }, relations: ['strategyToOrganizations.organization']});
+            const strategy = await this.strategyRepository.findOne({ where: { id: id }, relations: ['strategyToOrganizations.organization'] });
 
             if (!strategy) throw new NotFoundException(`Стратегия с ID: ${id} не найдена`);
             const strategyReadDto: StrategyReadDto = {
@@ -157,21 +157,31 @@ export class StrategyService {
 
 
     async update(_id: string, updateStrategyDto: StrategyUpdateDto): Promise<StrategyReadDto> {
-        const strategy = await this.strategyRepository.findOne({ where: { id: _id } });
-        if (!strategy) {
-            throw new NotFoundException(`Стратегия с ID ${_id} не найдена`);
-        }
-        // Обновить свойства, если они указаны в DTO
-        if (updateStrategyDto.strategyName) strategy.strategyName = updateStrategyDto.strategyName;
-        if (updateStrategyDto.content) strategy.content = updateStrategyDto.content;
-        if (updateStrategyDto.state) strategy.state = updateStrategyDto.state;
-        if (updateStrategyDto.state === State.ACTIVE) strategy.dateActive = new Date();
+        try {
 
-        if (updateStrategyDto.strategyToOrganizations) {
-            await this.strategyToOrganizationService.remove(strategy);
-            await this.strategyToOrganizationService.createSeveral(strategy, updateStrategyDto.strategyToOrganizations);
-        }
+            const strategy = await this.strategyRepository.findOne({ where: { id: _id } });
+            if (!strategy) {
+                throw new NotFoundException(`Стратегия с ID ${_id} не найдена`);
+            }
+            // Обновить свойства, если они указаны в DTO
+            if (updateStrategyDto.strategyName) strategy.strategyName = updateStrategyDto.strategyName;
+            if (updateStrategyDto.content) strategy.content = updateStrategyDto.content;
+            if (updateStrategyDto.state) strategy.state = updateStrategyDto.state;
+            if (updateStrategyDto.state === State.ACTIVE) strategy.dateActive = new Date();
 
-        return this.strategyRepository.save(strategy);
+            if (updateStrategyDto.strategyToOrganizations) {
+                await this.strategyToOrganizationService.remove(strategy);
+                await this.strategyToOrganizationService.createSeveral(strategy, updateStrategyDto.strategyToOrganizations);
+            }
+
+            return this.strategyRepository.save(strategy);
+        }
+        catch (err) {
+            this.logger.error(err);
+            if (err instanceof NotFoundException) {
+                throw err;
+            }
+            throw new InternalServerErrorException('Ой, что - то пошло не так при обновлении стратегии!')
+        }
     }
 }

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException } from "@nestjs/common";
+import { Injectable, BadRequestException, UnauthorizedException, Inject, InternalServerErrorException } from "@nestjs/common";
 import { UsersService } from "../users/users.service";
 import { HttpService } from '@nestjs/axios';
 import { ReadUserDto } from "src/contracts/user/read-user.dto";
@@ -11,6 +11,7 @@ import { RefreshService } from "../refreshSession/refresh.service";
 import { InjectConfig, ConfigService } from "nestjs-config";
 import { Session } from "inspector";
 import { UserTgAuthDto } from "src/contracts/user/user-tgauth-dto";
+import { Logger } from "winston";
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly refreshService: RefreshService,
     @InjectConfig() private readonly config: ConfigService,
+    @Inject('winston') private readonly logger: Logger
   ) { }
 
   async validateUser(payload: JwtPayloadInterface): Promise<User | null> {
@@ -46,10 +48,7 @@ export class AuthService {
         }),
         user: auth
       }
-      console.log(`${JSON.stringify(newSession)}`);
-      await this.refreshService.create(newSession);
-
-      const _newSession = await this.refreshService.findOneByFingerprint(newSession.fingerprint);
+      const _newSession = await this.refreshService.create(newSession);
       const _user: UserVkAuthDto = {
         id: user.id,
         vk_id: user.vk_id,
@@ -66,56 +65,68 @@ export class AuthService {
       return { _user: _user, refreshTokenId: _newSession.id };
     }
     catch (err) {
-      console.log(err)
+      this.logger.error(err)
+      if (err instanceof BadRequestException) {
+        throw err
+      }
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при входе через ВК!');
     }
 
   }
 
   async getVkToken(code: string): Promise<any> {
-    const VKDATA = {
-      client_id: process.env.CLIENT_ID,
-      client_secret: process.env.CLIENT_SECRET,
-    };
+    try {
 
-    const host =
-      process.env.NODE_ENV === "prod"
-        ? process.env.APP_HOST
-        : process.env.APP_LOCAL;
+      const VKDATA = {
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+      };
 
-    return this.httpService
-      .get(
-        `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${host}/gm&code=${code}`
-      ).toPromise();
+      const host =
+        process.env.NODE_ENV === "prod"
+          ? process.env.APP_HOST
+          : process.env.APP_LOCAL;
+
+      return this.httpService
+        .get(
+          `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${host}/gm&code=${code}`
+        ).toPromise();
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении токена ВК!');
+    }
   }
 
 
   async getUserDataFromVk(userId: string, token: string): Promise<any> {
-    return this.httpService
-      .get(
-        `https://api.vk.com/method/users.get?user_ids=${userId}&fields=photo_400,has_mobile,home_town,contacts,mobile_phone&access_token=${token}&v=5.120`
-      )
-      .toPromise();
+    try {
+      return this.httpService
+        .get(
+          `https://api.vk.com/method/users.get?user_ids=${userId}&fields=photo_400,has_mobile,home_town,contacts,mobile_phone&access_token=${token}&v=5.120`
+        )
+        .toPromise();
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении данных о пользователе ВК!');
+    }
   }
 
-  
+
 
   async updateTokens(fingerprint: string, refreshTokenId: string): Promise<{ newRefreshTokenId: string; newAccessToken: string }> {
     try {
-      
-      console.error(typeof fingerprint)
-      
-      console.error(typeof refreshTokenId)
       const session = await this.refreshService.findOneByIdAndFingerprint(String(refreshTokenId), String(fingerprint));
       if (!session) {
-        throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
+        throw new UnauthorizedException('Войдите в свой аккаунт для дальнейшей работы!')
       }
       const currentTime = Math.floor(Date.now() / 1000);
       const isExpired = currentTime > session.expiresIn;
       if (isExpired) {
         throw new UnauthorizedException('TOKEN_EXPIRED');
       };
-      console.log(`${JSON.stringify(session)}`)
-      console.log(`${JSON.stringify(session.user)}`)
       const newSession: CreateRefreshSessionDto = {
 
         user_agent: session.user_agent,
@@ -129,8 +140,6 @@ export class AuthService {
         user: session.user
       };
 
-      console.log(`${JSON.stringify(newSession)}`)
-      console.log(`${JSON.stringify(newSession.user)}`)
       await this.refreshService.remove(session.id);
 
       await this.refreshService.create(newSession)
@@ -144,7 +153,12 @@ export class AuthService {
       return { newRefreshTokenId: id, newAccessToken: _newAccessToken }
     }
     catch (err) {
-      console.log(err)
+      this.logger.error(err);
+      if(err instanceof UnauthorizedException){
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Ой, что - то пошло не так при обновлении токенов!')
     }
 
 
@@ -153,12 +167,9 @@ export class AuthService {
 
   async logout(fingerprint: string, refreshTokenId: string): Promise<void> {
     try {
-      console.error( fingerprint)
-      
-      console.error( refreshTokenId)
       const session = await this.refreshService.findOneByIdAndFingerprint(String(refreshTokenId), String(fingerprint));
       if (!session) {
-        throw new UnauthorizedException('INVALID_REFRESH_SESSION', { cause: new Error(), description: 'Some error description' })
+        throw new UnauthorizedException('Войти в свой аккаунт для дальнейшей работы!')
       }
       const currentTime = Math.floor(Date.now() / 1000);
       const isExpired = currentTime > session.expiresIn;
@@ -168,7 +179,12 @@ export class AuthService {
       await this.refreshService.remove(session.id);
     }
     catch (err) {
-      console.log(err);
+      this.logger.error(err);
+      if(err instanceof UnauthorizedException){
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Ой, что - то пошло не так при обновлении токенов!')
     }
 
   }
@@ -211,7 +227,12 @@ export class AuthService {
       return { _user: _user, refreshTokenId: _newSession.id };
     }
     catch (err) {
-      console.log(err)
+      this.logger.error(err)
+      if (err instanceof BadRequestException) {
+        throw err
+      }
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при входе черет ТГ!');
     }
 
   }

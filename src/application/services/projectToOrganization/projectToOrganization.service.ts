@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { OrganizationService } from "../organization/organization.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PolicyToOrganization } from "src/domains/policyToOrganization.entity";
@@ -6,6 +6,7 @@ import { ProjectToOrganization } from "src/domains/projectToOrganization.entity"
 import { ProjectToOrganizationRepository } from "./repository/projectToOrganization.repository";
 import { Project } from "src/domains/project.entity";
 import { ProjectReadDto } from "src/contracts/project/read-project.dto";
+import { Logger } from "winston";
 
 
 @Injectable()
@@ -13,7 +14,8 @@ export class ProjectToOrganizationService{
     constructor(
         @InjectRepository(ProjectToOrganization)
         private readonly projectToOrganizationRepository: ProjectToOrganizationRepository,
-        private readonly organizationService: OrganizationService
+        private readonly organizationService: OrganizationService,
+        @Inject('winston') private readonly logger: Logger
     )
     {}
 
@@ -33,8 +35,13 @@ export class ProjectToOrganizationService{
     
                 const savedRelation = await this.projectToOrganizationRepository.save(projectToOrganization);
                 createdRelations.push(savedRelation);
-            } catch (error) {
-                console.error(`Error creating relation for organization ${organizationId}:`, error);
+            } catch (err) {
+                this.logger.error(err);
+                if(err instanceof NotFoundException){
+                    throw err;
+                }
+
+                throw new InternalServerErrorException('Ой, что - то пошло не так при добавлении организаций к проекту!')
                 // Здесь можно добавить логику для обработки ошибок, например, откат транзакции
             }
         }

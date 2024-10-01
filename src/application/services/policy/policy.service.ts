@@ -39,7 +39,8 @@ export class PolicyService {
                 post: policy.post,
                 policyToOrganizations: policy.policyToOrganizations,
                 user: policy.user,
-                account: policy.account
+                account: policy.account,
+                files: policy.files
             }))
         }
         catch (err) {
@@ -67,7 +68,8 @@ export class PolicyService {
                 post: policy.post,
                 policyToOrganizations: policy.policyToOrganizations,
                 user: policy.user,
-                account: policy.account
+                account: policy.account,
+                files: policy.files
             }
 
             return policyReadDto;

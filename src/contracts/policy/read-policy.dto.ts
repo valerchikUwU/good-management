@@ -6,6 +6,7 @@ import { Post } from "src/domains/post.entity";
 import { User } from "src/domains/user.entity";
 import { AccountReadDto } from "../account/read-account.dto";
 import { ReadUserDto } from "../user/read-user.dto";
+import { File } from "src/domains/file.entity";
 
 export class PolicyReadDto{
     @ApiProperty({description: 'Id политики', example: 'bb1897ad-1e87-4747-a6bb-749e4bf49bf6'})
@@ -46,6 +47,8 @@ export class PolicyReadDto{
 
     @ApiProperty({description: 'Связанный аккаунт политики'})
     account: Account
+
+    files: File[]
 }
 
 

@@ -26,6 +26,8 @@ import { RequestLoggerMiddleware } from './middleware/request-logger.middleware'
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './utils/winston-logger';
 import { StatisticModule } from './application/modules/statistic.module';
+import { FileUploadModule } from './application/modules/file-upload.module';
+import { FileModule } from './application/modules/file.module';
 
 
 
@@ -38,7 +40,7 @@ import { StatisticModule } from './application/modules/statistic.module';
     }),
     WinstonModule.forRoot(winstonConfig),
     UsersModule, AuthModule, EventsModule, TelegramModule, OrganizationModule, AccountModule,
-    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule
+    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule, FileUploadModule, FileModule
   ],
   controllers: [AppController],
   providers: [AppService],

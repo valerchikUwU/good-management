@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { Goal } from "src/domains/goal.entity";
 import { GoalToOrganization } from "src/domains/goalToOrganization.entity";
 import { OrganizationService } from "../organization/organization.service";
@@ -7,6 +7,7 @@ import { PolicyToOrganizationRepository } from "./repository/policyToOrganizatio
 import { PolicyToOrganization } from "src/domains/policyToOrganization.entity";
 import { Policy } from "src/domains/policy.entity";
 import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
+import { Logger } from "winston";
 
 
 @Injectable()
@@ -14,7 +15,8 @@ export class PolicyToOrganizationService{
     constructor(
         @InjectRepository(PolicyToOrganization)
         private readonly policyToOrganizationRepository: PolicyToOrganizationRepository,
-        private readonly organizationService: OrganizationService
+        private readonly organizationService: OrganizationService,
+        @Inject('winston') private readonly logger: Logger
     )
     {}
 
@@ -25,7 +27,7 @@ export class PolicyToOrganizationService{
             try {
                 const organization = await this.organizationService.findOneById(organizationId);
                 if (!organization) {
-                    throw new Error(`Organization not found with id ${organizationId}`);
+                    throw new NotFoundException(`Organization not found with id ${organizationId}`);
                 }
     
                 const policyToOrganization = new PolicyToOrganization();
@@ -34,8 +36,13 @@ export class PolicyToOrganizationService{
     
                 const savedRelation = await this.policyToOrganizationRepository.save(policyToOrganization);
                 createdRelations.push(savedRelation);
-            } catch (error) {
-                console.error(`Error creating relation for organization ${organizationId}:`, error);
+            } catch (err) {
+                this.logger.error(err);
+                if(err instanceof NotFoundException){
+                    throw err;
+                }
+
+                throw new InternalServerErrorException('Ой, что - то пошло не так при добавлении организаций к политике!')
                 // Здесь можно добавить логику для обработки ошибок, например, откат транзакции
             }
         }

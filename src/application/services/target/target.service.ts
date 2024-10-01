@@ -25,6 +25,7 @@ export class TargetService {
     }
 
     async findAll(): Promise<TargetReadDto[]> {
+        try {
         const targets = await this.targetRepository.find();
 
         return targets.map(target => ({
@@ -44,11 +45,19 @@ export class TargetService {
             project: target.project,
         }))
     }
+    catch (err) {
+
+        this.logger.error(err);
+        // Обработка других ошибок
+        throw new InternalServerErrorException('Ошибка при получении всех задач!');
+    }
+    }
 
     async findeOneById(id: string): Promise<TargetReadDto | null> {
+        try {
         const target = await this.targetRepository.findOneBy({ id });
 
-        if (!target) return null;
+        if (!target) throw new NotFoundException(`Задача с ID: ${id} не найдена!`);
         const targetReadDto: TargetReadDto = {
             id: target.id,
             type: target.type,
@@ -67,6 +76,18 @@ export class TargetService {
         }
 
         return targetReadDto;
+    }
+    catch (err) {
+
+        this.logger.error(err);
+        // Обработка специфичных исключений
+        if (err instanceof NotFoundException) {
+            throw err; // Пробрасываем исключение дальше
+        }
+
+        // Обработка других ошибок
+        throw new InternalServerErrorException('Ошибка при получении задачи');
+    }
     }
 
     async create(targetCreateDto: TargetCreateDto): Promise<Target> {
@@ -116,7 +137,7 @@ export class TargetService {
             }
 
             // Обработка других ошибок
-            throw new InternalServerErrorException('Ошибка при обновлении задачи');
+            throw new InternalServerErrorException('Ошибка при создании задачи');
         }
     }
 

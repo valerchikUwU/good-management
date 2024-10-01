@@ -16,7 +16,8 @@ import {
     NotFoundException,
     HttpStatus,
     InternalServerErrorException,
-    UnauthorizedException
+    UnauthorizedException,
+    Inject
 } from "@nestjs/common";
 import { Request as ExpressRequest } from 'express';
 import { Response as ExpressResponse } from "express";
@@ -35,6 +36,8 @@ import { JwtService } from "@nestjs/jwt";
 
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthTG } from "src/contracts/tg-auth.dto";
+import { Logger } from "winston";
+import { blue, red, green, yellow, bold } from 'colorette';
 
 @ApiTags('Auth')
 @Controller("auth")
@@ -42,9 +45,9 @@ export class AuthController {
     constructor(
         private readonly authService: AuthService,
         private readonly userService: UsersService,
-
         private readonly jwtService: JwtService,
-        private readonly eventsGateway: EventsGateway
+        private readonly eventsGateway: EventsGateway,
+        @Inject('winston') private readonly logger: Logger
     ) { }
 
     @Post("/login/vk")
@@ -65,15 +68,11 @@ export class AuthController {
         try {
             authData = await this.authService.getVkToken(auth.code);
         } catch (err) {
-            console.log(err);
             throw new UnprocessableEntityException("Wrong VK code");
         }
 
         const _user = await this.userService.findByVkId(authData.data.user_id);
 
-        console.log(user_agent);
-        console.log(auth.fingerprint);
-        console.log(ip);
 
         if (_user) {
 

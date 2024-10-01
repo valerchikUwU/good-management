@@ -123,7 +123,7 @@ export class GoalService {
 
             const goal = await this.goalRepository.findOne({ where: { id: _id } });
             if (!goal) {
-                throw new NotFoundException(`Политика с ID ${_id} не найдена`);
+                throw new NotFoundException(`Цель с ID ${_id} не найдена`);
             }
             // Обновить свойства, если они указаны в DTO
             if (updateGoalDto.goalName) goal.goalName = updateGoalDto.goalName;

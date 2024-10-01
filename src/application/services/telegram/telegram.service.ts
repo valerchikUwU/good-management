@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { Telegraf } from 'telegraf'
 import LocalSession from 'telegraf-session-local';
 import { UsersService } from "../users/users.service";
@@ -6,6 +6,7 @@ import { HttpService } from "@nestjs/axios";
 import { lastValueFrom } from "rxjs";
 import { ChatStorageService } from './chatStorage.service';
 import { CreateUserDto } from "src/contracts/user/create-user.dto";
+import { Logger } from "winston";
 @Injectable()
 export class TelegramService {
 
@@ -13,7 +14,8 @@ export class TelegramService {
         private readonly bot: Telegraf,
         private readonly httpService: HttpService,
         private readonly usersService: UsersService,
-        private readonly chatStorageService: ChatStorageService
+        private readonly chatStorageService: ChatStorageService,
+        @Inject('winston') private readonly logger: Logger,
     ) {
         if (!process.env.BOT_TOKEN)
             throw new Error('"BOT_TOKEN" env var is required!');
@@ -73,7 +75,7 @@ export class TelegramService {
                         );
                     }
                 } else {
-                    console.log("Команда /start не соответствует ожидаемому формату");
+                    ctx.reply("Команда /start не соответствует ожидаемому формату, пожалуйста, используйте QR - код или ссылку из приложения!");
                 }
             }
         });
@@ -94,8 +96,8 @@ export class TelegramService {
                 this.chatStorageService.clearChatById(chatId);
             }
             catch (err) {
-                console.log(err)
-
+                this.logger.error(err)
+                throw new InternalServerErrorException('Ой, что - то пошло не так при входе через ТГ!')
             }
 
         });
@@ -127,10 +129,13 @@ export class TelegramService {
             return true;
         } catch (error) {
             if (error.response && error.response.status === 401) {
+                this.logger.error(error)
                 ctx.reply('Попробуйте войти еще раз!')
             } else if (error.response && error.response.status === 404) {
+                this.logger.error(error)
                 ctx.reply('Ой, что - то пошло не так!')
             } else if (error.response && error.response.status === 500) {
+                this.logger.error(error)
                 ctx.reply('Ой, что - то пошло не так!')
             }
         }

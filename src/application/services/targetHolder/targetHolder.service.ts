@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { TargetHolder } from "src/domains/targetHolder.entity";
 import { TargetHolderRepository } from "./repository/targetHolder.repository";
@@ -40,10 +40,16 @@ export class TargetHolderService {
     }
 
     async create(targetHolderCreateDto: TargetHolderCreateDto): Promise<TargetHolder> {
-        const targetHolder = new TargetHolder();
-        targetHolder.target = targetHolderCreateDto.target;
-        targetHolder.user = targetHolderCreateDto.user;
+        try{
 
-        return await this.targetHolderRepository.save(targetHolder);
+            const targetHolder = new TargetHolder();
+            targetHolder.target = targetHolderCreateDto.target;
+            targetHolder.user = targetHolderCreateDto.user;
+    
+            return await this.targetHolderRepository.save(targetHolder);
+        }
+        catch(err){
+            throw new InternalServerErrorException('Ошибка при создании ответственного за задачу')
+        }
     }
 }
