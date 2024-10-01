@@ -8,17 +8,14 @@ export class Objective{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({nullable: false})
-    orderNumber: number;
+    @Column({type: 'text', array: true, nullable: false})
+    situation: string[];
 
-    @Column({type: 'text', nullable: false})
-    situation: string;
+    @Column({type: 'text', array: true, nullable: false})
+    content: string[];
 
-    @Column({type: 'text', nullable: false})
-    content: string
-
-    @Column({type: 'text', nullable: false})
-    rootCause: string;
+    @Column({type: 'text', array: true, nullable: false})
+    rootCause: string[];
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;

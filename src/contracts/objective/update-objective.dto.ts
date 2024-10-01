@@ -11,19 +11,16 @@ export class ObjectiveUpdateDto{
     @IsUUID()
     _id: string;
 
-    @ApiProperty({ description: 'Порядковый номер', required: true, example: 3 })
-    orderNumber?: number;
+    @ApiProperty({ description: 'Ситуация', required: false, isArray: true, example: ['Ситуация'] })
+    situation?: string[];
 
-    @ApiProperty({ description: 'Ситуация', required: true, example: 'Ситуация' })
-    situation?: string;
+    @ApiProperty({ description: 'Контент', required: false, isArray: true, example: ['Контент'] })
+    content?: string[];
 
-    @ApiProperty({ description: 'Контент', required: true, example: 'Контент' })
-    content?: string
+    @ApiProperty({ description: 'Коренная причина', required: false, isArray: true, example: ['Коренная причина'] })
+    rootCause?: string[];
 
-    @ApiProperty({ description: 'Коренная причина', required: true, example: 'Коренная причина' })
-    rootCause?: string;
-
-    @ApiProperty({ description: 'Id стратегии', required: true, example: '21dcf96d-1e6a-4c8c-bc12-c90589b40e93' })
+    @ApiProperty({ description: 'Id стратегии', required: false, example: '21dcf96d-1e6a-4c8c-bc12-c90589b40e93' })
     strategyId?: string
 
     @Exclude({toPlainOnly: true})

@@ -22,7 +22,6 @@ export class ObjectiveService {
 
             return objectives.map(objective => ({
                 id: objective.id,
-                orderNumber: objective.orderNumber,
                 situation: objective.situation,
                 content: objective.content,
                 rootCause: objective.rootCause,
@@ -46,7 +45,6 @@ export class ObjectiveService {
             if (!objective) throw new NotFoundException(`Краткосрочная цель с ID: ${id} не найдена`);
             const objectiveReadDto: ObjectiveReadDto = {
                 id: objective.id,
-                orderNumber: objective.orderNumber,
                 situation: objective.situation,
                 content: objective.content,
                 rootCause: objective.rootCause,
@@ -77,7 +75,6 @@ export class ObjectiveService {
             if (!objective) throw new NotFoundException(`Краткосрочная цель с ID: ${strategyId} не найдена`);;
             const objectiveReadDto: ObjectiveReadDto = {
                 id: objective.id,
-                orderNumber: objective.orderNumber,
                 situation: objective.situation,
                 content: objective.content,
                 rootCause: objective.rootCause,
@@ -106,9 +103,6 @@ export class ObjectiveService {
         try {
 
             // Проверка на наличие обязательных данных
-            if (!objectiveCreateDto.orderNumber) {
-                throw new BadRequestException('У краткосрочной цели должен быть порядковый номер!');
-            }
             if (!objectiveCreateDto.situation) {
                 throw new BadRequestException('Определите ситуацию краткосрочной цели!');
             }
@@ -123,7 +117,6 @@ export class ObjectiveService {
             }
 
             const objective = new Objective();
-            objective.orderNumber = objectiveCreateDto.orderNumber;
             objective.situation = objectiveCreateDto.situation;
             objective.content = objectiveCreateDto.content;
             objective.rootCause = objectiveCreateDto.rootCause;
@@ -152,7 +145,6 @@ export class ObjectiveService {
                 throw new NotFoundException(`Краткосрочная цель с ID ${_id} не найдена`);
             }
             // Обновить свойства, если они указаны в DTO
-            if (updateObjectiveDto.orderNumber) objective.orderNumber = updateObjectiveDto.orderNumber;
             if (updateObjectiveDto.situation) objective.situation = updateObjectiveDto.situation;
             if (updateObjectiveDto.content) objective.content = updateObjectiveDto.content;
             if (updateObjectiveDto.rootCause) objective.rootCause = updateObjectiveDto.rootCause;
