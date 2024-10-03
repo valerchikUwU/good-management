@@ -8,6 +8,7 @@ import { OrganizationReadDto } from "src/contracts/organization/read-organizatio
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { Logger } from "winston";
 import { PostUpdateDto } from "src/contracts/post/update-post.dto";
+import { IsNull } from "typeorm";
 
 
 
@@ -77,6 +78,37 @@ export class PostService {
         try{
 
             const posts = await this.postRepository.find({where: {account: {id: account.id}}, relations: ['user', 'organization']});
+
+            return posts.map(post => ({
+    
+                id: post.id,
+                postName: post.postName,
+                divisionName: post.divisionName,
+                parentId: post.parentId,
+                product: post.product,
+                purpose: post.purpose,
+                createdAt: post.createdAt,
+                updatedAt: post.updatedAt,
+                user: post.user,
+                policy: post.policy,
+                statistics: post.statistics,
+                organization: post.organization,
+                account: post.account
+            }))
+        }
+        catch(err){
+
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех постов!');
+        }
+    }
+
+
+    async findAllWithoutParentId(account: AccountReadDto): Promise<PostReadDto[]> {
+        try{
+
+            const posts = await this.postRepository.find({where: {account: {id: account.id}, parentId: IsNull()}, relations: ['user', 'organization']});
 
             return posts.map(post => ({
     
