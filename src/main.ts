@@ -30,6 +30,10 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerApi);
   SwaggerModule.setup('api', app, document);
 
+  if(process.env.NODE_ENV === 'prod'){
+    app.setGlobalPrefix('gm'); // Устанавливаем префикс для всех маршрутов
+  }
+
   await app.listen(port, () => console.log(`${host}${port}/`));
 }
 bootstrap();
