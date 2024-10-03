@@ -85,8 +85,8 @@ export class AuthService {
 
       const host =
         process.env.NODE_ENV === "prod"
-          ? process.env.APP_HOST
-          : process.env.APP_LOCAL;
+          ? process.env.API_HOST
+          : process.env.API_LOCAL;
 
       return this.httpService
         .get(
