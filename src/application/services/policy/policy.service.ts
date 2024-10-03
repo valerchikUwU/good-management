@@ -8,6 +8,7 @@ import { PolicyToOrganizationService } from "../policyToOrganization/policyToOrg
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { PolicyUpdateDto } from "src/contracts/policy/update-policy.dto";
 import { Logger } from 'winston';
+import { IsNull } from "typeorm";
 
 
 
@@ -25,6 +26,35 @@ export class PolicyService {
     async findAllForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
         try {
             const policies = await this.policyRepository.find({ where: { account: { id: account.id } } });
+
+            return policies.map(policy => ({
+                id: policy.id,
+                policyName: policy.policyName,
+                policyNumber: policy.policyNumber,
+                state: policy.state,
+                type: policy.type,
+                dateActive: policy.dateActive,
+                content: policy.content,
+                createdAt: policy.createdAt,
+                updatedAt: policy.updatedAt,
+                post: policy.post,
+                policyToOrganizations: policy.policyToOrganizations,
+                user: policy.user,
+                account: policy.account,
+                files: policy.files
+            }))
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех политик!');
+        }
+    }
+
+    async findAllWithoutPost(account: AccountReadDto): Promise<PolicyReadDto[]> {
+        try {
+            const policies = await this.policyRepository.find({ where: { account: { id: account.id }, post: IsNull() }, relations: ['post'] });
 
             return policies.map(policy => ({
                 id: policy.id,

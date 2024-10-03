@@ -180,7 +180,7 @@ export class PostController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{workers: ReadUserDto[], policies: PolicyReadDto[], postsWithoutParentId: PostReadDto[], organizations: OrganizationReadDto[]}>{
       const user = await this.userService.findOne(userId);
-      const policies = await this.policyService.findAllForAccount(user.account);
+      const policies = await this.policyService.findAllWithoutPost(user.account);
       const workers = await this.userService.findAllForAccount(user.account);
       const postsWithoutParentId = await this.postService.findAllWithoutParentId(user.account);
       const organizations = await this.organizationService.findAllForAccount(user.account)
