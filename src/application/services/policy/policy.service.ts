@@ -54,7 +54,7 @@ export class PolicyService {
 
     async findAllWithoutPost(account: AccountReadDto): Promise<PolicyReadDto[]> {
         try {
-            const policies = await this.policyRepository.find({ where: { account: { id: account.id }, post: {id: IsNull()} }, relations: ['post'] });
+            const policies = await this.policyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, post: {id: IsNull()} }, relations: ['post'] });
 
             return policies.map(policy => ({
                 id: policy.id,

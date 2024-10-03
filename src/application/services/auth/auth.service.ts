@@ -90,7 +90,7 @@ export class AuthService {
 
       return this.httpService
         .get(
-          `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${host}/gm&code=${code}`
+          `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${host}&code=${code}`
         ).toPromise();
     }
     catch (err) {

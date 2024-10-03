@@ -67,6 +67,7 @@ export class AuthController {
     async vk(@Headers('User-Agent') user_agent: string, @Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string, @Res({ passthrough: true }) res: ExpressResponse): Promise<UserVkAuthDto> {
         let authData;
         try {
+            console.log(auth.code)
             authData = await this.authService.getVkToken(auth.code);
         } catch (err) {
             throw new UnprocessableEntityException("Wrong VK code");
