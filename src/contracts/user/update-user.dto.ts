@@ -4,7 +4,7 @@ export class UpdateUserDto {
 
 
     @IsUUID()
-    id?: string;
+    id: string;
 
     @IsString()
     @IsOptional()

@@ -1,11 +1,9 @@
 import { Inject, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { Telegraf } from 'telegraf'
-import LocalSession from 'telegraf-session-local';
 import { UsersService } from "../users/users.service";
 import { HttpService } from "@nestjs/axios";
 import { lastValueFrom } from "rxjs";
 import { ChatStorageService } from './chatStorage.service';
-import { CreateUserDto } from "src/contracts/user/create-user.dto";
 import { Logger } from "winston";
 @Injectable()
 export class TelegramService {
@@ -43,21 +41,8 @@ export class TelegramService {
                     if (token) {
                         // Теперь можно безопасно сохранять данные в сессию
                         this.chatStorageService.setChatInfo(chatId, { token: token, clientId: clientId })
-                        const telegramId = ctx.message.from.id;
-                        const user = await this.usersService.findOneByTelegramId(telegramId).catch((err) => {
-                            if (err instanceof NotFoundException) {
-                                return null;
-                            }
-                        })
-                        if (user !== null) {
-                            const authFlag = await this.authRequest(user.telephoneNumber, user.telegramId, token, clientId, ctx, false);
-                            this.chatStorageService.clearChatById(chatId);
-                            if (authFlag) {
-                                ctx.reply('Вход успешен!')
-                            }
-                        } else {
                             ctx.reply(
-                                "Добро пожаловать в бота Чтобы зарегистрироваться отправьте номер вашего телефона, нажав на кнопку ниже:",
+                                "Добро пожаловать в бота, чтобы войти поделитесь контактом, нажав на кнопку ниже:",
                                 {
                                     reply_markup: {
                                         keyboard: [
@@ -68,7 +53,6 @@ export class TelegramService {
                                     },
                                 }
                             );
-                        }
                     } else {
                         ctx.reply(
                             "Пожалуйста, используйте QR - код или ссылку из приложения!"
@@ -89,7 +73,21 @@ export class TelegramService {
                 const telegramId = Number(ctx.message.contact.user_id);
                 const chat = this.chatStorageService.getChatInfo(chatId)
                 if (chat.token) {
-                    await this.authRequest(telephoneNumber, telegramId, chat.token, chat.clientId, ctx, true, firstName, lastName)
+                    const user = await this.usersService.findOneByTelephoneNumber(telephoneNumber).catch((err) => {
+                        if (err instanceof NotFoundException) {
+                            return null;
+                        }
+                    })
+                    if (user !== null) {
+                        const authFlag = await this.authRequest(telephoneNumber, telegramId, chat.token, chat.clientId, ctx, firstName, lastName)
+                        if (authFlag) {
+                            ctx.reply('Вход успешен!')
+                        }
+                        this.chatStorageService.clearChatById(chatId);
+                    }
+                    else{
+                        ctx.reply("Похоже вы используете не тот номер, на который был зарегистрирован ваш аккаунт в академии. Пожалуйста, используйте номер, который был указан при регистрации.");
+                    }
                 } else {
                     ctx.reply("Пожалуйста, используйте QR - код или ссылку из приложения!");
                 }
@@ -113,7 +111,7 @@ export class TelegramService {
         return phoneNumber;
     }
 
-    async authRequest(phoneNumber: string, telegramId: number, token: string, clientId: string, ctx: any, createUserFlag: boolean, firstName?: string, lastName?: string): Promise<any> {
+    async authRequest(phoneNumber: string, telegramId: number, token: string, clientId: string, ctx: any, firstName?: string, lastName?: string): Promise<any> {
         try {
             const response = await lastValueFrom(
                 this.httpService.post(`${process.env.API_HOST}${process.env.PORT}/auth/login/tg`, {
@@ -121,7 +119,6 @@ export class TelegramService {
                     telegramId: telegramId,
                     clientId: clientId,
                     token: token,
-                    createUserFlag: createUserFlag,
                     firstName: firstName === undefined ? null : firstName,
                     lastName: lastName === undefined ? null : lastName,
                 })

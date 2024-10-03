@@ -26,18 +26,19 @@ import { AuthVK } from '../contracts/auth-vk.dto'
 import { AuthService } from "../application/services/auth/auth.service";
 import { UsersService } from "../application/services/users/users.service";
 import { CreateUserDto } from "src/contracts/user/create-user.dto";
-import { RefreshService } from "src/application/services/refreshSession/refresh.service";
 import { AccessTokenGuard } from "src/guards/accessToken.guard";
 import { RefreshTokenGuard } from "src/guards/refreshToken.guard";
 import { EventsGateway } from "src/gateways/events.gateway";
-import { UpdateUserDto } from "src/contracts/user/update-user.dto";
-import { CreateRefreshSessionDto } from "src/contracts/refreshSession/create-refreshSession.dto";
 import { JwtService } from "@nestjs/jwt";
 
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthTG } from "src/contracts/tg-auth.dto";
 import { Logger } from "winston";
 import { blue, red, green, yellow, bold } from 'colorette';
+import { profile } from "console";
+import { UpdateUserDto } from "src/contracts/user/update-user.dto";
+import { UpdateTgAuthUserDto } from "src/contracts/user/update-tgauthUser.dto";
+import { UpdateVkAuthUserDto } from "src/contracts/user/update-vkauthUser.dto";
 
 @ApiTags('Auth')
 @Controller("auth")
@@ -73,36 +74,48 @@ export class AuthController {
 
         const _user = await this.userService.findByVkId(authData.data.user_id);
 
-
+        let updatedUser = _user;
         if (_user) {
+            if (!_user.avatar_url || !_user.vk_id) {
+                const { data } = await this.authService.getUserDataFromVk(
+                    authData.data.user_id,
+                    authData.data.access_token
+                );
 
-            const authenticateResult = await this.authService.authenticateVK(_user, ip, user_agent, auth.fingerprint);
+                const profile = data.response[0];
+                const updateVkAuthUserDto: UpdateVkAuthUserDto = {
+                    vk_id: authData.data.user_id,
+                    avatar_url: profile.photo_400
+                }
+                updatedUser = await this.userService.updateVkAuth(_user, updateVkAuthUserDto)
+            }
+            const authenticateResult = await this.authService.authenticateVK(updatedUser, ip, user_agent, auth.fingerprint);
             res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, { httpOnly: true })
             return authenticateResult._user;
         }
 
-        try {
-            const { data } = await this.authService.getUserDataFromVk(
-                authData.data.user_id,
-                authData.data.access_token
-            );
+        // try {
+        //     const { data } = await this.authService.getUserDataFromVk(
+        //         authData.data.user_id,
+        //         authData.data.access_token
+        //     );
 
-            const profile = data.response[0];
-            let user: CreateUserDto = {
-                vk_id: authData.data.user_id,
-                firstName: `${profile.first_name}`,
-                lastName: `${profile.last_name}`,
-                avatar_url: profile.photo_400,
-                telephoneNumber: profile.mobile_phone ? profile.mobile_phone : null
-            };
-            const newUser = await this.userService.create(user);
-            const authenticateResult = await this.authService.authenticateVK(newUser, ip, user_agent, auth.fingerprint);
-            res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, { httpOnly: true })
-            return authenticateResult._user
-        } catch (err) {
-            console.log(err);
-            throw new UnprocessableEntityException(err);
-        }
+        //     const profile = data.response[0];
+        //     let user: CreateUserDto = {
+        //         vk_id: authData.data.user_id,
+        //         firstName: `${profile.first_name}`,
+        //         lastName: `${profile.last_name}`,
+        //         avatar_url: profile.photo_400,
+        //         telephoneNumber: profile.mobile_phone ? profile.mobile_phone : null
+        //     };
+        //     const newUser = await this.userService.create(user);
+        //     const authenticateResult = await this.authService.authenticateVK(newUser, ip, user_agent, auth.fingerprint);
+        //     res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, { httpOnly: true })
+        //     return authenticateResult._user
+        // } catch (err) {
+        //     console.log(err);
+        //     throw new UnprocessableEntityException(err);
+        // }
     }
 
     @UseGuards(RefreshTokenGuard)
@@ -169,23 +182,18 @@ export class AuthController {
         // Запрашиваем у клиента необходимую информацию
         const requiredInfo = ['fingerprint', 'userAgent', 'ip', 'token'];
         const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo);
+        console.log(clientInfo.token)
         if (clientInfo.token === authTg.token) {
-            if (authTg.createUserFlag) {
-                const createUserDto: CreateUserDto = {
-                    firstName: authTg.firstName,
-                    lastName: authTg.lastName,
+                const updateTgAuthUserDto: UpdateTgAuthUserDto = {
                     telegramId: authTg.telegramId,
-                    telephoneNumber: authTg.telephoneNumber
                 }
-                const newUser = await this.userService.create(createUserDto);
-                const authenticateResult = await this.authService.authenticateTG(newUser, clientInfo.ip, clientInfo.userAgent, clientInfo.fingerprint);
-                await this.eventsGateway.sendTokenToClient(authTg.clientId, authenticateResult._user.id, authenticateResult.refreshTokenId, authenticateResult._user.token)
-            }
-            else {
-                const user = await this.userService.findOneByTelegramId(authTg.telegramId);
-                const authenticateResult = await this.authService.authenticateTG(user, clientInfo.ip, clientInfo.userAgent, clientInfo.fingerprint);
-                await this.eventsGateway.sendTokenToClient(authTg.clientId, authenticateResult._user.id, authenticateResult.refreshTokenId, authenticateResult._user.token)
-            }
+                const user = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
+                let updateUser = user
+                if(!user.telegramId){
+                    updateUser = await this.userService.updateTgAuth(user, updateTgAuthUserDto)
+                }
+                const authenticateResult = await this.authService.authenticateTG(updateUser, clientInfo.ip, clientInfo.userAgent, clientInfo.fingerprint);
+                await this.eventsGateway.sendTokenToClient(authTg.clientId, authenticateResult._user.id, authenticateResult._user.token, authenticateResult.refreshTokenId)
 
         } else {
             await this.eventsGateway.sendTokenToClient(authTg.clientId, 'false', null, null);

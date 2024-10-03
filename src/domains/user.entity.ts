@@ -8,6 +8,7 @@ import { Strategy } from './strategy.entity';
 import { TargetHolder } from './targetHolder.entity';
 import { Account } from './account.entity';
 import { Project } from './project.entity';
+import { Role } from './role.entity';
 
 
 @Entity()
@@ -72,4 +73,7 @@ export class User {
 
   @ManyToOne(() => Account, (account) => account.users, {nullable: true})
   account: Account;
+
+  @ManyToOne(() => Role, (role) => role.users, {nullable: true})
+  role: Role
 }

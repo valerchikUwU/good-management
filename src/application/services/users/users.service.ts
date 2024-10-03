@@ -7,6 +7,8 @@ import { UsersRepository } from './Repository/users.repository';
 import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
+import { UpdateTgAuthUserDto } from 'src/contracts/user/update-tgauthUser.dto';
+import { UpdateVkAuthUserDto } from 'src/contracts/user/update-vkauthUser.dto';
 
 @Injectable()
 export class UsersService {
@@ -38,14 +40,15 @@ export class UsersService {
             targetHolders: user.targetHolders,
             projects: user.projects,
             organization: user.organization,
-            account: user.account
+            account: user.account,
+            role: user.role
 
             // Добавьте любые другие поля, которые должны быть включены в ответ
         }));
     }
 
     async findAllForAccount(account: AccountReadDto): Promise<ReadUserDto[]> {
-        try{
+        try {
 
             const users = await this.usersRepository.find({ where: { account: { id: account.id } } });
             return users.map(user => ({
@@ -66,12 +69,13 @@ export class UsersService {
                 targetHolders: user.targetHolders,
                 projects: user.projects,
                 organization: user.organization,
-                account: user.account
-    
+                account: user.account,
+                role: user.role
+
                 // Добавьте любые другие поля, которые должны быть включены в ответ
             }));
         }
-        catch(err){
+        catch (err) {
             throw new InternalServerErrorException('Ошибка при получении всех пользователей!')
         }
     }
@@ -79,7 +83,7 @@ export class UsersService {
 
     async findOne(id: string): Promise<ReadUserDto | null> {
         try {
-            const user = await this.usersRepository.findOne({ where: { id }, relations: ['account', 'organization'] });
+            const user = await this.usersRepository.findOne({ where: { id }, relations: ['account', 'organization', 'role'] });
             if (!user) throw new NotFoundException(`Пользователь с ${id} не найден!`);
             // Преобразование объекта User в ReadUserDto
             const readUserDto: ReadUserDto = {
@@ -100,7 +104,8 @@ export class UsersService {
                 targetHolders: user.targetHolders,
                 projects: user.projects,
                 organization: user.organization,
-                account: user.account
+                account: user.account,
+                role: user.role
             };
 
             return readUserDto;
@@ -123,54 +128,9 @@ export class UsersService {
 
     async findOneByTelephoneNumber(telephoneNumber: string): Promise<ReadUserDto | null> {
         try {
-        const user = await this.usersRepository.findOneBy({ telephoneNumber });
-        if (!user) throw new NotFoundException(`Пользователь с номером телефона ${telephoneNumber} не найден!`);
+            const user = await this.usersRepository.findOneBy({ telephoneNumber });
+            if (!user) throw new NotFoundException(`Пользователь с номером телефона ${telephoneNumber} не найден!`);
 
-        // Преобразование объекта User в ReadUserDto
-        const readUserDto: ReadUserDto = {
-            id: user.id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            telegramId: user.telegramId,
-            telephoneNumber: user.telephoneNumber,
-            avatar_url: user.avatar_url,
-            vk_id: user.vk_id,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-            posts: user.posts,
-            refreshSessions: user.refreshSessions,
-            goals: user.goals,
-            policies: user.policies,
-            strategies: user.strategies,
-            targetHolders: user.targetHolders,
-            projects: user.projects,
-            organization: user.organization,
-            account: user.account
-        };
-
-        return readUserDto;
-    }
-    catch (err) {
-
-        // Обработка специфичных исключений
-        if (err instanceof NotFoundException) {
-
-            this.logger.error(err);
-            throw err; // Пробрасываем исключение дальше
-        }
-
-        this.logger.error(err);
-        // Обработка других ошибок
-        throw new InternalServerErrorException('Ошибка при получении пользователя');
-    }
-    }
-
-    async findOneByTelegramId(telegramId: number): Promise<ReadUserDto | null> {
-        try{
-
-            const user = await this.usersRepository.findOneBy({ telegramId });
-            if (!user) throw new NotFoundException(`Пользователь с telegramID: ${telegramId} не найден!`);
-    
             // Преобразование объекта User в ReadUserDto
             const readUserDto: ReadUserDto = {
                 id: user.id,
@@ -190,13 +150,60 @@ export class UsersService {
                 targetHolders: user.targetHolders,
                 projects: user.projects,
                 organization: user.organization,
-                account: user.account
+                account: user.account,
+                role: user.role
             };
-    
+
             return readUserDto;
         }
-        catch(err){
-            if (err instanceof NotFoundException){
+        catch (err) {
+
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+
+                this.logger.error(err);
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении пользователя');
+        }
+    }
+
+    async findOneByTelegramId(telegramId: number): Promise<ReadUserDto | null> {
+        try {
+
+            const user = await this.usersRepository.findOneBy({ telegramId });
+            if (!user) throw new NotFoundException(`Пользователь с telegramID: ${telegramId} не найден!`);
+
+            // Преобразование объекта User в ReadUserDto
+            const readUserDto: ReadUserDto = {
+                id: user.id,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                telegramId: user.telegramId,
+                telephoneNumber: user.telephoneNumber,
+                avatar_url: user.avatar_url,
+                vk_id: user.vk_id,
+                createdAt: user.createdAt,
+                updatedAt: user.updatedAt,
+                posts: user.posts,
+                refreshSessions: user.refreshSessions,
+                goals: user.goals,
+                policies: user.policies,
+                strategies: user.strategies,
+                targetHolders: user.targetHolders,
+                projects: user.projects,
+                organization: user.organization,
+                account: user.account,
+                role: user.role
+            };
+
+            return readUserDto;
+        }
+        catch (err) {
+            if (err instanceof NotFoundException) {
                 throw err;
             }
 
@@ -210,18 +217,30 @@ export class UsersService {
 
 
     async create(createUserDto: CreateUserDto): Promise<User> {
-        try{
+        try {
+            // Проверка на наличие обязательных данных
+            if (!createUserDto.firstName) {
+                throw new BadRequestException('У юзера обязательно наличие имени!');
+            }
+            if (!createUserDto.lastName) {
+                throw new BadRequestException('У юзера обязательно наличие фамилии!');
+            }
+            if (!createUserDto.telephoneNumber) {
+                throw new BadRequestException('У юзера обязательно наличие номера телефона!');
+            }
+            if (!createUserDto.role) {
+                throw new BadRequestException('У юзера обязательно наличие роли!');
+            }
             const user = new User();
             user.firstName = createUserDto.firstName;
             user.lastName = createUserDto.lastName;
             user.telephoneNumber = createUserDto.telephoneNumber;
-            user.avatar_url = createUserDto.avatar_url;
-            user.vk_id = createUserDto.vk_id
-            user.telegramId = createUserDto.telegramId;
+            user.role = createUserDto.role;
+            user.account = createUserDto.account;
             // Присваиваем значения из DTO объекту пользователя
             return await this.usersRepository.save(user);
         }
-        catch(err){
+        catch (err) {
 
             this.logger.error(err);
             throw new InternalServerErrorException('Ошибка при создании задачи');
@@ -231,11 +250,11 @@ export class UsersService {
 
 
     async findByVkId(vk_id: number): Promise<ReadUserDto | null> {
-        try{
+        try {
 
             const user = await this.usersRepository.findOneBy({ vk_id });
             if (!user) throw new NotFoundException(`Пользователь с vk ID: ${vk_id} не найден!`);
-    
+
             // Преобразование объекта User в ReadUserDto
             const readUserDto: ReadUserDto = {
                 id: user.id,
@@ -255,12 +274,13 @@ export class UsersService {
                 targetHolders: user.targetHolders,
                 projects: user.projects,
                 organization: user.organization,
-                account: user.account
+                account: user.account,
+                role: user.role
             };
-    
+
             return readUserDto;
         }
-        catch(err){
+        catch (err) {
 
 
             // Обработка специфичных исключений
@@ -276,18 +296,18 @@ export class UsersService {
         }
     }
 
-
-    async updateByPhoneNumber(telephoneNumber: string, telegramId: number): Promise<ReadUserDto | null> {
+    async update(_id: string, updateUserDto: UpdateUserDto): Promise<ReadUserDto | null> {
         try {
-            const user = await this.usersRepository.findOneBy({ telephoneNumber });
+            const user = await this.usersRepository.findOneBy({ id: _id });
 
-            if (!user) throw new NotFoundException("Не найден юзер с таким номером");
-            const updateUserDto: UpdateUserDto = {
-                telegramId: telegramId
-            }
-            user.telegramId = updateUserDto.telegramId;
+            if (!user) throw new NotFoundException(`Не найден юзер с таким ID: ${_id}`);
 
-            return user;
+            if (updateUserDto.firstName) user.firstName = updateUserDto.firstName;
+            if (updateUserDto.lastName) user.lastName = updateUserDto.lastName;
+            if (updateUserDto.telephoneNumber) user.telephoneNumber = updateUserDto.telephoneNumber;
+            await this.usersRepository.update(_id, {firstName: updateUserDto.firstName})
+            
+            return await this.usersRepository.save(user);
         }
         catch (err) {
 
@@ -296,9 +316,46 @@ export class UsersService {
             if (err instanceof NotFoundException) {
                 throw err; // Пробрасываем исключение дальше
             }
-      
+
             // Обработка других ошибок
-            throw new InternalServerErrorException('Ошибка при получении юзера');
+            throw new InternalServerErrorException('Ошибка при обновлении юзера');
+        }
+
+    }
+
+    async updateTgAuth(user: User, updateTgAuthUserDto: UpdateTgAuthUserDto): Promise<ReadUserDto | null> {
+        try {
+
+            user.telegramId = updateTgAuthUserDto.telegramId
+
+            return user;
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка специфичных исключений
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при обновлении юзера');
+        }
+
+    }
+
+    async updateVkAuth(user: User, updateVkAuthUserDto: UpdateVkAuthUserDto): Promise<ReadUserDto | null> {
+        try {
+
+            user.vk_id = updateVkAuthUserDto.vk_id
+            user.avatar_url = updateVkAuthUserDto.avatar_url
+
+            return user;
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка специфичных исключений
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при обновлении юзера');
         }
 
     }

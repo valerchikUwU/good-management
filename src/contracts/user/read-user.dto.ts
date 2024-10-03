@@ -8,6 +8,7 @@ import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Account } from 'src/domains/account.entity';
 import { Project } from 'src/domains/project.entity';
+import { Role } from 'src/domains/role.entity';
 
 export class ReadUserDto {
     @IsUUID()
@@ -29,6 +30,5 @@ export class ReadUserDto {
     projects: Project[];
     organization: Organization;
     account: Account;
-  
-    // Вы можете добавить дополнительные поля в соответствии с вашими требованиями
+    role: Role;
   }
