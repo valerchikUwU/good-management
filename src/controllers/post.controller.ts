@@ -13,6 +13,7 @@ import { Post as PostModel}  from "src/domains/post.entity";
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { PostUpdateDto } from "src/contracts/post/update-post.dto";
+import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
 
 
 
@@ -177,12 +178,13 @@ export class PostController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{workers: ReadUserDto[], policies: PolicyReadDto[], postsWithoutParentId: PostReadDto[]}>{
+    async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{workers: ReadUserDto[], policies: PolicyReadDto[], postsWithoutParentId: PostReadDto[], organizations: OrganizationReadDto[]}>{
       const user = await this.userService.findOne(userId);
       const policies = await this.policyService.findAllForAccount(user.account);
       const workers = await this.userService.findAllForAccount(user.account);
-      const postsWithoutParentId = await this.postService.findAllWithoutParentId(user.account)
-      return {workers: workers, policies: policies, postsWithoutParentId: postsWithoutParentId};
+      const postsWithoutParentId = await this.postService.findAllWithoutParentId(user.account);
+      const organizations = await this.organizationService.findAllForAccount(user.account)
+      return {workers: workers, policies: policies, postsWithoutParentId: postsWithoutParentId, organizations: organizations};
     }
 
 
