@@ -140,7 +140,7 @@ export class StatisticController {
     async create(@Param('userId') userId: string, @Body() statisticCreateDto: StatisticCreateDto): Promise<{statistic: Statistic, values: StatisticDataReadDto[]}> {
         const user = await this.userService.findOne(userId);
         statisticCreateDto.account = user.account;
-        const post = await this.postService.findeOneById(statisticCreateDto.postId)
+        const post = await this.postService.findOneById(statisticCreateDto.postId)
         statisticCreateDto.post = post;
         const createdStatistic = await this.statisticService.create(statisticCreateDto)
         const statisticDataReadDtos: StatisticDataReadDto[] = []

@@ -204,6 +204,28 @@ export class PostController {
               createdAt: "2024-09-20T15:09:14.997Z",
               updatedAt: "2024-09-20T15:09:14.997Z"
             },
+            parentPost: {
+              id: "87af2eb9-a17d-4e78-b847-9d512cb9a0c9",
+              postName: "Дуболом",
+              divisionName: "Отдел дубней",
+              parentId: null,
+              product: "Шмат",
+              purpose: "Дуболомить",
+              createdAt: "2024-09-26T15:24:09.066Z",
+              updatedAt: "2024-09-26T15:24:09.066Z",
+              user: {
+                id: "3b809c42-2824-46c1-9686-dd666403402a",
+                firstName: "Maxik",
+                lastName: "Koval",
+                telegramId: 453120600,
+                telephoneNumber: null,
+                avatar_url: null,
+                vk_id: null,
+                createdAt: "2024-09-16T14:03:31.000Z",
+                updatedAt: "2024-09-16T14:03:31.000Z"
+              },
+              policy: null
+            },
             workers: [
               {
                 id: "3b809c42-2824-46c1-9686-dd666403402a",
@@ -252,13 +274,14 @@ export class PostController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Пост не найден!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async findOne(@Param('userId') userId: string, @Param('postId') postId: string, @Ip() ip: string): Promise<{currentPost: PostReadDto, workers: ReadUserDto[], posts: PostReadDto[]}>{
+    async findOne(@Param('userId') userId: string, @Param('postId') postId: string, @Ip() ip: string): Promise<{currentPost: PostReadDto, parentPost: PostReadDto, workers: ReadUserDto[], posts: PostReadDto[]}>{
         const user = await this.userService.findOne(userId);
-        const post = await this.postService.findeOneById(postId);
+        const post = await this.postService.findOneById(postId);
+        const parentPost = await this.postService.findOneById(post.parentId)
         const workers = await this.userService.findAllForAccount(user.account);
         const posts = await this.postService.findAllForAccount(user.account);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`);
-        return {currentPost: post, workers: workers, posts: posts}
+        return {currentPost: post, parentPost: parentPost, workers: workers, posts: posts}
     }
 
 
