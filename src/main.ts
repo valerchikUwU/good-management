@@ -15,11 +15,7 @@ async function bootstrap() {
     logger: WinstonModule.createLogger(winstonConfig), // используем конфигурацию
   });
 
-  // Внутри функции bootstrap
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,   // Преобразует входные данные в типы, указанные в DTO
-    forbidUnknownValues: true,  // Предотвращает неизвестные значения
-  }));
+
   app.use(cookieParser());
   // Enable CORS
   app.enableCors({
