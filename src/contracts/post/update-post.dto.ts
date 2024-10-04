@@ -35,7 +35,7 @@ export class PostUpdateDto {
     @ApiProperty({ description: 'Продукт поста', example: 'Продукт' })
     @IsOptional()
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Продукт не может быть пустым!' })
     product?: string;
     
     @ApiProperty({ description: 'Назначение поста', example: 'Предназначение поста' })
