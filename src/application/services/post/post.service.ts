@@ -138,7 +138,7 @@ export class PostService {
     async findOneById(id: string): Promise<PostReadDto | null> {
         try{
 
-            const post = await this.postRepository.findOne({where: {id: id }, relations: ['policy', 'user']});
+            const post = await this.postRepository.findOne({where: {id: id }, relations: ['policy', 'user', 'organization']});
 
             if (!post) throw new NotFoundException(`Пост с ID: ${id} не найден`);
             const postReadDto: PostReadDto = {

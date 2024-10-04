@@ -274,14 +274,14 @@ export class PostController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Пост не найден!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async findOne(@Param('userId') userId: string, @Param('postId') postId: string, @Ip() ip: string): Promise<{currentPost: PostReadDto, parentPost: PostReadDto, workers: ReadUserDto[], posts: PostReadDto[]}>{
+    async findOne(@Param('userId') userId: string, @Param('postId') postId: string, @Ip() ip: string): Promise<{currentPost: PostReadDto, parentPost: PostReadDto, workers: ReadUserDto[], organizations: OrganizationReadDto[]}>{
         const user = await this.userService.findOne(userId);
         const post = await this.postService.findOneById(postId);
         const parentPost = await this.postService.findOneById(post.parentId)
         const workers = await this.userService.findAllForAccount(user.account);
-        const posts = await this.postService.findAllForAccount(user.account);
+        const organizations = await this.organizationService.findAllForAccount(user.account)
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`);
-        return {currentPost: post, parentPost: parentPost, workers: workers, posts: posts}
+        return {currentPost: post, parentPost: parentPost, workers: workers, organizations: organizations}
     }
 
 
