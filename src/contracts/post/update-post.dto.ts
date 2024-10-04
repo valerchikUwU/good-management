@@ -23,12 +23,10 @@ export class PostUpdateDto {
 
     @ApiProperty({ description: 'Продукт поста', example: 'Продукт' })
     @IsString()
-    @IsNotEmpty()
     product?: string;
     
     @ApiProperty({ description: 'Назначение поста', example: 'Предназначение поста' })
     @IsString()
-    @IsNotEmpty()
     purpose?: string
 
     @ApiProperty({ description:'ID ответственного, с которым связать пост', example: '3b809c42-2824-46c1-9686-dd666403402a'})
