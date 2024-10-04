@@ -129,8 +129,8 @@ export class PostController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'postId', required: true, description: 'Id поста' })
     async update(@Param('postId') postId: string, @Body() postUpdateDto: PostUpdateDto, @Ip() ip: string): Promise<PostReadDto> {
-        if(postUpdateDto.userId) {
-          const responsibleUser = await this.userService.findOne(postUpdateDto.userId)
+        if(postUpdateDto.responsibleUserId) {
+          const responsibleUser = await this.userService.findOne(postUpdateDto.responsibleUserId)
           postUpdateDto.user = responsibleUser;
         } 
         if(postUpdateDto.organizationId) {
