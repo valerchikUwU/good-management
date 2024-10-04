@@ -366,7 +366,7 @@ export class PostController {
             const policy = await this.policyService.findOneById(addPolicyId)
             postCreateDto.policy = policy
         }
-        const responsibleUser = await this.userService.findOne(postCreateDto.userId);
+        const responsibleUser = await this.userService.findOne(postCreateDto.responsibleUserId);
         postCreateDto.user = responsibleUser;
         postCreateDto.account = user.account;
         const organization = await this.organizationService.findOneById(postCreateDto.organizationId)

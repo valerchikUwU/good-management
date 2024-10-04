@@ -35,7 +35,7 @@ export class PostCreateDto {
     account: Account;
 
     @ApiProperty({ description:'ID ответственного, с которым связать пост', example: '3b809c42-2824-46c1-9686-dd666403402a'})
-    userId: string
+    responsibleUserId: string
 
     @ApiProperty({ description:'ID организации, с которой связать пост', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
     organizationId: string
