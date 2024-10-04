@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
+import { IsNotEmpty } from "class-validator";
 import { Account } from "src/domains/account.entity";
 import { Organization } from "src/domains/organization.entity";
 import { Policy } from "src/domains/policy.entity";
@@ -20,9 +21,11 @@ export class PostUpdateDto {
     parentId?: string;
 
     @ApiProperty({ description: 'Продукт поста', example: 'Продукт' })
+    @IsNotEmpty()
     product?: string;
     
     @ApiProperty({ description: 'Назначение поста', example: 'Предназначение поста' })
+    @IsNotEmpty()
     purpose?: string
 
     @ApiProperty({ description:'ID ответственного, с которым связать пост', example: '3b809c42-2824-46c1-9686-dd666403402a'})
