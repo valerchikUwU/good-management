@@ -362,7 +362,7 @@ export class PostController {
     //PostModel из за конфликтующих импортов
     {
         const user = await this.userService.findOne(userId);
-        if(addPolicyId){
+        if(addPolicyId !== 'null'){
             const policy = await this.policyService.findOneById(addPolicyId)
             postCreateDto.policy = policy
         }
