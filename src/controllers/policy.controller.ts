@@ -17,7 +17,7 @@ import { PermissionsGuard } from "src/guards/permission.guard";
 import { AccessTokenGuard } from "src/guards/accessToken.guard";
 
 @ApiTags('Policy')
-@UseGuards(AccessTokenGuard)
+// @UseGuards(AccessTokenGuard)
 @Controller(':userId/policies')
 export class PolicyController {
     constructor(
@@ -175,9 +175,9 @@ export class PolicyController {
     }
 
     @Get(':policyId')
-    @UseGuards(PermissionsGuard)
-    @ModuleAccess(Modules.POLICY)
-    @ActionAccess(Actions.READ)
+    // @UseGuards(PermissionsGuard)
+    // @ModuleAccess(Modules.POLICY)
+    // @ActionAccess(Actions.READ)
     @ApiOperation({ summary: 'Получить политику по ID' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
