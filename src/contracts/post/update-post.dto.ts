@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString, IsUUID } from "class-validator";
 import { Account } from "src/domains/account.entity";
 import { Organization } from "src/domains/organization.entity";
 import { Policy } from "src/domains/policy.entity";
@@ -9,6 +9,7 @@ import { User } from "src/domains/user.entity";
 export class PostUpdateDto {
 
     @ApiProperty({description: 'Id поста', example: '2420fabb-3e37-445f-87e6-652bfd5a050c'})
+    @IsUUID()
     _id: string
 
     @ApiProperty({ description: 'Название поста', example: 'Директор' })

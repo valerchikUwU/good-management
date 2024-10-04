@@ -17,8 +17,6 @@ async function bootstrap() {
 
   // Внутри функции bootstrap
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,  // Удаляет поля, которые отсутствуют в DTO
-    forbidNonWhitelisted: true, // Отклоняет запросы с "лишними" полями
     transform: true,   // Преобразует входные данные в типы, указанные в DTO
     forbidUnknownValues: true,  // Предотвращает неизвестные значения
   }));
