@@ -10,13 +10,13 @@ export class PostCreateDto {
     
     @ApiProperty({ description: 'Название поста', example: 'Директор' })
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message: 'Название поста не может быть пустым!'})
     postName: string;
     
     @ApiProperty({required: false, description: 'Название отдела', example: 'Отдел продаж' })
     @IsOptional()
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message: 'Название отдела не может быть пустым!'})
     divisionName?: string | null;
     
     @ApiProperty({required: false, description: 'Родительский пост', example: 'b2218813-8985-465b-848e-9a78b1627f11' })
@@ -27,12 +27,12 @@ export class PostCreateDto {
 
     @ApiProperty({ description: 'Продукт поста', example: 'Продукт' })
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message: 'Продукт поста не может быть пустым!'})
     product: string;
     
     @ApiProperty({ description: 'Назначение поста', example: 'Предназначение поста' })
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message: 'Предназначение поста не может быть пустым!'})
     purpose: string
     
     @Exclude({toPlainOnly: true})

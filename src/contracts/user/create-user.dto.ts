@@ -22,8 +22,8 @@ export class CreateUserDto {
 
   @ApiProperty({ description: 'Номер телефона', required: true, example: '+79787878778' })
   @IsString()
-  @IsOptional()
-  telephoneNumber: string | null;
+  @IsNotEmpty()
+  telephoneNumber: string;
 
 
   @ApiProperty({ description: 'ID роли', required: true, example: '675a797e-d0f2-4907-bad5-25733c3e2380' })

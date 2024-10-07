@@ -10,7 +10,7 @@ export class GoalCreateDto {
     
     @ApiProperty({ description: 'Название цели', example: 'Название цели' })
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message: 'Название цели не может быть пустым!'})
     goalName: string;
     
     @ApiProperty({ description: 'Порядковый номер', example: 1 })
@@ -20,7 +20,7 @@ export class GoalCreateDto {
     
     @ApiProperty({ description: 'Текст цели', example: 'Контент цели' })
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({ message: 'Содержание не может быть пустым!' })
     content: string;
 
     @Exclude({toPlainOnly: true})
@@ -30,7 +30,7 @@ export class GoalCreateDto {
     account: Account;
 
     @ApiProperty({ description: 'IDs организаций, с которыми связать цель', example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'] })
-    @IsArray()
-    @ArrayNotEmpty()
+    @IsArray({ message: 'Должен быть массив!' })
+    @ArrayNotEmpty({ message: 'Выберите хотя бы одну организацию!' })
     goalToOrganizations: string[]
 }

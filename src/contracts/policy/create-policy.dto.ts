@@ -10,7 +10,7 @@ export class PolicyCreateDto{
     
     @ApiProperty({ description: 'Название политики', example: 'Политика' })
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message: 'Название политики не может быть пустым!'})
     policyName: string
     
     @ApiProperty({description: 'Состояние политики', required: false,  example: 'Черновик', examples: ['Черновик', 'Активный', 'Отменён'] })
@@ -24,7 +24,7 @@ export class PolicyCreateDto{
     
     @ApiProperty({ description: 'HTML контент политики', example: 'HTML контент (любая строка пройдет)' })
     @IsString()
-    @IsNotEmpty()
+    @IsNotEmpty({message: 'Содержание политики не может быть пустым!'})
     content: string;
     
     @Exclude({ toPlainOnly: true })
@@ -34,7 +34,7 @@ export class PolicyCreateDto{
     account: Account;
     
     @ApiProperty({ description: 'IDs организаций, к которым привязать политику', example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'] })
-    @IsArray()
-    @ArrayNotEmpty()
+    @IsArray({message: 'Должен быть массив!'})
+    @ArrayNotEmpty({message: 'Выберите хотя бы одну организацию!'})
     policyToOrganizations: string[]
 }
