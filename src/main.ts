@@ -5,7 +5,8 @@ import { winstonConfig } from './utils/winston-logger';
 import * as cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { ValidationExceptionFilter } from './utils/validationExceptionFilter';
 dotenv.config();
 
 
@@ -13,7 +14,14 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig), // используем конфигурацию
-  });
+  });  
+  
+  // Получаем экземпляр логгера NestWinston
+  const logger = app.get('NestWinston'); 
+  
+  // Подключаем глобальный фильтр для валидации
+  app.useGlobalFilters(new ValidationExceptionFilter(logger));
+
 
   // Внутри функции bootstrap
   app.useGlobalPipes(new ValidationPipe({
@@ -21,6 +29,7 @@ async function bootstrap() {
     forbidNonWhitelisted: true, // Отклоняет запросы с "лишними" полями
     transform: true,   // Преобразует входные данные в типы, указанные в DTO
     forbidUnknownValues: true,  // Предотвращает неизвестные значения
+    exceptionFactory: (errors) => new BadRequestException(errors), 
   }));
   app.use(cookieParser());
   // Enable CORS
