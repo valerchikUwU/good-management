@@ -7,22 +7,33 @@ import { User } from "src/domains/user.entity";
 import { TargetCreateDto } from "../target/create-target.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, IsUUID } from "class-validator";
 
 export class ProjectCreateDto {
 
     @ApiProperty({ description: 'Id программы', required: false, example: 'b6ed2664-9510-4a47-9117-6ce89903b4b5' })
+    @IsUUID()
+    @IsNotEmpty({message: 'ID программы не может быть пустым!'})
     programId?: string | null;
 
     @ApiProperty({ description: 'Содержание проекта', example: 'Контент проекта' })
+    @IsString()
+    @IsNotEmpty({message: 'Проект не может быть пустым!'})
     content: string;
 
     @ApiProperty({ description: 'Тип проекта', example: 'Проект', examples: ['Проект', 'Программа'] })
+    @IsEnum(Type)
+    @IsNotEmpty({message: 'Выберите тип проекта!'})
     type: Type;
 
     @ApiProperty({ description: 'IDs организаций, которые связать с проектом', example: ['3388c410-2e2e-4fd3-8672-217a6121ed7a'] })
+    @IsArray({message: 'Должен быть массив!'})
+    @ArrayNotEmpty({message: 'Выберите хотя бы одну организацию!'})
     projectToOrganizations: string[];
 
     @ApiProperty({ description: 'Id стратегии', example: 'd5eaa436-f93f-4743-854a-6f10a5d290a1' })
+    @IsUUID()
+    @IsNotEmpty({message: 'Выберите стратегию для проекта!'})
     strategyId: string;
 
     @Exclude({ toPlainOnly: true })
@@ -72,5 +83,6 @@ export class ProjectCreateDto {
             },
         ]
     })
+    @IsArray({message: 'Должен быть массив!'})
     targetCreateDtos: TargetCreateDto[]
 }

@@ -5,9 +5,7 @@ import { UsersModule } from './application/modules/users.module';
 import { ConfigModule, ConfigService } from 'nestjs-config';
 import { ConfigModule as Conf } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm';
-import typeorm from './config/database';
 import { AuthModule } from './application/modules/auth.module';
-import { EventsGateway } from './gateways/events.gateway';
 import * as path from 'path';
 import { EventsModule } from './application/modules/events.module';
 import { TelegramModule } from './application/modules/telegram.module';
@@ -30,6 +28,8 @@ import { FileUploadModule } from './application/modules/file-upload.module';
 import { FileModule } from './application/modules/file.module';
 import { RoleSettingModule } from './application/modules/roleSetting.module';
 import { RoleModule } from './application/modules/role.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { rabbitmqConfig } from './config/rabbitmq.config';
 
 
 
@@ -39,7 +39,19 @@ import { RoleModule } from './application/modules/role.module';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => (configService.get('database'))
-    }),
+    }),ClientsModule.register([
+      {
+        name: 'RABBITMQ_SERVICE', // Имя клиента
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'], // URL подключения к RabbitMQ
+          queue: 'main_queue', // Название очереди
+          queueOptions: {
+            durable: false, // Настройки очереди
+          },
+        },
+      },
+    ]),
     WinstonModule.forRoot(winstonConfig),
     UsersModule, AuthModule, EventsModule, TelegramModule, OrganizationModule, AccountModule,
     PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule, FileUploadModule, FileModule, RoleSettingModule, RoleModule

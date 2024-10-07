@@ -124,7 +124,7 @@ export class ProjectController {
         const user = await this.userService.findOne(userId);
         const workers = await this.userService.findAllForAccount(user.account);
         const strategies = await this.strategyService.findAllActiveForAccount(user.account);
-        const organizations = await this.organizationService.findAllForAccount(user.account)
+        const organizations = await this.organizationService.findAllForAccount(user.account);
         return {workers: workers, strategies: strategies, organizations: organizations}
     }
 

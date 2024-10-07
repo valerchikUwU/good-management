@@ -1,18 +1,21 @@
 import {
   Headers, Body, Controller, Get, Ip,
   OnModuleInit,
-  HttpStatus
+  HttpStatus,
+  Inject
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import * as crypto from 'crypto';
 import { TelegramService } from './application/services/telegram/telegram.service';
 import { ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ClientProxy } from '@nestjs/microservices';
 
 @ApiTags('Homepage')
 @Controller()
 export class AppController implements OnModuleInit {
   constructor(private readonly appService: AppService,
-    private readonly telegramBotService: TelegramService
+    private readonly telegramBotService: TelegramService,
+    @Inject('RABBITMQ_SERVICE') private client: ClientProxy
   ) { }
 
   @Get()
@@ -30,6 +33,8 @@ export class AppController implements OnModuleInit {
     description: 'Информация о браузере клиента',
   })
   getToken(@Headers('User-Agent') user_agent: string, @Ip() ip: string): object {
+    const message = { text: 'Hello, RabbitMQ!' };
+    this.client.send({ cmd: 'message' }, message); // Отправка сообщения
     const token = crypto.randomBytes(10).toString('hex');
     return { user_agent, ip, token };
   }
