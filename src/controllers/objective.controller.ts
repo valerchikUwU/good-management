@@ -70,7 +70,7 @@ export class ObjectiveController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<StrategyReadDto[]> {
         const user = await this.userService.findOne(userId)
-        const strategies = await this.strategyService.findAllActiveForAccount(user.account)
+        const strategies = await this.strategyService.findAllActiveWithoutObjectiveForAccount(user.account)
         return strategies; 
     }
 

@@ -55,10 +55,40 @@ export class StrategyService {
     }
 
 
-    async findAllActiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+    async findAllActiveWithoutObjectiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
         try {
 
             const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, objective: {id: IsNull()}}});
+
+            return strategies.map(strategy => ({
+                id: strategy.id,
+                strategyNumber: strategy.strategyNumber,
+                strategyName: strategy.strategyName,
+                dateActive: strategy.dateActive,
+                content: strategy.content,
+                state: strategy.state,
+                createdAt: strategy.createdAt,
+                updatedAt: strategy.updatedAt,
+                user: strategy.user,
+                account: strategy.account,
+                strategyToOrganizations: strategy.strategyToOrganizations,
+                objective: strategy.objective,
+                projects: strategy.projects
+            }))
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех стратегий!');
+
+        }
+    }
+
+    async findAllActiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+        try {
+
+            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE}});
 
             return strategies.map(strategy => ({
                 id: strategy.id,
