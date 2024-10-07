@@ -38,6 +38,10 @@ async function bootstrap() {
     origin: true,
   });
 
+  if (process.env.NODE_ENV === 'prod') {
+    app.setGlobalPrefix('gm'); // Устанавливаем префикс для всех маршрутов
+  }
+
   const swaggerApi = new DocumentBuilder()
     .setTitle('Good-Management API')
     .setDescription('The GM API description')
@@ -48,9 +52,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerApi);
   SwaggerModule.setup('api', app, document);
 
-  if (process.env.NODE_ENV === 'prod') {
-    app.setGlobalPrefix('gm'); // Устанавливаем префикс для всех маршрутов
-  }
+
 
   await app.listen(port, () => console.log(`${host}${port}/`));
 }
