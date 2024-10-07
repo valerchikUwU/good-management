@@ -7,11 +7,12 @@ import { User } from "src/domains/user.entity";
 import { TargetCreateDto } from "../target/create-target.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class ProjectCreateDto {
 
     @ApiProperty({ description: 'Id программы', required: false, example: 'b6ed2664-9510-4a47-9117-6ce89903b4b5' })
+    @IsOptional()
     @IsUUID()
     @IsNotEmpty({message: 'ID программы не может быть пустым!'})
     programId?: string | null;
