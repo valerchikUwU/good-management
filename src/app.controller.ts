@@ -51,6 +51,7 @@ export class AppController implements OnModuleInit {
       user_agent, 
       ip, 
       tokenForTG,
+      codeVerifier,
       code_challenge: codeChallenge,
       state
     };
