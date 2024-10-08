@@ -10,12 +10,6 @@ import { rabbitmqConfig } from "src/config/rabbitmq.config";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Account]),
-    ClientsModule.register([
-      {
-        name: 'RABBITMQ_SERVICE',
-        ...rabbitmqConfig(),
-      },
-    ]),
         UsersModule],
     controllers: [AccountController],
     providers: [AccountService, AccountRepository],

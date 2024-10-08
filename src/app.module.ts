@@ -39,17 +39,11 @@ import { rabbitmqConfig } from './config/rabbitmq.config';
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => (configService.get('database'))
-    }),ClientsModule.register([
+    }),
+    ClientsModule.register([
       {
-        name: 'RABBITMQ_SERVICE', // Имя клиента
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://localhost:5672'], // URL подключения к RabbitMQ
-          queue: 'main_queue', // Название очереди
-          queueOptions: {
-            durable: false, // Настройки очереди
-          },
-        },
+        name: 'RABBITMQ_SERVICE',
+        ...rabbitmqConfig(),
       },
     ]),
     WinstonModule.forRoot(winstonConfig),

@@ -9,7 +9,6 @@ import { ClientProxy } from '@nestjs/microservices';
 @Controller(':userId/accounts')
 export class AccountController {
     constructor(private readonly accountService: AccountService,
-        @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy
     ) { }
 
     @Get(':accountId')
@@ -70,7 +69,6 @@ export class AccountController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     async create(@Body() accountCreateDto: AccountCreateDto): Promise<AccountCreateDto> {
-        this.client.emit('account_created', accountCreateDto)
         return await this.accountService.create(accountCreateDto);
     }
 
