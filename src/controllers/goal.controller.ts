@@ -29,7 +29,6 @@ export class GoalController {
     example: [
       {
         id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
-        goalName: "Перепукать шматика №1",
         orderNumber: 1,
         content: "Надо перепукать шмутзеля",
         createdAt: "2024-09-18T14:11:27.918Z",
@@ -102,7 +101,6 @@ export class GoalController {
     status: HttpStatus.OK, description: "ОК!",
     example: {
       id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
-      goalName: "Старое 222",
       orderNumber: 2,
       content: "Новый гыгыгы",
       createdAt: "2024-09-18T14:11:27.918Z",
@@ -140,7 +138,6 @@ export class GoalController {
     example: {
       currentGoal: {
         id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
-        goalName: "Перепукать шматика №1",
         orderNumber: 1,
         content: "Надо перепукать шмутзеля",
         createdAt: "2024-09-18T14:11:27.918Z",
@@ -207,7 +204,6 @@ export class GoalController {
     status: HttpStatus.OK, description: "ОК!",
     example: {
       id: "da1787cb-a79a-4663-8232-c13cacfdb953",
-      goalName: "asdasd",
       orderNumber: 1,
       content: "Валера даун",
       createdAt: "2024-09-26T14:47:03.569Z",
