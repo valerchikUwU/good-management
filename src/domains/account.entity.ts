@@ -55,20 +55,4 @@ export class Account {
     @OneToMany(() => RoleSetting, (roleSetting) => roleSetting.account)
     roleSettings: RoleSetting[];
 
-
-    // Добавляем AfterInsert хук
-    @AfterInsert()
-    async createDefaultRoleSettings() {
-        const modules: Modules[] = [Modules.POLICY, Modules.GOLE, Modules.OBJECTIVE, Modules.STRATEGY, Modules.PROJECT, Modules.POST, Modules.STATISTIC];
-        
-        const roleSettings = modules.map(module => {
-            const roleSetting = new RoleSetting();
-            roleSetting.module = module;
-            roleSetting.can_read = true;
-            roleSetting.account = this; // Присваиваем аккаунт
-            return roleSetting;
-        });
-
-        await getManager().save(roleSettings); // Сохраняем все настройки ролей в базу данных
-    }
 }

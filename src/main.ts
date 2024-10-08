@@ -16,18 +16,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig), // используем конфигурацию
   });  
-  app.connectMicroservice({
-    transport: Transport.RMQ,
-    options: {
-      urls: ['amqp://localhost:5672'],
-      queue: 'main_queue',
-      queueOptions: {
-        durable: false,
-      },
-    },
-  });
-
-  await app.startAllMicroservices();
   // Получаем экземпляр логгера NestWinston
   const logger = app.get('NestWinston'); 
   

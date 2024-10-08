@@ -1,5 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Goal } from "src/domains/goal.entity";
+import { Objective } from "src/domains/objective.entity";
 import { Organization } from "src/domains/organization.entity";
+import { Policy } from "src/domains/policy.entity";
+import { Post } from "src/domains/post.entity";
+import { Project } from "src/domains/project.entity";
+import { RoleSetting } from "src/domains/roleSetting.entity";
+import { Statistic } from "src/domains/statistic.entity";
+import { Strategy } from "src/domains/strategy.entity";
 import { User } from "src/domains/user.entity";
 
 
@@ -19,8 +27,15 @@ export class AccountReadDto {
     updatedAt: Date;
 
     @ApiProperty({ description: 'Список ID пользователей, принадлежащих аккаунту', isArray: true })
-    users?: User[];
+    users: User[];
 
-    @ApiProperty({ description: 'Список ID организаций, принадлежащих аккаунту', isArray: true })
-    organizations?: Organization[];
+    organizations: Organization[];
+    goals: Goal[];
+    objectives: Objective[];
+    policies: Policy[];
+    projects: Project[];
+    strategies: Strategy[];
+    posts: Post[];
+    statistics: Statistic[];
+    roleSettings: RoleSetting[];
 }

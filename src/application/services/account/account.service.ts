@@ -24,6 +24,16 @@ export class AccountService{
             accountName: account.accountName,
             createdAt: account.createdAt,
             updatedAt: account.updatedAt,
+            users: account.users,
+            organizations: account.organizations,
+            goals: account.goals,
+            objectives: account.objectives,
+            policies: account.policies,
+            projects: account.projects,
+            strategies: account.strategies,
+            posts: account.posts,
+            statistics: account.statistics,
+            roleSettings: account.roleSettings
         }))
     }
 
@@ -36,7 +46,15 @@ export class AccountService{
             createdAt: account.createdAt,
             updatedAt: account.updatedAt,
             users: account.users,
-            organizations: account.organizations
+            organizations: account.organizations,
+            goals: account.goals,
+            objectives: account.objectives,
+            policies: account.policies,
+            projects: account.projects,
+            strategies: account.strategies,
+            posts: account.posts,
+            statistics: account.statistics,
+            roleSettings: account.roleSettings
         }
 
         return accountReadDto;

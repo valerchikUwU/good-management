@@ -29,7 +29,7 @@ import { FileModule } from './application/modules/file.module';
 import { RoleSettingModule } from './application/modules/roleSetting.module';
 import { RoleModule } from './application/modules/role.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { rabbitmqConfig } from './config/rabbitmq.config';
+import { QueueModule } from './application/modules/queue.module';
 
 
 
@@ -40,15 +40,9 @@ import { rabbitmqConfig } from './config/rabbitmq.config';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => (configService.get('database'))
     }),
-    ClientsModule.register([
-      {
-        name: 'RABBITMQ_SERVICE',
-        ...rabbitmqConfig(),
-      },
-    ]),
     WinstonModule.forRoot(winstonConfig),
     UsersModule, AuthModule, EventsModule, TelegramModule, OrganizationModule, AccountModule,
-    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule, FileUploadModule, FileModule, RoleSettingModule, RoleModule
+    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule, FileUploadModule, FileModule, RoleSettingModule, RoleModule, QueueModule
   ],
   controllers: [AppController],
   providers: [AppService],

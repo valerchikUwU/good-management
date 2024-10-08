@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { Account } from 'src/domains/account.entity';
 import { Role } from 'src/domains/role.entity';
 import { Modules } from 'src/domains/roleSetting.entity';
 
@@ -22,6 +23,9 @@ export class RoleSettingCreateDto {
 
     @Exclude({ toPlainOnly: true })
     role: Role
+
+    @Exclude({toPlainOnly: true})
+    account: Account
 }
 
 

@@ -8,6 +8,8 @@ import { RoleSettingCreateDto } from "src/contracts/roleSetting/create-roleSetti
 import { RoleSettingUpdateDto } from "src/contracts/roleSetting/update-roleSetting.dto";
 import { Not } from "typeorm";
 import { Roles } from "src/domains/role.entity";
+import { AccountReadDto } from "src/contracts/account/read-account.dto";
+import { RoleReadDto } from "src/contracts/role/read-role.dto";
 
 @Injectable()
 export class RoleSettingService {
@@ -36,7 +38,8 @@ export class RoleSettingService {
                 can_update: roleSetting.can_update,
                 createdAt: roleSetting.createdAt,
                 updatedAt: roleSetting.updatedAt,
-                role: roleSetting.role
+                role: roleSetting.role,
+                account: roleSetting.account
             }));
         }
         catch (err) {
@@ -61,7 +64,8 @@ export class RoleSettingService {
                 can_update: roleSetting.can_update,
                 createdAt: roleSetting.createdAt,
                 updatedAt: roleSetting.updatedAt,
-                role: roleSetting.role
+                role: roleSetting.role,
+                account: roleSetting.account
             }
 
             return roleSettingsReadDto;
@@ -102,7 +106,8 @@ export class RoleSettingService {
             roleSetting.can_create = roleSettingCreateDto.can_create;
             roleSetting.can_read = roleSettingCreateDto.can_read;
             roleSetting.can_update = roleSettingCreateDto.can_update;
-            roleSetting.role = roleSettingCreateDto.role
+            roleSetting.role = roleSettingCreateDto.role;
+            roleSetting.account = roleSettingCreateDto.account;
             // Присваиваем значения из DTO объекту пользователя
             return await this.roleSettingRepository.save(roleSetting);
         }
@@ -114,6 +119,42 @@ export class RoleSettingService {
 
     }
 
+
+    async createAllForAccount(account: AccountReadDto, roles: RoleReadDto[]): Promise<RoleSetting[]> {
+        try {
+            console.log(JSON.stringify(roles))
+            const modules: Modules[] = [
+                Modules.POLICY, 
+                Modules.GOLE, 
+                Modules.OBJECTIVE, 
+                Modules.STRATEGY, 
+                Modules.PROJECT, 
+                Modules.POST, 
+                Modules.STATISTIC
+            ];
+    
+            const roleSettings = [];
+    
+            // Для каждой роли создаем настройки для каждого модуля
+            for (const role of roles) {
+                for (const module of modules) {
+                    const roleSetting = new RoleSetting();
+                    roleSetting.module = module;
+                    roleSetting.can_read = true;
+                    roleSetting.account = account;
+                    roleSetting.role = role; // Привязываем роль к настройке
+    
+                    roleSettings.push(roleSetting);
+                }
+            }
+    
+            return await this.roleSettingRepository.save(roleSettings);
+        } catch (err) {
+            this.logger.error(err);
+            throw new InternalServerErrorException('Ошибка при создании прав доступа');
+        }
+    }
+    
     async update(_id: string, updateRoleSetting: RoleSettingUpdateDto): Promise<RoleSettingReadDto> {
         try {
             const roleSetting = await this.roleSettingRepository.findOneBy({ id: _id });

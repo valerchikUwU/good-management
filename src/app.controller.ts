@@ -9,13 +9,14 @@ import * as crypto from 'crypto';
 import { TelegramService } from './application/services/telegram/telegram.service';
 import { ApiBody, ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ClientProxy } from '@nestjs/microservices';
+import { ProducerService } from './application/services/producer/producer.service';
 
 @ApiTags('Homepage')
 @Controller()
 export class AppController implements OnModuleInit {
   constructor(private readonly appService: AppService,
     private readonly telegramBotService: TelegramService,
-    @Inject('RABBITMQ_SERVICE') private client: ClientProxy
+    private producerService: ProducerService,
   ) { }
 
   @Get()
@@ -32,9 +33,7 @@ export class AppController implements OnModuleInit {
     required: true,
     description: 'Информация о браузере клиента',
   })
-  getToken(@Headers('User-Agent') user_agent: string, @Ip() ip: string): object {
-    const message = { text: 'Hello, RabbitMQ!' };
-    this.client.send({ cmd: 'message' }, message); // Отправка сообщения
+  async getToken(@Headers('User-Agent') user_agent: string, @Ip() ip: string): Promise<object> {
     const token = crypto.randomBytes(10).toString('hex');
     return { user_agent, ip, token };
   }

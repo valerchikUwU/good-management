@@ -3,12 +3,17 @@ import { AccountService } from "src/application/services/account/account.service
 import { AccountCreateDto } from 'src/contracts/account/create-account.dto';
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ClientProxy } from '@nestjs/microservices';
+import { ProducerService } from 'src/application/services/producer/producer.service';
+import { RoleSettingService } from 'src/application/services/roleSetting/roleSetting.service';
+import { RoleService } from 'src/application/services/role/role.service';
 
 @ApiTags('Account')
 @Controller(':userId/accounts')
 export class AccountController {
     constructor(private readonly accountService: AccountService,
+        private readonly producerService: ProducerService,
+        private readonly roleSettingService: RoleSettingService,
+        private readonly roleService: RoleService
     ) { }
 
     @Get(':accountId')
@@ -69,7 +74,11 @@ export class AccountController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     async create(@Body() accountCreateDto: AccountCreateDto): Promise<AccountCreateDto> {
-        return await this.accountService.create(accountCreateDto);
+        const newAccount = await this.accountService.create(accountCreateDto);
+        const roles = await this.roleService.findAll();
+        await this.roleSettingService.createAllForAccount(newAccount, roles)
+        await this.producerService.addToAccountsQueue(newAccount);
+        return newAccount;
     }
 
 }

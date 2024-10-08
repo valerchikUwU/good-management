@@ -1,3 +1,4 @@
+import { Account } from 'src/domains/account.entity';
 import { Role } from 'src/domains/role.entity';
 import { Modules } from 'src/domains/roleSetting.entity';
 
@@ -9,5 +10,6 @@ export class RoleSettingReadDto {
     can_update: boolean;
     createdAt: Date;
     updatedAt: Date;
-    role: Role
+    role: Role;
+    account: Account;
 }

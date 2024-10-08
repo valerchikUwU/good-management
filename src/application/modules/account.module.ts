@@ -5,12 +5,13 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { Account } from "src/domains/account.entity";
 import { AccountController } from "src/controllers/account.controller";
 import { UsersModule } from "./users.module";
-import { ClientsModule } from "@nestjs/microservices";
-import { rabbitmqConfig } from "src/config/rabbitmq.config";
+import { QueueModule } from "./queue.module";
+import { RoleSettingModule } from "./roleSetting.module";
+import { RoleModule } from "./role.module";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Account]),
-        UsersModule],
+        UsersModule, QueueModule, RoleSettingModule, RoleModule],
     controllers: [AccountController],
     providers: [AccountService, AccountRepository],
     exports: [AccountService]
