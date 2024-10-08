@@ -12,6 +12,7 @@ import { InjectConfig, ConfigService } from "nestjs-config";
 import { Session } from "inspector";
 import { UserTgAuthDto } from "src/contracts/user/user-tgauth-dto";
 import { Logger } from "winston";
+import { AuthVK } from "src/contracts/auth-vk.dto";
 
 @Injectable()
 export class AuthService {
@@ -75,7 +76,7 @@ export class AuthService {
 
   }
 
-  async getVkToken(code: string): Promise<any> {
+  async getVkToken(auth: AuthVK): Promise<any> {
     try {
 
       const VKDATA = {
@@ -89,8 +90,8 @@ export class AuthService {
           : process.env.API_LOCAL;
 
       return this.httpService
-        .get(
-          `https://oauth.vk.com/access_token?client_id=${VKDATA.client_id}&client_secret=${VKDATA.client_secret}&redirect_uri=${host}&code=${code}`
+        .post(
+          `https://id.vk.com/oauth2/auth?grant_type=authorization_code&code_verifier=${auth.code_verifier}&redirect_uri=${host}/gm&code=${auth.code}&client_id=${VKDATA.client_id}&device_id=${auth.device_id}&state=${auth.state}`
         ).toPromise();
     }
     catch (err) {

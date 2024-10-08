@@ -46,7 +46,6 @@ export class AuthController {
     constructor(
         private readonly authService: AuthService,
         private readonly userService: UsersService,
-        private readonly jwtService: JwtService,
         private readonly eventsGateway: EventsGateway,
         @Inject('winston') private readonly logger: Logger
     ) { }
@@ -67,8 +66,8 @@ export class AuthController {
     async vk(@Headers('User-Agent') user_agent: string, @Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string, @Res({ passthrough: true }) res: ExpressResponse): Promise<UserVkAuthDto> {
         let authData;
         try {
-            console.log(auth.code)
-            authData = await this.authService.getVkToken(auth.code);
+            console.log(JSON.stringify(auth))
+            authData = await this.authService.getVkToken(auth);
         } catch (err) {
             throw new UnprocessableEntityException("Wrong VK code");
         }
