@@ -21,9 +21,6 @@ export class Strategy{
     @Generated('increment')
     strategyNumber: number;
 
-    @Column({nullable: false})
-    strategyName: string;
-
     @Column({type: 'timestamp', nullable: true})
     dateActive: Date
 

@@ -12,7 +12,7 @@ export class GoalUpdateDto{
     @IsOptional()
     @IsString()
     @IsNotEmpty({message: 'Название цели не может быть пустым!'})
-    goalName?: string;
+    goalName?: string; // DELETED
     
     @ApiProperty({ description: 'Порядковый номер', required: false, example: 1})
     @IsOptional()

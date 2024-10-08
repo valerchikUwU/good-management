@@ -54,3 +54,5 @@ export class Project{
     @ManyToOne(() => User, (user) => user.projects, {nullable: false})
     user: User
 }
+
+// добавить state

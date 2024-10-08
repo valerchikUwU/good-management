@@ -32,7 +32,6 @@ export class StrategyService {
             return strategies.map(strategy => ({
                 id: strategy.id,
                 strategyNumber: strategy.strategyNumber,
-                strategyName: strategy.strategyName,
                 dateActive: strategy.dateActive,
                 content: strategy.content,
                 state: strategy.state,
@@ -63,7 +62,6 @@ export class StrategyService {
             return strategies.map(strategy => ({
                 id: strategy.id,
                 strategyNumber: strategy.strategyNumber,
-                strategyName: strategy.strategyName,
                 dateActive: strategy.dateActive,
                 content: strategy.content,
                 state: strategy.state,
@@ -93,7 +91,6 @@ export class StrategyService {
             return strategies.map(strategy => ({
                 id: strategy.id,
                 strategyNumber: strategy.strategyNumber,
-                strategyName: strategy.strategyName,
                 dateActive: strategy.dateActive,
                 content: strategy.content,
                 state: strategy.state,
@@ -123,7 +120,6 @@ export class StrategyService {
             return strategies.map(strategy => ({
                 id: strategy.id,
                 strategyNumber: strategy.strategyNumber,
-                strategyName: strategy.strategyName,
                 dateActive: strategy.dateActive,
                 content: strategy.content,
                 state: strategy.state,
@@ -153,7 +149,6 @@ export class StrategyService {
             const strategyReadDto: StrategyReadDto = {
                 id: strategy.id,
                 strategyNumber: strategy.strategyNumber,
-                strategyName: strategy.strategyName,
                 dateActive: strategy.dateActive,
                 content: strategy.content,
                 state: strategy.state,
@@ -197,7 +192,6 @@ export class StrategyService {
             }
 
             const strategy = new Strategy();
-            strategy.strategyName = strategyCreateDto.strategyName;
             strategy.content = strategyCreateDto.content
             strategy.state = strategyCreateDto.state;
             strategy.user = strategyCreateDto.user;
@@ -226,7 +220,6 @@ export class StrategyService {
                 throw new NotFoundException(`Стратегия с ID ${_id} не найдена`);
             }
             // Обновить свойства, если они указаны в DTO
-            if (updateStrategyDto.strategyName) strategy.strategyName = updateStrategyDto.strategyName;
             if (updateStrategyDto.content) strategy.content = updateStrategyDto.content;
             if (updateStrategyDto.state) strategy.state = updateStrategyDto.state;
             if (updateStrategyDto.state === State.ACTIVE) strategy.dateActive = new Date();

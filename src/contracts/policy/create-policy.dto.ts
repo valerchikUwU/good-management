@@ -20,12 +20,12 @@ export class PolicyCreateDto{
     
     @ApiProperty({ description: 'Тип политики', example: 'Директива', examples: ['Директива', 'Инструкция'] })
     @IsEnum(Type)
-    type: Type;
+    type: Type; // DEFALUT DIRECTIVA
     
     @ApiProperty({ description: 'HTML контент политики', example: 'HTML контент (любая строка пройдет)' })
     @IsString()
     @IsNotEmpty({message: 'Содержание политики не может быть пустым!'})
-    content: string;
+    content?: string;
     
     @Exclude({ toPlainOnly: true })
     user: User;

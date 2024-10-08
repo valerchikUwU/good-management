@@ -6,16 +6,13 @@ import { TargetHolder } from "src/domains/targetHolder.entity";
 
 @ApiExtraModels()
 export class TargetCreateDto{
-    type: Type;
-    commonNumber?: number | null;
-    statisticNumber?: number | null;
-    ruleNumber?: number | null;
-    productNumber?: number | null;
+    type: Type; // default common
+    orderNumber?: number; // change in domain
     content: string;
     holderUserId: string;
-    dateStart: Date;
-    deadline: Date;
+    dateStart?: Date; //default createdAt
+    deadline?: Date;
     
     @Exclude({toPlainOnly: true})
-    project: Project;
+    project: Project; // nullable
 }

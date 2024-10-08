@@ -11,7 +11,7 @@ export class GoalCreateDto {
     @ApiProperty({ description: 'Название цели', example: 'Название цели' })
     @IsString()
     @IsNotEmpty({message: 'Название цели не может быть пустым!'})
-    goalName: string;
+    goalName: string; // DELETED
     
     @ApiProperty({ description: 'Порядковый номер', example: 1 })
     @IsInt()

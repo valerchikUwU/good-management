@@ -20,12 +20,12 @@ export class ProjectCreateDto {
     @ApiProperty({ description: 'Содержание проекта', example: 'Контент проекта' })
     @IsString()
     @IsNotEmpty({message: 'Проект не может быть пустым!'})
-    content: string;
+    content?: string;
 
     @ApiProperty({ description: 'Тип проекта', example: 'Проект', examples: ['Проект', 'Программа'] })
     @IsEnum(Type)
     @IsNotEmpty({message: 'Выберите тип проекта!'})
-    type: Type;
+    type: Type; //default project
 
     @ApiProperty({ description: 'IDs организаций, которые связать с проектом', example: ['3388c410-2e2e-4fd3-8672-217a6121ed7a'] })
     @IsArray({message: 'Должен быть массив!'})
@@ -35,10 +35,10 @@ export class ProjectCreateDto {
     @ApiProperty({ description: 'Id стратегии', example: 'd5eaa436-f93f-4743-854a-6f10a5d290a1' })
     @IsUUID()
     @IsNotEmpty({message: 'Выберите стратегию для проекта!'})
-    strategyId: string;
+    strategyId?: string;
 
     @Exclude({ toPlainOnly: true })
-    strategy: Strategy;
+    strategy: Strategy; // nullable
 
     @Exclude({ toPlainOnly: true })
     account: Account;
@@ -85,5 +85,8 @@ export class ProjectCreateDto {
         ]
     })
     @IsArray({message: 'Должен быть массив!'})
-    targetCreateDtos: TargetCreateDto[]
+    targetCreateDtos?: TargetCreateDto[] //nullable
 }
+
+
+// не может быть активным пока нет 1 задачи "продукт" и 1 задачи "обычная"

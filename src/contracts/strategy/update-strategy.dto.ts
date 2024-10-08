@@ -10,9 +10,6 @@ export class StrategyUpdateDto{
     @ApiProperty({required: false, description: 'Состояние стратегии', example: 'Черновик', examples: ['Черновик', 'Активный', 'Завершено'] })
     state?: State;
 
-    @ApiProperty({description: 'Название стратегии', example: 'Название'})
-    strategyName?: string;
-
     @ApiProperty({description: 'Контент стратегии', example: 'Контент'})
     content?: string;
 

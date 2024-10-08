@@ -63,3 +63,6 @@ export class PostUpdateDto {
     organization: Organization
     
 }
+
+
+// STATE: 'Активный', 'Архивный', 'Вакантный'

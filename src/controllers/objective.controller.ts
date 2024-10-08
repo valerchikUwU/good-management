@@ -56,7 +56,6 @@ export class ObjectiveController {
             {
               id: "2a72e4ed-9d95-4a10-8223-4a201a5d6f2e",
               strategyNumber: 3,
-              strategyName: "Стратегия",
               dateActive: null,
               content: "HTML текст",
               state: "Активный",
@@ -104,7 +103,6 @@ export class ObjectiveController {
             strategy: {
               id: "2a72e4ed-9d95-4a10-8223-4a201a5d6f2e",
               strategyNumber: 3,
-              strategyName: "Стратегия",
               dateActive: null,
               content: "HTML текст",
               state: "Активный",
@@ -160,7 +158,6 @@ export class ObjectiveController {
             strategy: {
                 id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
                 strategyNumber: 2,
-                strategyName: "Стратегия",
                 dateActive: null,
                 content: "HTML текст",
                 state: "Черновик",

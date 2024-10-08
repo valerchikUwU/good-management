@@ -83,3 +83,6 @@ export class ProjectUpdateDto {
     })
     targetUpdateDtos?: TargetUpdateDto[]
 }
+
+
+// не может быть активным пока нет 1 задачи "продукт" и 1 задачи "обычная"

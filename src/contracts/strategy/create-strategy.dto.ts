@@ -7,7 +7,7 @@ import { User } from "src/domains/user.entity";
 export class StrategyCreateDto{
     
     @ApiProperty({ description: 'Название стратегии', example: 'Стратегия' })
-    strategyName: string;
+    strategyName: string; //deleted
 
     @ApiProperty({ description: 'Контент стратегии', example: 'HTML текст' })
     content: string;

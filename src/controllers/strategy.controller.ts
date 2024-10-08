@@ -31,7 +31,6 @@ export class StrategyController {
             {
                 id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
                 strategyNumber: 2,
-                strategyName: "Стратегия",
                 dateActive: null,
                 content: "HTML текст",
                 state: "Черновик",
@@ -103,7 +102,6 @@ export class StrategyController {
         status: HttpStatus.OK, description: "ОК!",
         example:
         {
-            strategyName: "Стратегия",
             content: "HTML текст",
             state: "Черновик",
             user: {
@@ -160,7 +158,6 @@ export class StrategyController {
             currentStrategy: {
               id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
               strategyNumber: 2,
-              strategyName: "Стратегия",
               dateActive: null,
               content: "HTML текст",
               state: "Черновик",

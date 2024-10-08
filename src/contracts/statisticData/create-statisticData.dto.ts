@@ -9,3 +9,5 @@ export class StatisticDataCreateDto{
     @Exclude({toPlainOnly: true})
     statistic: Statistic;
 }
+
+// add DATA

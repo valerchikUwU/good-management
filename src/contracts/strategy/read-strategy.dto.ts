@@ -8,7 +8,6 @@ import { User } from "src/domains/user.entity";
 export class StrategyReadDto{
     id: string;
     strategyNumber: number;
-    strategyName: string;
     dateActive: Date
     content: string;
     state: State;

@@ -35,10 +35,10 @@ export class PostCreateDto {
     @IsNotEmpty({message: 'Предназначение поста не может быть пустым!'})
     purpose: string
     
-    @Exclude({toPlainOnly: true})
+    @Exclude({toPlainOnly: true}) // nullable
     user: User;
 
-    @Exclude({toPlainOnly: true})
+    @Exclude({toPlainOnly: true}) // nullable
     organization: Organization
 
     @Exclude({toPlainOnly: true})
@@ -50,10 +50,10 @@ export class PostCreateDto {
     @ApiProperty({ description:'ID ответственного, с которым связать пост', example: '3b809c42-2824-46c1-9686-dd666403402a'})
     @IsUUID()
     @IsNotEmpty()
-    responsibleUserId: string
+    responsibleUserId?: string
 
     @ApiProperty({ description:'ID организации, с которой связать пост', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
     @IsUUID()
     @IsNotEmpty()
-    organizationId: string
+    organizationId?: string
 }

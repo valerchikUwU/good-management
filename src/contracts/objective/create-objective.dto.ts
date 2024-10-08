@@ -11,17 +11,17 @@ export class ObjectiveCreateDto{
     @ApiProperty({ description: 'Ситуация', isArray: true, example: ['Текст'] })
     @IsArray({message: 'Должен быть массив!'})
     @ArrayNotEmpty({message: 'Заполните хотя бы один блок для ситуации!'})
-    situation: string[];
+    situation?: string[];
 
     @ApiProperty({ description: 'Контент краткосрочной цели', isArray: true, example: ['Контент'] })
     @IsArray({message: 'Должен быть массив!'})
     @ArrayNotEmpty({message: 'Заполните хотя бы один блок для содержания!'})
-    content: string[];
+    content?: string[];
 
     @ApiProperty({ description: 'Целевая причина', isArray: true, example: ['Причина'] })
     @IsArray({message: 'Должен быть массив!'})
     @ArrayNotEmpty({message: 'Заполните хотя бы один блок для коренной причины!'})
-    rootCause: string[];
+    rootCause?: string[];
 
     @ApiProperty({ description: 'Id стратегии, с которой связать краткосрочную цель', example: '21dcf96d-1e6a-4c8c-bc12-c90589b40e93' })
     @IsUUID()
