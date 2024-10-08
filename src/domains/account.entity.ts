@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, OneToOne, AfterInsert, getManager } from 'typeorm';
 import { Organization } from './organization.entity';
 import { User } from './user.entity';
 import { Goal } from './goal.entity';
@@ -8,6 +8,7 @@ import { Project } from './project.entity';
 import { Strategy } from './strategy.entity';
 import { Post } from './post.entity';
 import { Statistic } from './statistic.entity';
+import { Modules, RoleSetting } from './roleSetting.entity';
 
 
 @Entity()
@@ -51,4 +52,23 @@ export class Account {
     @OneToMany(() => Statistic, (statistic) => statistic.account)
     statistics: Statistic[];
 
+    @OneToMany(() => RoleSetting, (roleSetting) => roleSetting.account)
+    roleSettings: RoleSetting[];
+
+
+    // Добавляем AfterInsert хук
+    @AfterInsert()
+    async createDefaultRoleSettings() {
+        const modules: Modules[] = [Modules.POLICY, Modules.GOLE, Modules.OBJECTIVE, Modules.STRATEGY, Modules.PROJECT, Modules.POST, Modules.STATISTIC];
+        
+        const roleSettings = modules.map(module => {
+            const roleSetting = new RoleSetting();
+            roleSetting.module = module;
+            roleSetting.can_read = true;
+            roleSetting.account = this; // Присваиваем аккаунт
+            return roleSetting;
+        });
+
+        await getManager().save(roleSettings); // Сохраняем все настройки ролей в базу данных
+    }
 }

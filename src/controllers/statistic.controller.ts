@@ -138,18 +138,26 @@ export class StatisticController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async create(@Param('userId') userId: string, @Body() statisticCreateDto: StatisticCreateDto): Promise<{statistic: Statistic, values: StatisticDataReadDto[]}> {
-        const user = await this.userService.findOne(userId);
-        statisticCreateDto.account = user.account;
-        const post = await this.postService.findOneById(statisticCreateDto.postId)
-        statisticCreateDto.post = post;
-        const createdStatistic = await this.statisticService.create(statisticCreateDto)
-        const statisticDataReadDtos: StatisticDataReadDto[] = []
-        for (const statisticDataCreateDto of statisticCreateDto.statisticDataCreateDtos){
-            statisticDataCreateDto.statistic = createdStatistic;
-            const createdStatisticData = await this.statisticDataService.create(statisticDataCreateDto);
-            statisticDataReadDtos.push(createdStatisticData)
-        }
-        return {statistic: createdStatistic, values: statisticDataReadDtos};
+      const user = await this.userService.findOne(userId);
+      statisticCreateDto.account = user.account;
+      
+      const post = await this.postService.findOneById(statisticCreateDto.postId);
+      statisticCreateDto.post = post;
+      
+      const createdStatistic = await this.statisticService.create(statisticCreateDto);
+      
+      // Используем map для создания массива промисов
+      const statisticDataCreatePromises = statisticCreateDto.statisticDataCreateDtos.map(async (statisticDataCreateDto) => {
+        statisticDataCreateDto.statistic = createdStatistic;
+        return this.statisticDataService.create(statisticDataCreateDto); // Возвращаем промис создания
+      });
+      
+      // Ожидаем выполнения всех промисов параллельно и сохраняем результаты
+      const statisticDataReadDtos = await Promise.all(statisticDataCreatePromises);
+      
+      // Возвращаем результат
+      return { statistic: createdStatistic, values: statisticDataReadDtos };
+      
     }
 
 

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsNotEmpty, IsUUID } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsOptional, IsUUID } from "class-validator";
 import { Account } from "src/domains/account.entity";
 import { Strategy } from "src/domains/strategy.entity";
 
@@ -8,17 +8,20 @@ import { Strategy } from "src/domains/strategy.entity";
 
 export class ObjectiveCreateDto{
     
-    @ApiProperty({ description: 'Ситуация', isArray: true, example: ['Текст'] })
+    @ApiProperty({ description: 'Ситуация', isArray: true, required: false, example: ['Текст'] })
+    @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
     @ArrayNotEmpty({message: 'Заполните хотя бы один блок для ситуации!'})
     situation?: string[];
 
-    @ApiProperty({ description: 'Контент краткосрочной цели', isArray: true, example: ['Контент'] })
+    @ApiProperty({ description: 'Контент краткосрочной цели', isArray: true, required: false, example: ['Контент'] })
+    @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
     @ArrayNotEmpty({message: 'Заполните хотя бы один блок для содержания!'})
     content?: string[];
 
-    @ApiProperty({ description: 'Целевая причина', isArray: true, example: ['Причина'] })
+    @ApiProperty({ description: 'Целевая причина', isArray: true, required: false, example: ['Причина'] })
+    @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
     @ArrayNotEmpty({message: 'Заполните хотя бы один блок для коренной причины!'})
     rootCause?: string[];

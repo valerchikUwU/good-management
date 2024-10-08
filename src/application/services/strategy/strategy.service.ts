@@ -180,10 +180,6 @@ export class StrategyService {
 
         try {
 
-            // Проверка на наличие обязательных данных
-            if (!strategyCreateDto.strategyName) {
-                throw new BadRequestException('У стратегии обязательно наличие названия!');
-            }
             if (!strategyCreateDto.content) {
                 throw new BadRequestException('Стратегия не может быть пустой!');
             }

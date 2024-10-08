@@ -8,13 +8,13 @@ export class Objective{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({type: 'text', array: true, nullable: false})
+    @Column({type: 'text', array: true, nullable: true})
     situation: string[];
 
-    @Column({type: 'text', array: true, nullable: false})
+    @Column({type: 'text', array: true, nullable: true})
     content: string[];
 
-    @Column({type: 'text', array: true, nullable: false})
+    @Column({type: 'text', array: true, nullable: true})
     rootCause: string[];
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

@@ -60,11 +60,13 @@ export class RoleSettingController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async update(@Body() updateRoleSettingDtos: RoleSettingUpdateDto[]): Promise<RoleSettingReadDto[]> {
-    const updatedRoleSettings: RoleSettingReadDto[] = [];
-    for (const updateRoleSettingDto of updateRoleSettingDtos) {
-      const savedRoleSetting = await this.roleSettingService.update(updateRoleSettingDto.id, updateRoleSettingDto)
-      updatedRoleSettings.push(savedRoleSetting);
-    }
+    const updatedRoleSettingsPromises = updateRoleSettingDtos.map(async (updateRoleSettingDto) => {
+      const savedRoleSetting = await this.roleSettingService.update(updateRoleSettingDto.id, updateRoleSettingDto);
+      return savedRoleSetting; // Возвращаем обновленную настройку роли
+    });
+    
+    const updatedRoleSettings = await Promise.all(updatedRoleSettingsPromises); // Ждем завершения всех промисов
+    
     return updatedRoleSettings;
   }
 

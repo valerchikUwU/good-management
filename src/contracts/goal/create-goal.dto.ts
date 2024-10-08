@@ -8,20 +8,10 @@ import { User } from "src/domains/user.entity";
 
 export class GoalCreateDto {
     
-    @ApiProperty({ description: 'Название цели', example: 'Название цели' })
-    @IsString()
-    @IsNotEmpty({message: 'Название цели не может быть пустым!'})
-    goalName: string; // DELETED
-    
-    @ApiProperty({ description: 'Порядковый номер', example: 1 })
-    @IsInt()
-    @IsNotEmpty()
-    orderNumber: number;
-    
-    @ApiProperty({ description: 'Текст цели', example: 'Контент цели' })
-    @IsString()
+    @ApiProperty({ description: 'Текст цели', isArray: true, example: ['Контент цели', 'one more content'] })
+    @IsArray()
     @IsNotEmpty({ message: 'Содержание не может быть пустым!' })
-    content: string;
+    content: string[];
 
     @Exclude({toPlainOnly: true})
     user: User;

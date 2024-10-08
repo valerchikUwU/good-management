@@ -5,14 +5,11 @@ import { State } from "src/domains/strategy.entity";
 import { User } from "src/domains/user.entity";
 
 export class StrategyCreateDto{
-    
-    @ApiProperty({ description: 'Название стратегии', example: 'Стратегия' })
-    strategyName: string; //deleted
 
     @ApiProperty({ description: 'Контент стратегии', example: 'HTML текст' })
     content: string;
 
-    @ApiProperty({required: false, description: 'Состояние стратегии', example: 'Черновик', examples: ['Черновик', 'Активный', 'Завершено'] })
+    @ApiProperty({required: false, description: 'Состояние стратегии', default: State.DRAFT, example: 'Черновик', examples: ['Черновик', 'Активный', 'Завершено'] })
     state?: State;
 
     @Exclude({toPlainOnly: true})

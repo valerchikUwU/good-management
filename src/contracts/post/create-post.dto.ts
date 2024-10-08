@@ -17,13 +17,13 @@ export class PostCreateDto {
     @IsOptional()
     @IsString()
     @IsNotEmpty({message: 'Название отдела не может быть пустым!'})
-    divisionName?: string | null;
+    divisionName?: string;
     
     @ApiProperty({required: false, description: 'Родительский пост', example: 'b2218813-8985-465b-848e-9a78b1627f11' })
     @IsOptional()
     @IsUUID()
     @IsNotEmpty()
-    parentId?: string | null;
+    parentId?: string;
 
     @ApiProperty({ description: 'Продукт поста', example: 'Продукт' })
     @IsString()
@@ -47,12 +47,14 @@ export class PostCreateDto {
     @Exclude({toPlainOnly: true})
     account: Account;
 
-    @ApiProperty({ description:'ID ответственного, с которым связать пост', example: '3b809c42-2824-46c1-9686-dd666403402a'})
+    @ApiProperty({ description:'ID ответственного, с которым связать пост', required: false, example: '3b809c42-2824-46c1-9686-dd666403402a'})
+    @IsOptional()
     @IsUUID()
     @IsNotEmpty()
     responsibleUserId?: string
 
-    @ApiProperty({ description:'ID организации, с которой связать пост', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
+    @ApiProperty({ description:'ID организации, с которой связать пост', required:false, example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
+    @IsOptional()
     @IsUUID()
     @IsNotEmpty()
     organizationId?: string

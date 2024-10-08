@@ -13,16 +13,18 @@ export class PolicyCreateDto{
     @IsNotEmpty({message: 'Название политики не может быть пустым!'})
     policyName: string
     
-    @ApiProperty({description: 'Состояние политики', required: false,  example: 'Черновик', examples: ['Черновик', 'Активный', 'Отменён'] })
+    @ApiProperty({description: 'Состояние политики', required: false, default: State.DRAFT, example: 'Черновик', examples: ['Черновик', 'Активный', 'Отменён'] })
     @IsOptional()
     @IsEnum(State)
     state?: State;
     
-    @ApiProperty({ description: 'Тип политики', example: 'Директива', examples: ['Директива', 'Инструкция'] })
+    @ApiProperty({ description: 'Тип политики', example: 'Директива', required: false, default: Type.DIRECTIVE, examples: ['Директива', 'Инструкция'] })
+    @IsOptional()
     @IsEnum(Type)
-    type: Type; // DEFALUT DIRECTIVA
+    type?: Type; // DEFALUT DIRECTIVA
     
-    @ApiProperty({ description: 'HTML контент политики', example: 'HTML контент (любая строка пройдет)' })
+    @ApiProperty({ description: 'HTML контент политики', required: true, example: 'HTML контент (любая строка пройдет)' })
+    @IsOptional()
     @IsString()
     @IsNotEmpty({message: 'Содержание политики не может быть пустым!'})
     content?: string;

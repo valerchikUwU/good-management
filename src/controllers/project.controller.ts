@@ -194,10 +194,14 @@ export class ProjectController {
         projectCreateDto.account = user.account;
         projectCreateDto.strategy = strategy;
         const createdProject = await this.projectService.create(projectCreateDto);
-        for (const targetCreateDto of projectCreateDto.targetCreateDtos) {
-            targetCreateDto.project = createdProject;
-            await this.targetService.create(targetCreateDto);
-        }
+        const createTargetsPromises = projectCreateDto.targetCreateDtos.map(async (targetCreateDto) => {
+          targetCreateDto.project = createdProject;
+          const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
+          targetCreateDto.holderUser = holderUser;
+          return this.targetService.create(targetCreateDto);
+        });
+        
+        await Promise.all(createTargetsPromises);
         return createdProject;
     }
 
@@ -226,13 +230,17 @@ export class ProjectController {
     @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
     async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<ProjectReadDto> {
         const updatedProject = await this.projectService.update(projectId, projectUpdateDto);
-        for(const targetUpdateDto of projectUpdateDto.targetUpdateDtos){
-          await this.targetService.update(targetUpdateDto)
-        }
-        for (const targetCreateDto of projectUpdateDto.targetCreateDtos) {
-            targetCreateDto.project = updatedProject;
-            await this.targetService.create(targetCreateDto);
-        }
+        const updateTargetsPromises = projectUpdateDto.targetUpdateDtos.map(async (targetUpdateDto) => {
+          return this.targetService.update(targetUpdateDto);
+        });
+        
+        await Promise.all(updateTargetsPromises); // Ждём выполнения всех операций update
+        const createTargetsPromises = projectUpdateDto.targetCreateDtos.map(async (targetCreateDto) => {
+          targetCreateDto.project = updatedProject; // Присваиваем обновленный проект
+          return this.targetService.create(targetCreateDto); // Возвращаем промис создания
+        });
+        
+        await Promise.all(createTargetsPromises); // Ждём выполнения всех операций create
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`);
         return updatedProject;
     }

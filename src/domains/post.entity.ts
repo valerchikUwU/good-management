@@ -33,7 +33,7 @@ export class Post {
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
-    @ManyToOne(() => User, user => user.posts, {nullable: false})
+    @ManyToOne(() => User, user => user.posts, {nullable: true})
     user: User;
 
     @OneToOne(() => Policy, (policy) => policy.post, {nullable: true})
@@ -43,8 +43,7 @@ export class Post {
     @OneToMany(() => Statistic, (statistic) => statistic.post)
     statistics: Statistic[]
 
-
-    @ManyToOne(() => Organization, organization => organization.posts, {nullable: false})
+    @ManyToOne(() => Organization, organization => organization.posts, {nullable: true})
     organization: Organization
 
     @ManyToOne(() => Account, account => account.posts, {nullable: false})

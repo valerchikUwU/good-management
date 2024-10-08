@@ -25,7 +25,7 @@ export class Statistic{
     @Column({type: 'text', nullable: false})
     name: string;
 
-    @Column({type: 'text', nullable: false})
+    @Column({type: 'text', nullable: true})
     description: string
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

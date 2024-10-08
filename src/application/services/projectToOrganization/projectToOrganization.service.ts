@@ -50,7 +50,7 @@ export class ProjectToOrganizationService{
     }
 
     
-    async remove(project: ProjectReadDto): Promise<void>{
+    async remove(project: Project): Promise<void>{
         await this.projectToOrganizationRepository.delete({project: project});
     }
     

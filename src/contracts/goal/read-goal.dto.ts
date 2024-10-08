@@ -8,14 +8,8 @@ export class GoalReadDto{
     @ApiProperty({ description: 'Id цели' })
     id: string;
     
-    @ApiProperty({ description: 'Название цели' })
-    goalName: string;
-    
-    @ApiProperty({ description: 'Порядковый номер' })
-    orderNumber: number;
-    
     @ApiProperty({ description: 'Текст цели' })
-    content: string;
+    content: string[];
     
     @ApiProperty({ description: 'Дата создания' })
     createdAt: Date;

@@ -103,15 +103,6 @@ export class ObjectiveService {
         try {
 
             // Проверка на наличие обязательных данных
-            if (!objectiveCreateDto.situation) {
-                throw new BadRequestException('Определите ситуацию краткосрочной цели!');
-            }
-            if (!objectiveCreateDto.content) {
-                throw new BadRequestException('Краткосрочная цель не может быть пустой!');
-            }
-            if (!objectiveCreateDto.rootCause) {
-                throw new BadRequestException('Определите причину краткосрочной цели!');
-            }
             if (!objectiveCreateDto.strategyId) {
                 throw new BadRequestException('Выберите стратегию для краткосрочной цели!');
             }

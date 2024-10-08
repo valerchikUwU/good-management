@@ -22,7 +22,7 @@ export class Project{
     @Column({type: 'uuid', nullable: true})
     programId: string;
 
-    @Column({type: 'text', nullable: false})
+    @Column({type: 'text', nullable: true})
     content: string;
 
     @Column({
@@ -45,7 +45,7 @@ export class Project{
     @OneToMany(() => Target, (target) => target.project)
     targets: Target[]
 
-    @ManyToOne(() => Strategy, (strategy) => strategy.projects, {nullable: false})
+    @ManyToOne(() => Strategy, (strategy) => strategy.projects, {nullable: true})
     strategy: Strategy
 
     @ManyToOne(() => Account, (account) => account.projects, {nullable: false})

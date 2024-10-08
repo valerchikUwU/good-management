@@ -1,5 +1,6 @@
 import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, OneToOne } from 'typeorm';
 import { Role } from './role.entity';
+import { Account } from './account.entity';
 
 export enum Modules {
     POLICY = 'policy',
@@ -29,7 +30,7 @@ export class RoleSetting {
     })
     module: Modules;
 
-    @Column({type: 'boolean',default: false})
+    @Column({type: 'boolean',default: true})
     can_read: boolean;
 
     @Column({type: 'boolean',default: false})
@@ -46,5 +47,8 @@ export class RoleSetting {
 
     @ManyToOne(() => Role, (role) => role.roleSettings)
     role: Role
+
+    @ManyToOne(() => Account, (account) => account.roleSettings)
+    account: Account
 
 }

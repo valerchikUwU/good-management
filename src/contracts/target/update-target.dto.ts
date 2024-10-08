@@ -4,6 +4,7 @@ import { ApiExtraModels } from "@nestjs/swagger";
 export class TargetUpdateDto{
     _id: string;
     content?: string;
+    orderNumber?: number;
     holderUserId?: string;
     dateStart?: Date;
     deadline?: Date;

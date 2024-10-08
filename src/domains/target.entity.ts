@@ -17,29 +17,21 @@ export class Target{
     @Column({
         type: 'enum',
         enum: Type,
+        default: Type.COMMON,
         nullable: false
     })
     type: Type;
 
     @Column({nullable: true})
-    commonNumber: number;
-
-    @Column({nullable: true})
-    statisticNumber: number;
-
-    @Column({nullable: true})
-    ruleNumber: number;
-
-    @Column({nullable: true})
-    productNumber: number;
+    orderNumber: number;
 
     @Column({type: 'text', nullable: false})
     content: string;
 
-    @Column({ type: 'timestamp', nullable: false})
+    @Column({ type: 'timestamp', default: new Date(), nullable: false})
     dateStart: Date
 
-    @Column({ type: 'timestamp', nullable: false})
+    @Column({ type: 'timestamp', nullable: true})
     deadline: Date
 
     @Column({ type: 'timestamp', nullable: true})
@@ -54,7 +46,7 @@ export class Target{
     @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.target)
     targetHolders: TargetHolder[];
 
-    @ManyToOne(() => Project, (project) => project.targets) //хуй знает
+    @ManyToOne(() => Project, (project) => project.targets, {nullable: true}) //хуй знает
     project: Project
 
 }

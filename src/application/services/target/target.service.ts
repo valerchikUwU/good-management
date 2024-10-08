@@ -31,10 +31,7 @@ export class TargetService {
         return targets.map(target => ({
             id: target.id,
             type: target.type,
-            commonNumber: target.commonNumber,
-            statisticNumber: target.statisticNumber,
-            ruleNumber: target.ruleNumber,
-            productNumber: target.productNumber,
+            orderNumber: target.orderNumber,
             content: target.content,
             dateStart: target.dateStart,
             deadline: target.deadline,
@@ -61,10 +58,7 @@ export class TargetService {
         const targetReadDto: TargetReadDto = {
             id: target.id,
             type: target.type,
-            commonNumber: target.commonNumber,
-            statisticNumber: target.statisticNumber,
-            ruleNumber: target.ruleNumber,
-            productNumber: target.productNumber,
+            orderNumber: target.orderNumber,
             content: target.content,
             dateStart: target.dateStart,
             deadline: target.deadline,
@@ -103,27 +97,17 @@ export class TargetService {
             if (!targetCreateDto.holderUserId) {
                 throw new BadRequestException('Выберите ответственного за задачу!');
             }
-            if (!targetCreateDto.dateStart) {
-                throw new BadRequestException('Выберите время начала задачи!');
-            }
-            if (!targetCreateDto.deadline) {
-                throw new BadRequestException('Выберите дедлайн для задачи!');
-            }
             const target = new Target();
             target.type = targetCreateDto.type;
-            target.commonNumber = targetCreateDto.commonNumber;
-            target.statisticNumber = targetCreateDto.statisticNumber;
-            target.ruleNumber = targetCreateDto.ruleNumber;
-            target.productNumber = targetCreateDto.productNumber;
+            target.orderNumber = target.orderNumber;
             target.content = targetCreateDto.content;
-            target.dateStart = new Date()
-            target.deadline = targetCreateDto.deadline
-            target.project = targetCreateDto.project
+            target.dateStart = new Date();
+            target.deadline = targetCreateDto.deadline;
+            target.project = targetCreateDto.project;
             const createdTarget = await this.targetRepository.save(target);
-            const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
             const targetHolderCreateDto: TargetHolderCreateDto = {
                 target: createdTarget,
-                user: holderUser
+                user: targetCreateDto.holderUser
             }
             await this.targetHolderService.create(targetHolderCreateDto)
             return createdTarget;

@@ -40,6 +40,7 @@ export class Policy{
     @Column({
         type: 'enum',
         enum: Type,
+        default: Type.DIRECTIVE,
         nullable: false 
     })
     type: Type;

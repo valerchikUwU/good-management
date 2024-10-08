@@ -11,14 +11,8 @@ export class Goal{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column({nullable: false})
-    goalName: string;
-
-    @Column({nullable: false, default: 1})
-    orderNumber: number;
-
-    @Column({type: 'text', nullable: false})
-    content: string;
+    @Column({type: 'text', array: true, nullable: false})
+    content: string[];
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;

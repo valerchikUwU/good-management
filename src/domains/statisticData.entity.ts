@@ -14,7 +14,7 @@ export class StatisticData{
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
-    @Column()
+    @Column({nullable: false})
     value: number;
 
     @ManyToOne(() => Statistic, (statistic) => statistic.statisticDatas, {eager: false})

@@ -24,8 +24,6 @@ export class GoalService {
             const goals = await this.goalRepository.find({ where: { account: { id: account.id } }, relations: ['goalToOrganizations', 'goalToOrganizations.organization'] });
             return goals.map(goal => ({
                 id: goal.id,
-                goalName: goal.goalName,
-                orderNumber: goal.orderNumber,
                 content: goal.content,
                 createdAt: goal.createdAt,
                 updatedAt: goal.updatedAt,
@@ -49,8 +47,6 @@ export class GoalService {
             if (!goal) throw new NotFoundException(`Цель с ID: ${id} не найдена!`);
             const goalReadDto: GoalReadDto = {
                 id: goal.id,
-                goalName: goal.goalName,
-                orderNumber: goal.orderNumber,
                 content: goal.content,
                 createdAt: goal.createdAt,
                 updatedAt: goal.updatedAt,
@@ -75,12 +71,6 @@ export class GoalService {
         try {
 
             // Проверка на наличие обязательных данных
-            if (!goalCreateDto.goalName) {
-                throw new BadRequestException('У цели обязательно наличие названия!');
-            }
-            if (!goalCreateDto.orderNumber) {
-                throw new BadRequestException('У цели должен быть порядковый номер!');
-            }
             if (!goalCreateDto.content) {
                 throw new BadRequestException('Цель не может быть пустой!');
             }
@@ -88,8 +78,6 @@ export class GoalService {
                 throw new BadRequestException('Выберите хотя бы одну организацию для цели!');
             }
             const goal = new Goal();
-            goal.goalName = goalCreateDto.goalName;
-            goal.orderNumber = goalCreateDto.orderNumber;
             goal.content = goalCreateDto.content;
             goal.user = goalCreateDto.user;
             goal.account = goalCreateDto.account;
@@ -97,8 +85,6 @@ export class GoalService {
             await this.goalToOrganizationService.createSeveral(createdGoal, goalCreateDto.goalToOrganizations);
             const readGoalDto: GoalReadDto = {
                 id: createdGoal.id,
-                goalName: createdGoal.goalName,
-                orderNumber: createdGoal.orderNumber,
                 content: createdGoal.content,
                 createdAt: createdGoal.createdAt,
                 updatedAt: createdGoal.updatedAt,
@@ -126,8 +112,6 @@ export class GoalService {
                 throw new NotFoundException(`Цель с ID ${_id} не найдена`);
             }
             // Обновить свойства, если они указаны в DTO
-            if (updateGoalDto.goalName) goal.goalName = updateGoalDto.goalName;
-            if (updateGoalDto.orderNumber) goal.orderNumber = updateGoalDto.orderNumber;
             if (updateGoalDto.content) goal.content = updateGoalDto.content;
     
             if (updateGoalDto.goalToOrganizations.length > 0) {

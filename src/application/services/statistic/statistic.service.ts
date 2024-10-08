@@ -88,9 +88,6 @@ export class StatisticService {
             if (!statisticCreateDto.name) {
                 throw new BadRequestException('У статистики обязательно наличие названия!');
             }
-            if (!statisticCreateDto.description) {
-                throw new BadRequestException('У статистики обязательно наличие описания!');
-            }
 
             const statistic = new Statistic();
             statistic.type = statisticCreateDto.type;
