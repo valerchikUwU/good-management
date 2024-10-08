@@ -62,7 +62,12 @@ async function bootstrap() {
   const port = process.env.PORT || 5000;
   const host = process.env.API_HOST;
   const document = SwaggerModule.createDocument(app, swaggerApi);
-  SwaggerModule.setup('api', app, document);
+  if (process.env.NODE_ENV === 'prod') {
+    SwaggerModule.setup('gm/api', app, document);
+  }
+  else {
+    SwaggerModule.setup('api', app, document);
+  }
 
 
 
