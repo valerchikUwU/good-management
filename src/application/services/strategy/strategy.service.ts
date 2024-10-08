@@ -192,6 +192,7 @@ export class StrategyService {
             strategy.state = strategyCreateDto.state;
             strategy.user = strategyCreateDto.user;
             strategy.account = strategyCreateDto.account;
+            if(strategy.state === State.ACTIVE) strategy.dateActive = new Date()
             const createdStrategy = await this.strategyRepository.save(strategy);
             await this.strategyToOrganizationService.createSeveral(createdStrategy, strategyCreateDto.strategyToOrganizations);
 
