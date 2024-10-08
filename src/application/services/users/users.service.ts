@@ -346,8 +346,8 @@ export class UsersService {
 
             user.vk_id = updateVkAuthUserDto.vk_id
             user.avatar_url = updateVkAuthUserDto.avatar_url
-
-            return user;
+            user.telephoneNumber = updateVkAuthUserDto.telephoneNumber
+            return this.usersRepository.save(user);
         }
         catch (err) {
 

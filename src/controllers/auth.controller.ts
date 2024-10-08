@@ -77,15 +77,14 @@ export class AuthController {
         let updatedUser = _user;
         if (_user) {
             if (!_user.avatar_url || !_user.vk_id) {
-                const { data } = await this.authService.getUserDataFromVk(
-                    authData.data.user_id,
-                    authData.data.access_token
+                const userData = await this.authService.getUserDataFromVk(
+                    authData.id_token
                 );
 
-                const profile = data.response[0];
                 const updateVkAuthUserDto: UpdateVkAuthUserDto = {
-                    vk_id: authData.data.user_id,
-                    avatar_url: profile.photo_400
+                    vk_id: userData.user.user_id,
+                    avatar_url: userData.user.avatar,
+                    telephoneNumber: userData.user.phone
                 }
                 updatedUser = await this.userService.updateVkAuth(_user, updateVkAuthUserDto)
             }

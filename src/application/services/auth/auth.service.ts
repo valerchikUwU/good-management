@@ -101,7 +101,7 @@ export class AuthService {
   }
 
 
-  async getUserDataFromVk(id_token: string, token: string): Promise<any> {
+  async getUserDataFromVk(id_token: string): Promise<any> {
     try {
       const VKDATA = {
         client_id: process.env.CLIENT_ID,
