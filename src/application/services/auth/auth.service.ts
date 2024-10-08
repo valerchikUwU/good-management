@@ -101,11 +101,15 @@ export class AuthService {
   }
 
 
-  async getUserDataFromVk(userId: string, token: string): Promise<any> {
+  async getUserDataFromVk(id_token: string, token: string): Promise<any> {
     try {
+      const VKDATA = {
+        client_id: process.env.CLIENT_ID,
+        client_secret: process.env.CLIENT_SECRET,
+      };
       return this.httpService
-        .get(
-          `https://api.vk.com/method/users.get?user_ids=${userId}&fields=photo_400,has_mobile,home_town,contacts,mobile_phone&access_token=${token}&v=5.120`
+        .post(
+          `https://id.vk.com/oauth2/public_info?client_id=${VKDATA.client_id}&id_token=${id_token}`
         )
         .toPromise();
     }

@@ -73,7 +73,7 @@ export class AuthController {
         }
 
         const _user = await this.userService.findByVkId(authData.data.user_id);
-
+        console.log(JSON.stringify(authData))
         let updatedUser = _user;
         if (_user) {
             if (!_user.avatar_url || !_user.vk_id) {
