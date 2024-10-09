@@ -4,7 +4,7 @@ import { Policy } from "src/domains/policy.entity";
 import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
 import { PolicyCreateDto } from "src/contracts/policy/create-policy.dto";
 import { PolicyToOrganizationService } from "../policyToOrganization/policyToOrganization.service";
-import { Project } from "src/domains/project.entity";
+import { Project, Type } from "src/domains/project.entity";
 import { ProjectRepository } from "./repository/project.repository";
 import { ProjectReadDto } from "src/contracts/project/read-project.dto";
 import { ProjectCreateDto } from "src/contracts/project/create-project.dto";
@@ -12,6 +12,8 @@ import { ProjectToOrganizationService } from "../projectToOrganization/projectTo
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { Logger } from 'winston';
 import { ProjectUpdateDto } from "src/contracts/project/update-project.dto";
+import { In, IsNull, Not } from "typeorm";
+import { IsNotIn } from "class-validator";
 
 
 @Injectable()
@@ -42,6 +44,37 @@ export class ProjectService {
                 strategy: project.strategy,
                 account: project.account,
                 user: project.user
+            }))
+        }
+        catch(err){
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех проектов!');
+        }
+    }
+
+    async findAllProgramsWithoutProjectForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
+        try{
+            const projectsWithPrograms = await this.projectRepository.find({where: {account: {id: account.id}, type: Type.PROJECT, programId: Not(IsNull())}});
+            console.log(JSON.stringify(projectsWithPrograms))
+            const programsWithProjectIds = projectsWithPrograms.map(project => project.programId)
+            console.log(programsWithProjectIds)
+            const programsWithoutProject = await this.projectRepository.find({where: {account: {id: account.id}, type: Type.PROGRAM, programId: Not(In(programsWithProjectIds))}})
+            console.log(JSON.stringify(programsWithoutProject))
+
+            return programsWithoutProject.map(program => ({
+                id: program.id,
+                projectNumber: program.projectNumber,
+                programId: program.programId,
+                content: program.content,
+                type: program.type,
+                createdAt: program.createdAt,
+                updatedAt: program.updatedAt,
+                projectToOrganizations: program.projectToOrganizations,
+                targets: program.targets,
+                strategy: program.strategy,
+                account: program.account,
+                user: program.user
             }))
         }
         catch(err){
@@ -91,10 +124,7 @@ export class ProjectService {
 
             
             // Проверка на наличие обязательных данных
-            
-            if (!projectCreateDto.content) {
-                throw new BadRequestException('Проект не может быть пустой!');
-            }
+
             if (!projectCreateDto.projectToOrganizations) {
                 throw new BadRequestException('Выберите хотя бы одну организацию для проекта!');
             }

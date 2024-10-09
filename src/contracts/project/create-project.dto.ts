@@ -50,7 +50,7 @@ export class ProjectCreateDto {
     user: User;
 
     @ApiProperty({
-        description: 'Список задач', example: 
+        description: 'Список задач', required: false, example: 
         [
             {
                 type: 'Продукт',
@@ -87,6 +87,7 @@ export class ProjectCreateDto {
             },
         ]
     })
+    @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
     targetCreateDtos?: TargetCreateDto[] //nullable
 }
