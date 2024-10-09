@@ -95,14 +95,8 @@ export class ProjectService {
             if (!projectCreateDto.content) {
                 throw new BadRequestException('Проект не может быть пустой!');
             }
-            if (!projectCreateDto.type) {
-                throw new BadRequestException('Выберите тип проекта!');
-            }
             if (!projectCreateDto.projectToOrganizations) {
                 throw new BadRequestException('Выберите хотя бы одну организацию для проекта!');
-            }
-            if (!projectCreateDto.strategyId) {
-                throw new BadRequestException('Выберите стратегию для проекта!');
             }
 
             const project = new Project();
