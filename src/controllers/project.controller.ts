@@ -44,22 +44,22 @@ export class ProjectController {
       [
         {
           id: "f2c217bc-367b-4d72-99c3-37d725306786",
+          projectNumber: 3,
           programId: null,
           content: "Контент политики",
-          type: "Проект"
+          type: "Проект",
+          createdAt: "2024-09-20T14:44:43.910Z",
+          updatedAt: "2024-09-20T14:44:43.910Z"
         },
         {
           id: "41ed9165-9106-4fc8-94aa-cc7292bb1741",
+          projectNumber: 4,
           programId: null,
           content: "Контент проекта",
-          type: "Проект"
+          type: "Проект",
+          createdAt: "2024-09-20T14:45:33.741Z",
+          updatedAt: "2024-09-20T14:45:33.741Z"
         },
-        {
-          id: "ff6c48ae-8493-48cc-9c5d-cdd1393858e6",
-          programId: null,
-          content: "Контент говна",
-          type: "Проект"
-        }
       ]
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
@@ -81,21 +81,10 @@ export class ProjectController {
           lastName: "Koval",
           telegramId: 453120600,
           telephoneNumber: null,
-          avatar_url: null,
-          vk_id: null,
+          avatar_url: "https://sun1-98.userapi.com/s/v1/ig2/dcjf3yMOOjHp5QM1hqZL_ZJj2z9cHsM2f0Xcv7AMH0WoifdFkLn8U7w5SFtY6tUP8pQrW-Gs8gXdcztvuy7DNDaS.jpg?quality=95&crop=253,160,669,669&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=50x50",
+          vk_id: 175696487,
           createdAt: "2024-09-16T14:03:31.000Z",
-          updatedAt: "2024-09-16T14:03:31.000Z"
-        }
-      ],
-      strategies: [
-        {
-          id: "2a72e4ed-9d95-4a10-8223-4a201a5d6f2e",
-          strategyNumber: 3,
-          dateActive: null,
-          content: "HTML текст",
-          state: "Активный",
-          createdAt: "2024-09-26T15:33:30.985Z",
-          updatedAt: "2024-09-26T15:33:30.985Z"
+          updatedAt: "2024-10-09T09:25:39.735Z"
         }
       ],
       organizations: [
@@ -112,6 +101,17 @@ export class ProjectController {
           parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
           createdAt: "2024-09-16T15:09:48.995Z",
           updatedAt: "2024-09-16T15:09:48.995Z"
+        }
+      ],
+      programsWithoutProject: [
+        {
+          id: "e60b25a2-f01a-49f5-a55e-994bc5987010",
+          projectNumber: 13,
+          programId: "b6ed2664-9510-4a47-9117-6ce89903b4b5",
+          content: "Контент проекта",
+          type: "Программа",
+          createdAt: "2024-10-09T12:31:01.634Z",
+          updatedAt: "2024-10-09T12:31:01.634Z"
         }
       ]
     }
@@ -196,15 +196,15 @@ export class ProjectController {
     projectCreateDto.strategy = strategy;
     const createdProject = await this.projectService.create(projectCreateDto);
     if (projectCreateDto.targetCreateDtos !== undefined) {
+      console.log('asdasdasd')
       const createTargetsPromises = projectCreateDto.targetCreateDtos.map(async (targetCreateDto) => {
         targetCreateDto.project = createdProject;
         const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
         targetCreateDto.holderUser = holderUser;
-        await Promise.all(createTargetsPromises);
         return this.targetService.create(targetCreateDto);
       });
+    await Promise.all(createTargetsPromises);
     }
-
     return createdProject;
   }
 
@@ -255,9 +255,12 @@ export class ProjectController {
     status: HttpStatus.OK, description: "ОК!",
     example: {
       id: "f2c217bc-367b-4d72-99c3-37d725306786",
+      projectNumber: 15,
       programId: null,
       content: "Контент политики",
       type: "Проект",
+      createdAt: "2024-10-09T12:32:25.762Z",
+      updatedAt: "2024-10-09T12:32:25.762Z",
       projectToOrganizations: [
         {
           id: "6d1b65ae-d7fd-4eb2-8188-ede120948abd",

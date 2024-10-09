@@ -17,7 +17,8 @@ import {
     HttpStatus,
     InternalServerErrorException,
     UnauthorizedException,
-    Inject
+    Inject,
+    BadRequestException
 } from "@nestjs/common";
 import { Request as ExpressRequest } from 'express';
 import { Response as ExpressResponse } from "express";
@@ -74,22 +75,24 @@ export class AuthController {
         const userData = await this.authService.getUserDataFromVk(
             authData.data.access_token
         );
+        console.log(JSON.stringify(`+${userData.data.user.phone}`))
         console.log(JSON.stringify(userData.data))
         const _user = await this.userService.findOneByTelephoneNumber(`+${userData.data.user.phone}`);
         let updatedUser = _user;
         if (_user) {
-            if (!_user.avatar_url || !_user.vk_id) {
-                console.log(JSON.stringify(`+${userData.data.user.phone}`))
+            if (_user.vk_id) {
                 const updateVkAuthUserDto: UpdateVkAuthUserDto = {
                     vk_id: userData.data.user.user_id,
-                    avatar_url: userData.data.user.avatar,
-                    telephoneNumber: userData.data.user.phone
+                    avatar_url: userData.data.user.avatar
                 }
                 updatedUser = await this.userService.updateVkAuth(_user, updateVkAuthUserDto)
             }
             const authenticateResult = await this.authService.authenticateVK(updatedUser, ip, user_agent, auth.fingerprint);
             res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, { httpOnly: true })
             return authenticateResult._user;
+        }
+        else {
+            throw new BadRequestException('Аккаунт на такой номер не найден! Пожалуйста, используйте номер, под которым вы регистрировались!')
         }
 
         // try {
@@ -182,16 +185,16 @@ export class AuthController {
         const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo);
         console.log(clientInfo.token)
         if (clientInfo.token === authTg.token) {
-                const updateTgAuthUserDto: UpdateTgAuthUserDto = {
-                    telegramId: authTg.telegramId,
-                }
-                const user = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
-                let updateUser = user
-                if(!user.telegramId){
-                    updateUser = await this.userService.updateTgAuth(user, updateTgAuthUserDto)
-                }
-                const authenticateResult = await this.authService.authenticateTG(updateUser, clientInfo.ip, clientInfo.userAgent, clientInfo.fingerprint);
-                await this.eventsGateway.sendTokenToClient(authTg.clientId, authenticateResult._user.id, authenticateResult._user.token, authenticateResult.refreshTokenId)
+            const updateTgAuthUserDto: UpdateTgAuthUserDto = {
+                telegramId: authTg.telegramId,
+            }
+            const user = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
+            let updateUser = user
+            if (!user.telegramId) {
+                updateUser = await this.userService.updateTgAuth(user, updateTgAuthUserDto)
+            }
+            const authenticateResult = await this.authService.authenticateTG(updateUser, clientInfo.ip, clientInfo.userAgent, clientInfo.fingerprint);
+            await this.eventsGateway.sendTokenToClient(authTg.clientId, authenticateResult._user.id, authenticateResult._user.token, authenticateResult.refreshTokenId)
 
         } else {
             await this.eventsGateway.sendTokenToClient(authTg.clientId, 'false', null, null);

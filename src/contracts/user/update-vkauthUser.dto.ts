@@ -5,6 +5,4 @@ export class UpdateVkAuthUserDto {
     vk_id: number;
     @IsString()
     avatar_url: string;
-    @IsString()
-    telephoneNumber: string;
 }
