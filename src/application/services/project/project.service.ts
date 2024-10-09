@@ -28,8 +28,8 @@ export class ProjectService {
     }
 
     async findAllForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
-        try{
-            const projects = await this.projectRepository.find({where: {account: {id: account.id}}});
+        try {
+            const projects = await this.projectRepository.find({ where: { account: { id: account.id } } });
 
             return projects.map(project => ({
                 id: project.id,
@@ -46,7 +46,7 @@ export class ProjectService {
                 user: project.user
             }))
         }
-        catch(err){
+        catch (err) {
             this.logger.error(err);
             // Обработка других ошибок
             throw new InternalServerErrorException('Ошибка при получении всех проектов!');
@@ -54,13 +54,22 @@ export class ProjectService {
     }
 
     async findAllProgramsWithoutProjectForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
-        try{
-            const projectsWithPrograms = await this.projectRepository.find({where: {account: {id: account.id}, type: Type.PROJECT, programId: Not(IsNull())}});
-            console.log(JSON.stringify(projectsWithPrograms))
-            const programsWithProjectIds = projectsWithPrograms.map(project => project.programId)
-            console.log(programsWithProjectIds)
-            const programsWithoutProject = await this.projectRepository.find({where: {account: {id: account.id}, type: Type.PROGRAM, programId: Not(In(programsWithProjectIds))}})
-            console.log(JSON.stringify(programsWithoutProject))
+        try {
+            const programsWithoutProject = await this.projectRepository.createQueryBuilder('program')
+                .where('program.accountId = :accountId', { accountId: account.id })
+                .andWhere('program.type = :programType', { programType: Type.PROGRAM })
+                .andWhere(qb => {
+                    const subQuery = qb.subQuery()
+                        .select('project.programId')
+                        .from('project', 'project')
+                        .where('project.accountId = :accountId', { accountId: account.id })
+                        .andWhere('project.type = :projectType', { projectType: Type.PROJECT })
+                        .andWhere('project.programId IS NOT NULL')
+                        .groupBy('project.programId')  // Добавляем группировку по programId
+                        .getQuery();
+                    return 'program.id NOT IN ' + subQuery;
+                })
+                .getMany();
 
             return programsWithoutProject.map(program => ({
                 id: program.id,
@@ -77,7 +86,7 @@ export class ProjectService {
                 user: program.user
             }))
         }
-        catch(err){
+        catch (err) {
             this.logger.error(err);
             // Обработка других ошибок
             throw new InternalServerErrorException('Ошибка при получении всех проектов!');
@@ -85,8 +94,8 @@ export class ProjectService {
     }
 
     async findeOneById(id: string): Promise<ProjectReadDto | null> {
-        try{
-            const project = await this.projectRepository.findOne({ where: {id: id}, relations: ['targets', 'projectToOrganizations.organization'] });
+        try {
+            const project = await this.projectRepository.findOne({ where: { id: id }, relations: ['targets', 'projectToOrganizations.organization'] });
 
             if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
             const projectReadDto: ProjectReadDto = {
@@ -103,11 +112,11 @@ export class ProjectService {
                 account: project.account,
                 user: project.user
             }
-    
+
             return projectReadDto;
         }
-        catch(err){
-            
+        catch (err) {
+
             this.logger.error(err);
             // Обработка специфичных исключений
             if (err instanceof NotFoundException) {
@@ -120,9 +129,9 @@ export class ProjectService {
     }
 
     async create(projectCreateDto: ProjectCreateDto): Promise<Project> {
-        try{
+        try {
 
-            
+
             // Проверка на наличие обязательных данных
 
             if (!projectCreateDto.projectToOrganizations) {
@@ -138,11 +147,11 @@ export class ProjectService {
             project.strategy = projectCreateDto.strategy;
             const projectCreated = await this.projectRepository.save(project);
             await this.projectToOrganizationService.createSeveral(projectCreated, projectCreateDto.projectToOrganizations);
-    
+
             return projectCreated;
         }
-        catch(err){
-            
+        catch (err) {
+
             this.logger.error(err);
             // Обработка специфичных исключений
             if (err instanceof BadRequestException) {

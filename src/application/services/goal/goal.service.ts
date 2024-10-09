@@ -40,7 +40,7 @@ export class GoalService {
         }
     }
 
-    async findeOneById(id: string): Promise<GoalReadDto | null> {
+    async findeOneById(id: string): Promise<GoalReadDto> {
         try {
             const goal = await this.goalRepository.findOne({ where: { id: id }, relations: ['user', 'goalToOrganizations.organization'] });
 
