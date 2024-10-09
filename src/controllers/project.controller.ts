@@ -234,17 +234,22 @@ export class ProjectController {
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
   async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<ProjectReadDto> {
     const updatedProject = await this.projectService.update(projectId, projectUpdateDto);
-    const updateTargetsPromises = projectUpdateDto.targetUpdateDtos.map(async (targetUpdateDto) => {
-      return this.targetService.update(targetUpdateDto);
-    });
+    if (projectUpdateDto.targetUpdateDtos !== undefined) {
+      const updateTargetsPromises = projectUpdateDto.targetUpdateDtos.map(async (targetUpdateDto) => {
+        return this.targetService.update(targetUpdateDto);
+      });
+      await Promise.all(updateTargetsPromises); // Ждём выполнения всех операций update
+    }
 
-    await Promise.all(updateTargetsPromises); // Ждём выполнения всех операций update
-    const createTargetsPromises = projectUpdateDto.targetCreateDtos.map(async (targetCreateDto) => {
-      targetCreateDto.project = updatedProject; // Присваиваем обновленный проект
-      return this.targetService.create(targetCreateDto); // Возвращаем промис создания
-    });
+    if (projectUpdateDto.targetCreateDtos !== undefined) {
+      const createTargetsPromises = projectUpdateDto.targetCreateDtos.map(async (targetCreateDto) => {
+        targetCreateDto.project = updatedProject; // Присваиваем обновленный проект
+        return this.targetService.create(targetCreateDto); // Возвращаем промис создания
+      });
+      await Promise.all(createTargetsPromises); // Ждём выполнения всех операций create
+    }
 
-    await Promise.all(createTargetsPromises); // Ждём выполнения всех операций create
+
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`);
     return updatedProject;
   }
