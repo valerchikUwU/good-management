@@ -54,10 +54,7 @@ export class ProjectCreateDto {
         [
             {
                 type: 'Продукт',
-                commonNumber: null,
-                statisticNumber: null,
-                ruleNumber: null,
-                productNumber: 1,
+                orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
                 dateStart: '2024-09-18T14:59:47.010Z',
@@ -65,10 +62,7 @@ export class ProjectCreateDto {
             },
             {
                 type: 'Обычная',
-                commonNumber: 1,
-                statisticNumber: null,
-                ruleNumber: null,
-                productNumber: null,
+                orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
                 dateStart: '2024-09-18T14:59:47.010Z',
@@ -76,10 +70,7 @@ export class ProjectCreateDto {
             },
             {
                 type: 'Правила',
-                commonNumber: null,
-                statisticNumber: null,
-                ruleNumber: 1,
-                productNumber: null,
+                orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
                 dateStart: '2024-09-18T14:59:47.010Z',
