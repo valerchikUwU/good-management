@@ -4,7 +4,7 @@ import { Account } from "src/domains/account.entity";
 import { Post } from "src/domains/post.entity";
 import { Type } from "src/domains/statistic.entity";
 import { StatisticDataCreateDto } from "../statisticData/create-statisticData.dto";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 
 
 export class StatisticCreateDto{
@@ -19,6 +19,9 @@ export class StatisticCreateDto{
     name: string;
     
     @ApiProperty({description: 'Описание', required: false, example: 'Описание'})
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty({message: 'Описание статистики не может быть пустым!'})
     description?: string
     
     @ApiProperty({description: 'Id поста, к которому привязать статистику', required: true, example: '2420fabb-3e37-445f-87e6-652bfd5a050c'})

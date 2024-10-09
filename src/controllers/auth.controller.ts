@@ -66,25 +66,24 @@ export class AuthController {
     async vk(@Headers('User-Agent') user_agent: string, @Body(new ValidationPipe()) auth: AuthVK, @Req() req: Request, @Ip() ip: string, @Res({ passthrough: true }) res: ExpressResponse): Promise<UserVkAuthDto> {
         let authData;
         try {
-            console.log(JSON.stringify(auth))
             authData = await this.authService.getVkToken(auth);
         } catch (err) {
             throw new UnprocessableEntityException("Wrong VK code");
         }
-
-        const _user = await this.userService.findByVkId(authData.data.user_id);
-        console.log(JSON.stringify(authData))
+        console.log(JSON.stringify(authData.data))
+        const userData = await this.authService.getUserDataFromVk(
+            authData.data.access_token
+        );
+        console.log(JSON.stringify(userData.data))
+        const _user = await this.userService.findOneByTelephoneNumber(`+${userData.data.user.phone}`);
         let updatedUser = _user;
         if (_user) {
             if (!_user.avatar_url || !_user.vk_id) {
-                const userData = await this.authService.getUserDataFromVk(
-                    authData.id_token
-                );
-
+                console.log(JSON.stringify(`+${userData.data.user.phone}`))
                 const updateVkAuthUserDto: UpdateVkAuthUserDto = {
-                    vk_id: userData.user.user_id,
-                    avatar_url: userData.user.avatar,
-                    telephoneNumber: userData.user.phone
+                    vk_id: userData.data.user.user_id,
+                    avatar_url: userData.data.user.avatar,
+                    telephoneNumber: userData.data.user.phone
                 }
                 updatedUser = await this.userService.updateVkAuth(_user, updateVkAuthUserDto)
             }

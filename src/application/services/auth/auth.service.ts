@@ -88,11 +88,21 @@ export class AuthService {
         process.env.NODE_ENV === "prod"
           ? process.env.API_HOST
           : process.env.API_LOCAL;
-
-      return this.httpService
-        .post(
-          `https://id.vk.com/oauth2/auth?grant_type=authorization_code&code_verifier=${auth.code_verifier}&redirect_uri=${host}/gm&code=${auth.code}&client_id=${VKDATA.client_id}&device_id=${auth.device_id}&state=${auth.state}`
-        ).toPromise();
+          return this.httpService
+          .post(
+            `https://id.vk.com/oauth2/auth`, // Корректный endpoint для получения токена
+            {
+              grant_type: "authorization_code",
+              code_verifier: auth.code_verifier,
+              redirect_uri: host, // Убедитесь, что этот redirect_uri совпадает с тем, что вы использовали при запросе кода
+              code: auth.code,
+              client_id: VKDATA.client_id,
+              client_secret: VKDATA.client_secret,
+              device_id: auth.device_id,
+              state: auth.state,
+            }
+          )
+          .toPromise();
     }
     catch (err) {
       this.logger.error(err);
@@ -101,7 +111,7 @@ export class AuthService {
   }
 
 
-  async getUserDataFromVk(id_token: string): Promise<any> {
+  async getUserDataFromVk(access_token: string): Promise<any> {
     try {
       const VKDATA = {
         client_id: process.env.CLIENT_ID,
@@ -109,7 +119,10 @@ export class AuthService {
       };
       return this.httpService
         .post(
-          `https://id.vk.com/oauth2/public_info?client_id=${VKDATA.client_id}&id_token=${id_token}`
+          `https://id.vk.com/oauth2/user_info`,{
+            client_id: VKDATA.client_id,
+            access_token: access_token
+          }
         )
         .toPromise();
     }
