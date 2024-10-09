@@ -190,20 +190,21 @@ export class ProjectController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto): Promise<Project> {
     const user = await this.userService.findOne(userId);
-    const strategy = await this.strategyService.findOneById(projectCreateDto.strategyId);
+    if (projectCreateDto.strategyId) {
+      const strategy = await this.strategyService.findOneById(projectCreateDto.strategyId);
+      projectCreateDto.strategy = strategy;
+    }
     projectCreateDto.user = user;
     projectCreateDto.account = user.account;
-    projectCreateDto.strategy = strategy;
     const createdProject = await this.projectService.create(projectCreateDto);
     if (projectCreateDto.targetCreateDtos !== undefined) {
-      console.log('asdasdasd')
       const createTargetsPromises = projectCreateDto.targetCreateDtos.map(async (targetCreateDto) => {
         targetCreateDto.project = createdProject;
         const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
         targetCreateDto.holderUser = holderUser;
         return this.targetService.create(targetCreateDto);
       });
-    await Promise.all(createTargetsPromises);
+      await Promise.all(createTargetsPromises);
     }
     return createdProject;
   }
@@ -297,6 +298,6 @@ export class ProjectController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'projectId', required: true, description: 'Id пользователя' })
   async findOne(@Param('userId') userId: string, @Param('projectId') projectId: string): Promise<ProjectReadDto> {
-    return await this.projectService.findeOneById(projectId);
+    return await this.projectService.findOneById(projectId);
   }
 }
