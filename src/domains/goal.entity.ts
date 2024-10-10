@@ -1,7 +1,6 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
-import { GoalToOrganization } from './goalToOrganization.entity';
 import { Exclude } from 'class-transformer';
 import { Account } from './account.entity';
 
@@ -21,13 +20,13 @@ export class Goal{
     updatedAt: Date;
     
     @ManyToOne(() => User, (user) => user.goals, {nullable: false})
-    user: User
+    user: User;
 
     @ManyToOne(() => Account, (account) => account.goals, {nullable: false})
-    account: Account
+    account: Account;
 
-    @OneToMany(() => GoalToOrganization, (goalToOrganization) => goalToOrganization.goal)
-    // МОЖЕТ ЛИ БЫТЬ nullable и так везде?????????
-    goalToOrganizations: GoalToOrganization[]
+    @OneToOne(() => Organization, (organization) => organization.goal)
+    @JoinColumn()
+    organization: Organization;
 
 }

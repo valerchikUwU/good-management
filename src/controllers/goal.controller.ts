@@ -59,35 +59,35 @@ export class GoalController {
     return goals;
   }
 
-  @Get('new')
-  @ApiOperation({ summary: 'Получить данные для создания новой цели' })
-  @ApiResponse({
-      status: HttpStatus.OK, description: "ОК!",
-      example: [
-        {
-          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-          organizationName: "soplya firma",
-          parentOrganizationId: null,
-          createdAt: "2024-09-16T14:24:33.841Z",
-          updatedAt: "2024-09-16T14:24:33.841Z"
-        },
-        {
-          id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
-          organizationName: "OOO BOBRIK",
-          parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-          createdAt: "2024-09-16T15:09:48.995Z",
-          updatedAt: "2024-09-16T15:09:48.995Z"
-        }
-      ]
+  // @Get('new')
+  // @ApiOperation({ summary: 'Получить данные для создания новой цели' })
+  // @ApiResponse({
+  //     status: HttpStatus.OK, description: "ОК!",
+  //     example: [
+  //       {
+  //         id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+  //         organizationName: "soplya firma",
+  //         parentOrganizationId: null,
+  //         createdAt: "2024-09-16T14:24:33.841Z",
+  //         updatedAt: "2024-09-16T14:24:33.841Z"
+  //       },
+  //       {
+  //         id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+  //         organizationName: "OOO BOBRIK",
+  //         parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+  //         createdAt: "2024-09-16T15:09:48.995Z",
+  //         updatedAt: "2024-09-16T15:09:48.995Z"
+  //       }
+  //     ]
 
-  })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-  @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<OrganizationReadDto[]> {
-      const user = await this.userService.findOne(userId)
-      const organizations = await this.organizationService.findAllForAccount(user.account);
-      return organizations
-  }
+  // })
+  // @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+  // @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+  // async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<OrganizationReadDto[]> {
+  //     const user = await this.userService.findOne(userId)
+  //     const organizations = await this.organizationService.findAllForAccount(user.account);
+  //     return organizations
+  // }
 
 
   @Patch(':goalId/update')
@@ -182,12 +182,12 @@ export class GoalController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
-  async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<{currentGoal: GoalReadDto, organizations: OrganizationReadDto[]}> {
-    const user = await this.userService.findOne(userId)
-    const goal = await this.goalService.findeOneById(goalId);
-    const organizations = await this.organizationService.findAllForAccount(user.account);
+  async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<GoalReadDto> {
+    // const user = await this.userService.findOne(userId)
+    const goal = await this.goalService.findOneById(goalId);
+    // const organizations = await this.organizationService.findAllForAccount(user.account);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT GOAL: ${JSON.stringify(goal)} - Получить цель по ID!`);
-    return {currentGoal: goal, organizations: organizations};
+    return  goal;
   }
 
 

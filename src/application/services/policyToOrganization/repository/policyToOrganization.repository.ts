@@ -1,5 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { GoalToOrganization } from "src/domains/goalToOrganization.entity";
 import { PolicyToOrganization } from "src/domains/policyToOrganization.entity";
 import { DataSource, Repository } from "typeorm";
 

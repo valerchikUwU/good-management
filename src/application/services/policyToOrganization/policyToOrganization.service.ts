@@ -1,6 +1,4 @@
 import { Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
-import { Goal } from "src/domains/goal.entity";
-import { GoalToOrganization } from "src/domains/goalToOrganization.entity";
 import { OrganizationService } from "../organization/organization.service";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PolicyToOrganizationRepository } from "./repository/policyToOrganization.repository";

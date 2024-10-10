@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Account } from "src/domains/account.entity";
-import { GoalToOrganization } from "src/domains/goalToOrganization.entity";
+import { Goal } from "src/domains/goal.entity";
 import { PolicyToOrganization } from "src/domains/policyToOrganization.entity";
 import { Post } from "src/domains/post.entity";
 import { ProjectToOrganization } from "src/domains/projectToOrganization.entity";
@@ -32,8 +32,8 @@ export class OrganizationReadDto {
     @ApiProperty({ description: 'Список ID постов, принадлежащих организации', isArray: true  })
     posts: Post[];
     
-    @ApiProperty({ description: 'Список ID целей, принадлежащих организации', isArray: true  })
-    goalToOrganizations: GoalToOrganization[]
+    @ApiProperty({ description: 'ID цели, принадлежащей организации' })
+    goal: Goal;
     
     @ApiProperty({ description: 'Список ID политик, принадлежащих организации', isArray: true  })
     policyToOrganizations: PolicyToOrganization[]

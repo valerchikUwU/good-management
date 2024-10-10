@@ -1,11 +1,11 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
 import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Post } from './post.entity';
-import { GoalToOrganization } from './goalToOrganization.entity';
 import { PolicyToOrganization } from './policyToOrganization.entity';
 import { ProjectToOrganization } from './projectToOrganization.entity';
 import { StrategyToOrganization } from './strategyToOrganization.entity';
+import { Goal } from './goal.entity';
 
 
 @Entity()
@@ -25,14 +25,14 @@ export class Organization {
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
+    @OneToOne(() => Goal, (goal) => goal.organization)
+    goal: Goal
+
     @OneToMany(() => User, (user) => user.organization)
     users: User[];
 
     @OneToMany(() => Post, (post) => post.organization)
     posts: Post[];
-
-    @OneToMany(() => GoalToOrganization, (goalToOrganization) => goalToOrganization.organization)
-    goalToOrganizations: GoalToOrganization[]
 
     @OneToMany(() => PolicyToOrganization, (policyToOrganization) => policyToOrganization.organization)
     policyToOrganizations: PolicyToOrganization[]
