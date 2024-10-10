@@ -28,6 +28,9 @@ export class Target{
     @Column({type: 'text', nullable: false})
     content: string;
 
+    @Column({type: 'uuid', nullable: false})
+    activeResponsibleUserId: string;
+
     @Column({ type: 'timestamp', default: new Date(), nullable: false})
     dateStart: Date
 

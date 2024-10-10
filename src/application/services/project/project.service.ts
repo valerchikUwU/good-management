@@ -95,7 +95,17 @@ export class ProjectService {
 
     async findOneById(id: string): Promise<ProjectReadDto> {
         try {
-            const project = await this.projectRepository.findOne({ where: { id: id }, relations: ['strategy', 'targets.targetHolders.user', 'projectToOrganizations.organization'] });
+            const project = await this.projectRepository
+                .createQueryBuilder('project')
+                .leftJoinAndSelect('project.strategy', 'strategy')
+                .leftJoinAndSelect('project.targets', 'targets')
+                .leftJoinAndSelect('targets.targetHolders', 'targetHolders')
+                .leftJoinAndSelect('targetHolders.user', 'user')
+                .leftJoinAndSelect('project.projectToOrganizations', 'projectToOrganizations')
+                .leftJoinAndSelect('projectToOrganizations.organization', 'organization')
+                .where('project.id = :id', { id })
+                .andWhere('targets.activeResponsibleUserId = user.id')  // Добавляем условие на совпадение
+                .getOne();
             if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
             const projectReadDto: ProjectReadDto = {
                 id: project.id,
