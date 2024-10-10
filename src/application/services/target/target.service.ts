@@ -137,10 +137,9 @@ export class TargetService {
             // Обновить свойства, если они указаны в DTO
             if (updateTargetDto.content) target.content = updateTargetDto.content;
             if (updateTargetDto.holderUserId) {
-                const holderUser = await this.userService.findOne(updateTargetDto.holderUserId);
                 const targetHolderCreateDto: TargetHolderCreateDto = {
                     target: target,
-                    user: holderUser
+                    user: updateTargetDto.holderUser
                 }
                 await this.targetHolderService.create(targetHolderCreateDto);
                 target.holderUserId = updateTargetDto.holderUserId;

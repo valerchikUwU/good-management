@@ -236,6 +236,8 @@ export class ProjectController {
     const updatedProject = await this.projectService.update(projectId, projectUpdateDto);
     if (projectUpdateDto.targetUpdateDtos !== undefined) {
       const updateTargetsPromises = projectUpdateDto.targetUpdateDtos.map(async (targetUpdateDto) => {
+        const holderUser = await this.userService.findOne(targetUpdateDto.holderUserId);
+        targetUpdateDto.holderUser = holderUser;
         return this.targetService.update(targetUpdateDto);
       });
       await Promise.all(updateTargetsPromises); // Ждём выполнения всех операций update
