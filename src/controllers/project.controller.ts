@@ -230,8 +230,8 @@ export class ProjectController {
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Проект не найден!` })
-  @ApiParam({ name: 'userId', type: 'uuid', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  @ApiParam({ name: 'projectId', type: 'uuid', allowEmptyValue: false, required: true, description: 'Id проекта' })
+  @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+  @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
   async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<ProjectReadDto> {
     const updatedProject = await this.projectService.update(projectId, projectUpdateDto);
     if (projectUpdateDto.targetUpdateDtos !== undefined) {
