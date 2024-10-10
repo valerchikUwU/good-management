@@ -7,6 +7,7 @@ export class TargetReadDto{
     type: Type;
     orderNumber: number;
     content: string;
+    holderUserId: string;
     dateStart: Date
     deadline: Date
     dateComplete: Date

@@ -99,12 +99,12 @@ export class ProjectService {
                 .createQueryBuilder('project')
                 .leftJoinAndSelect('project.strategy', 'strategy')
                 .leftJoinAndSelect('project.targets', 'targets')
-                .leftJoinAndSelect('targets.targetHolders', 'targetHolders')
-                .leftJoinAndSelect('targetHolders.user', 'user')
+                .leftJoin('targets.targetHolders', 'targetHolders')
+                .leftJoin('targetHolders.user', 'user')
                 .leftJoinAndSelect('project.projectToOrganizations', 'projectToOrganizations')
                 .leftJoinAndSelect('projectToOrganizations.organization', 'organization')
                 .where('project.id = :id', { id })
-                .andWhere('targets.activeResponsibleUserId = user.id')  // Добавляем условие на совпадение
+                .andWhere('targets.holderUserId = user.id')  // Добавляем условие на совпадение
                 .getOne();
             if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
             const projectReadDto: ProjectReadDto = {
