@@ -28,25 +28,20 @@ export class GoalController {
     status: HttpStatus.OK, description: "ОК!",
     example: [
       {
-        id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
-        orderNumber: 1,
-        content: "Надо перепукать шмутзеля",
-        createdAt: "2024-09-18T14:11:27.918Z",
-        updatedAt: "2024-09-18T14:11:27.918Z",
-        goalToOrganizations: [
-          {
-            id: "00eb152b-43a5-483d-9085-c46c23873a3d",
-            createdAt: "2024-09-18T14:11:28.433Z",
-            updatedAt: "2024-09-18T14:11:28.433Z",
-            organization: {
-              id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-              organizationName: "soplya firma",
-              parentOrganizationId: null,
-              createdAt: "2024-09-16T14:24:33.841Z",
-              updatedAt: "2024-09-16T14:24:33.841Z"
-            }
-          }
-        ]
+        id: "1997ef07-7b59-4496-b91d-be440468f9be",
+        content: [
+          "Контент цели",
+          "one more content"
+        ],
+        createdAt: "2024-10-10T15:22:39.611Z",
+        updatedAt: "2024-10-10T15:22:39.611Z",
+        organization: {
+          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          organizationName: "soplya firma",
+          parentOrganizationId: null,
+          createdAt: "2024-09-16T14:24:33.841Z",
+          updatedAt: "2024-09-16T14:24:33.841Z"
+        }
       }
     ]
   })
@@ -59,35 +54,35 @@ export class GoalController {
     return goals;
   }
 
-  // @Get('new')
-  // @ApiOperation({ summary: 'Получить данные для создания новой цели' })
-  // @ApiResponse({
-  //     status: HttpStatus.OK, description: "ОК!",
-  //     example: [
-  //       {
-  //         id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-  //         organizationName: "soplya firma",
-  //         parentOrganizationId: null,
-  //         createdAt: "2024-09-16T14:24:33.841Z",
-  //         updatedAt: "2024-09-16T14:24:33.841Z"
-  //       },
-  //       {
-  //         id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
-  //         organizationName: "OOO BOBRIK",
-  //         parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-  //         createdAt: "2024-09-16T15:09:48.995Z",
-  //         updatedAt: "2024-09-16T15:09:48.995Z"
-  //       }
-  //     ]
+  @Get('new')
+  @ApiOperation({ summary: 'Получить данные для создания новой цели' })
+  @ApiResponse({
+      status: HttpStatus.OK, description: "ОК!",
+      example: [
+        {
+          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          organizationName: "soplya firma",
+          parentOrganizationId: null,
+          createdAt: "2024-09-16T14:24:33.841Z",
+          updatedAt: "2024-09-16T14:24:33.841Z"
+        },
+        {
+          id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+          organizationName: "OOO BOBRIK",
+          parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          createdAt: "2024-09-16T15:09:48.995Z",
+          updatedAt: "2024-09-16T15:09:48.995Z"
+        }
+      ]
 
-  // })
-  // @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-  // @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  // async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<OrganizationReadDto[]> {
-  //     const user = await this.userService.findOne(userId)
-  //     const organizations = await this.organizationService.findAllForAccount(user.account);
-  //     return organizations
-  // }
+  })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+  @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+  async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<OrganizationReadDto[]> {
+      const user = await this.userService.findOne(userId)
+      const organizations = await this.organizationService.findAllForAccount(user.account);
+      return organizations
+  }
 
 
   @Patch(':goalId/update')
@@ -100,25 +95,13 @@ export class GoalController {
   @ApiResponse({
     status: HttpStatus.OK, description: "ОК!",
     example: {
-      id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
-      orderNumber: 2,
-      content: "Новый гыгыгы",
-      createdAt: "2024-09-18T14:11:27.918Z",
-      updatedAt: "2024-09-26T14:52:56.081Z",
-      goalToOrganizations: [
-        {
-          id: "7df11a6e-13e1-428a-9484-c7f8c96c0de8",
-          createdAt: "2024-09-26T14:28:30.905Z",
-          updatedAt: "2024-09-26T14:28:30.905Z",
-          organization: {
-            id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-            organizationName: "soplya firma",
-            parentOrganizationId: null,
-            createdAt: "2024-09-16T14:24:33.841Z",
-            updatedAt: "2024-09-16T14:24:33.841Z"
-          }
-        }
-      ]
+      id: "1997ef07-7b59-4496-b91d-be440468f9be",
+      content: [
+        "Новый контент",
+        "updated"
+      ],
+      createdAt: "2024-10-10T15:22:39.611Z",
+      updatedAt: "2024-10-10T15:26:17.301Z"
     }
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Цель не найдена!" })
@@ -137,57 +120,48 @@ export class GoalController {
     status: HttpStatus.OK, description: "ОК!",
     example: {
       currentGoal: {
-        id: "907b0875-d29d-4f84-89fe-6b037d1ecc7f",
-        orderNumber: 1,
-        content: "Надо перепукать шмутзеля",
-        createdAt: "2024-09-18T14:11:27.918Z",
-        updatedAt: "2024-09-18T14:11:27.918Z",
-        user: {
-          id: "3b809c42-2824-46c1-9686-dd666403402a",
-          firstName: "Maxik",
-          lastName: "Koval",
-          telegramId: 453120600,
-          telephoneNumber: null,
-          avatar_url: null,
-          vk_id: null,
-          createdAt: "2024-09-16T14:03:31.000Z",
-          updatedAt: "2024-09-16T14:03:31.000Z"
-        },
-        goalToOrganizations: [
-          {
-            id: "00eb152b-43a5-483d-9085-c46c23873a3d",
-            createdAt: "2024-09-18T14:11:28.433Z",
-            updatedAt: "2024-09-18T14:11:28.433Z"
-          }
-        ]
-    },
-    organizations: [
-      {
-        id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-        organizationName: "soplya firma",
-        parentOrganizationId: null,
-        createdAt: "2024-09-16T14:24:33.841Z",
-        updatedAt: "2024-09-16T14:24:33.841Z"
+        id: "1997ef07-7b59-4496-b91d-be440468f9be",
+        content: [
+          "Контент цели",
+          "one more content"
+        ],
+        createdAt: "2024-10-10T15:22:39.611Z",
+        updatedAt: "2024-10-10T15:22:39.611Z",
+        organization: {
+          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          organizationName: "soplya firma",
+          parentOrganizationId: null,
+          createdAt: "2024-09-16T14:24:33.841Z",
+          updatedAt: "2024-09-16T14:24:33.841Z"
+        }
       },
-      {
-        id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
-        organizationName: "OOO BOBRIK",
-        parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-        createdAt: "2024-09-16T15:09:48.995Z",
-        updatedAt: "2024-09-16T15:09:48.995Z"
-      }
-    ]
-  }
+      organizations: [
+        {
+          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          organizationName: "soplya firma",
+          parentOrganizationId: null,
+          createdAt: "2024-09-16T14:24:33.841Z",
+          updatedAt: "2024-09-16T14:24:33.841Z"
+        },
+        {
+          id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+          organizationName: "OOO BOBRIK",
+          parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          createdAt: "2024-09-16T15:09:48.995Z",
+          updatedAt: "2024-09-16T15:09:48.995Z"
+        }
+      ]
+    }
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
-  async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<GoalReadDto> {
-    // const user = await this.userService.findOne(userId)
+  async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<{ currentGoal: GoalReadDto, organizations: OrganizationReadDto[]}> {
+    const user = await this.userService.findOne(userId)
     const goal = await this.goalService.findOneById(goalId);
-    // const organizations = await this.organizationService.findAllForAccount(user.account);
+    const organizations = await this.organizationService.findAllForAccount(user.account);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT GOAL: ${JSON.stringify(goal)} - Получить цель по ID!`);
-    return  goal;
+    return {currentGoal: goal, organizations: organizations};
   }
 
 
@@ -204,8 +178,10 @@ export class GoalController {
     status: HttpStatus.OK, description: "ОК!",
     example: {
       id: "da1787cb-a79a-4663-8232-c13cacfdb953",
-      orderNumber: 1,
-      content: "Валера даун",
+      content: [
+        "Контент цели",
+        "one more content"
+      ],
       createdAt: "2024-09-26T14:47:03.569Z",
       updatedAt: "2024-09-26T14:47:03.569Z"
     }
@@ -215,8 +191,10 @@ export class GoalController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async create(@Param('userId') userId: string, @Body() goalCreateDto: GoalCreateDto, @Ip() ip: string): Promise<GoalReadDto> {
     const user = await this.userService.findOne(userId);
+    const organization = await this.organizationService.findOneById(goalCreateDto.organizationId)
     goalCreateDto.user = user;
     goalCreateDto.account = user.account;
+    goalCreateDto.organization = organization;
     const createdGoal = await this.goalService.create(goalCreateDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - goalCreateDto: ${JSON.stringify(goalCreateDto)} - Создана новая цель!`)
     return createdGoal;

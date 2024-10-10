@@ -75,6 +75,7 @@ export class GoalService {
             goal.content = goalCreateDto.content;
             goal.user = goalCreateDto.user;
             goal.account = goalCreateDto.account;
+            goal.organization = goalCreateDto.organization;
             const createdGoal = await this.goalRepository.save(goal);
             return createdGoal;
         }
