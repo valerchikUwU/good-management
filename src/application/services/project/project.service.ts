@@ -93,9 +93,9 @@ export class ProjectService {
         }
     }
 
-    async findOneById(id: string): Promise<ProjectReadDto | null> {
+    async findOneById(id: string): Promise<ProjectReadDto> {
         try {
-            const project = await this.projectRepository.findOne({ where: { id: id }, relations: ['strategy', 'targets', 'projectToOrganizations.organization'] });
+            const project = await this.projectRepository.findOne({ where: { id: id }, relations: ['strategy', 'targets.targetHolders.user', 'projectToOrganizations.organization'] });
             if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
             const projectReadDto: ProjectReadDto = {
                 id: project.id,

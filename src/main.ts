@@ -7,58 +7,55 @@ import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ValidationExceptionFilter } from './utils/validationExceptionFilter';
-import { Transport } from '@nestjs/microservices';
 dotenv.config();
 
 
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    logger: WinstonModule.createLogger(winstonConfig), // используем конфигурацию
-  });  
-  // Получаем экземпляр логгера NestWinston
-  const logger = app.get('NestWinston'); 
-  
-  // Подключаем глобальный фильтр для валидации
+    logger: WinstonModule.createLogger(winstonConfig),
+  });
+  const logger = app.get('NestWinston');
+
   app.useGlobalFilters(new ValidationExceptionFilter(logger));
 
-
-  // Внутри функции bootstrap
   app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,  // Удаляет поля, которые отсутствуют в DTO
-    forbidNonWhitelisted: true, // Отклоняет запросы с "лишними" полями
-    transform: true,   // Преобразует входные данные в типы, указанные в DTO
-    forbidUnknownValues: true,  // Предотвращает неизвестные значения
-    exceptionFactory: (errors) => new BadRequestException(errors), 
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+    forbidUnknownValues: true,
+    exceptionFactory: (errors) => new BadRequestException(errors),
   }));
   app.use(cookieParser());
-  // Enable CORS
-  app.enableCors({
-    // true for all origins
-    origin: true,
-  });
+  app.enableCors({ origin: true });
 
   if (process.env.NODE_ENV === 'prod') {
-    app.setGlobalPrefix('gm'); // Устанавливаем префикс для всех маршрутов
+    app.setGlobalPrefix('gm');
   }
 
   const swaggerApi = new DocumentBuilder()
     .setTitle('Good-Management API')
-    .setDescription('The GM API description')
+    .setDescription('The GM API description.\n\n[Export JSON](http://localhost:5000/swagger-json)')
     .setVersion('1.0')
-    .build()
-  const port = process.env.PORT || 5000;
-  const host = process.env.API_HOST;
+    .build();
+
   const document = SwaggerModule.createDocument(app, swaggerApi);
+
   if (process.env.NODE_ENV === 'prod') {
     SwaggerModule.setup('gm/api', app, document);
-  }
-  else {
+  } else {
     SwaggerModule.setup('api', app, document);
   }
 
+  // Добавляем маршрут для экспорта документации в формате JSON
+  app.getHttpAdapter().get('/swagger-json', (req, res) => {
+    res.json(document);  // Возвращаем JSON-документ
+  });
 
+  const port = process.env.PORT || 5000;
+  const host = process.env.API_HOST;
 
   await app.listen(port, () => console.log(`${host}${port}/`));
 }
+
 bootstrap();
