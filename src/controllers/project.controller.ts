@@ -285,10 +285,8 @@ export class ProjectController {
         {
           id: "7a269e8f-26ba-46da-9ef9-e1b17475b6d9",
           type: "Продукт",
-          commonNumber: null,
-          statisticNumber: null,
-          ruleNumber: null,
-          productNumber: 1,
+          orderNumber: 1,
+          activeResponsibleUserId: "702dc852-4806-47b7-8b03-1214ef428efd",
           content: "Контент задачи",
           dateStart: "2024-09-20T14:44:44.274Z",
           deadline: "2024-09-27T14:59:47.010Z",
@@ -301,7 +299,7 @@ export class ProjectController {
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  @ApiParam({ name: 'projectId', required: true, description: 'Id пользователя' })
+  @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
   async findOne(@Param('userId') userId: string, @Param('projectId') projectId: string): Promise<ProjectReadDto> {
     return await this.projectService.findOneById(projectId);
   }

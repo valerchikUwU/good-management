@@ -29,7 +29,7 @@ export class Target{
     content: string;
 
     @Column({type: 'uuid', nullable: false})
-    activeResponsibleUserId: string;
+    holderUserId: string;
 
     @Column({ type: 'timestamp', default: new Date(), nullable: false})
     dateStart: Date

@@ -101,7 +101,7 @@ export class TargetService {
             target.type = targetCreateDto.type;
             target.orderNumber = targetCreateDto.orderNumber;
             target.content = targetCreateDto.content;
-            target.activeResponsibleUserId = targetCreateDto.holderUserId
+            target.holderUserId = targetCreateDto.holderUserId
             target.dateStart = new Date();
             target.deadline = targetCreateDto.deadline;
             target.project = targetCreateDto.project;
@@ -141,7 +141,7 @@ export class TargetService {
                     user: holderUser
                 }
                 await this.targetHolderService.create(targetHolderCreateDto);
-                target.activeResponsibleUserId = updateTargetDto.holderUserId;
+                target.holderUserId = updateTargetDto.holderUserId;
             }
             if (updateTargetDto.dateStart) target.dateStart = updateTargetDto.dateStart;
             if (updateTargetDto.deadline) target.deadline = updateTargetDto.deadline;
