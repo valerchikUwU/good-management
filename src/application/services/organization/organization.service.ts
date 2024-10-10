@@ -18,7 +18,7 @@ export class OrganizationService {
     async findAllForAccount(account: AccountReadDto): Promise<OrganizationReadDto[]> {
         try {
 
-            const organizations = await this.organizationRepository.find({ where: { account: { id: account.id } } });
+            const organizations = await this.organizationRepository.find({ where: { account: { id: account.id } }, relations: ['goal'] });
             return organizations.map(organization => ({
                 id: organization.id,
                 organizationName: organization.organizationName,
