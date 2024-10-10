@@ -244,6 +244,8 @@ export class ProjectController {
     if (projectUpdateDto.targetCreateDtos !== undefined) {
       const createTargetsPromises = projectUpdateDto.targetCreateDtos.map(async (targetCreateDto) => {
         targetCreateDto.project = updatedProject; // Присваиваем обновленный проект
+        const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
+        targetCreateDto.holderUser = holderUser;
         return this.targetService.create(targetCreateDto); // Возвращаем промис создания
       });
       await Promise.all(createTargetsPromises); // Ждём выполнения всех операций create
