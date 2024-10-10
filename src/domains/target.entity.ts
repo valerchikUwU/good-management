@@ -22,7 +22,7 @@ export class Target{
     })
     type: Type;
 
-    @Column({nullable: true})
+    @Column({nullable: false})
     orderNumber: number;
 
     @Column({type: 'text', nullable: false})

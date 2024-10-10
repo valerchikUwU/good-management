@@ -99,7 +99,7 @@ export class TargetService {
             }
             const target = new Target();
             target.type = targetCreateDto.type;
-            target.orderNumber = target.orderNumber;
+            target.orderNumber = targetCreateDto.orderNumber;
             target.content = targetCreateDto.content;
             target.dateStart = new Date();
             target.deadline = targetCreateDto.deadline;
