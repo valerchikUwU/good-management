@@ -45,10 +45,7 @@ export class ProjectUpdateDto {
         [
             {
                 type: 'Продукт',
-                commonNumber: null,
-                statisticNumber: null,
-                ruleNumber: null,
-                productNumber: 1,
+                orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2024-09-18T14:59:47.010Z',
@@ -56,10 +53,7 @@ export class ProjectUpdateDto {
             },
             {
                 type: 'Обычная',
-                commonNumber: 1,
-                statisticNumber: null,
-                ruleNumber: null,
-                productNumber: null,
+                orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2024-09-18T14:59:47.010Z',
@@ -67,10 +61,7 @@ export class ProjectUpdateDto {
             },
             {
                 type: 'Правила',
-                commonNumber: null,
-                statisticNumber: null,
-                ruleNumber: 1,
-                productNumber: null,
+                orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2024-09-18T14:59:47.010Z',

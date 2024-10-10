@@ -29,7 +29,7 @@ export class ProjectCreateDto {
     @IsNotEmpty({message: 'Выберите тип проекта!'})
     type?: Type; //default project
 
-    @ApiProperty({ description: 'IDs организаций, которые связать с проектом', example: ['3388c410-2e2e-4fd3-8672-217a6121ed7a'] })
+    @ApiProperty({ description: 'IDs организаций, которые связать с проектом', example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'] })
     @IsArray({message: 'Должен быть массив!'})
     @ArrayNotEmpty({message: 'Выберите хотя бы одну организацию!'})
     projectToOrganizations: string[];
@@ -56,7 +56,7 @@ export class ProjectCreateDto {
                 type: 'Продукт',
                 orderNumber: 1,
                 content: 'Контент задачи',
-                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -64,7 +64,7 @@ export class ProjectCreateDto {
                 type: 'Обычная',
                 orderNumber: 1,
                 content: 'Контент задачи',
-                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -72,7 +72,7 @@ export class ProjectCreateDto {
                 type: 'Правила',
                 orderNumber: 1,
                 content: 'Контент задачи',
-                holderUserId: 'fda96355-15f9-45b2-9fee-cc5b85201195',
+                holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
