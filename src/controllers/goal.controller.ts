@@ -64,7 +64,16 @@ export class GoalController {
           organizationName: "soplya firma",
           parentOrganizationId: null,
           createdAt: "2024-09-16T14:24:33.841Z",
-          updatedAt: "2024-09-16T14:24:33.841Z"
+          updatedAt: "2024-09-16T14:24:33.841Z",
+          goal: {
+            id: "1997ef07-7b59-4496-b91d-be440468f9be",
+            content: [
+              "Новый контент",
+              "updated"
+            ],
+            createdAt: "2024-10-10T15:22:39.611Z",
+            updatedAt: "2024-10-10T15:26:17.301Z"
+          }
         },
         {
           id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
