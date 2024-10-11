@@ -106,11 +106,13 @@ export class ProjectService {
                 .where('project.id = :id', { id })
                 .andWhere('targets.holderUserId = user.id')  // Добавляем условие на совпадение
                 .getOne();
+            const program = project.programId !== null ? await this.projectRepository.findOne({where: {id: project.programId}}): null
             if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
             const projectReadDto: ProjectReadDto = {
                 id: project.id,
                 projectNumber: project.projectNumber,
                 programId: project.programId,
+                programNumber: program !== null ? program.projectNumber : null,
                 content: project.content,
                 type: project.type,
                 createdAt: project.createdAt,
@@ -119,7 +121,7 @@ export class ProjectService {
                 targets: project.targets,
                 strategy: project.strategy,
                 account: project.account,
-                user: project.user
+                user: project.user,
             }
 
             return projectReadDto;

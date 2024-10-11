@@ -10,6 +10,7 @@ export class ProjectReadDto{
     projectNumber: number;
     programId: string;
     content: string;
+    programNumber?: number | null
     type: Type;
     createdAt: Date;
     updatedAt: Date;

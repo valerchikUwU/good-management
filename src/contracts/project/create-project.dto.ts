@@ -1,8 +1,6 @@
 import { Account } from "src/domains/account.entity";
 import { Type } from "src/domains/project.entity";
-import { ProjectToOrganization } from "src/domains/projectToOrganization.entity";
 import { Strategy } from "src/domains/strategy.entity";
-import { Target } from "src/domains/target.entity";
 import { User } from "src/domains/user.entity";
 import { TargetCreateDto } from "../target/create-target.dto";
 import { ApiProperty } from "@nestjs/swagger";
@@ -15,7 +13,7 @@ export class ProjectCreateDto {
     @IsOptional()
     @IsUUID()
     @IsNotEmpty({message: 'ID программы не может быть пустым!'})
-    programId?: string | null;
+    programId?: string;
 
     @ApiProperty({ description: 'Содержание проекта', required: false, example: 'Контент проекта' })
     @IsOptional()
