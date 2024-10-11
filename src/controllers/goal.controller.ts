@@ -89,7 +89,7 @@ export class GoalController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<OrganizationReadDto[]> {
       const user = await this.userService.findOne(userId)
-      const organizations = await this.organizationService.findAllForAccount(user.account);
+      const organizations = await this.organizationService.findAllWithoutGoalsForAccount(user.account);
       return organizations
   }
 

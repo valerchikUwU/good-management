@@ -39,7 +39,6 @@ export class TelegramService {
                     const token = parts[0]; // Первая часть - токен
                     const clientId = parts[1]; // Вторая часть - clientId
                     if (token) {
-                        // Теперь можно безопасно сохранять данные в сессию
                         this.chatStorageService.setChatInfo(chatId, { token: token, clientId: clientId })
                             ctx.reply(
                                 "Добро пожаловать в бота, чтобы войти поделитесь контактом, нажав на кнопку ниже:",
