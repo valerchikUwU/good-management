@@ -267,6 +267,7 @@ export class ProjectController {
       id: "f2c217bc-367b-4d72-99c3-37d725306786",
       projectNumber: 15,
       programId: null,
+      programNumber: null,
       content: "Контент политики",
       type: "Проект",
       createdAt: "2024-10-09T12:32:25.762Z",
