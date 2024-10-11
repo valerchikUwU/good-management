@@ -6,7 +6,7 @@ import { Organization } from "src/domains/organization.entity";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { OrganizationUpdateDto } from "src/contracts/organization/update-organization.dto";
 import { Logger } from "winston";
-import { IsNull } from "typeorm";
+import { IsNull, Not } from "typeorm";
 
 
 @Injectable()
@@ -48,6 +48,35 @@ export class OrganizationService {
         try {
 
             const organizations = await this.organizationRepository.find({ where: { account: { id: account.id }, goal: {id: IsNull()} }, relations: ['goal'] });
+            return organizations.map(organization => ({
+                id: organization.id,
+                organizationName: organization.organizationName,
+                parentOrganizationId: organization.parentOrganizationId,
+                createdAt: organization.createdAt,
+                updatedAt: organization.updatedAt,
+                users: organization.users,
+                posts: organization.posts,
+                goal: organization.goal,
+                policyToOrganizations: organization.policyToOrganizations,
+                projectToOrganizations: organization.projectToOrganizations,
+                strategyToOrganizations: organization.strategyToOrganizations,
+                account: organization.account,
+            }));
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех организаций!');
+        }
+    }
+
+
+
+    async findAllWithGoalsForAccount(account: AccountReadDto): Promise<OrganizationReadDto[]> {
+        try {
+
+            const organizations = await this.organizationRepository.find({ where: { account: { id: account.id }, goal: {id: Not(IsNull())} }, relations: ['goal'] });
             return organizations.map(organization => ({
                 id: organization.id,
                 organizationName: organization.organizationName,

@@ -168,7 +168,7 @@ export class GoalController {
   async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<{ currentGoal: GoalReadDto, organizations: OrganizationReadDto[]}> {
     const user = await this.userService.findOne(userId)
     const goal = await this.goalService.findOneById(goalId);
-    const organizations = await this.organizationService.findAllForAccount(user.account);
+    const organizations = await this.organizationService.findAllWithGoalsForAccount(user.account);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT GOAL: ${JSON.stringify(goal)} - Получить цель по ID!`);
     return {currentGoal: goal, organizations: organizations};
   }
