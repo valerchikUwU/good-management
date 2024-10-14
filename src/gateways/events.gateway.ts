@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { Logger } from 'winston';
 
 
-@WebSocketGateway(80)
+@WebSocketGateway(80, { cors: '*:*' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @Inject('winston') private readonly logger: Logger, // инъекция логгера
