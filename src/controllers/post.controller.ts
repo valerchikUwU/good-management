@@ -366,6 +366,7 @@ export class PostController {
             const policy = await this.policyService.findOneById(addPolicyId)
             postCreateDto.policy = policy
         }
+        console.log(JSON.stringify(postCreateDto.policy));
         const responsibleUser = await this.userService.findOne(postCreateDto.responsibleUserId);
         postCreateDto.user = responsibleUser;
         postCreateDto.account = user.account;

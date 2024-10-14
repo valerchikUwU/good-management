@@ -60,27 +60,20 @@ export class GoalController {
       status: HttpStatus.OK, description: "ОК!",
       example: [
         {
-          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-          organizationName: "soplya firma",
+          id: "be720b9e-873b-4d4e-a866-b3c598878863",
+          organizationName: "Ласка и Выдрочка",
           parentOrganizationId: null,
-          createdAt: "2024-09-16T14:24:33.841Z",
-          updatedAt: "2024-09-16T14:24:33.841Z",
-          goal: {
-            id: "1997ef07-7b59-4496-b91d-be440468f9be",
-            content: [
-              "Новый контент",
-              "updated"
-            ],
-            createdAt: "2024-10-10T15:22:39.611Z",
-            updatedAt: "2024-10-10T15:26:17.301Z"
-          }
+          createdAt: "2024-10-11T13:21:24.898Z",
+          updatedAt: "2024-10-11T13:21:24.898Z",
+          goal: null
         },
         {
-          id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
-          organizationName: "OOO BOBRIK",
-          parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-          createdAt: "2024-09-16T15:09:48.995Z",
-          updatedAt: "2024-09-16T15:09:48.995Z"
+          id: "b1294a99-ec8d-4e62-8345-45da2d89b6b9",
+          organizationName: "Светлоярский и Ко",
+          parentOrganizationId: null,
+          createdAt: "2024-10-11T13:22:01.835Z",
+          updatedAt: "2024-10-11T13:22:01.835Z",
+          goal: null
         }
       ]
 

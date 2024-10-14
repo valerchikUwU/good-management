@@ -125,9 +125,6 @@ export class PolicyService {
             if (!policyCreateDto.policyName) {
                 throw new BadRequestException('У политики обязательно наличие названия!');
             }
-            if (!policyCreateDto.type) {
-                throw new BadRequestException('Выберите тип политики!');
-            }
             if (!policyCreateDto.content) {
                 throw new BadRequestException('Политика не может быть пустой!');
             }

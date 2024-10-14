@@ -39,6 +39,17 @@ export class TelegramService {
                     const token = parts[0]; // Первая часть - токен
                     const clientId = parts[1]; // Вторая часть - clientId
                     if (token) {
+                        const telegramId = ctx.message.from.id;
+                        console.log(telegramId);
+                        const user = await this.usersService.findOneByTelegramId(telegramId);
+                        if (user !== null){
+                            
+                        const authFlag = await this.authRequest(user.telephoneNumber, telegramId, token, clientId, ctx)
+                        if (authFlag) {
+                            ctx.reply('Вход успешен!')
+                        }
+                        this.chatStorageService.clearChatById(chatId);
+                        }
                         this.chatStorageService.setChatInfo(chatId, { token: token, clientId: clientId })
                             ctx.reply(
                                 "Добро пожаловать в бота, чтобы войти поделитесь контактом, нажав на кнопку ниже:",
@@ -67,8 +78,6 @@ export class TelegramService {
             try {
                 const chatId = ctx.update.message?.chat.id;
                 const telephoneNumber = this.formatPhoneNumber(ctx.message.contact.phone_number);
-                const firstName = ctx.message.contact.first_name;
-                const lastName = ctx.message.contact.last_name;
                 const telegramId = Number(ctx.message.contact.user_id);
                 const chat = this.chatStorageService.getChatInfo(chatId)
                 if (chat.token) {
@@ -78,7 +87,7 @@ export class TelegramService {
                         }
                     })
                     if (user !== null) {
-                        const authFlag = await this.authRequest(telephoneNumber, telegramId, chat.token, chat.clientId, ctx, firstName, lastName)
+                        const authFlag = await this.authRequest(telephoneNumber, telegramId, chat.token, chat.clientId, ctx)
                         if (authFlag) {
                             ctx.reply('Вход успешен!')
                         }
@@ -110,7 +119,7 @@ export class TelegramService {
         return phoneNumber;
     }
 
-    async authRequest(phoneNumber: string, telegramId: number, token: string, clientId: string, ctx: any, firstName?: string, lastName?: string): Promise<any> {
+    async authRequest(phoneNumber: string, telegramId: number, token: string, clientId: string, ctx: any): Promise<any> {
         try {
             const response = await lastValueFrom(
                 this.httpService.post(`${process.env.API_HOST}${process.env.PORT}/auth/login/tg`, {
@@ -118,8 +127,6 @@ export class TelegramService {
                     telegramId: telegramId,
                     clientId: clientId,
                     token: token,
-                    firstName: firstName === undefined ? null : firstName,
-                    lastName: lastName === undefined ? null : lastName,
                 })
             )
             return true;
