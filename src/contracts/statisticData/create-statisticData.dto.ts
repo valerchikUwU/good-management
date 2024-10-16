@@ -12,7 +12,7 @@ export class StatisticDataCreateDto{
     @ApiProperty({description: 'Дата значения', required: true, example: '2024-10-10 18:26:17.301486'})
     @IsDate()
     @IsNotEmpty({message: 'Дата не может быть пустым!'})
-    valueData: Date;
+    valueDate: Date;
 
     @Exclude({toPlainOnly: true})
     statistic: Statistic;

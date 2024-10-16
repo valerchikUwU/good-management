@@ -55,7 +55,7 @@ export class StatisticDataService {
             }
             const statisticData = new StatisticData();
             statisticData.value = statisticDataCreateDto.value;
-            statisticData.valueDate = statisticDataCreateDto.valueData;
+            statisticData.valueDate = statisticDataCreateDto.valueDate;
             statisticData.statistic = statisticDataCreateDto.statistic;
             const createdStatisticData = await this.statisticDataRepository.save(statisticData);
             const createdStatisticDataDto: StatisticDataReadDto = {
