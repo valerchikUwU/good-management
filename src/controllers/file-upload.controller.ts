@@ -4,7 +4,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from 'src/application/services/file/file.service';
 import { PolicyService } from 'src/application/services/policy/policy.service';
 import { FileCreateDto } from 'src/contracts/file-upload/create-file.dto';
-import { ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('File')
 @Controller(':userId/file-upload')
