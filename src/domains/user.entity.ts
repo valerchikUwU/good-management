@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, Index } from 'typeorm';
 import { RefreshSession } from './refreshSession.entity';
 import { Post } from './post.entity';
 import { Organization } from './organization.entity';
@@ -72,6 +72,7 @@ export class User {
   organization: Organization;
 
   @ManyToOne(() => Account, (account) => account.users, {nullable: true})
+  @Index() // Добавляем индекс на поле account
   account: Account;
 
   @ManyToOne(() => Role, (role) => role.users, {nullable: true})

@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './application/modules/users.module';
 import { ConfigModule, ConfigService } from 'nestjs-config';
-import { ConfigModule as Conf } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './application/modules/auth.module';
 import * as path from 'path';
@@ -19,7 +18,6 @@ import { ProjectModule } from './application/modules/project.module';
 import { TargetModule } from './application/modules/target.module';
 import { TargetHolderModule } from './application/modules/targetHolder.module';
 import { PostModule } from './application/modules/post.module';
-import { MulterModule } from '@nestjs/platform-express';
 import { RequestLoggerMiddleware } from './middleware/request-logger.middleware';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from './utils/winston-logger';
@@ -28,8 +26,9 @@ import { FileUploadModule } from './application/modules/file-upload.module';
 import { FileModule } from './application/modules/file.module';
 import { RoleSettingModule } from './application/modules/roleSetting.module';
 import { RoleModule } from './application/modules/role.module';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 import { QueueModule } from './application/modules/queue.module';
+import { PolicyToPolicyDirectoryModule } from './application/modules/policyToPolicyDirectory.module';
+import { PolicyDirectoryModule } from './application/modules/policyDirectory.module';
 
 
 
@@ -42,7 +41,7 @@ import { QueueModule } from './application/modules/queue.module';
     }),
     WinstonModule.forRoot(winstonConfig),
     UsersModule, AuthModule, EventsModule, TelegramModule, OrganizationModule, AccountModule,
-    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule, FileUploadModule, FileModule, RoleSettingModule, RoleModule, QueueModule
+    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule, FileUploadModule, FileModule, RoleSettingModule, RoleModule, QueueModule, PolicyToPolicyDirectoryModule, PolicyDirectoryModule
   ],
   controllers: [AppController],
   providers: [AppService],

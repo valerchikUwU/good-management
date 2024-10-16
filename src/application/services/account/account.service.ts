@@ -33,7 +33,8 @@ export class AccountService{
             strategies: account.strategies,
             posts: account.posts,
             statistics: account.statistics,
-            roleSettings: account.roleSettings
+            roleSettings: account.roleSettings,
+            policyDirectories: account.policyDirectories
         }))
     }
 
@@ -54,7 +55,8 @@ export class AccountService{
             strategies: account.strategies,
             posts: account.posts,
             statistics: account.statistics,
-            roleSettings: account.roleSettings
+            roleSettings: account.roleSettings,
+            policyDirectories: account.policyDirectories
         }
 
         return accountReadDto;

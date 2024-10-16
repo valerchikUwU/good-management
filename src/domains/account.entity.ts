@@ -9,6 +9,7 @@ import { Strategy } from './strategy.entity';
 import { Post } from './post.entity';
 import { Statistic } from './statistic.entity';
 import { Modules, RoleSetting } from './roleSetting.entity';
+import { PolicyDirectory } from './policyDirectory.entity';
 
 
 @Entity()
@@ -54,5 +55,8 @@ export class Account {
 
     @OneToMany(() => RoleSetting, (roleSetting) => roleSetting.account)
     roleSettings: RoleSetting[];
+
+    @OneToMany(() => PolicyDirectory, (policyDirectory) => policyDirectory.account)
+    policyDirectories: PolicyDirectory[];
 
 }

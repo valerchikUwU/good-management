@@ -17,6 +17,9 @@ export class StatisticData{
     @Column({nullable: false})
     value: number;
 
+    @Column({type: 'timestamp', nullable: false, default: new Date()})
+    valueDate: Date
+
     @ManyToOne(() => Statistic, (statistic) => statistic.statisticDatas, {eager: false})
     statistic: Statistic;
 }

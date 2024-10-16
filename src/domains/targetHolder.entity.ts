@@ -5,14 +5,16 @@ import { Target } from './target.entity';
 
 
 @Entity()
-@Index(['target', 'user'], { unique: true })
+// @Index(['target', 'user'], { unique: true }) шо то я запутался надо чи нет
 export class TargetHolder {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
     @ManyToOne(() => Target, target => target.targetHolders, { nullable: false })
+    @Index() // Добавляем индекс для поля target
     target: Target;
 
+    @Index() // Добавляем индекс для поля user
     @ManyToOne(() => User, (user) => user.targetHolders, { nullable: false })
     user: User;
 }

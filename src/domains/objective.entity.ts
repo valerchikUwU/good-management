@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, OneToOne, Index } from 'typeorm';
 import { Strategy } from './strategy.entity';
 import { Account } from './account.entity';
 
@@ -25,6 +25,7 @@ export class Objective{
 
     @OneToOne(() => Strategy, (strategy) => strategy.objective, {nullable: false})
     @JoinColumn()
+    @Index() // Добавляем индекс на поле strategy
     strategy: Strategy
 
     @ManyToOne(() => Account, (account) => account.objectives, {nullable: false})

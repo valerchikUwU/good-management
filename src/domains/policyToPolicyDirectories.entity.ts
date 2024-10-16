@@ -1,10 +1,11 @@
 import { CreateDateColumn, Entity, Index, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Organization } from "./organization.entity";
 import { Policy } from "./policy.entity";
+import { PolicyDirectory } from "./policyDirectory.entity";
 
 
 @Entity()
-export class PolicyToOrganization{
+export class PolicyToPolicyDirectory{
     @PrimaryGeneratedColumn('uuid')
     public id: string;
 
@@ -18,7 +19,6 @@ export class PolicyToOrganization{
     @Index() // Добавляем индекс для поля policy
     policy: Policy
 
-    @ManyToOne(() => Organization, (organization) => organization.policyToOrganizations)
-    @Index() // Добавляем индекс для поля organization
-    organization: Organization
+    @ManyToOne(() => PolicyDirectory, (policyDirectory) => policyDirectory.policyToPolicyDirectories)
+    policyDirectory: PolicyDirectory
 }

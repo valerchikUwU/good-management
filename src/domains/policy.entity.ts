@@ -4,6 +4,8 @@ import { PolicyToOrganization } from './policyToOrganization.entity';
 import { Post } from './post.entity';
 import { Account } from './account.entity';
 import { File } from './file.entity';
+import { PolicyToPolicyDirectory } from './policyToPolicyDirectories.entity';
+// import { PolicyDirectory } from './policyDirectory.entity';
 
 export enum State {
     DRAFT = 'Черновик',
@@ -63,6 +65,9 @@ export class Policy{
     @OneToMany(() => PolicyToOrganization, (policyToOrganization) => policyToOrganization.policy)
     policyToOrganizations: PolicyToOrganization[]
 
+    @OneToMany(() => PolicyToPolicyDirectory, (policyToPolicyDirectory) => policyToPolicyDirectory.policy)
+    policyToPolicyDirectories: PolicyToPolicyDirectory[]
+
     @OneToMany(() => File, (file) => file.policy)
     files: File[]
 
@@ -71,4 +76,5 @@ export class Policy{
 
     @ManyToOne(() => Account, (account) => account.policies, {nullable: false})
     account: Account
+
 }

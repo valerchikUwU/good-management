@@ -1,0 +1,18 @@
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UsersModule } from "./users.module";
+import { PolicyDirectory } from "src/domains/policyDirectory.entity";
+import { PolicyToPolicyDirectoryModule } from "./policyToPolicyDirectory.module";
+import { PolicyDirectoryRepository } from "../services/policyDirectory/repository/policyDirectory.repository";
+import { PolicyDirectoryService } from "../services/policyDirectory/policyDirectory.service";
+import { PolicyDirectoryController } from "src/controllers/policyDirectory.controller";
+
+
+@Module({
+    imports: [TypeOrmModule.forFeature([PolicyDirectory]),
+    PolicyToPolicyDirectoryModule, UsersModule],
+    controllers: [PolicyDirectoryController],
+    providers: [PolicyDirectoryService, PolicyDirectoryRepository],
+    exports: [PolicyDirectoryService]
+})
+export class PolicyDirectoryModule{}

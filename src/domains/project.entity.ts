@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, Generated } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, Generated, Index } from 'typeorm';
 import { Target } from './target.entity';
 import { ProjectToOrganization } from './projectToOrganization.entity';
 import { Strategy } from './strategy.entity';
@@ -46,6 +46,7 @@ export class Project{
     targets: Target[]
 
     @ManyToOne(() => Strategy, (strategy) => strategy.projects, {nullable: true})
+    @Index() // Добавляем индекс для поля strategy
     strategy: Strategy
 
     @ManyToOne(() => Account, (account) => account.projects, {nullable: false})

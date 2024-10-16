@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne, JoinColumn, Index } from 'typeorm';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
 import { Exclude } from 'class-transformer';
@@ -27,6 +27,7 @@ export class Goal{
 
     @OneToOne(() => Organization, (organization) => organization.goal)
     @JoinColumn()
+    @Index() // Добавляем индекс на поле organization
     organization: Organization;
 
 }

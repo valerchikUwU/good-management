@@ -3,6 +3,7 @@ import { Goal } from "src/domains/goal.entity";
 import { Objective } from "src/domains/objective.entity";
 import { Organization } from "src/domains/organization.entity";
 import { Policy } from "src/domains/policy.entity";
+import { PolicyDirectory } from "src/domains/policyDirectory.entity";
 import { Post } from "src/domains/post.entity";
 import { Project } from "src/domains/project.entity";
 import { RoleSetting } from "src/domains/roleSetting.entity";
@@ -38,4 +39,5 @@ export class AccountReadDto {
     posts: Post[];
     statistics: Statistic[];
     roleSettings: RoleSetting[];
+    policyDirectories: PolicyDirectory[];
 }

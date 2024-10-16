@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, OneToOne, Index } from 'typeorm';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
 import { Policy } from './policy.entity';
@@ -34,16 +34,19 @@ export class Post {
     updatedAt: Date;
 
     @ManyToOne(() => User, user => user.posts, {nullable: true})
+    @Index() // Добавляем индекс для поля user
     user: User;
 
     @OneToOne(() => Policy, (policy) => policy.post, {nullable: true})
     @JoinColumn()
+    @Index() // Добавляем индекс для поля policy
     policy: Policy;
 
     @OneToMany(() => Statistic, (statistic) => statistic.post)
     statistics: Statistic[]
 
     @ManyToOne(() => Organization, organization => organization.posts, {nullable: true})
+    @Index() // Добавляем индекс для поля organization
     organization: Organization
 
     @ManyToOne(() => Account, account => account.posts, {nullable: false})

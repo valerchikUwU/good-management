@@ -41,7 +41,8 @@ export class PolicyService {
                 policyToOrganizations: policy.policyToOrganizations,
                 user: policy.user,
                 account: policy.account,
-                files: policy.files
+                files: policy.files,
+                policyToPolicyDirectories: policy.policyToPolicyDirectories
             }))
         }
         catch (err) {
@@ -70,7 +71,8 @@ export class PolicyService {
                 policyToOrganizations: policy.policyToOrganizations,
                 user: policy.user,
                 account: policy.account,
-                files: policy.files
+                files: policy.files,
+                policyToPolicyDirectories: policy.policyToPolicyDirectories
             }))
         }
         catch (err) {
@@ -99,7 +101,8 @@ export class PolicyService {
                 policyToOrganizations: policy.policyToOrganizations,
                 user: policy.user,
                 account: policy.account,
-                files: policy.files
+                files: policy.files,
+                policyToPolicyDirectories: policy.policyToPolicyDirectories
             }
 
             return policyReadDto;
