@@ -31,6 +31,7 @@ export class StatisticDataService {
                 createdAt: statisticData.createdAt,
                 updatedAt: statisticData.updatedAt,
                 value: statisticData.value,
+                valueDate: statisticData.valueDate,
                 statistic: statisticData.statistic
 
             }))
@@ -54,6 +55,7 @@ export class StatisticDataService {
             }
             const statisticData = new StatisticData();
             statisticData.value = statisticDataCreateDto.value;
+            statisticData.valueDate = statisticDataCreateDto.valueData;
             statisticData.statistic = statisticDataCreateDto.statistic;
             const createdStatisticData = await this.statisticDataRepository.save(statisticData);
             const createdStatisticDataDto: StatisticDataReadDto = {
