@@ -102,7 +102,7 @@ export class OrganizationService {
 
     async findOneById(id: string): Promise<OrganizationReadDto | null> {
         try {
-            const organization = await this.organizationRepository.findOneBy({ id });
+            const organization = await this.organizationRepository.findOne({where: { id: id }, relations: ['strategyToOrganizations.strategy']});
 
             if (!organization) throw new NotFoundException(`Организация с ID: ${id} не найдена`);
             const organizationReadDto: OrganizationReadDto = {
