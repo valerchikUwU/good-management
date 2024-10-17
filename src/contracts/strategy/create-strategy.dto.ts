@@ -12,11 +12,6 @@ export class StrategyCreateDto{
     @IsNotEmpty({message: 'Содержание стратегии не может быть пустым!'})
     content: string;
 
-    @ApiProperty({required: false, description: 'Состояние стратегии', default: State.DRAFT, example: 'Черновик', examples: ['Черновик', 'Активный', 'Завершено'] })
-    @IsOptional()
-    @IsEnum(State)
-    state?: State;
-
     @Exclude({toPlainOnly: true})
     user: User;
 
