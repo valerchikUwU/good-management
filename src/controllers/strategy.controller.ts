@@ -23,29 +23,6 @@ export class StrategyController {
         @Inject('winston') private readonly logger: Logger,
     ) { }
 
-    @Get(':organizationId')
-    @ApiOperation({ summary: 'Все стратегии для организации' })
-    @ApiResponse({
-        status: HttpStatus.OK, description: "ОК!",
-        example: [
-            {
-                id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
-                strategyNumber: 2,
-                dateActive: null,
-                content: "HTML текст",
-                state: "Черновик",
-                createdAt: "2024-09-20T14:35:56.273Z",
-                updatedAt: "2024-09-20T14:35:56.273Z"
-            }
-        ]
-    })
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async findAll(@Param('organizationId') organizationId: string): Promise<OrganizationReadDto> {
-        return await this.organizationService.findOneById(organizationId);
-    }
-
     @Get('new')
     @ApiOperation({ summary: 'Получить данные для создания новой стратегии' })
     @ApiResponse({
@@ -74,6 +51,31 @@ export class StrategyController {
         const organizations = await this.organizationService.findAllForAccount(user.account);
         return organizations
     }
+
+    @Get(':organizationId')
+    @ApiOperation({ summary: 'Все стратегии для организации' })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example: [
+            {
+                id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
+                strategyNumber: 2,
+                dateActive: null,
+                content: "HTML текст",
+                state: "Черновик",
+                createdAt: "2024-09-20T14:35:56.273Z",
+                updatedAt: "2024-09-20T14:35:56.273Z"
+            }
+        ]
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    async findAll(@Param('organizationId') organizationId: string): Promise<OrganizationReadDto> {
+        return await this.organizationService.findOneById(organizationId);
+    }
+
+
 
     @Patch(':strategyId/update')
     @ApiOperation({ summary: 'Обновить стратегию по Id' })
