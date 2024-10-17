@@ -100,7 +100,7 @@ export class OrganizationService {
         }
     }
 
-    async findOneById(id: string): Promise<OrganizationReadDto | null> {
+    async findOneById(id: string): Promise<OrganizationReadDto> {
         try {
             const organization = await this.organizationRepository.findOne({where: { id: id }, relations: ['strategyToOrganizations.strategy']});
 
