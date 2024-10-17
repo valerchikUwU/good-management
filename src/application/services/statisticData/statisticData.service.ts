@@ -10,6 +10,7 @@ import { StatisticDataRepository } from "./repository/statisticData.repository";
 import { StatisticData } from "src/domains/statisticData.entity";
 import { StatisticDataReadDto } from "src/contracts/statisticData/read-statisticData.dto";
 import { StatisticDataCreateDto } from "src/contracts/statisticData/create-statisticData.dto";
+import { StatisticDataUpdateDto } from "src/contracts/statisticData/update-statisticData.dto";
 
 
 @Injectable()
@@ -74,6 +75,20 @@ export class StatisticDataService {
             }
             throw new InternalServerErrorException('Ошибка при создании данных!')
         }
+    }
+
+
+    async update(statisticDataUpdateDto: StatisticDataUpdateDto): Promise<StatisticData>{
+        const statisticData = await this.statisticDataRepository.findOne({where: {id: statisticDataUpdateDto._id}})
+        if(!statisticData){
+            throw new NotFoundException(`Данные с ID ${statisticDataUpdateDto._id} не найдены`);
+        }
+        // Обновить свойства, если они указаны в DTO
+        if (statisticDataUpdateDto.value) statisticData.value = statisticDataUpdateDto.value;
+        if (statisticDataUpdateDto.valueDate) statisticData.valueDate = statisticDataUpdateDto.valueDate;
+
+        return await this.statisticDataRepository.save(statisticData)
+
     }
     
 }
