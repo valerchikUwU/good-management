@@ -7,6 +7,7 @@ import { StatisticReadDto } from "src/contracts/statistic/read-statistic.dto";
 
 import { Logger } from "winston";
 import { StatisticCreateDto } from "src/contracts/statistic/create-statistic.dto";
+import { StatisticUpdateDto } from "src/contracts/statistic/update-statistic.dto";
 
 
 @Injectable()
@@ -106,6 +107,20 @@ export class StatisticService {
             }
             throw new InternalServerErrorException('Ошибка при создании статистики!')
         }
+    }
+
+
+    async update(_id: string, statisticUpdateDto: StatisticUpdateDto): Promise<Statistic>{
+        const statistic = await this.statisticRepository.findOne({where: {id: _id}})
+        if (!statistic) {
+            throw new NotFoundException(`Статистика с ID ${_id} не найдена`);
+        }
+        // Обновить свойства, если они указаны в DTO
+        if (statisticUpdateDto.type) statistic.type = statisticUpdateDto.type;
+        if (statisticUpdateDto.name) statistic.name = statisticUpdateDto.name;
+        if (statisticUpdateDto.description) statistic.description = statisticUpdateDto.description;
+        if (statisticUpdateDto.post) statistic.post = statisticUpdateDto.post;
+        return this.statisticRepository.save(statistic);
     }
 
 }
