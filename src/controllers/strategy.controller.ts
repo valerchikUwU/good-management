@@ -23,6 +23,24 @@ export class StrategyController {
         @Inject('winston') private readonly logger: Logger,
     ) { }
 
+
+    @Patch(':strategyId/update')
+    @ApiOperation({ summary: 'Обновить стратегию по Id' })
+    @ApiBody({
+        description: 'ДТО для обновления стратегии',
+        type: StrategyUpdateDto,
+        required: true,
+    })
+    @ApiResponse({
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    @ApiParam({ name: 'strategyId', required: true, description: 'Id политики' })
+    async update(@Param('strategyId') strategyId: string, @Body() strategyUpdateDto: StrategyUpdateDto): Promise<StrategyReadDto>{
+        return await this.strategyService.update(strategyId, strategyUpdateDto);
+    }
+
+
     @Get('new')
     @ApiOperation({ summary: 'Получить данные для создания новой стратегии' })
     @ApiResponse({
@@ -52,46 +70,84 @@ export class StrategyController {
         return organizations
     }
 
+    @Get(':strategyId')
+    @ApiOperation({ summary: 'Получить стратегию по ID' })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example: {
+            currentStrategy: {
+              id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
+              strategyNumber: 2,
+              dateActive: null,
+              content: "HTML текст",
+              state: "Черновик",
+              createdAt: "2024-09-20T14:35:56.273Z",
+              updatedAt: "2024-09-20T14:35:56.273Z",
+              strategyToOrganizations: [
+                {
+                  id: "8acc62ce-47dc-4f09-a3f8-83927a6e1efe",
+                  createdAt: "2024-09-20T14:35:56.918Z",
+                  updatedAt: "2024-09-20T14:35:56.918Z",
+                  organization: {
+                    id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+                    organizationName: "soplya firma",
+                    parentOrganizationId: null,
+                    createdAt: "2024-09-16T14:24:33.841Z",
+                    updatedAt: "2024-09-16T14:24:33.841Z"
+                  }
+                }
+              ]
+            }
+          }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Стратегия не найдена!` })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    @ApiParam({ name: 'strategyId', required: true, description: 'Id политики' })
+    async findOne(@Param('strategyId') strategyId: string, @Ip() ip: string): Promise<{ currentStrategy: StrategyReadDto}> {
+        const strategy = await this.strategyService.findOneById(strategyId);
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT STRATEGY: ${JSON.stringify(strategy)} - Получить стратегию по ID!`);
+        return { currentStrategy: strategy }
+    }
+
+
     @Get(':organizationId')
     @ApiOperation({ summary: 'Все стратегии для организации' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
-        example: [
+        example: {
+          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          organizationName: "soplya firma",
+          parentOrganizationId: null,
+          createdAt: "2024-09-16T14:24:33.841Z",
+          updatedAt: "2024-09-16T14:24:33.841Z",
+          strategyToOrganizations: [
             {
-                id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
-                strategyNumber: 2,
-                dateActive: null,
-                content: "HTML текст",
-                state: "Черновик",
-                createdAt: "2024-09-20T14:35:56.273Z",
-                updatedAt: "2024-09-20T14:35:56.273Z"
-            }
-        ]
+              id: "fe47c377-deaa-4fc5-8a30-c2006f09a463",
+              createdAt: "2024-10-09T10:07:46.234Z",
+              updatedAt: "2024-10-09T10:07:46.234Z",
+              strategy: {
+                id: "351e7c60-2881-4e09-bb7f-81cbd2eb0ea1",
+                strategyNumber: 14,
+                dateActive: "2024-10-09T10:07:43.253Z",
+                content: "<p>HTML текстуууsadsadsaуxzc</p>\n",
+                state: "Активный",
+                createdAt: "2024-10-01T15:40:15.929Z",
+                updatedAt: "2024-10-09T10:07:46.741Z"
+              }
+            },
+          ]
+        }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    @ApiParam({ name: 'organizationId', required: true, description: 'Id организации', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f' })
     async findAll(@Param('organizationId') organizationId: string): Promise<OrganizationReadDto> {
         return await this.organizationService.findOneById(organizationId);
     }
 
 
 
-    @Patch(':strategyId/update')
-    @ApiOperation({ summary: 'Обновить стратегию по Id' })
-    @ApiBody({
-        description: 'ДТО для обновления стратегии',
-        type: StrategyUpdateDto,
-        required: true,
-    })
-    @ApiResponse({
-    })
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    @ApiParam({ name: 'strategyId', required: true, description: 'Id политики' })
-    async update(@Param('strategyId') strategyId: string, @Body() strategyUpdateDto: StrategyUpdateDto): Promise<StrategyReadDto>{
-        return await this.strategyService.update(strategyId, strategyUpdateDto);
-    }
 
     @Post('new')
     @ApiOperation({ summary: 'Создать стратегию' })
@@ -152,62 +208,5 @@ export class StrategyController {
         return await this.strategyService.create(strategyCreateDto)
     }
 
-    @Get(':strategyId')
-    @ApiOperation({ summary: 'Получить стратегию по ID' })
-    @ApiResponse({
-        status: HttpStatus.OK, description: "ОК!",
-        example: {
-            currentStrategy: {
-              id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
-              strategyNumber: 2,
-              dateActive: null,
-              content: "HTML текст",
-              state: "Черновик",
-              createdAt: "2024-09-20T14:35:56.273Z",
-              updatedAt: "2024-09-20T14:35:56.273Z",
-              strategyToOrganizations: [
-                {
-                  id: "8acc62ce-47dc-4f09-a3f8-83927a6e1efe",
-                  createdAt: "2024-09-20T14:35:56.918Z",
-                  updatedAt: "2024-09-20T14:35:56.918Z",
-                  organization: {
-                    id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-                    organizationName: "soplya firma",
-                    parentOrganizationId: null,
-                    createdAt: "2024-09-16T14:24:33.841Z",
-                    updatedAt: "2024-09-16T14:24:33.841Z"
-                  }
-                }
-              ]
-            },
-            organizations: [
-              {
-                id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-                organizationName: "soplya firma",
-                parentOrganizationId: null,
-                createdAt: "2024-09-16T14:24:33.841Z",
-                updatedAt: "2024-09-16T14:24:33.841Z"
-              },
-              {
-                id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
-                organizationName: "OOO BOBRIK",
-                parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-                createdAt: "2024-09-16T15:09:48.995Z",
-                updatedAt: "2024-09-16T15:09:48.995Z"
-              }
-            ]
-          }
-    })
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Стратегия не найдена!` })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    @ApiParam({ name: 'strategyId', required: true, description: 'Id политики' })
-    async findOne(@Param('userId') userId: string, @Param('strategyId') strategyId: string, @Ip() ip: string): Promise<{ currentStrategy: StrategyReadDto, organizations: OrganizationReadDto[] }> {
-        const strategy = await this.strategyService.findOneById(strategyId);
-        const user = await this.userService.findOne(userId)
-        const organizations = await this.organizationService.findAllForAccount(user.account);
-        this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT STRATEGY: ${JSON.stringify(strategy)} - Получить стратегию по ID!`);
-        return { currentStrategy: strategy, organizations: organizations }
-    }
 
 }
