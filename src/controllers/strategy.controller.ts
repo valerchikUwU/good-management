@@ -70,6 +70,42 @@ export class StrategyController {
         return organizations
     }
 
+
+    @Get('organization/:organizationId')
+    @ApiOperation({ summary: 'Все стратегии для организации' })
+    @ApiResponse({
+        status: HttpStatus.OK, description: "ОК!",
+        example: {
+          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          organizationName: "soplya firma",
+          parentOrganizationId: null,
+          createdAt: "2024-09-16T14:24:33.841Z",
+          updatedAt: "2024-09-16T14:24:33.841Z",
+          strategyToOrganizations: [
+            {
+              id: "fe47c377-deaa-4fc5-8a30-c2006f09a463",
+              createdAt: "2024-10-09T10:07:46.234Z",
+              updatedAt: "2024-10-09T10:07:46.234Z",
+              strategy: {
+                id: "351e7c60-2881-4e09-bb7f-81cbd2eb0ea1",
+                strategyNumber: 14,
+                dateActive: "2024-10-09T10:07:43.253Z",
+                content: "<p>HTML текстуууsadsadsaуxzc</p>\n",
+                state: "Активный",
+                createdAt: "2024-10-01T15:40:15.929Z",
+                updatedAt: "2024-10-09T10:07:46.741Z"
+              }
+            },
+          ]
+        }
+    })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    @ApiParam({ name: 'organizationId', required: true, description: 'Id организации', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f' })
+    async findAll(@Param('organizationId') organizationId: string): Promise<OrganizationReadDto> {
+        return await this.organizationService.findOneById(organizationId);
+    }
+
     @Get(':strategyId')
     @ApiOperation({ summary: 'Получить стратегию по ID' })
     @ApiResponse({
@@ -108,42 +144,6 @@ export class StrategyController {
         const strategy = await this.strategyService.findOneById(strategyId);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT STRATEGY: ${JSON.stringify(strategy)} - Получить стратегию по ID!`);
         return { currentStrategy: strategy }
-    }
-
-
-    @Get(':organizationId')
-    @ApiOperation({ summary: 'Все стратегии для организации' })
-    @ApiResponse({
-        status: HttpStatus.OK, description: "ОК!",
-        example: {
-          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-          organizationName: "soplya firma",
-          parentOrganizationId: null,
-          createdAt: "2024-09-16T14:24:33.841Z",
-          updatedAt: "2024-09-16T14:24:33.841Z",
-          strategyToOrganizations: [
-            {
-              id: "fe47c377-deaa-4fc5-8a30-c2006f09a463",
-              createdAt: "2024-10-09T10:07:46.234Z",
-              updatedAt: "2024-10-09T10:07:46.234Z",
-              strategy: {
-                id: "351e7c60-2881-4e09-bb7f-81cbd2eb0ea1",
-                strategyNumber: 14,
-                dateActive: "2024-10-09T10:07:43.253Z",
-                content: "<p>HTML текстуууsadsadsaуxzc</p>\n",
-                state: "Активный",
-                createdAt: "2024-10-01T15:40:15.929Z",
-                updatedAt: "2024-10-09T10:07:46.741Z"
-              }
-            },
-          ]
-        }
-    })
-    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
-    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    @ApiParam({ name: 'organizationId', required: true, description: 'Id организации', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f' })
-    async findAll(@Param('organizationId') organizationId: string): Promise<OrganizationReadDto> {
-        return await this.organizationService.findOneById(organizationId);
     }
 
 
