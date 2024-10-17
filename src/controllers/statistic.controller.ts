@@ -274,14 +274,10 @@ export class StatisticController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Статистика не найдена!` })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'statisticId', required: true, description: 'Id статистики' })
-  async findOne(@Param('userId') userId: string, @Param('statisticId') statisticId: string, @Ip() ip: string): Promise<{ currentStatistic: StatisticReadDto, posts: PostReadDto[] }> {
+  async findOne(@Param('statisticId') statisticId: string, @Ip() ip: string): Promise<StatisticReadDto> {
     const statistic = await this.statisticService.findOneById(statisticId);
-    const user = await this.userService.findOne(userId)
-    const posts = await this.postService.findAllForAccount(user.account);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT STATISTIC: ${JSON.stringify(statistic)} - Получить статистику по ID!`);
-    return { currentStatistic: statistic, posts: posts }
+    return statistic;
   }
-
-
 
 }
