@@ -189,10 +189,8 @@ export class StrategyService {
 
             const strategy = new Strategy();
             strategy.content = strategyCreateDto.content
-            strategy.state = strategyCreateDto.state;
             strategy.user = strategyCreateDto.user;
             strategy.account = strategyCreateDto.account;
-            if(strategy.state === State.ACTIVE) strategy.dateActive = new Date()
             const createdStrategy = await this.strategyRepository.save(strategy);
             await this.strategyToOrganizationService.createSeveral(createdStrategy, strategyCreateDto.strategyToOrganizations);
 
@@ -218,8 +216,22 @@ export class StrategyService {
             }
             // Обновить свойства, если они указаны в DTO
             if (updateStrategyDto.content) strategy.content = updateStrategyDto.content;
-            if (updateStrategyDto.state) strategy.state = updateStrategyDto.state;
-            if (updateStrategyDto.state === State.ACTIVE) strategy.dateActive = new Date();
+            if (updateStrategyDto.state){
+                if (updateStrategyDto.state === State.DRAFT) {
+                    const existingDraftStrategy = await this.strategyRepository.findOne({ where: { state: State.DRAFT } });
+                    if (existingDraftStrategy) {
+                      throw new BadRequestException('Может существовать только одна стратегия со статусом "Черновик".');
+                    }
+                  }
+                  else if (updateStrategyDto.state === State.ACTIVE){
+                    const existingActiveStrategy = await this.strategyRepository.findOne({ where: { state: State.DRAFT } });
+                    if (existingActiveStrategy) {
+                      throw new BadRequestException('Может существовать только одна стратегия со статусом "Активный".');
+                    }
+                    strategy.dateActive = new Date();
+                  }
+                strategy.state = updateStrategyDto.state;
+            } 
 
             if (updateStrategyDto.strategyToOrganizations) {
                 await this.strategyToOrganizationService.remove(strategy);
