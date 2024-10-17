@@ -47,7 +47,7 @@ export class StatisticService {
 
     async findOneById(id: string): Promise<StatisticReadDto | null> {
         try {
-            const statistic = await this.statisticRepository.findOne({where: {id: id }, relations: ['statisticDatas']});
+            const statistic = await this.statisticRepository.findOne({where: {id: id }, relations: ['statisticDatas', 'post']});
 
             if (!statistic) throw new NotFoundException(`Статистика с ID: ${id} не найдена`);
             const statisticReadDto: StatisticReadDto = {
