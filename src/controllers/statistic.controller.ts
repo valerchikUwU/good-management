@@ -188,10 +188,12 @@ export class StatisticController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async create(@Param('userId') userId: string, @Body() statisticCreateDto: StatisticCreateDto): Promise<{ statistic: Statistic, values: StatisticDataReadDto[] }> {
-    const user = await this.userService.findOne(userId);
+    const [user, post] = await Promise.all([
+      this.userService.findOne(userId),
+      this.postService.findOneById(statisticCreateDto.postId)
+    ]);
+  
     statisticCreateDto.account = user.account;
-
-    const post = await this.postService.findOneById(statisticCreateDto.postId);
     statisticCreateDto.post = post;
 
     const createdStatistic = await this.statisticService.create(statisticCreateDto);

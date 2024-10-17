@@ -19,13 +19,12 @@ export class StatisticDataService {
         @InjectRepository(StatisticData)
         private readonly statisticDataRepository: StatisticDataRepository,
         @Inject('winston') private readonly logger: Logger
-    )
-    {}
+    ) { }
 
     async findAllForStatistic(statistic: StatisticReadDto): Promise<StatisticDataReadDto[]> {
-        try{
+        try {
 
-            const statisticDatas = await this.statisticDataRepository.find({where: {statistic: {id: statistic.id}}});
+            const statisticDatas = await this.statisticDataRepository.find({ where: { statistic: { id: statistic.id } } });
 
             return statisticDatas.map(statisticData => ({
                 id: statisticData.id,
@@ -37,7 +36,7 @@ export class StatisticDataService {
 
             }))
         }
-        catch(err){
+        catch (err) {
 
             this.logger.error(err);
             // Обработка других ошибок
@@ -78,17 +77,30 @@ export class StatisticDataService {
     }
 
 
-    async update(statisticDataUpdateDto: StatisticDataUpdateDto): Promise<StatisticData>{
-        const statisticData = await this.statisticDataRepository.findOne({where: {id: statisticDataUpdateDto._id}})
-        if(!statisticData){
-            throw new NotFoundException(`Данные с ID ${statisticDataUpdateDto._id} не найдены`);
+    async update(statisticDataUpdateDto: StatisticDataUpdateDto): Promise<StatisticData> {
+        try {
+            const statisticData = await this.statisticDataRepository.findOne({ where: { id: statisticDataUpdateDto._id } })
+            if (!statisticData) {
+                throw new NotFoundException(`Данные с ID ${statisticDataUpdateDto._id} не найдены`);
+            }
+            // Обновить свойства, если они указаны в DTO
+            if (statisticDataUpdateDto.value) statisticData.value = statisticDataUpdateDto.value;
+            if (statisticDataUpdateDto.valueDate) statisticData.valueDate = statisticDataUpdateDto.valueDate;
+
+            return await this.statisticDataRepository.save(statisticData)
+
         }
-        // Обновить свойства, если они указаны в DTO
-        if (statisticDataUpdateDto.value) statisticData.value = statisticDataUpdateDto.value;
-        if (statisticDataUpdateDto.valueDate) statisticData.valueDate = statisticDataUpdateDto.valueDate;
+        catch (err) {
 
-        return await this.statisticDataRepository.save(statisticData)
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
 
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при обновлении данных статистики');
+        }
     }
-    
+
 }

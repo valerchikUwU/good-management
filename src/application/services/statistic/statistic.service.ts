@@ -16,13 +16,12 @@ export class StatisticService {
         @InjectRepository(Statistic)
         private readonly statisticRepository: StatisticRepository,
         @Inject('winston') private readonly logger: Logger
-    )
-    {}
+    ) { }
 
     async findAllForAccount(account: AccountReadDto): Promise<StatisticReadDto[]> {
-        try{
+        try {
 
-            const statistics = await this.statisticRepository.find({where: {account: {id: account.id}}, relations: ['statisticDatas', 'post']});
+            const statistics = await this.statisticRepository.find({ where: { account: { id: account.id } }, relations: ['statisticDatas', 'post'] });
 
             return statistics.map(statistic => ({
                 id: statistic.id,
@@ -36,7 +35,7 @@ export class StatisticService {
                 account: statistic.account
             }))
         }
-        catch(err){
+        catch (err) {
 
             this.logger.error(err);
             // Обработка других ошибок
@@ -47,7 +46,7 @@ export class StatisticService {
 
     async findOneById(id: string): Promise<StatisticReadDto | null> {
         try {
-            const statistic = await this.statisticRepository.findOne({where: {id: id }, relations: ['statisticDatas', 'post']});
+            const statistic = await this.statisticRepository.findOne({ where: { id: id }, relations: ['statisticDatas', 'post'] });
 
             if (!statistic) throw new NotFoundException(`Статистика с ID: ${id} не найдена`);
             const statisticReadDto: StatisticReadDto = {
@@ -110,17 +109,31 @@ export class StatisticService {
     }
 
 
-    async update(_id: string, statisticUpdateDto: StatisticUpdateDto): Promise<Statistic>{
-        const statistic = await this.statisticRepository.findOne({where: {id: _id}})
-        if (!statistic) {
-            throw new NotFoundException(`Статистика с ID ${_id} не найдена`);
+    async update(_id: string, statisticUpdateDto: StatisticUpdateDto): Promise<Statistic> {
+
+        try {
+            const statistic = await this.statisticRepository.findOne({ where: { id: _id } })
+            if (!statistic) {
+                throw new NotFoundException(`Статистика с ID ${_id} не найдена`);
+            }
+            // Обновить свойства, если они указаны в DTO
+            if (statisticUpdateDto.type) statistic.type = statisticUpdateDto.type;
+            if (statisticUpdateDto.name) statistic.name = statisticUpdateDto.name;
+            if (statisticUpdateDto.description) statistic.description = statisticUpdateDto.description;
+            if (statisticUpdateDto.post) statistic.post = statisticUpdateDto.post;
+            return this.statisticRepository.save(statistic);
         }
-        // Обновить свойства, если они указаны в DTO
-        if (statisticUpdateDto.type) statistic.type = statisticUpdateDto.type;
-        if (statisticUpdateDto.name) statistic.name = statisticUpdateDto.name;
-        if (statisticUpdateDto.description) statistic.description = statisticUpdateDto.description;
-        if (statisticUpdateDto.post) statistic.post = statisticUpdateDto.post;
-        return this.statisticRepository.save(statistic);
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при обновлении статистики');
+        }
     }
 
 }
