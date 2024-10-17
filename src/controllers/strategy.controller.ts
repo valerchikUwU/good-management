@@ -23,8 +23,8 @@ export class StrategyController {
         @Inject('winston') private readonly logger: Logger,
     ) { }
 
-    @Get()
-    @ApiOperation({ summary: 'Все стратегии' })
+    @Get(':organizationId')
+    @ApiOperation({ summary: 'Все стратегии для организации' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
         example: [
@@ -41,9 +41,9 @@ export class StrategyController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async findAll(@Param('userId') userId: string): Promise<StrategyReadDto[]> {
-        const user = await this.userService.findOne(userId);
-        return await this.strategyService.findAllForAccount(user.account)
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    async findAll(@Param('organizationId') organizationId: string): Promise<OrganizationReadDto> {
+        return await this.organizationService.findOneById(organizationId);
     }
 
     @Get('new')
