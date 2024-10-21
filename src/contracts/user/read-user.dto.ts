@@ -9,6 +9,9 @@ import { Organization } from 'src/domains/organization.entity';
 import { Account } from 'src/domains/account.entity';
 import { Project } from 'src/domains/project.entity';
 import { Role } from 'src/domains/role.entity';
+import { Convert } from 'src/domains/convert.entity';
+import { ConvertToUser } from 'src/domains/convertToUser.entity';
+import { Message } from 'src/domains/message.entity';
 
 export class ReadUserDto {
     @IsUUID()
@@ -31,4 +34,7 @@ export class ReadUserDto {
     organization: Organization;
     account: Account;
     role: Role;
+    convert: Convert;
+    convertToUsers: ConvertToUser[];
+    messages: Message[];
   }

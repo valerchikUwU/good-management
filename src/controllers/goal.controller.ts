@@ -50,7 +50,6 @@ export class GoalController {
   async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<GoalReadDto[]> {
     const user = await this.userService.findOne(userId);
     const goals = await this.goalService.findAllForAccount(user.account);
-    this.logger.info(`${yellow('OK!')} - ${red(ip)} - GOALS: ${JSON.stringify(goals)} - ВСЕ ЦЕЛИ!`);
     return goals;
   }
 

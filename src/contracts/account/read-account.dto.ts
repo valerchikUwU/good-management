@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Convert } from "src/domains/convert.entity";
 import { Goal } from "src/domains/goal.entity";
 import { Objective } from "src/domains/objective.entity";
 import { Organization } from "src/domains/organization.entity";
@@ -40,4 +41,5 @@ export class AccountReadDto {
     statistics: Statistic[];
     roleSettings: RoleSetting[];
     policyDirectories: PolicyDirectory[];
+    converts: Convert[];
 }
