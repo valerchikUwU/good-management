@@ -40,7 +40,7 @@ export class ConvertService {
 
     async findOneById(id: string): Promise<ConvertReadDto> {
         try {
-            const convert = await this.convertRepository.findOne({ where: { id: id }, relations: ['convertToUsers.user', 'host', 'messages'] });
+            const convert = await this.convertRepository.findOne({ where: { id: id }, relations: ['convertToUsers.user', 'host', 'messages.sender'] });
 
             if (!convert) throw new NotFoundException(`Чат с ID: ${id} не найдена!`);
             const convertReadDto: ConvertReadDto = {

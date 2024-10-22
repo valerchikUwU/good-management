@@ -70,10 +70,10 @@ export const winstonConfig = {
     errorFileRotateTransport,
     infoFileRotateTransport,
   ],
-  exceptionHandlers: [
-    new transports.File({ filename: "logs/exception.log" }),
-  ],
-  rejectionHandlers: [
-    new transports.File({ filename: "logs/rejections.log" }),
-  ],
+  // exceptionHandlers: [
+  //   new transports.File({ filename: "logs/exception.log" }),
+  // ],
+  // rejectionHandlers: [
+  //   new transports.File({ filename: "logs/rejections.log" }),
+  // ],
 };

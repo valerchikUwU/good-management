@@ -31,6 +31,7 @@ import { PolicyToPolicyDirectoryModule } from './application/modules/policyToPol
 import { PolicyDirectoryModule } from './application/modules/policyDirectory.module';
 import { ConvertModule } from './application/modules/convert.module';
 import { ConvertToUserModule } from './application/modules/convertToUser.module';
+import { MessageModule } from './application/modules/message.module';
 
 
 
@@ -43,7 +44,7 @@ import { ConvertToUserModule } from './application/modules/convertToUser.module'
     }),
     WinstonModule.forRoot(winstonConfig),
     UsersModule, AuthModule, EventsModule, TelegramModule, OrganizationModule, AccountModule,
-    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule, FileUploadModule, FileModule, RoleSettingModule, RoleModule, QueueModule, PolicyToPolicyDirectoryModule, PolicyDirectoryModule, ConvertModule, ConvertToUserModule
+    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule, FileUploadModule, FileModule, RoleSettingModule, RoleModule, QueueModule, PolicyToPolicyDirectoryModule, PolicyDirectoryModule, ConvertModule, ConvertToUserModule, MessageModule
   ],
   controllers: [AppController],
   providers: [AppService],
