@@ -47,6 +47,11 @@ export class PolicyDirectoryController{
 
     @Patch(':policyDirectoryId/update')
     @ApiOperation({summary: 'Обновить папку для политик'})
+    @ApiBody({
+        description: 'ДТО для обновления папки',
+        type: PolicyDirectoryUpdateDto,
+        required: true,
+    })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyDirectoryId', required: true, description: 'Id папки', example: 'a8b9c962-13d7-4b6f-a445-233b51fa6988' })
     async update(@Param('policyDirectoryId') policyDirectoryId: string, @Body() policyDirectoryUpdateDto: PolicyDirectoryUpdateDto, @Ip() ip: string): Promise<PolicyDirectoryReadDto>{

@@ -6,13 +6,13 @@ import { PolicyToPolicyDirectory } from "src/domains/policyToPolicyDirectories.e
 
 export class PolicyDirectoryUpdateDto{
 
-    @ApiProperty({description: 'Название папки', example: 'Папка политик для отдела продаж'})
+    @ApiProperty({description: 'Название папки', required: false, example: 'Папка политик для отдела продаж'})
     @IsOptional()
     @IsString()
     @IsNotEmpty({message: 'Название папки не может быть пустым!'})
     directoryName?: string;
 
-    @ApiProperty({description: 'Ids политик, которые добавить в папку'})
+    @ApiProperty({description: 'Ids политик, которые добавить в папку', required: false})
     @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
     @ArrayNotEmpty({message: 'Выберите хотя бы одну политику!'})
