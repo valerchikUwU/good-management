@@ -9,6 +9,9 @@ import { TargetHolder } from './targetHolder.entity';
 import { Account } from './account.entity';
 import { Project } from './project.entity';
 import { Role } from './role.entity';
+import { Convert } from './convert.entity';
+import { ConvertToUser } from './convertToUser.entity';
+import { Message } from './message.entity';
 
 
 @Entity()
@@ -67,6 +70,15 @@ export class User {
 
   @OneToMany(() => Project, (project) => project.user)
   projects: Project[];
+
+  @OneToMany(() => Convert, (convert) => convert.host)
+  convert: Convert;
+
+  @OneToMany(() => Message, (message) => message.sender)
+  messages: Message[];
+
+  @OneToMany(() => ConvertToUser, (convertToUser) => convertToUser.user)
+  convertToUsers: ConvertToUser[]
 
   @ManyToOne(() => Organization, (organization) => organization.users, {nullable: true})
   organization: Organization;

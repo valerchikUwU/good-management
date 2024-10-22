@@ -41,7 +41,10 @@ export class UsersService {
             projects: user.projects,
             organization: user.organization,
             account: user.account,
-            role: user.role
+            role: user.role,
+            convert: user.convert,
+            convertToUsers: user.convertToUsers,
+            messages: user.messages
 
             // Добавьте любые другие поля, которые должны быть включены в ответ
         }));
@@ -70,7 +73,10 @@ export class UsersService {
                 projects: user.projects,
                 organization: user.organization,
                 account: user.account,
-                role: user.role
+                role: user.role,
+                convert: user.convert,
+                convertToUsers: user.convertToUsers,
+                messages: user.messages
 
                 // Добавьте любые другие поля, которые должны быть включены в ответ
             }));
@@ -105,7 +111,10 @@ export class UsersService {
                 projects: user.projects,
                 organization: user.organization,
                 account: user.account,
-                role: user.role
+                role: user.role,
+                convert: user.convert,
+                convertToUsers: user.convertToUsers,
+                messages: user.messages
             };
 
             return readUserDto;
@@ -151,7 +160,10 @@ export class UsersService {
                 projects: user.projects,
                 organization: user.organization,
                 account: user.account,
-                role: user.role
+                role: user.role,
+                convert: user.convert,
+                convertToUsers: user.convertToUsers,
+                messages: user.messages
             };
 
             return readUserDto;
@@ -197,7 +209,10 @@ export class UsersService {
                 projects: user.projects,
                 organization: user.organization,
                 account: user.account,
-                role: user.role
+                role: user.role,
+                convert: user.convert,
+                convertToUsers: user.convertToUsers,
+                messages: user.messages
             };
 
             return readUserDto;
@@ -275,7 +290,10 @@ export class UsersService {
                 projects: user.projects,
                 organization: user.organization,
                 account: user.account,
-                role: user.role
+                role: user.role,
+                convert: user.convert,
+                convertToUsers: user.convertToUsers,
+                messages: user.messages
             };
 
             return readUserDto;

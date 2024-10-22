@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Ip, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Inject, Ip, Param, Patch, Post } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { PolicyDirectoryService } from "src/application/services/policyDirectory/policyDirectory.service";
 import { UsersService } from "src/application/services/users/users.service";
@@ -7,6 +7,7 @@ import { Logger } from "winston";
 import { blue, red, green, yellow, bold } from 'colorette';
 import { PolicyDirectory } from "src/domains/policyDirectory.entity";
 import { PolicyDirectoryReadDto } from "src/contracts/policyDirectory/read-policyDirectory.dto";
+import { PolicyDirectoryUpdateDto } from "src/contracts/policyDirectory/update-policyDirectory.dto";
 
 @ApiTags('PolicyDirectories')
 @Controller(':userId/policyDirectory')
@@ -42,5 +43,24 @@ export class PolicyDirectoryController{
         const createdPolicyDirectory = await this.policyDirectoryService.create(policyDirectoryCreateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - policyDirectoryCreateDto: ${JSON.stringify(policyDirectoryCreateDto)} - Создана новая папка!`)
         return createdPolicyDirectory;
+    }
+
+    @Patch(':policyDirectoryId/update')
+    @ApiOperation({summary: 'Обновить папку для политик'})
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    @ApiParam({ name: 'policyDirectoryId', required: true, description: 'Id папки', example: 'a8b9c962-13d7-4b6f-a445-233b51fa6988' })
+    async update(@Param('policyDirectoryId') policyDirectoryId: string, @Body() policyDirectoryUpdateDto: PolicyDirectoryUpdateDto, @Ip() ip: string): Promise<PolicyDirectoryReadDto>{
+        const updatedPolicyDirectory = await this.policyDirectoryService.update(policyDirectoryId, policyDirectoryUpdateDto);
+        this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POLICYDIRECTORY: ${JSON.stringify(policyDirectoryUpdateDto)} - Папка успешно обновлена!`);
+        return updatedPolicyDirectory;
+    }
+
+
+    @Delete(':policyDirectoryId/remove')
+    @ApiOperation({summary: 'Обновить папку для политик'})
+    @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+    @ApiParam({ name: 'policyDirectoryId', required: true, description: 'Id папки', example: 'a8b9c962-13d7-4b6f-a445-233b51fa6988' })
+    async remove(@Param('policyDirectoryId') policyDirectoryId: string, @Ip() ip: string): Promise<void>{
+        return await this.policyDirectoryService.remove(policyDirectoryId);
     }
 }

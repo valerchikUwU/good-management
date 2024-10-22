@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { Logger } from 'winston';
 
 
-@WebSocketGateway(80, { cors: '*:*' })
+@WebSocketGateway(80, {namespace: 'auth', cors: '*:*' })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @Inject('winston') private readonly logger: Logger, // инъекция логгера
@@ -13,7 +13,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() ws: Server;
 
   afterInit(server: Server) {
-    this.logger.info(`WebSocket Initialized`);
+    this.logger.info(`WebSocket for auth initialized`);
   }
 
   handleDisconnect(client: Socket) {

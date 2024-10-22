@@ -8,6 +8,7 @@ import { PolicyToPolicyDirectory } from "src/domains/policyToPolicyDirectories.e
 import { PolicyToPolicyDirectoryRepository } from "./repository/policyToPolicyDirectory.repository";
 import { PolicyDirectory } from "src/domains/policyDirectory.entity";
 import { PolicyService } from "../policy/policy.service";
+import { PolicyDirectoryReadDto } from "src/contracts/policyDirectory/read-policyDirectory.dto";
 
 
 @Injectable()
@@ -50,8 +51,8 @@ export class PolicyToPolicyDirectoryService{
         return createdRelations;
     }
 
-    async remove(policy: PolicyReadDto): Promise<void>{
-        await this.policyToPolicyDirectoryRepository.delete({policy: policy});
+    async remove(policyDirectory: PolicyDirectoryReadDto): Promise<void>{
+        await this.policyToPolicyDirectoryRepository.delete({policyDirectory: policyDirectory});
     }
     
 

@@ -16,7 +16,7 @@ export class AccountService{
 
     }
 
-    async findAll(): Promise<AccountReadDto[] | null>{
+    async findAll(): Promise<AccountReadDto[]>{
         const accounts = await this.accountRepository.find();
 
         return accounts.map(account => ({
@@ -34,11 +34,12 @@ export class AccountService{
             posts: account.posts,
             statistics: account.statistics,
             roleSettings: account.roleSettings,
-            policyDirectories: account.policyDirectories
+            policyDirectories: account.policyDirectories,
+            converts: account.converts
         }))
     }
 
-    async findeOneById(id: string): Promise<AccountReadDto | null>{
+    async findeOneById(id: string): Promise<AccountReadDto>{
         const account = await this.accountRepository.findOne({where: {id}, relations: ['users', 'organizations']});
         if (!account) throw new NotFoundException('Аккаунт не найден!');
         const accountReadDto: AccountReadDto = {
@@ -56,7 +57,8 @@ export class AccountService{
             posts: account.posts,
             statistics: account.statistics,
             roleSettings: account.roleSettings,
-            policyDirectories: account.policyDirectories
+            policyDirectories: account.policyDirectories,
+            converts: account.converts
         }
 
         return accountReadDto;

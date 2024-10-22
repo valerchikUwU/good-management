@@ -10,6 +10,7 @@ import { Post } from './post.entity';
 import { Statistic } from './statistic.entity';
 import { Modules, RoleSetting } from './roleSetting.entity';
 import { PolicyDirectory } from './policyDirectory.entity';
+import { Convert } from './convert.entity';
 
 
 @Entity()
@@ -58,5 +59,9 @@ export class Account {
 
     @OneToMany(() => PolicyDirectory, (policyDirectory) => policyDirectory.account)
     policyDirectories: PolicyDirectory[];
+
+    @OneToMany(() => Convert, (convert) => convert.account)
+    converts: Convert[];
+
 
 }
