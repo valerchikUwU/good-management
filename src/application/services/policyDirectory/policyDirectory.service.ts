@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PolicyDirectory } from "src/domains/policyDirectory.entity";
 import { Logger } from "winston";
@@ -7,6 +7,7 @@ import { PolicyToPolicyDirectoryService } from "../policyToPolicyDirectories/pol
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { PolicyDirectoryReadDto } from "src/contracts/policyDirectory/read-policyDirectory.dto";
 import { PolicyDirectoryCreateDto } from "src/contracts/policyDirectory/create-policyDirectory.dto";
+import { PolicyDirectoryUpdateDto } from "src/contracts/policyDirectory/update-policyDirectory.dto";
 
 
 
@@ -69,6 +70,49 @@ export class PolicyDirectoryService{
             }
             throw new InternalServerErrorException('Ошибка при создании папки с политиками')
         }
+    }
+
+
+    async update(_id: string, updatePolicyDirectoryDto: PolicyDirectoryUpdateDto): Promise<PolicyDirectoryReadDto> {
+        try {
+            const policyDirectory = await this.policyDirectoryRepository.findOne({ where: { id: _id } });
+            if (!policyDirectory) {
+                throw new NotFoundException(`Папка с ID ${_id} не найдена`);
+            }
+            // Обновить свойства, если они указаны в DTO
+            if (updatePolicyDirectoryDto.directoryName) policyDirectory.directoryName = updatePolicyDirectoryDto.directoryName;
+
+            if (updatePolicyDirectoryDto.policyToPolicyDirectories) {
+                await this.policyToPolicyDirectoryService.remove(policyDirectory);
+                await this.policyToPolicyDirectoryService.createSeveral(policyDirectory, updatePolicyDirectoryDto.policyToPolicyDirectories);
+            }
+
+            return this.policyDirectoryRepository.save(policyDirectory);
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при обновлении папки');
+        }
+
+    }
+
+
+    async remove(_id: string): Promise<void>{
+        
+        const policyDirectory = await this.policyDirectoryRepository.findOne({ where: { id: _id } });
+        if (!policyDirectory) {
+            throw new NotFoundException(`Папка с ID ${_id} не найдена`);
+        }
+
+        await this.policyToPolicyDirectoryService.remove(policyDirectory);
+        await this.policyDirectoryRepository.delete({id: _id})
     }
 
 }
