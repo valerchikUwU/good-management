@@ -43,7 +43,6 @@ export class TelegramService {
                         console.log(telegramId);
                         const user = await this.usersService.findOneByTelegramId(telegramId);
                         if (user !== null){
-                            
                         const authFlag = await this.authRequest(user.telephoneNumber, telegramId, token, clientId, ctx)
                         if (authFlag) {
                             ctx.reply('Вход успешен!')
