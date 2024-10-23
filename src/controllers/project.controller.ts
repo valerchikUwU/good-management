@@ -8,17 +8,13 @@ import { TargetService } from "src/application/services/target/target.service";
 import { UsersService } from "src/application/services/users/users.service";
 import { ProjectCreateDto } from "src/contracts/project/create-project.dto";
 import { ProjectReadDto } from "src/contracts/project/read-project.dto";
-import { TargetCreateDto } from "src/contracts/target/create-target.dto";
-import { TargetHolderCreateDto } from "src/contracts/targetHolder/create-targetHolder.dto";
 import { Project } from "src/domains/project.entity";
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { ReadUserDto } from "src/contracts/user/read-user.dto";
 import { OrganizationService } from "src/application/services/organization/organization.service";
 import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
-import { PolicyUpdateDto } from "src/contracts/policy/update-policy.dto";
 import { ProjectUpdateDto } from "src/contracts/project/update-project.dto";
-import { TargetUpdateDto } from "src/contracts/target/update-target.dto";
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
 
 
@@ -202,7 +198,7 @@ export class ProjectController {
         targetCreateDto.project = createdProject;
         const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
         targetCreateDto.holderUser = holderUser;
-        return this.targetService.create(targetCreateDto);
+        return await this.targetService.create(targetCreateDto);
       });
       await Promise.all(createTargetsPromises);
     }

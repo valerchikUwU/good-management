@@ -14,6 +14,10 @@ export class UpdateUserDto {
     @IsOptional()
     lastName?: string;
 
+    @IsString()
+    @IsOptional()
+    middleName?: string;
+
     @IsInt()
     @IsOptional()
     vk_id?: number | null

@@ -142,8 +142,9 @@ export class OrganizationService {
                 throw new BadRequestException('У организации должно быть название!');
             }
             const organization = new Organization();
+            if(organizationCreateDto.id) organization.id = organizationCreateDto.id;
             organization.organizationName = organizationCreateDto.organizationName;
-            organization.parentOrganizationId = organizationCreateDto.parentOrganizationId;
+            if(organizationCreateDto.parentOrganizationId) organization.parentOrganizationId = organizationCreateDto.parentOrganizationId;
             organization.account = organizationCreateDto.account;
 
             return await this.organizationRepository.save(organization);

@@ -6,6 +6,12 @@ import { Account } from "src/domains/account.entity";
 
 
 export class OrganizationCreateDto {
+
+    @ApiProperty({ description: 'ID родительской организации' })
+    @IsOptional()
+    @IsUUID()
+    @IsNotEmpty()
+    id?: string;
     
     @ApiProperty({ description: 'Название организации' })
     @IsString()

@@ -48,7 +48,7 @@ export class RoleSetting {
     @ManyToOne(() => Role, (role) => role.roleSettings)
     role: Role
 
-    @ManyToOne(() => Account, (account) => account.roleSettings)
+    @ManyToOne(() => Account, (account) => account.roleSettings, {nullable: false})
     account: Account
 
 }

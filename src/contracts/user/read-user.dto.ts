@@ -18,6 +18,7 @@ export class ReadUserDto {
     id: string;
     firstName: string;
     lastName: string;
+    middleName: string;
     telegramId: number;
     telephoneNumber: string;
     avatar_url: string;

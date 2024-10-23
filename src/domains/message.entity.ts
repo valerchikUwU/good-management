@@ -17,7 +17,7 @@ export class Message{
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
-    @ManyToOne(() => Convert, (convert) => convert.messages)
+    @ManyToOne(() => Convert, (convert) => convert.messages, {nullable: false})
     convert: Convert
 
     @ManyToOne(() => User, (user) => user.messages, {nullable: false})

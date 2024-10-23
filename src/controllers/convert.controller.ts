@@ -24,7 +24,15 @@ export class ConvertController{
     @ApiOperation({ summary: 'Все чаты' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
-        example: {}
+        example: [
+            {
+              id: "222f1a02-d053-4885-99b6-f353eb277b6f",
+              convertTheme: "Тема",
+              expirationTime: "хз как еще реализовать",
+              dateFinish: "2024-09-26T13:03:19.759Z",
+              createdAt: "2024-10-21T13:10:51.781Z"
+            }
+          ]
 
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
