@@ -21,7 +21,7 @@ export class Account {
     @Column({nullable: false})
     accountName: string;
 
-    @Column({type: 'uuid', nullable: false, unique: true})
+    @Column({type: 'uuid', nullable: true, unique: true})
     tenantId: string
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

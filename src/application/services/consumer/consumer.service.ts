@@ -57,6 +57,7 @@ export class ConsumerService implements OnModuleInit {
                 await this.handleTenantCreatedEvent(event);
                 break;
               case 'ORGANIZATION_CREATED':
+                await this.handleOrganizationCreatedEvent(event);
                 break;
 
             }
@@ -97,54 +98,54 @@ export class ConsumerService implements OnModuleInit {
     // Здесь можно реализовать сохранение данных или другую логику
   }
 
-  // private async handleOrganizationCreatedEvent(event: any) {
-  //   const payload = event.payload;
-  //   this.logger.log(`Handling OrganizationCreatedEvent: ${JSON.stringify(payload)}`);
-  //   const account = await this.accountService.findOneById(event.accountId)
-  //   const organizationCreateDto: OrganizationCreateDto = {
-  //     id: payload.id,
-  //     organizationName: payload.name,
-  //     parentOrganizationId: payload.parentId,
-  //     account: account
-  //   }
-  //   const createdOrganization = await this.organizationService.create(organizationCreateDto);
+  private async handleOrganizationCreatedEvent(event: any) {
+    // const payload = event.payload;
+    // this.logger.log(`Handling OrganizationCreatedEvent: ${JSON.stringify(payload)}`);
+    // const account = await this.accountService.findOneById(event.accountId)
+    // const organizationCreateDto: OrganizationCreateDto = {
+    //   id: payload.id,
+    //   organizationName: payload.name,
+    //   parentOrganizationId: payload.parentId,
+    //   account: account
+    // }
+    // const createdOrganization = await this.organizationService.create(organizationCreateDto);
 
-  //   const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
+    // const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
 
-  //   const createEmployeesPromises = payload.users.map(async (user: any) => {
-  //     const userCreateDto: CreateUserDto = {
-  //       id: user.id,
-  //       firstName: user.firstName,
-  //       lastName: user.lastName,
-  //       middleName: user.middleName,
-  //       telephoneNumber: user.phone,
-  //       role: employeeRole,
-  //       account: account
-  //     }
-  //     return await this.userService.create(userCreateDto);
-  //   });
-  //   await Promise.all(createEmployeesPromises);
+    // const createEmployeesPromises = payload.users.map(async (user: any) => {
+    //   const userCreateDto: CreateUserDto = {
+    //     id: user.id,
+    //     firstName: user.firstName,
+    //     lastName: user.lastName,
+    //     middleName: user.middleName,
+    //     telephoneNumber: user.phone,
+    //     role: employeeRole,
+    //     account: account
+    //   }
+    //   return await this.userService.create(userCreateDto);
+    // });
+    // await Promise.all(createEmployeesPromises);
 
-  //   const createPostsPromises = payload.posts.map(async (post: any) => {
-  //     const responsibleUser = post.userId !== null ? await this.userService.findOne(post.userId) : null;
-  //     const policy = post.policyId !== null ? await this.policyService.findOneById(post.policyId) : null;
-  //     const postCreateDto: PostCreateDto = {
-  //       id: post.id,
-  //       postName: post.name,
-  //       divisionName: post.divisionName,
-  //       parentId: post.parentId,
-  //       product: post.valuableEndProduct,
-  //       purpose: post.,
-  //       user: responsibleUser,
-  //       organization: createdOrganization,
-  //       policy: policy,
-  //       account: account
-  //     }
-  //     return await this.postService.create(postCreateDto);
-  //   });
-  //   await Promise.all(createPostsPromises);
-  //   // Здесь можно реализовать сохранение данных или другую логику
-  // }
+    // const createPostsPromises = payload.posts.map(async (post: any) => {
+    //   const responsibleUser = post.userId !== null ? await this.userService.findOne(post.userId) : null;
+    //   const policy = post.policyId !== null ? await this.policyService.findOneById(post.policyId) : null;
+    //   const postCreateDto: PostCreateDto = {
+    //     id: post.id,
+    //     postName: post.name,
+    //     divisionName: post.divisionName,
+    //     parentId: post.parentId,
+    //     product: post.valuableEndProduct,
+    //     purpose: post.,
+    //     user: responsibleUser,
+    //     organization: createdOrganization,
+    //     policy: policy,
+    //     account: account
+    //   }
+    //   return await this.postService.create(postCreateDto);
+    // });
+    // await Promise.all(createPostsPromises);
+    // Здесь можно реализовать сохранение данных или другую логику
+  }
 }
 
 
