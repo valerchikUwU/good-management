@@ -31,7 +31,7 @@ export class Target{
     @Column({type: 'uuid', nullable: false})
     holderUserId: string;
 
-    @Column({ type: 'timestamp', default: new Date(), nullable: false})
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: false})
     dateStart: Date
 
     @Column({ type: 'timestamp', nullable: true})
