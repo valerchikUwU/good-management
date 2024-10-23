@@ -144,7 +144,7 @@ export class ConsumerService implements OnModuleInit {
     //   return await this.postService.create(postCreateDto);
     // });
     // await Promise.all(createPostsPromises);
-    // Здесь можно реализовать сохранение данных или другую логику
+    // // Здесь можно реализовать сохранение данных или другую логику
   }
 }
 
