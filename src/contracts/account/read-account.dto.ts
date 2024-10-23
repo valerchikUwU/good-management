@@ -22,6 +22,9 @@ export class AccountReadDto {
     @ApiProperty({ description: 'Имя аккаунта', example: 'OOO PIPKA' })
     accountName: string;
 
+    @ApiProperty({description: 'ID из академии'})
+    tenantId: string;
+
     @ApiProperty({ description: 'Время создания', example: '2024-09-16 15:53:29.593552' })
     createdAt: Date;
 

@@ -26,6 +26,7 @@ export class UsersService {
             id: user.id,
             firstName: user.firstName,
             lastName: user.lastName,
+            middleName: user.middleName,
             telegramId: user.telegramId,
             telephoneNumber: user.telephoneNumber,
             avatar_url: user.avatar_url,
@@ -58,6 +59,7 @@ export class UsersService {
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                middleName: user.middleName,
                 telegramId: user.telegramId,
                 telephoneNumber: user.telephoneNumber,
                 avatar_url: user.avatar_url,
@@ -96,6 +98,7 @@ export class UsersService {
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                middleName: user.middleName,
                 telegramId: user.telegramId,
                 telephoneNumber: user.telephoneNumber,
                 avatar_url: user.avatar_url,
@@ -145,6 +148,7 @@ export class UsersService {
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                middleName: user.middleName,
                 telegramId: user.telegramId,
                 telephoneNumber: user.telephoneNumber,
                 avatar_url: user.avatar_url,
@@ -194,6 +198,7 @@ export class UsersService {
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                middleName: user.middleName,
                 telegramId: user.telegramId,
                 telephoneNumber: user.telephoneNumber,
                 avatar_url: user.avatar_url,
@@ -226,41 +231,6 @@ export class UsersService {
         }
     }
 
-    async remove(id: string): Promise<void> {
-        await this.usersRepository.delete(id);
-    }
-
-
-    async create(createUserDto: CreateUserDto): Promise<User> {
-        try {
-            // Проверка на наличие обязательных данных
-            if (!createUserDto.firstName) {
-                throw new BadRequestException('У юзера обязательно наличие имени!');
-            }
-            if (!createUserDto.lastName) {
-                throw new BadRequestException('У юзера обязательно наличие фамилии!');
-            }
-            if (!createUserDto.telephoneNumber) {
-                throw new BadRequestException('У юзера обязательно наличие номера телефона!');
-            }
-            if (!createUserDto.role) {
-                throw new BadRequestException('У юзера обязательно наличие роли!');
-            }
-            const user = new User();
-            user.firstName = createUserDto.firstName;
-            user.lastName = createUserDto.lastName;
-            user.telephoneNumber = createUserDto.telephoneNumber;
-            user.role = createUserDto.role;
-            user.account = createUserDto.account;
-            // Присваиваем значения из DTO объекту пользователя
-            return await this.usersRepository.save(user);
-        }
-        catch (err) {
-
-            this.logger.error(err);
-            throw new InternalServerErrorException('Ошибка при создании задачи');
-        }
-    }
 
 
 
@@ -275,6 +245,7 @@ export class UsersService {
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
+                middleName: user.middleName,
                 telegramId: user.telegramId,
                 telephoneNumber: user.telephoneNumber,
                 avatar_url: user.avatar_url,
@@ -314,6 +285,46 @@ export class UsersService {
         }
     }
 
+
+    async remove(id: string): Promise<void> {
+        await this.usersRepository.delete(id);
+    }
+
+
+    async create(createUserDto: CreateUserDto): Promise<User> {
+        try {
+            // Проверка на наличие обязательных данных
+            if (!createUserDto.firstName) {
+                throw new BadRequestException('У юзера обязательно наличие имени!');
+            }
+            if (!createUserDto.lastName) {
+                throw new BadRequestException('У юзера обязательно наличие фамилии!');
+            }
+            if (!createUserDto.telephoneNumber) {
+                throw new BadRequestException('У юзера обязательно наличие номера телефона!');
+            }
+            if (!createUserDto.role) {
+                throw new BadRequestException('У юзера обязательно наличие роли!');
+            }
+            const user = new User();
+            if(user.id) user.id = createUserDto.id;
+            user.firstName = createUserDto.firstName;
+            user.lastName = createUserDto.lastName;
+            user.middleName = createUserDto.middleName;
+            user.telephoneNumber = createUserDto.telephoneNumber;
+            user.role = createUserDto.role;
+            user.account = createUserDto.account;
+            // Присваиваем значения из DTO объекту пользователя
+            return await this.usersRepository.save(user);
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            throw new InternalServerErrorException('Ошибка при создании задачи');
+        }
+    }
+
+
     async update(_id: string, updateUserDto: UpdateUserDto): Promise<ReadUserDto | null> {
         try {
             const user = await this.usersRepository.findOneBy({ id: _id });
@@ -322,6 +333,7 @@ export class UsersService {
 
             if (updateUserDto.firstName) user.firstName = updateUserDto.firstName;
             if (updateUserDto.lastName) user.lastName = updateUserDto.lastName;
+            if (updateUserDto.middleName) user.middleName = updateUserDto.middleName;
             if (updateUserDto.telephoneNumber) user.telephoneNumber = updateUserDto.telephoneNumber;
             await this.usersRepository.update(_id, {firstName: updateUserDto.firstName})
             

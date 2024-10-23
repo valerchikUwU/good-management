@@ -7,6 +7,9 @@ import { RoleSettingReadDto } from '../roleSetting/read-roleSetting.dto';
 
 export class CreateUserDto {
 
+  @ApiProperty({ description: 'ID юзера', required: true, example: '675a797e-d0f2-4907-bad5-25733c3e2380' })
+  @IsUUID()
+  id?: string;
 
   @ApiProperty({ description: 'Имя юзера', required: true, example: 'Максик' })
   @IsString()
@@ -19,6 +22,10 @@ export class CreateUserDto {
   @IsNotEmpty()
   lastName: string;
 
+  @ApiProperty({ description: 'Отчество юзера', required: true, example: 'Тимофеевич' })
+  @IsString()
+  @IsNotEmpty()
+  middleName: string;
 
   @ApiProperty({ description: 'Номер телефона', required: true, example: '+79787878778' })
   @IsString()
@@ -28,7 +35,7 @@ export class CreateUserDto {
 
   @ApiProperty({ description: 'ID роли', required: true, example: '675a797e-d0f2-4907-bad5-25733c3e2380' })
   @IsUUID()
-  roleId: string;
+  roleId?: string;
 
   @Exclude({ toPlainOnly: true })
   role: Role;

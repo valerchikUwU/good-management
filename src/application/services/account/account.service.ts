@@ -22,6 +22,7 @@ export class AccountService{
         return accounts.map(account => ({
             id: account.id,
             accountName: account.accountName,
+            tenantId: account.tenantId,
             createdAt: account.createdAt,
             updatedAt: account.updatedAt,
             users: account.users,
@@ -39,12 +40,13 @@ export class AccountService{
         }))
     }
 
-    async findeOneById(id: string): Promise<AccountReadDto>{
+    async findOneById(id: string): Promise<AccountReadDto>{
         const account = await this.accountRepository.findOne({where: {id}, relations: ['users', 'organizations']});
         if (!account) throw new NotFoundException('Аккаунт не найден!');
         const accountReadDto: AccountReadDto = {
             id: account.id,
             accountName: account.accountName,
+            tenantId: account.tenantId,
             createdAt: account.createdAt,
             updatedAt: account.updatedAt,
             users: account.users,
@@ -70,7 +72,9 @@ export class AccountService{
 
     async create(accountCreateDto: AccountCreateDto): Promise<Account>{
         const account = new Account();
+        account.id = accountCreateDto.id;
         account.accountName = accountCreateDto.accountName;
+        account.tenantId = accountCreateDto.tenantId;
         return await this.accountRepository.save(account);
     }
 }

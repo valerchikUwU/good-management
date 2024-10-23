@@ -57,4 +57,34 @@ export class RoleService {
             throw new InternalServerErrorException('Ошибка при получении роли');
         }
     }
+
+    async findOneByName(roleName: Roles): Promise<RoleReadDto>{
+        
+        try{
+            const role = await this.roleRepository.findOne({ where: {roleName: roleName}});
+
+            if (!role) throw new NotFoundException(`Роль с OWNER не найдена`);
+            const roleReadDto: RoleReadDto = {
+                id: role.id,
+                roleName: role.roleName,
+                createdAt: role.createdAt,
+                updatedAt: role.updatedAt,
+                roleSettings: role.roleSettings,
+                users: role.users,
+            }
+    
+            return roleReadDto;
+        }
+        catch(err){
+            
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении роли');
+        }
+    }
 }

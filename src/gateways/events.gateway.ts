@@ -25,7 +25,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.info(`Client Connected: ${client.id}`);
     this.clients.set(client.id, client);
     const { sockets } = this.ws.sockets;
-    this.logger.info(`Number of connected clients: ${sockets.size}`);
+    this.logger.info(`Number of connected clients: ${this.clients.size}`);
   }
 
   @SubscribeMessage('getAuthData')

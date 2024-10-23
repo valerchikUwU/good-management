@@ -19,24 +19,25 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ length: 50, nullable: true })
+  @Column({ length: 50, nullable: false })
   firstName: string;
 
-  @Column({ length: 50, nullable: true  })
+  @Column({ length: 50, nullable: false  })
   lastName: string;
 
-  @Column({ nullable: true, default: 0 })
-  telegramId: number | null;
+  @Column({ length: 50, nullable: true  })
+  middleName: string;
 
-  @Column({ nullable: true })
-  telephoneNumber: string | null;
+  @Column({ nullable: true, unique: true })
+  telegramId: number;
+
+  @Column({ length: 13, nullable: true, unique: true })
+  telephoneNumber: string;
 
   @Column({ nullable: true })
   avatar_url: string | null;
 
-  @Column({
-    nullable: true,
-  })
+  @Column({ nullable: true, unique: true })
   vk_id: number | null;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

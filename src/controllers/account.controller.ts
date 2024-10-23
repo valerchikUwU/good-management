@@ -53,7 +53,7 @@ export class AccountController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     async findUsersAccount(@Param('id') id: string): Promise<AccountReadDto | null> {
-        return this.accountService.findeOneById(id)
+        return this.accountService.findOneById(id)
     }
 
     @Post('new')
@@ -77,7 +77,6 @@ export class AccountController {
         const newAccount = await this.accountService.create(accountCreateDto);
         const roles = await this.roleService.findAll();
         await this.roleSettingService.createAllForAccount(newAccount, roles)
-        await this.producerService.addToAccountsQueue(newAccount);
         return newAccount;
     }
 
