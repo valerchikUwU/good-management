@@ -9,7 +9,7 @@ import { User } from 'src/domains/user.entity';
 import { Logger } from 'winston';
 
 
-@WebSocketGateway(80, { namespace: 'chat', cors: '*:*' })
+@WebSocketGateway({ namespace: 'chat', cors: '*:*' })
 export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private readonly messageService: MessageService,

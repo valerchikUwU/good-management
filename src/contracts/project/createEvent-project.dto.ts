@@ -1,11 +1,3 @@
-import { Account } from "src/domains/account.entity";
-import { Type } from "src/domains/project.entity";
-import { Strategy } from "src/domains/strategy.entity";
-import { User } from "src/domains/user.entity";
-import { TargetCreateDto } from "../target/create-target.dto";
-import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 import { TargetCreateEventDto } from "../target/createEvent-target.dto";
 
 export class ProjectCreateEventDto {
@@ -13,13 +5,13 @@ export class ProjectCreateEventDto {
     id: string;
     programId: string | null;
     content: string | null;
-    type: string; //default project
-    projectToOrganizations: string[];
+    type: string; 
+    projectToOrganizations: string[]; // Ids организаций, с которыми связать проект. У меня проект и организация M:M. 
     createdAt: Date;
     strategyId: string | null;
     accountId: string;
     userId: string;
-    targetCreateDtos: TargetCreateEventDto[] | null; //nullable
+    targetCreateDtos: TargetCreateEventDto[] | null; 
 }
 
 
