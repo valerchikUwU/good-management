@@ -4,7 +4,6 @@ import { UsersService } from "src/application/services/users/users.service";
 import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
 import { ApiBody, ApiHeader, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PolicyCreateDto } from "src/contracts/policy/create-policy.dto";
-import { Policy } from "src/domains/policy.entity";
 import { OrganizationService } from "src/application/services/organization/organization.service";
 import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
 import { Logger } from 'winston';
@@ -15,6 +14,9 @@ import { ActionAccess } from "src/decorators/action-access.decorator";
 import { Actions, Modules } from "src/domains/roleSetting.entity";
 import { PermissionsGuard } from "src/guards/permission.guard";
 import { AccessTokenGuard } from "src/guards/accessToken.guard";
+import { PolicyCreateEventDto } from "src/contracts/policy/createEvent-policy.dto";
+import { ProducerService } from "src/application/services/producer/producer.service";
+import { State, Type } from "src/domains/policy.entity";
 
 @ApiTags('Policy')
 // @UseGuards(AccessTokenGuard)
@@ -24,6 +26,7 @@ export class PolicyController {
         private readonly policyService: PolicyService,
         private readonly userService: UsersService,
         private readonly organizationService: OrganizationService,
+        private readonly producerService: ProducerService,
         @Inject('winston') private readonly logger: Logger,
     ) { }
 
@@ -152,26 +155,16 @@ export class PolicyController {
     })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
-        example: {
-            id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
-            policyName: "только название",
-            policyNumber: 1,
-            state: "Черновик",
-            type: "Инструкция",
-            dateActive: null,
-            content: "HTML",
-            createdAt: "2024-09-18T14:59:47.010Z",
-            updatedAt: "2024-09-20T11:51:20.848Z"
-        }
+        example: "3bfe46ff-a10b-4f55-a865-5ed478f4347d"
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
-    async update(@Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<PolicyReadDto> {
-        const updatedPolicy = await this.policyService.update(policyId, policyUpdateDto);
+    async update(@Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<string> {
+        const updatedPolicyId = await this.policyService.update(policyId, policyUpdateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POLICY: ${JSON.stringify(policyUpdateDto)} - Политика успешно обновлена!`);
-        return updatedPolicy;
+        return updatedPolicyId;
     }
 
     @Get(':policyId')
@@ -251,58 +244,31 @@ export class PolicyController {
         required: true,
     })
     @ApiResponse({
-        status: HttpStatus.OK, description: "ОК!",
-        example: {
-            policyName: "Политика",
-            state: "Черновик",
-            type: "Директива",
-            content: "HTML контент (любая строка пройдет)",
-            user: {
-                id: "3b809c42-2824-46c1-9686-dd666403402a",
-                firstName: "Maxik",
-                lastName: "Koval",
-                telegramId: 453120600,
-                telephoneNumber: null,
-                avatar_url: null,
-                vk_id: null,
-                createdAt: "2024-09-16T14:03:31.000Z",
-                updatedAt: "2024-09-16T14:03:31.000Z",
-                organization: {
-                    id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-                    organizationName: "soplya firma",
-                    parentOrganizationId: null,
-                    createdAt: "2024-09-16T14:24:33.841Z",
-                    updatedAt: "2024-09-16T14:24:33.841Z"
-                },
-                account: {
-                    id: "a1118813-8985-465b-848e-9a78b1627f11",
-                    accountName: "OOO PIPKA",
-                    createdAt: "2024-09-16T12:53:29.593Z",
-                    updatedAt: "2024-09-16T12:53:29.593Z"
-                }
-            },
-            account: {
-                id: "a1118813-8985-465b-848e-9a78b1627f11",
-                accountName: "OOO PIPKA",
-                createdAt: "2024-09-16T12:53:29.593Z",
-                updatedAt: "2024-09-16T12:53:29.593Z"
-            },
-            dateActive: null,
-            id: "71ba1ba2-9e53-4238-9bb2-14a475460689",
-            policyNumber: 7,
-            createdAt: "2024-09-18T15:12:21.377Z",
-            updatedAt: "2024-09-18T15:12:21.377Z"
-        }
+        status: HttpStatus.CREATED, description: "ОК!",
+        example: "71ba1ba2-9e53-4238-9bb2-14a475460689"
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<Policy> {
+    async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<string> {
         const user = await this.userService.findOne(userId);
         policyCreateDto.user = user;
         policyCreateDto.account = user.account;
-        const createdPolicy = await this.policyService.create(policyCreateDto)
+        const createdPolicyId = await this.policyService.create(policyCreateDto);
+        const createdEventPolicyDto: PolicyCreateEventDto = {
+            eventType: 'POLICY_CREATED',
+            id: createdPolicyId,
+            policyName: policyCreateDto.policyName,
+            state: policyCreateDto.state !== undefined ? policyCreateDto.state as string : State.DRAFT as string,
+            type: policyCreateDto.type !== undefined ? policyCreateDto.type as string : Type.DIRECTIVE as string, 
+            content: policyCreateDto.content, 
+            createdAt: new Date(),
+            userId: user.id,
+            accountId: user.account.id,
+            policyToOrganizations: policyCreateDto.policyToOrganizations
+        };
+        await this.producerService.sendCreatedPolicyToQueue(createdEventPolicyDto)
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - policyCreateDto: ${JSON.stringify(policyCreateDto)} - Создана новая политика!`)
-        return createdPolicy;
+        return createdPolicyId;
     }
 }

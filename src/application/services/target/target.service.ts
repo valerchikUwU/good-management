@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Target } from "src/domains/target.entity";
+import { Target, Type } from "src/domains/target.entity";
 import { TargetRepository } from "./repository/target.repository";
 import { TargetReadDto } from "src/contracts/target/read-target.dto";
 import { TargetCreateDto } from "src/contracts/target/create-target.dto";
@@ -90,9 +90,7 @@ export class TargetService {
         try {
             // Проверка на наличие обязательных данных
 
-            if (!targetCreateDto.type) {
-                throw new BadRequestException('Выберите тип задачи!');
-            }
+
             if (!targetCreateDto.content) {
                 throw new BadRequestException('Задача не может быть пустой!');
             }
@@ -107,7 +105,8 @@ export class TargetService {
             target.dateStart = new Date();
             target.deadline = targetCreateDto.deadline;
             target.project = targetCreateDto.project;
-            const createdTarget = await this.targetRepository.save(target);
+            const createdTargetResult = await this.targetRepository.insert(target);
+            const createdTarget = await this.targetRepository.findOne({where: {id: createdTargetResult.identifiers[0].id}})
             const targetHolderCreateDto: TargetHolderCreateDto = {
                 target: createdTarget,
                 user: targetCreateDto.holderUser
@@ -128,7 +127,7 @@ export class TargetService {
         }
     }
 
-    async update(updateTargetDto: TargetUpdateDto): Promise<TargetReadDto> {
+    async update(updateTargetDto: TargetUpdateDto): Promise<string> {
         try {
             const target = await this.targetRepository.findOne({ where: { id: updateTargetDto._id } });
             if (!target) {
@@ -146,8 +145,8 @@ export class TargetService {
             }
             if (updateTargetDto.dateStart) target.dateStart = updateTargetDto.dateStart;
             if (updateTargetDto.deadline) target.deadline = updateTargetDto.deadline;
-
-            return this.targetRepository.save(target);
+            await this.targetRepository.update(target.id, {content: target.content, holderUserId: target.holderUserId, dateStart: target.dateStart, deadline: target.deadline});
+            return target.id
         }
         catch (err) {
 

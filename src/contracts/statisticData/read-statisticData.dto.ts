@@ -6,4 +6,5 @@ export class StatisticDataReadDto{
     createdAt: Date;
     updatedAt: Date;
     value: number;
+    valueDate: Date;
 }

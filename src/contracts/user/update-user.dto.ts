@@ -6,32 +6,32 @@ export class UpdateUserDto {
     @IsUUID()
     id: string;
 
-    @IsString()
     @IsOptional()
+    @IsString()
     firstName?: string;
 
-    @IsString()
     @IsOptional()
+    @IsString()
     lastName?: string;
 
-    @IsString()
     @IsOptional()
+    @IsString()
     middleName?: string;
 
-    @IsInt()
     @IsOptional()
+    @IsInt()
     vk_id?: number | null
 
-    @IsInt()
     @IsOptional()
+    @IsInt()
     telegramId?: number | null
 
-    @IsString()
     @IsOptional()
+    @IsString()
     avatar_url?: string | null
 
-    @IsString()
     @IsOptional()
+    @IsString()
     telephoneNumber?: string | null;
 
 }

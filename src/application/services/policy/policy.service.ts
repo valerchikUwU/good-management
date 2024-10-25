@@ -121,7 +121,7 @@ export class PolicyService {
 
     }
 
-    async create(policyCreateDto: PolicyCreateDto): Promise<Policy> {
+    async create(policyCreateDto: PolicyCreateDto): Promise<string> {
         try {
 
             // Проверка на наличие обязательных данных
@@ -142,10 +142,11 @@ export class PolicyService {
             policy.content = policyCreateDto.content;
             policy.user = policyCreateDto.user;
             policy.account = policyCreateDto.account;
+            if (policyCreateDto.state === State.ACTIVE) policy.dateActive = new Date();
             const createdPolicy = await this.policyRepository.save(policy);
             await this.policyToOrganizationService.createSeveral(createdPolicy, policyCreateDto.policyToOrganizations);
 
-            return createdPolicy
+            return createdPolicy.id
         }
         catch (err) {
             this.logger.error(err);
@@ -184,7 +185,7 @@ export class PolicyService {
         }
     }
 
-    async update(_id: string, updatePolicyDto: PolicyUpdateDto): Promise<PolicyReadDto> {
+    async update(_id: string, updatePolicyDto: PolicyUpdateDto): Promise<string> {
         try {
             const policy = await this.policyRepository.findOne({ where: { id: _id } });
             if (!policy) {
@@ -201,8 +202,8 @@ export class PolicyService {
                 await this.policyToOrganizationService.remove(policy);
                 await this.policyToOrganizationService.createSeveral(policy, updatePolicyDto.policyToOrganizations);
             }
-
-            return this.policyRepository.save(policy);
+            await this.policyRepository.update(policy.id, {policyName: policy.policyName, state: policy.state, type: policy.type, content: policy.content, dateActive: policy.dateActive});
+            return policy.id
         }
         catch (err) {
 

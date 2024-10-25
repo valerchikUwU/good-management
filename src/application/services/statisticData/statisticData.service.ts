@@ -45,7 +45,7 @@ export class StatisticDataService {
         }
     }
 
-    async create(statisticDataCreateDto: StatisticDataCreateDto): Promise<StatisticDataReadDto> {
+    async create(statisticDataCreateDto: StatisticDataCreateDto): Promise<string> {
 
         try {
 
@@ -57,14 +57,9 @@ export class StatisticDataService {
             statisticData.value = statisticDataCreateDto.value;
             statisticData.valueDate = statisticDataCreateDto.valueDate;
             statisticData.statistic = statisticDataCreateDto.statistic;
-            const createdStatisticData = await this.statisticDataRepository.save(statisticData);
-            const createdStatisticDataDto: StatisticDataReadDto = {
-                id: createdStatisticData.id,
-                value: createdStatisticData.value,
-                createdAt: createdStatisticData.createdAt,
-                updatedAt: createdStatisticData.updatedAt
-            }
-            return createdStatisticDataDto;
+            const createdStatisticDataId = await this.statisticDataRepository.insert(statisticData);
+
+            return createdStatisticDataId.identifiers[0].id;
         }
         catch (err) {
             this.logger.error(err);
@@ -77,7 +72,7 @@ export class StatisticDataService {
     }
 
 
-    async update(statisticDataUpdateDto: StatisticDataUpdateDto): Promise<StatisticData> {
+    async update(statisticDataUpdateDto: StatisticDataUpdateDto): Promise<string> {
         try {
             const statisticData = await this.statisticDataRepository.findOne({ where: { id: statisticDataUpdateDto._id } })
             if (!statisticData) {
@@ -86,8 +81,8 @@ export class StatisticDataService {
             // Обновить свойства, если они указаны в DTO
             if (statisticDataUpdateDto.value) statisticData.value = statisticDataUpdateDto.value;
             if (statisticDataUpdateDto.valueDate) statisticData.valueDate = statisticDataUpdateDto.valueDate;
-
-            return await this.statisticDataRepository.save(statisticData)
+            await this.statisticDataRepository.update(statisticData.id, {value: statisticData.value, valueDate: statisticData.valueDate}) 
+            return statisticData.id
 
         }
         catch (err) {

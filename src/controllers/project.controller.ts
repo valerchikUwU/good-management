@@ -8,7 +8,7 @@ import { TargetService } from "src/application/services/target/target.service";
 import { UsersService } from "src/application/services/users/users.service";
 import { ProjectCreateDto } from "src/contracts/project/create-project.dto";
 import { ProjectReadDto } from "src/contracts/project/read-project.dto";
-import { Project } from "src/domains/project.entity";
+import { Type as TypeProject } from "src/domains/project.entity";
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { ReadUserDto } from "src/contracts/user/read-user.dto";
@@ -16,6 +16,10 @@ import { OrganizationService } from "src/application/services/organization/organ
 import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
 import { ProjectUpdateDto } from "src/contracts/project/update-project.dto";
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
+import { ProjectCreateEventDto } from "src/contracts/project/createEvent-project.dto";
+import { TargetCreateEventDto } from "src/contracts/target/createEvent-target.dto";
+import { Type as TypeTarget } from "src/domains/target.entity";
+import { ProducerService } from "src/application/services/producer/producer.service";
 
 
 
@@ -29,6 +33,7 @@ export class ProjectController {
     private readonly strategyService: StrategyService,
     private readonly targetService: TargetService,
     private readonly organizationService: OrganizationService,
+    private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -132,59 +137,12 @@ export class ProjectController {
     required: true,
   })
   @ApiResponse({
-    status: HttpStatus.OK, description: "ОК!",
-    example: {
-      programId: null,
-      content: "Контент проекта",
-      type: "Проект",
-      user: {
-        id: "3b809c42-2824-46c1-9686-dd666403402a",
-        firstName: "Maxik",
-        lastName: "Koval",
-        telegramId: 453120600,
-        telephoneNumber: null,
-        avatar_url: null,
-        vk_id: null,
-        createdAt: "2024-09-16T14:03:31.000Z",
-        updatedAt: "2024-09-16T14:03:31.000Z",
-        organization: {
-          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-          organizationName: "soplya firma",
-          parentOrganizationId: null,
-          createdAt: "2024-09-16T14:24:33.841Z",
-          updatedAt: "2024-09-16T14:24:33.841Z"
-        },
-        account: {
-          id: "a1118813-8985-465b-848e-9a78b1627f11",
-          accountName: "OOO PIPKA",
-          createdAt: "2024-09-16T12:53:29.593Z",
-          updatedAt: "2024-09-16T12:53:29.593Z"
-        }
-      },
-      account: {
-        id: "a1118813-8985-465b-848e-9a78b1627f11",
-        accountName: "OOO PIPKA",
-        createdAt: "2024-09-16T12:53:29.593Z",
-        updatedAt: "2024-09-16T12:53:29.593Z"
-      },
-      strategy: {
-        id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
-        strategyNumber: 2,
-        dateActive: null,
-        content: "HTML текст",
-        state: "Черновик",
-        createdAt: "2024-09-20T14:35:56.273Z",
-        updatedAt: "2024-09-20T14:35:56.273Z"
-      },
-      id: "ff6c48ae-8493-48cc-9c5d-cdd1393858e6",
-      projectNumber: 5,
-      createdAt: "2024-09-20T14:45:41.103Z",
-      updatedAt: "2024-09-20T14:45:41.103Z"
-    }
+    status: HttpStatus.CREATED, description: "ОК!",
+    example: "ff6c48ae-8493-48cc-9c5d-cdd1393858e6"
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto): Promise<Project> {
+  async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto, @Ip() ip: string): Promise<string> {
     const user = await this.userService.findOne(userId);
     if (projectCreateDto.strategyId) {
       const strategy = await this.strategyService.findOneById(projectCreateDto.strategyId);
@@ -193,16 +151,47 @@ export class ProjectController {
     projectCreateDto.user = user;
     projectCreateDto.account = user.account;
     const createdProject = await this.projectService.create(projectCreateDto);
+
+    const targetCreateEventDtos: TargetCreateEventDto[] = [];
+
     if (projectCreateDto.targetCreateDtos !== undefined) {
       const createTargetsPromises = projectCreateDto.targetCreateDtos.map(async (targetCreateDto) => {
-        targetCreateDto.project = createdProject;
         const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
+        targetCreateDto.project = createdProject;
         targetCreateDto.holderUser = holderUser;
-        return await this.targetService.create(targetCreateDto);
+        const createdTarget = await this.targetService.create(targetCreateDto);
+        const targetCreateEventDto: TargetCreateEventDto = {
+          id: createdTarget.id,
+          type: targetCreateDto.type !== undefined ? targetCreateDto.type as string : TypeTarget.COMMON as string, // TypeTarget alias for Type (target)
+          orderNumber: targetCreateDto.orderNumber,
+          content: targetCreateDto.content,
+          createdAt: new Date(),
+          holderUserId: targetCreateDto.holderUserId,
+          dateStart: targetCreateDto.dateStart !== undefined ? targetCreateDto.dateStart : new Date(), //default createdAt
+          deadline: targetCreateDto.deadline !== undefined ? targetCreateDto.deadline : null,
+          projectId: createdProject.id 
+        }
+        targetCreateEventDtos.push(targetCreateEventDto);
+        return createdTarget;
       });
       await Promise.all(createTargetsPromises);
     }
-    return createdProject;
+    const createdEventProjectDto: ProjectCreateEventDto = {
+      eventType: 'PROJECT_CREATED',
+      id: createdProject.id,
+      programId: projectCreateDto.programId !== undefined ? projectCreateDto.programId : null,
+      content: projectCreateDto.content !== undefined ? projectCreateDto.content : null,
+      type: projectCreateDto.type !== undefined ? projectCreateDto.type as string : TypeProject.PROJECT as string, // TypeProject alias for Type (project)
+      projectToOrganizations: projectCreateDto.projectToOrganizations,
+      createdAt: new Date(),
+      strategyId: projectCreateDto.strategyId !== undefined ? projectCreateDto.strategyId : null,
+      accountId: user.account.id,
+      userId: user.id,
+      targetCreateDtos: targetCreateEventDtos.length > 0 ? targetCreateEventDtos : null //nullable
+    };
+    await this.producerService.sendCreatedProjectToQueue(createdEventProjectDto);
+    this.logger.info(`${yellow('OK!')} - ${red(ip)} - projectCreateDto: ${JSON.stringify(projectCreateDto)} - Создан новый проект!`)
+    return createdProject.id;
   }
 
   @Patch(':projectId/update')
@@ -214,44 +203,37 @@ export class ProjectController {
   })
   @ApiResponse({
     status: HttpStatus.OK, description: "ОК!",
-    example: {
-      id: "ff6c48ae-8493-48cc-9c5d-cdd1393858e6",
-      projectNumber: 5,
-      programId: null,
-      content: "ОБНОВА ОБНОВА",
-      type: "Проект",
-      createdAt: "2024-09-20T14:45:41.103Z",
-      updatedAt: "2024-09-27T11:29:27.491Z"
-    }
+    example: "ff6c48ae-8493-48cc-9c5d-cdd1393858e6"
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Проект не найден!` })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
-  async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<ProjectReadDto> {
-    const updatedProject = await this.projectService.update(projectId, projectUpdateDto);
+  async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<string> {
+    const updatedProjectId = await this.projectService.update(projectId, projectUpdateDto);
+    const project = await this.projectService.findOneById(updatedProjectId);
     if (projectUpdateDto.targetUpdateDtos !== undefined) {
       const updateTargetsPromises = projectUpdateDto.targetUpdateDtos.map(async (targetUpdateDto) => {
         const holderUser = await this.userService.findOne(targetUpdateDto.holderUserId);
         targetUpdateDto.holderUser = holderUser;
-        return this.targetService.update(targetUpdateDto);
+        return await this.targetService.update(targetUpdateDto);
       });
       await Promise.all(updateTargetsPromises); // Ждём выполнения всех операций update
     }
 
     if (projectUpdateDto.targetCreateDtos !== undefined) {
       const createTargetsPromises = projectUpdateDto.targetCreateDtos.map(async (targetCreateDto) => {
-        targetCreateDto.project = updatedProject; // Присваиваем обновленный проект
+        targetCreateDto.project = project; // Присваиваем обновленный проект
         const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
         targetCreateDto.holderUser = holderUser;
-        return this.targetService.create(targetCreateDto); // Возвращаем промис создания
+        return await this.targetService.create(targetCreateDto); // Возвращаем промис создания
       });
       await Promise.all(createTargetsPromises); // Ждём выполнения всех операций create
     }
 
 
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`);
-    return updatedProject;
+    return updatedProjectId;
   }
 
 

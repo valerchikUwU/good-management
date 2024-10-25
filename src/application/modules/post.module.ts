@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { PostService } from "../services/post/post.service";
 import { PostRepository } from "../services/post/repository/post.repository";
@@ -7,10 +7,11 @@ import { PostController } from "src/controllers/post.controller";
 import { UsersModule } from "./users.module";
 import { PolicyModule } from "./policy.module";
 import { OrganizationModule } from "./organization.module";
+import { QueueModule } from "./queue.module";
 
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Post]), UsersModule, PolicyModule, OrganizationModule],
+    imports: [TypeOrmModule.forFeature([Post]), UsersModule, PolicyModule, OrganizationModule, forwardRef(() => QueueModule)],
     controllers: [PostController],
     providers: [PostService, PostRepository],
     exports: [PostService]

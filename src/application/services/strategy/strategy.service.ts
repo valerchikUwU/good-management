@@ -207,7 +207,7 @@ export class StrategyService {
     }
 
 
-    async update(_id: string, updateStrategyDto: StrategyUpdateDto): Promise<StrategyReadDto> {
+    async update(_id: string, updateStrategyDto: StrategyUpdateDto): Promise<string> {
         try {
 
             const strategy = await this.strategyRepository.findOne({ where: { id: _id } });
@@ -237,8 +237,8 @@ export class StrategyService {
                 await this.strategyToOrganizationService.remove(strategy);
                 await this.strategyToOrganizationService.createSeveral(strategy, updateStrategyDto.strategyToOrganizations);
             }
-
-            return this.strategyRepository.save(strategy);
+            await this.strategyRepository.update(strategy.id, {content: strategy.content, state: strategy.state});
+            return strategy.id
         }
         catch (err) {
             this.logger.error(err);

@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { Policy } from "src/domains/policy.entity";
 import { PolicyService } from "../services/policy/policy.service";
@@ -8,11 +8,12 @@ import { PolicyToOrganizationModule } from "./policyToOrganization.module";
 import { UsersModule } from "./users.module";
 import { OrganizationModule } from "./organization.module";
 import { RoleSettingModule } from "./roleSetting.module";
+import { QueueModule } from "./queue.module";
 
 
 @Module({
     imports: [TypeOrmModule.forFeature([Policy]),
-    PolicyToOrganizationModule, UsersModule, OrganizationModule, RoleSettingModule],
+    PolicyToOrganizationModule, UsersModule, OrganizationModule, RoleSettingModule, forwardRef(() => QueueModule)],
     controllers: [PolicyController],
     providers: [PolicyService, PolicyRepository],
     exports: [PolicyService]
