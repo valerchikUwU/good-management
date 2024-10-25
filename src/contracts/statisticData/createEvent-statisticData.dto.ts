@@ -6,4 +6,3 @@ export class StatisticDataCreateEventDto{
     statisticId: string;
 }
 
-// add DATA

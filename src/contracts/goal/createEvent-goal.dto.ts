@@ -6,7 +6,7 @@ export class GoalCreateEventDto {
 
     id: string;
 
-    content: string[];
+    content: string[]; // Текстовые блоки цели
 
     createdAt: Date;
 
