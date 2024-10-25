@@ -18,8 +18,8 @@ export class StrategyToOrganizationService{
     )
     {}
 
-    async createSeveral(strategy: Strategy, organizationIds: string[]): Promise<StrategyToOrganization[]> {
-        const createdRelations: StrategyToOrganization[] = [];
+    async createSeveral(strategy: Strategy, organizationIds: string[]): Promise<string[]> {
+        const createdRelations: string[] = [];
     
         for (const organizationId of organizationIds) {
             try {
@@ -32,8 +32,8 @@ export class StrategyToOrganizationService{
                 strategyToOrganization.strategy = strategy;
                 strategyToOrganization.organization = organization;
     
-                const savedRelation = await this.strategyToOrganizationRepository.save(strategyToOrganization);
-                createdRelations.push(savedRelation);
+                const savedRelationId = await this.strategyToOrganizationRepository.insert(strategyToOrganization);
+                createdRelations.push(savedRelationId.identifiers[0].id);
             } catch (err) {
                 this.logger.error(err);
                 if(err instanceof NotFoundException){

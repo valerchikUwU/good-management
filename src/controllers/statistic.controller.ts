@@ -5,8 +5,7 @@ import { UsersService } from "src/application/services/users/users.service";
 import { StatisticService } from "src/application/services/statistic/statistic.service";
 import { StatisticReadDto } from "src/contracts/statistic/read-statistic.dto";
 import { StatisticCreateDto } from "src/contracts/statistic/create-statistic.dto";
-import { Statistic } from "src/domains/statistic.entity";
-import { StatisticDataCreateDto } from "src/contracts/statisticData/create-statisticData.dto";
+import { Statistic, Type } from "src/domains/statistic.entity";
 import { StatisticDataService } from "src/application/services/statisticData/statisticData.service";
 import { PostService } from "src/application/services/post/post.service";
 import { PostReadDto } from "src/contracts/post/read-post.dto";
@@ -14,6 +13,9 @@ import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { StatisticDataReadDto } from "src/contracts/statisticData/read-statisticData.dto";
 import { StatisticUpdateDto } from "src/contracts/statistic/update-statistic.dto";
+import { ProducerService } from "src/application/services/producer/producer.service";
+import { StatisticDataCreateEventDto } from "src/contracts/statisticData/createEvent-statisticData.dto";
+import { StatisticCreateEventDto } from "src/contracts/statistic/createEvent-statistic.dto";
 
 @ApiTags('Statistic')
 @Controller(':userId/statistics')
@@ -23,6 +25,7 @@ export class StatisticController {
     private readonly userService: UsersService,
     private readonly statisticDataService: StatisticDataService,
     private readonly postService: PostService,
+    private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -69,35 +72,29 @@ export class StatisticController {
   })
   @ApiResponse({
     status: HttpStatus.OK, description: "ОК!",
-    example: {
-      id: "ed2dfe55-b678-4f7e-a82e-ccf395afae05",
-      type: "Прямая",
-      name: "ВНИМАНИЕ анекдот",
-      description: "Описание",
-      createdAt: "2024-10-17T09:27:25.379Z",
-      updatedAt: "2024-10-17T10:21:49.335Z"
-    }
+    example: "ed2dfe55-b678-4f7e-a82e-ccf395afae05"
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: "Ресурс не найден!" })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'statisticId', required: true, description: 'Id статистики' })
-  async update(@Param('statisticId') statisticId: string, @Param('userId') userId: string, @Body() statisticUpdateDto: StatisticUpdateDto, @Ip() ip: string): Promise<StatisticReadDto> {
+  async update(@Param('statisticId') statisticId: string, @Param('userId') userId: string, @Body() statisticUpdateDto: StatisticUpdateDto, @Ip() ip: string): Promise<string> {
     const post = statisticUpdateDto.postId !== undefined ? await this.postService.findOneById(statisticUpdateDto.postId) : null
     if (post !== null) {
       statisticUpdateDto.post = post;
     }
-    const updatedStatistic = await this.statisticService.update(statisticId, statisticUpdateDto);
+    const updatedStatisticId = await this.statisticService.update(statisticId, statisticUpdateDto);
+    const statistic = await this.statisticService.findOneById(updatedStatisticId);
     if (statisticUpdateDto.statisticDataUpdateDtos !== undefined) {
       const updateStatisticDataPromises = statisticUpdateDto.statisticDataUpdateDtos.map(async (statisticDataUpdateDto) => {
-        return this.statisticDataService.update(statisticDataUpdateDto);
+        return await this.statisticDataService.update(statisticDataUpdateDto);
       });
       await Promise.all(updateStatisticDataPromises); // Ждём выполнения всех операций update
     }
 
     if (statisticUpdateDto.statisticDataCreateDtos !== undefined) {
       const createStatisticDataPromises = statisticUpdateDto.statisticDataCreateDtos.map(async (statisticDataCreateDto) => {
-        statisticDataCreateDto.statistic = updatedStatistic;
+        statisticDataCreateDto.statistic = statistic;
         return this.statisticDataService.create(statisticDataCreateDto); // Возвращаем промис создания
       });
       await Promise.all(createStatisticDataPromises); // Ждём выполнения всех операций create
@@ -105,7 +102,7 @@ export class StatisticController {
 
 
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED STATISTIC: ${JSON.stringify(statisticUpdateDto)} - Статистика успешно обновлена!`);
-    return updatedStatistic;
+    return updatedStatisticId;
   }
 
   @Get('new')
@@ -159,40 +156,18 @@ export class StatisticController {
     required: true,
   })
   @ApiResponse({
-    status: HttpStatus.OK, description: "ОК!",
-    example: {
-      type: "Прямая",
-      name: "Название",
-      description: "Описание",
-      account: {
-        id: "a1118813-8985-465b-848e-9a78b1627f11",
-        accountName: "OOO PIPKA",
-        createdAt: "2024-09-16T12:53:29.593Z",
-        updatedAt: "2024-09-16T12:53:29.593Z"
-      },
-      post: {
-        id: "2420fabb-3e37-445f-87e6-652bfd5a050c",
-        postName: "Директор",
-        divisionName: "Отдел продаж",
-        parentId: null,
-        product: "Продукт",
-        purpose: "Предназначение поста",
-        createdAt: "2024-09-20T15:09:14.997Z",
-        updatedAt: "2024-09-20T15:09:14.997Z"
-      },
-      id: "f35dc993-1c7e-4f55-9ddd-45d8841d4396",
-      createdAt: "2024-09-26T12:28:01.476Z",
-      updatedAt: "2024-09-26T12:28:01.476Z"
-    }
+    status: HttpStatus.CREATED, description: "ОК!",
+    example: "f35dc993-1c7e-4f55-9ddd-45d8841d4396"
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async create(@Param('userId') userId: string, @Body() statisticCreateDto: StatisticCreateDto): Promise<{ statistic: Statistic, values: StatisticDataReadDto[] }> {
+  async create(@Param('userId') userId: string, @Body() statisticCreateDto: StatisticCreateDto, @Ip() ip: string): Promise<string> {
+    const statisticDataCreateEventDtos: StatisticDataCreateEventDto[] = [];
     const [user, post] = await Promise.all([
       this.userService.findOne(userId),
       this.postService.findOneById(statisticCreateDto.postId)
     ]);
-  
+
     statisticCreateDto.account = user.account;
     statisticCreateDto.post = post;
 
@@ -201,14 +176,37 @@ export class StatisticController {
     // Используем map для создания массива промисов
     const statisticDataCreatePromises = statisticCreateDto.statisticDataCreateDtos.map(async (statisticDataCreateDto) => {
       statisticDataCreateDto.statistic = createdStatistic;
-      return this.statisticDataService.create(statisticDataCreateDto); // Возвращаем промис создания
+      const createdStatisticDataId = await this.statisticDataService.create(statisticDataCreateDto);
+      const statisticDataCreateEventDto: StatisticDataCreateEventDto = {
+        id: createdStatisticDataId,
+        value: statisticDataCreateDto.value,
+        valueDate: statisticDataCreateDto.valueDate,
+        createdAt: new Date(),
+        statisticId: createdStatistic.id
+      };
+      statisticDataCreateEventDtos.push(statisticDataCreateEventDto);
+      return createdStatisticDataId; // Возвращаем промис создания
     });
 
     // Ожидаем выполнения всех промисов параллельно и сохраняем результаты
-    const statisticDataReadDtos = await Promise.all(statisticDataCreatePromises);
+    await Promise.all(statisticDataCreatePromises);
 
+    const statisticCreateEventDto: StatisticCreateEventDto = {
+
+      eventType: 'STATISTIC_CREATED',
+      id: createdStatistic.id,
+      type: statisticCreateDto.type !== undefined ? statisticCreateDto.type as string : Type.DIRECT as string,
+      name: statisticCreateDto.name,
+      description: statisticCreateDto.description !== undefined ? statisticCreateDto.description : null,
+      createdAt: new Date(),
+      postId: statisticCreateDto.postId,
+      accountId: user.account.id,
+      statisticDataCreateDtos: statisticDataCreateEventDtos.length > 0 ? statisticDataCreateEventDtos : null
+    }
+    await this.producerService.sendCreatedStatisticToQueue(statisticCreateEventDto);
+    this.logger.info(`${yellow('OK!')} - ${red(ip)} - statisticCreateDto: ${JSON.stringify(statisticCreateDto)} - Создана новая статистика!`);
     // Возвращаем результат
-    return { statistic: createdStatistic, values: statisticDataReadDtos };
+    return createdStatistic.id;
 
   }
 

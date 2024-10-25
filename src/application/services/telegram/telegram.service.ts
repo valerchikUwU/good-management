@@ -42,14 +42,14 @@ export class TelegramService {
                         const telegramId = ctx.message.from.id;
                         console.log(telegramId);
                         const user = await this.usersService.findOneByTelegramId(telegramId);
-                        if (user !== null){
-                        const authFlag = await this.authRequest(user.telephoneNumber, telegramId, token, clientId, ctx)
-                        if (authFlag) {
-                            ctx.reply('Вход успешен!')
-                        }
-                        this.chatStorageService.clearChatById(chatId);
-                        }
-                        this.chatStorageService.setChatInfo(chatId, { token: token, clientId: clientId })
+                        if (user !== null) {
+                            const authFlag = await this.authRequest(user.telephoneNumber, telegramId, token, clientId, ctx)
+                            if (authFlag) {
+                                ctx.reply('Вход успешен!')
+                            }
+                            this.chatStorageService.clearChatById(chatId);
+                        } else {
+                            this.chatStorageService.setChatInfo(chatId, { token: token, clientId: clientId })
                             ctx.reply(
                                 "Добро пожаловать в бота, чтобы войти поделитесь контактом, нажав на кнопку ниже:",
                                 {
@@ -62,6 +62,8 @@ export class TelegramService {
                                     },
                                 }
                             );
+                        }
+
                     } else {
                         ctx.reply(
                             "Пожалуйста, используйте QR - код или ссылку из приложения!"
@@ -92,7 +94,7 @@ export class TelegramService {
                         }
                         this.chatStorageService.clearChatById(chatId);
                     }
-                    else{
+                    else {
                         ctx.reply("Похоже вы используете не тот номер, на который был зарегистрирован ваш аккаунт в академии. Пожалуйста, используйте номер, который был указан при регистрации.");
                     }
                 } else {

@@ -43,13 +43,13 @@ export class PostService {
         }))
     }
 
-        
+
     async findAllForOrganization(organization: OrganizationReadDto): Promise<PostReadDto[]> {
-        try{
-            const posts = await this.postRepository.find({where: {organization: {id: organization.id}}});
+        try {
+            const posts = await this.postRepository.find({ where: { organization: { id: organization.id } } });
 
             return posts.map(post => ({
-    
+
                 id: post.id,
                 postName: post.postName,
                 divisionName: post.divisionName,
@@ -65,7 +65,7 @@ export class PostService {
                 account: post.account
             }))
         }
-        catch(err){
+        catch (err) {
 
             this.logger.error(err);
             // Обработка других ошибок
@@ -73,14 +73,14 @@ export class PostService {
 
         }
     }
-    
-    async findAllForAccount(account: AccountReadDto): Promise<PostReadDto[]> {
-        try{
 
-            const posts = await this.postRepository.find({where: {account: {id: account.id}}, relations: ['user', 'organization']});
+    async findAllForAccount(account: AccountReadDto): Promise<PostReadDto[]> {
+        try {
+
+            const posts = await this.postRepository.find({ where: { account: { id: account.id } }, relations: ['user', 'organization'] });
 
             return posts.map(post => ({
-    
+
                 id: post.id,
                 postName: post.postName,
                 divisionName: post.divisionName,
@@ -96,7 +96,7 @@ export class PostService {
                 account: post.account
             }))
         }
-        catch(err){
+        catch (err) {
 
             this.logger.error(err);
             // Обработка других ошибок
@@ -106,12 +106,12 @@ export class PostService {
 
 
     async findAllWithoutParentId(account: AccountReadDto): Promise<PostReadDto[]> {
-        try{
+        try {
 
-            const posts = await this.postRepository.find({where: {account: {id: account.id}, parentId: IsNull()}, relations: ['user', 'organization']});
+            const posts = await this.postRepository.find({ where: { account: { id: account.id }, parentId: IsNull() }, relations: ['user', 'organization'] });
 
             return posts.map(post => ({
-    
+
                 id: post.id,
                 postName: post.postName,
                 divisionName: post.divisionName,
@@ -127,7 +127,7 @@ export class PostService {
                 account: post.account
             }))
         }
-        catch(err){
+        catch (err) {
 
             this.logger.error(err);
             // Обработка других ошибок
@@ -136,9 +136,9 @@ export class PostService {
     }
 
     async findOneById(id: string): Promise<PostReadDto | null> {
-        try{
+        try {
 
-            const post = await this.postRepository.findOne({where: {id: id }, relations: ['policy', 'user', 'organization']});
+            const post = await this.postRepository.findOne({ where: { id: id }, relations: ['policy', 'user', 'organization'] });
 
             if (!post) throw new NotFoundException(`Пост с ID: ${id} не найден`);
             const postReadDto: PostReadDto = {
@@ -156,10 +156,10 @@ export class PostService {
                 organization: post.organization,
                 account: post.account
             }
-    
+
             return postReadDto;
         }
-        catch(err){
+        catch (err) {
 
             this.logger.error(err);
             // Обработка специфичных исключений
@@ -173,36 +173,33 @@ export class PostService {
         }
     }
 
-    async create(postCreateDto: PostCreateDto): Promise<Post> {
-        try{
-        // Проверка на наличие обязательных данных
-        if (!postCreateDto.postName) {
-            throw new BadRequestException('У поста обязательно наличие названия!');
-        }
-        if (!postCreateDto.product) {
-            throw new BadRequestException('Выберите продукт поста!');
-        }
-        if (!postCreateDto.purpose) {
-            throw new BadRequestException('Выберите предназначение поста!');
-        }
-        if (!postCreateDto.organizationId) {
-            throw new BadRequestException('Выберите организацию для поста!');
-        }
+    async create(postCreateDto: PostCreateDto): Promise<string> {
+        try {
+            // Проверка на наличие обязательных данных
+            if (!postCreateDto.postName) {
+                throw new BadRequestException('У поста обязательно наличие названия!');
+            }
+            if (!postCreateDto.product) {
+                throw new BadRequestException('Выберите продукт поста!');
+            }
+            if (!postCreateDto.purpose) {
+                throw new BadRequestException('Выберите предназначение поста!');
+            }
 
-        const post = new Post();
-        post.postName = postCreateDto.postName;
-        post.divisionName = postCreateDto.divisionName;
-        post.parentId = postCreateDto.parentId;
-        post.product = postCreateDto.product;
-        post.purpose = postCreateDto.purpose;
-        post.user = postCreateDto.user;
-        post.organization = postCreateDto.organization;
-        post.policy = postCreateDto.policy;
-        post.account = postCreateDto.account;
-
-        return await this.postRepository.save(post);
+            const post = new Post();
+            post.postName = postCreateDto.postName;
+            post.divisionName = postCreateDto.divisionName;
+            post.parentId = postCreateDto.parentId;
+            post.product = postCreateDto.product;
+            post.purpose = postCreateDto.purpose;
+            post.user = postCreateDto.user;
+            post.organization = postCreateDto.organization;
+            post.policy = postCreateDto.policy;
+            post.account = postCreateDto.account;
+            const createdPostId = await this.postRepository.insert(post);
+            return createdPostId.identifiers[0].id
         }
-        catch(err){
+        catch (err) {
             this.logger.error(err);
             // Обработка специфичных исключений
             if (err instanceof BadRequestException) {
@@ -213,7 +210,7 @@ export class PostService {
     }
 
 
-    async update(_id: string, updatePostDto: PostUpdateDto): Promise<PostReadDto> {
+    async update(_id: string, updatePostDto: PostUpdateDto): Promise<string> {
         try {
             const post = await this.postRepository.findOne({ where: { id: _id } });
             if (!post) {
@@ -227,8 +224,16 @@ export class PostService {
             if (updatePostDto.purpose) post.purpose = updatePostDto.purpose;
             if (updatePostDto.user) post.user = updatePostDto.user;
             if (updatePostDto.organization) post.organization = updatePostDto.organization;
-
-            return this.postRepository.save(post);
+            await this.postRepository.update(post.id, {
+                postName: post.postName, 
+                divisionName: post.divisionName, 
+                parentId: post.parentId, 
+                product: post.product, 
+                purpose: post.purpose, 
+                user: post.user, 
+                organization: post.organization
+            });
+            return post.id
         }
         catch (err) {
 

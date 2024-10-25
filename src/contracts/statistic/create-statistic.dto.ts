@@ -8,10 +8,16 @@ import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUI
 
 
 export class StatisticCreateDto{
+
+    @IsOptional()
+    @IsUUID()
+    @IsNotEmpty({message: 'ID статистики не может быть пустым!'})
+    id?: string
     
     @ApiProperty({description: 'Значение', required: true, example: 'Прямая', examples: ['Прямая', 'Обратная']})
+    @IsOptional()
     @IsEnum(Type)
-    type: Type;
+    type?: Type;
     
     @ApiProperty({description: 'Название статистики', required: true, example: 'Название'})
     @IsString()
@@ -46,7 +52,8 @@ export class StatisticCreateDto{
             valueDate: '2024-09-26 15:54:37.211744'
         }
     ]})
+    @IsOptional()
     @IsArray({message: 'Должно быть массивом!'})
     @ArrayNotEmpty({message: 'Добавьте хотя бы одно значение для статистики!'})
-    statisticDataCreateDtos: StatisticDataCreateDto[]
+    statisticDataCreateDtos?: StatisticDataCreateDto[]
 }

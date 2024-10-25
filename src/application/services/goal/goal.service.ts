@@ -64,7 +64,7 @@ export class GoalService {
         }
     }
 
-    async create(goalCreateDto: GoalCreateDto): Promise<GoalReadDto> {
+    async create(goalCreateDto: GoalCreateDto): Promise<string> {
         try {
 
             // Проверка на наличие обязательных данных
@@ -76,8 +76,8 @@ export class GoalService {
             goal.user = goalCreateDto.user;
             goal.account = goalCreateDto.account;
             goal.organization = goalCreateDto.organization;
-            const createdGoal = await this.goalRepository.save(goal);
-            return createdGoal;
+            const createdGoalId = await this.goalRepository.insert(goal);
+            return createdGoalId.identifiers[0].id;
         }
         catch (err) {
             this.logger.error(err);
@@ -91,7 +91,7 @@ export class GoalService {
 
 
 
-    async update(_id: string, updateGoalDto: GoalUpdateDto): Promise<GoalReadDto> {
+    async update(_id: string, updateGoalDto: GoalUpdateDto): Promise<string> {
         try{
 
             const goal = await this.goalRepository.findOne({ where: { id: _id } });
@@ -100,8 +100,8 @@ export class GoalService {
             }
             // Обновить свойства, если они указаны в DTO
             if (updateGoalDto.content) goal.content = updateGoalDto.content;
-            const updatedGoal =  await this.goalRepository.save(goal);
-            return updatedGoal;
+            await this.goalRepository.update(goal.id, {content: goal.content});
+            return goal.id;
         }
         catch(err){
             

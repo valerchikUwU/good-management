@@ -19,8 +19,8 @@ export class ProjectToOrganizationService{
     )
     {}
 
-    async createSeveral(project: Project, organizationIds: string[]): Promise<ProjectToOrganization[]> {
-        const createdRelations: ProjectToOrganization[] = [];
+    async createSeveral(project: Project, organizationIds: string[]): Promise<string[]> {
+        const createdRelations: string[] = [];
     
         for (const organizationId of organizationIds) {
             try {
@@ -33,8 +33,8 @@ export class ProjectToOrganizationService{
                 projectToOrganization.project = project;
                 projectToOrganization.organization = organization;
     
-                const savedRelation = await this.projectToOrganizationRepository.save(projectToOrganization);
-                createdRelations.push(savedRelation);
+                const savedRelationId = await this.projectToOrganizationRepository.insert(projectToOrganization);
+                createdRelations.push(savedRelationId.identifiers[0].id);
             } catch (err) {
                 this.logger.error(err);
                 if(err instanceof NotFoundException){

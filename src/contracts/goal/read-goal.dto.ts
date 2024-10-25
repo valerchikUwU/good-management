@@ -17,10 +17,10 @@ export class GoalReadDto{
     @ApiProperty({ description: 'Дата последнего обновления' })
     updatedAt: Date;
     
-    @ApiProperty({ description: 'Ids связанных юзеров' })
-    users?: User[]
-
     @ApiProperty({ description: 'Id связанного юзера' })
+    user?: User
+
+    @ApiProperty({ description: 'Id связанного аккаунта' })
     account?: Account
     
     @ApiProperty({ description: 'ID организации, принадлежащей цели' })

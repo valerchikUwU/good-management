@@ -7,7 +7,7 @@ import { Account } from "src/domains/account.entity";
 
 export class OrganizationCreateDto {
 
-    @ApiProperty({ description: 'ID родительской организации' })
+    @ApiProperty({ description: 'ID организации' })
     @IsOptional()
     @IsUUID()
     @IsNotEmpty()

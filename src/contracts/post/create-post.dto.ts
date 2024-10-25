@@ -8,7 +8,6 @@ import { User } from "src/domains/user.entity";
 
 export class PostCreateDto {
 
-    @ApiProperty({required: false, description: 'Id поста', example: 'b2218813-8985-465b-848e-9a78b1627f11' })
     @IsOptional()
     @IsUUID()
     @IsNotEmpty()

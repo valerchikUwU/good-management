@@ -39,14 +39,15 @@ export class TargetHolderService {
         return targetHolderReadDto;
     }
 
-    async create(targetHolderCreateDto: TargetHolderCreateDto): Promise<TargetHolder> {
+    async create(targetHolderCreateDto: TargetHolderCreateDto): Promise<string> {
         try{
 
             const targetHolder = new TargetHolder();
             targetHolder.target = targetHolderCreateDto.target;
             targetHolder.user = targetHolderCreateDto.user;
     
-            return await this.targetHolderRepository.save(targetHolder);
+            const createdTargetHolderId = await this.targetHolderRepository.insert(targetHolder);
+            return createdTargetHolderId.identifiers[0].id
         }
         catch(err){
             throw new InternalServerErrorException('Ошибка при создании ответственного за задачу')

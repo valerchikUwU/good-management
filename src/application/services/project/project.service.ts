@@ -174,7 +174,7 @@ export class ProjectService {
 
 
 
-    async update(_id: string, updateProjectDto: ProjectUpdateDto): Promise<ProjectReadDto> {
+    async update(_id: string, updateProjectDto: ProjectUpdateDto): Promise<string> {
         try {
             const project = await this.projectRepository.findOne({ where: { id: _id } });
             if (!project) {
@@ -189,8 +189,8 @@ export class ProjectService {
                 await this.projectToOrganizationService.remove(project);
                 await this.projectToOrganizationService.createSeveral(project, updateProjectDto.projectToOrganizations);
             }
-
-            return this.projectRepository.save(project);
+            await this.projectRepository.update(project.id, {programId: project.programId, content: project.content, type: project.type});
+            return project.id
         }
         catch (err) {
 

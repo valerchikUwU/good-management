@@ -109,7 +109,7 @@ export class StatisticService {
     }
 
 
-    async update(_id: string, statisticUpdateDto: StatisticUpdateDto): Promise<Statistic> {
+    async update(_id: string, statisticUpdateDto: StatisticUpdateDto): Promise<string> {
 
         try {
             const statistic = await this.statisticRepository.findOne({ where: { id: _id } })
@@ -121,7 +121,8 @@ export class StatisticService {
             if (statisticUpdateDto.name) statistic.name = statisticUpdateDto.name;
             if (statisticUpdateDto.description) statistic.description = statisticUpdateDto.description;
             if (statisticUpdateDto.post) statistic.post = statisticUpdateDto.post;
-            return this.statisticRepository.save(statistic);
+            await this.statisticRepository.update(statistic.id, {type: statistic.type, name: statistic.name, description: statistic.description, post: statistic.post});
+            return statistic.id
         }
         catch (err) {
 

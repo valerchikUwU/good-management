@@ -98,7 +98,7 @@ export class ObjectiveService {
         }
     }
 
-    async create(objectiveCreateDto: ObjectiveCreateDto): Promise<Objective> {
+    async create(objectiveCreateDto: ObjectiveCreateDto): Promise<string> {
 
         try {
 
@@ -113,8 +113,8 @@ export class ObjectiveService {
             objective.rootCause = objectiveCreateDto.rootCause;
             objective.strategy = objectiveCreateDto.strategy;
             objective.account = objectiveCreateDto.account;
-
-            return await this.objectiveRepository.save(objective);
+            const createdObjectiveId = await this.objectiveRepository.insert(objective);
+            return createdObjectiveId.identifiers[0].id;
         }
         catch (err) {
 
@@ -128,7 +128,7 @@ export class ObjectiveService {
     }
 
 
-    async update(_id: string, updateObjectiveDto: ObjectiveUpdateDto): Promise<ObjectiveReadDto> {
+    async update(_id: string, updateObjectiveDto: ObjectiveUpdateDto): Promise<string> {
         try {
 
             const objective = await this.objectiveRepository.findOne({ where: { id: _id } });
@@ -140,8 +140,8 @@ export class ObjectiveService {
             if (updateObjectiveDto.content) objective.content = updateObjectiveDto.content;
             if (updateObjectiveDto.rootCause) objective.rootCause = updateObjectiveDto.rootCause;
             if (updateObjectiveDto.strategy) objective.strategy = updateObjectiveDto.strategy;
-
-            return this.objectiveRepository.save(objective);
+            await this.objectiveRepository.update(objective.id, {situation: objective.situation, content: objective.content, rootCause: objective.rootCause, strategy: objective.strategy});
+            return objective.id
         }
         catch (err) {
             this.logger.error(err);
