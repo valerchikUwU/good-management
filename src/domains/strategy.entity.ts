@@ -1,9 +1,9 @@
 import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, Generated, OneToOne } from 'typeorm';
 import { User } from './user.entity';
 import { Objective } from './objective.entity';
-import { StrategyToOrganization } from './strategyToOrganization.entity';
 import { Project } from './project.entity';
 import { Account } from './account.entity';
+import { Organization } from './organization.entity';
 
 
 export enum State {
@@ -47,8 +47,8 @@ export class Strategy{
     @ManyToOne(() => Account, (account) => account.strategies, {nullable: false})
     account: Account
 
-    @OneToMany(() => StrategyToOrganization, (strategyToOrganization) => strategyToOrganization.strategy)
-    strategyToOrganizations: StrategyToOrganization[]
+    @ManyToOne(() => Organization, (organization) => organization.strategies)
+    organization: Organization
 
     @OneToOne(() => Objective, (objective) => objective.strategy)
     objective: Objective

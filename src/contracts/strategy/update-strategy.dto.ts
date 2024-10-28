@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Exclude } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import { Organization } from "src/domains/organization.entity";
 import { State } from "src/domains/strategy.entity";
 
 export class StrategyUpdateDto{
@@ -23,7 +25,10 @@ export class StrategyUpdateDto{
 
     @ApiProperty({ description:'ID организаций, с которыми связать стратегию', example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f']})
     @IsOptional()
-    @IsArray({message: 'Должен быть массив!'})
-    @ArrayNotEmpty({message: 'Выберите хотя бы одну организацию!'})
-    strategyToOrganizations?: string[];
+    @IsUUID()
+    @IsNotEmpty({message: 'Выберите хотя бы одну организацию!'})
+    organizationId?: string;
+
+    @Exclude({toPlainOnly: true})
+    organization: Organization;
 }

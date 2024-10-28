@@ -12,6 +12,7 @@ import { Role } from 'src/domains/role.entity';
 import { Convert } from 'src/domains/convert.entity';
 import { ConvertToUser } from 'src/domains/convertToUser.entity';
 import { Message } from 'src/domains/message.entity';
+import { GroupToUser } from 'src/domains/groupToUser.entity';
 
 export class ReadUserDto {
     @IsUUID()
@@ -38,4 +39,5 @@ export class ReadUserDto {
     convert: Convert;
     convertToUsers: ConvertToUser[];
     messages: Message[];
+    groupToUsers: GroupToUser[];;
   }

@@ -1,7 +1,6 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { State, Strategy } from "src/domains/strategy.entity";
-import { StrategyToOrganizationService } from "../strategyToOrganization/strategyToOrganization.service";
 import { StrategyRepository } from "./repository/strategy.repository";
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
 import { StrategyCreateDto } from "src/contracts/strategy/create-strategy.dto";
@@ -9,7 +8,6 @@ import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { StrategyUpdateDto } from "src/contracts/strategy/update-strategy.dto";
 import { Logger } from "winston";
 import { IsNull, Not } from "typeorm";
-import { IsNotEmpty } from "class-validator";
 
 
 
@@ -18,7 +16,6 @@ export class StrategyService {
     constructor(
         @InjectRepository(Strategy)
         private readonly strategyRepository: StrategyRepository,
-        private readonly strategyToOrganizationService: StrategyToOrganizationService,
         @Inject('winston') private readonly logger: Logger
     ) {
 
@@ -39,7 +36,7 @@ export class StrategyService {
                 updatedAt: strategy.updatedAt,
                 user: strategy.user,
                 account: strategy.account,
-                strategyToOrganizations: strategy.strategyToOrganizations,
+                organization: strategy.organization,
                 objective: strategy.objective,
                 projects: strategy.projects
             }))
@@ -69,7 +66,7 @@ export class StrategyService {
                 updatedAt: strategy.updatedAt,
                 user: strategy.user,
                 account: strategy.account,
-                strategyToOrganizations: strategy.strategyToOrganizations,
+                organization: strategy.organization,
                 objective: strategy.objective,
                 projects: strategy.projects
             }))
@@ -98,7 +95,7 @@ export class StrategyService {
                 updatedAt: strategy.updatedAt,
                 user: strategy.user,
                 account: strategy.account,
-                strategyToOrganizations: strategy.strategyToOrganizations,
+                organization: strategy.organization,
                 objective: strategy.objective,
                 projects: strategy.projects
             }))
@@ -127,7 +124,7 @@ export class StrategyService {
                 updatedAt: strategy.updatedAt,
                 user: strategy.user,
                 account: strategy.account,
-                strategyToOrganizations: strategy.strategyToOrganizations,
+                organization: strategy.organization,
                 objective: strategy.objective,
                 projects: strategy.projects
             }))
@@ -143,7 +140,7 @@ export class StrategyService {
 
     async findOneById(id: string): Promise<StrategyReadDto | null> {
         try {
-            const strategy = await this.strategyRepository.findOne({ where: { id: id }, relations: ['strategyToOrganizations.organization'] });
+            const strategy = await this.strategyRepository.findOne({ where: { id: id }, relations: ['organization'] });
 
             if (!strategy) throw new NotFoundException(`Стратегия с ID: ${id} не найдена`);
             const strategyReadDto: StrategyReadDto = {
@@ -156,7 +153,7 @@ export class StrategyService {
                 updatedAt: strategy.updatedAt,
                 user: strategy.user,
                 account: strategy.account,
-                strategyToOrganizations: strategy.strategyToOrganizations,
+                organization: strategy.organization,
                 objective: strategy.objective,
                 projects: strategy.projects
             }
@@ -176,25 +173,25 @@ export class StrategyService {
         }
     }
 
-    async create(strategyCreateDto: StrategyCreateDto): Promise<Strategy> {
+    async create(strategyCreateDto: StrategyCreateDto): Promise<string> {
 
         try {
 
             if (!strategyCreateDto.content) {
                 throw new BadRequestException('Стратегия не может быть пустой!');
             }
-            if (!strategyCreateDto.strategyToOrganizations) {
-                throw new BadRequestException('Выберите хотя бы одну организацию для стратегии!');
+            if (!strategyCreateDto.organizationId) {
+                throw new BadRequestException('Выберите организацию для стратегии!');
             }
 
             const strategy = new Strategy();
             strategy.content = strategyCreateDto.content
             strategy.user = strategyCreateDto.user;
             strategy.account = strategyCreateDto.account;
-            const createdStrategy = await this.strategyRepository.save(strategy);
-            await this.strategyToOrganizationService.createSeveral(createdStrategy, strategyCreateDto.strategyToOrganizations);
+            strategy.organization = strategyCreateDto.organization;
+            const createdStrategyId = await this.strategyRepository.insert(strategy);
 
-            return createdStrategy;
+            return createdStrategyId.identifiers[0].id;
         }
         catch (err) {
             this.logger.error(err);
@@ -216,15 +213,16 @@ export class StrategyService {
             }
             // Обновить свойства, если они указаны в DTO
             if (updateStrategyDto.content) strategy.content = updateStrategyDto.content;
+            if (updateStrategyDto.organizationId) strategy.organization = updateStrategyDto.organization;
             if (updateStrategyDto.state){
                 if (updateStrategyDto.state === State.DRAFT) {
-                    const existingDraftStrategy = await this.strategyRepository.findOne({ where: { state: State.DRAFT } });
+                    const existingDraftStrategy = await this.strategyRepository.findOne({ where: { state: State.DRAFT, organization: {id: strategy.organization.id} } });
                     if (existingDraftStrategy) {
                       throw new BadRequestException('Может существовать только одна стратегия со статусом "Черновик".');
                     }
                   }
                   else if (updateStrategyDto.state === State.ACTIVE){
-                    const existingActiveStrategy = await this.strategyRepository.findOne({ where: { state: State.DRAFT } });
+                    const existingActiveStrategy = await this.strategyRepository.findOne({ where: { state: State.ACTIVE, organization: {id: strategy.organization.id} } });
                     if (existingActiveStrategy) {
                       throw new BadRequestException('Может существовать только одна стратегия со статусом "Активный".');
                     }
@@ -233,11 +231,7 @@ export class StrategyService {
                 strategy.state = updateStrategyDto.state;
             } 
 
-            if (updateStrategyDto.strategyToOrganizations) {
-                await this.strategyToOrganizationService.remove(strategy);
-                await this.strategyToOrganizationService.createSeveral(strategy, updateStrategyDto.strategyToOrganizations);
-            }
-            await this.strategyRepository.update(strategy.id, {content: strategy.content, state: strategy.state});
+            await this.strategyRepository.update(strategy.id, {content: strategy.content, state: strategy.state, organization: strategy.organization});
             return strategy.id
         }
         catch (err) {

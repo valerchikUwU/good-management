@@ -3,8 +3,8 @@ import { Account } from "src/domains/account.entity";
 import { Goal } from "src/domains/goal.entity";
 import { PolicyToOrganization } from "src/domains/policyToOrganization.entity";
 import { Post } from "src/domains/post.entity";
-import { ProjectToOrganization } from "src/domains/projectToOrganization.entity";
-import { StrategyToOrganization } from "src/domains/strategyToOrganization.entity";
+import { Project } from "src/domains/project.entity";
+import { Strategy } from "src/domains/strategy.entity";
 import { User } from "src/domains/user.entity";
 
 
@@ -39,10 +39,10 @@ export class OrganizationReadDto {
     policyToOrganizations: PolicyToOrganization[]
     
     @ApiProperty({ description: 'Список ID проектов, принадлежащих организации', isArray: true  })
-    projectToOrganizations: ProjectToOrganization[]
+    projects: Project[]
     
     @ApiProperty({ description: 'Список ID стратегий, принадлежащих организации', isArray: true  })
-    strategyToOrganizations: StrategyToOrganization[]
+    strategies: Strategy[]
     
     @ApiProperty({ description: 'ID связанного аккаунта' })
     account: Account;

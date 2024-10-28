@@ -12,6 +12,7 @@ import { Role } from './role.entity';
 import { Convert } from './convert.entity';
 import { ConvertToUser } from './convertToUser.entity';
 import { Message } from './message.entity';
+import { GroupToUser } from './groupToUser.entity';
 
 
 @Entity()
@@ -80,6 +81,9 @@ export class User {
 
   @OneToMany(() => ConvertToUser, (convertToUser) => convertToUser.user)
   convertToUsers: ConvertToUser[]
+
+  @OneToMany(() => GroupToUser, (groupToUser) => groupToUser.user)
+  groupToUsers: GroupToUser[]
 
   @ManyToOne(() => Organization, (organization) => organization.users, {nullable: true})
   organization: Organization;
