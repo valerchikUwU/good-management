@@ -1,14 +1,10 @@
-import { Account } from "src/domains/account.entity";
 import { Type } from "src/domains/project.entity";
-import { ProjectToOrganization } from "src/domains/projectToOrganization.entity";
-import { Strategy } from "src/domains/strategy.entity";
-import { Target } from "src/domains/target.entity";
-import { User } from "src/domains/user.entity";
 import { TargetCreateDto } from "../target/create-target.dto";
 import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsEmpty, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 import { TargetUpdateDto } from "../target/update-target.dto";
+import { Exclude } from "class-transformer";
+import { Organization } from "src/domains/organization.entity";
 
 export class ProjectUpdateDto {
     
@@ -34,11 +30,14 @@ export class ProjectUpdateDto {
     @IsEnum(Type)
     type?: Type;
 
-    @ApiProperty({ description: 'IDs организаций, которые связать с проектом', required: false, example: ['1f1cca9a-2633-489c-8f16-cddd411ff2d0'] })
+    @ApiProperty({ description: 'IDs организаций, которые связать с проектом', required: false, example: '1f1cca9a-2633-489c-8f16-cddd411ff2d0' })
     @IsOptional()
-    @IsArray({message: 'Должен быть массив!'})
-    @ArrayNotEmpty({message: 'Выберите хотя бы одну организацию!'})
-    projectToOrganizations?: string[];
+    @IsUUID()
+    @IsNotEmpty({message: 'Выберите организацию!'})
+    organizationId?: string;
+
+    @Exclude({toPlainOnly: true})
+    organization: Organization;
 
     @ApiProperty({
         description: 'Список задач', required: false, example: 

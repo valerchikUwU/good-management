@@ -3,9 +3,9 @@ import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Post } from './post.entity';
 import { PolicyToOrganization } from './policyToOrganization.entity';
-import { ProjectToOrganization } from './projectToOrganization.entity';
-import { StrategyToOrganization } from './strategyToOrganization.entity';
 import { Goal } from './goal.entity';
+import { Strategy } from './strategy.entity';
+import { Project } from './project.entity';
 
 
 @Entity()
@@ -37,11 +37,11 @@ export class Organization {
     @OneToMany(() => PolicyToOrganization, (policyToOrganization) => policyToOrganization.organization)
     policyToOrganizations: PolicyToOrganization[]
 
-    @OneToMany(() => ProjectToOrganization, (projectToOrganization) => projectToOrganization.organization)
-    projectToOrganizations: ProjectToOrganization[]
+    @OneToMany(() => Project, (project) => project.organization)
+    projects: Project[];
 
-    @OneToMany(() => StrategyToOrganization, (strategyToOrganization) => strategyToOrganization.organization)
-    strategyToOrganizations: StrategyToOrganization[]
+    @OneToMany(() => Strategy, (strategy) => strategy.organization)
+    strategies: Strategy[];
 
     @ManyToOne(() => Account, (account) => account.organizations, {nullable: false})
     account: Account;

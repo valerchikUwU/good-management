@@ -11,6 +11,7 @@ import { Statistic } from './statistic.entity';
 import { Modules, RoleSetting } from './roleSetting.entity';
 import { PolicyDirectory } from './policyDirectory.entity';
 import { Convert } from './convert.entity';
+import { Group } from './group.entity';
 
 
 @Entity()
@@ -65,6 +66,9 @@ export class Account {
 
     @OneToMany(() => Convert, (convert) => convert.account)
     converts: Convert[];
+
+    @OneToMany(() => Group, (group) => group.account)
+    groups: Group[];
 
 
 }

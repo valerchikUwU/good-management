@@ -5,7 +5,6 @@ import { ConvertService } from 'src/application/services/convert/convert.service
 import { MessageService } from 'src/application/services/message/message.service';
 import { UsersService } from 'src/application/services/users/users.service';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
-import { User } from 'src/domains/user.entity';
 import { Logger } from 'winston';
 
 

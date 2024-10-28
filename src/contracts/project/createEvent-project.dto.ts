@@ -6,7 +6,7 @@ export class ProjectCreateEventDto {
     programId: string | null;
     content: string | null;
     type: string; 
-    projectToOrganizations: string[]; // Ids организаций, с которыми связать проект. У меня проект и организация M:M. 
+    organizationId: string; // Ids организаций, с которыми связать проект. У меня проект и организация M:M. 
     createdAt: Date;
     strategyId: string | null;
     accountId: string;

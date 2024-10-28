@@ -4,5 +4,5 @@ export class StrategyCreateEventDto{
     content: string;
     userId: string;
     accountId: string;
-    strategyToOrganizations: string[] // Ids организаций, с которыми связать стратегию. У меня стратегия и организация M:M. 
+    organizationId: string; // Ids организаций, с которыми связать стратегию. У меня стратегия и организация M:M. 
 }

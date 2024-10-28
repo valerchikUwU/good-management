@@ -6,6 +6,7 @@ import { TargetCreateDto } from "../target/create-target.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import { Organization } from "src/domains/organization.entity";
 
 export class ProjectCreateDto {
 
@@ -27,10 +28,10 @@ export class ProjectCreateDto {
     @IsNotEmpty({message: 'Выберите тип проекта!'})
     type?: Type; //default project
 
-    @ApiProperty({ description: 'IDs организаций, которые связать с проектом', example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'] })
-    @IsArray({message: 'Должен быть массив!'})
-    @ArrayNotEmpty({message: 'Выберите хотя бы одну организацию!'})
-    projectToOrganizations: string[];
+    @ApiProperty({ description: 'ID организации, которую связать с проектом', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f' })
+    @IsUUID()
+    @IsNotEmpty({message: 'Выберите организацию!'})
+    organizationId: string;
 
     @ApiProperty({ description: 'Id стратегии', required: false, example: 'd5eaa436-f93f-4743-854a-6f10a5d290a1' })
     @IsOptional()
@@ -43,6 +44,9 @@ export class ProjectCreateDto {
 
     @Exclude({ toPlainOnly: true })
     account: Account;
+
+    @Exclude({ toPlainOnly: true })
+    organization: Organization;
 
     @Exclude({ toPlainOnly: true })
     user: User;

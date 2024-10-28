@@ -45,7 +45,8 @@ export class UsersService {
             role: user.role,
             convert: user.convert,
             convertToUsers: user.convertToUsers,
-            messages: user.messages
+            messages: user.messages,
+            groupToUsers: user.groupToUsers
 
             // Добавьте любые другие поля, которые должны быть включены в ответ
         }));
@@ -78,7 +79,8 @@ export class UsersService {
                 role: user.role,
                 convert: user.convert,
                 convertToUsers: user.convertToUsers,
-                messages: user.messages
+                messages: user.messages,
+                groupToUsers: user.groupToUsers
 
                 // Добавьте любые другие поля, которые должны быть включены в ответ
             }));
@@ -117,7 +119,8 @@ export class UsersService {
                 role: user.role,
                 convert: user.convert,
                 convertToUsers: user.convertToUsers,
-                messages: user.messages
+                messages: user.messages,
+                groupToUsers: user.groupToUsers
             };
 
             return readUserDto;
@@ -167,7 +170,8 @@ export class UsersService {
                 role: user.role,
                 convert: user.convert,
                 convertToUsers: user.convertToUsers,
-                messages: user.messages
+                messages: user.messages,
+                groupToUsers: user.groupToUsers
             };
 
             return readUserDto;
@@ -217,7 +221,8 @@ export class UsersService {
                 role: user.role,
                 convert: user.convert,
                 convertToUsers: user.convertToUsers,
-                messages: user.messages
+                messages: user.messages,
+                groupToUsers: user.groupToUsers
             };
 
             return readUserDto;
@@ -265,7 +270,8 @@ export class UsersService {
                 role: user.role,
                 convert: user.convert,
                 convertToUsers: user.convertToUsers,
-                messages: user.messages
+                messages: user.messages,
+                groupToUsers: user.groupToUsers
             };
 
             return readUserDto;

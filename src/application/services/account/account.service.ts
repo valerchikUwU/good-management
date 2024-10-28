@@ -36,7 +36,8 @@ export class AccountService{
             statistics: account.statistics,
             roleSettings: account.roleSettings,
             policyDirectories: account.policyDirectories,
-            converts: account.converts
+            converts: account.converts,
+            groups: account.groups
         }))
     }
 
@@ -60,7 +61,8 @@ export class AccountService{
             statistics: account.statistics,
             roleSettings: account.roleSettings,
             policyDirectories: account.policyDirectories,
-            converts: account.converts
+            converts: account.converts,
+            groups: account.groups
         }
 
         return accountReadDto;

@@ -1,9 +1,9 @@
 import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, Generated, Index } from 'typeorm';
 import { Target } from './target.entity';
-import { ProjectToOrganization } from './projectToOrganization.entity';
 import { Strategy } from './strategy.entity';
 import { Account } from './account.entity';
 import { User } from './user.entity';
+import { Organization } from './organization.entity';
 
 export enum Type {
     PROJECT = 'Проект',
@@ -39,8 +39,8 @@ export class Project{
     @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
-    @OneToMany(() => ProjectToOrganization, (projectToOrganization) => projectToOrganization.project)
-    projectToOrganizations: ProjectToOrganization[]
+    @ManyToOne(() => Organization, (organization) => organization.projects)
+    organization: Organization
 
     @OneToMany(() => Target, (target) => target.project)
     targets: Target[]

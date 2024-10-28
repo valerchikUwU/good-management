@@ -1,19 +1,12 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Policy } from "src/domains/policy.entity";
-import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
-import { PolicyCreateDto } from "src/contracts/policy/create-policy.dto";
-import { PolicyToOrganizationService } from "../policyToOrganization/policyToOrganization.service";
 import { Project, Type } from "src/domains/project.entity";
 import { ProjectRepository } from "./repository/project.repository";
 import { ProjectReadDto } from "src/contracts/project/read-project.dto";
 import { ProjectCreateDto } from "src/contracts/project/create-project.dto";
-import { ProjectToOrganizationService } from "../projectToOrganization/projectToOrganization.service";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { Logger } from 'winston';
 import { ProjectUpdateDto } from "src/contracts/project/update-project.dto";
-import { In, IsNull, Not } from "typeorm";
-import { IsNotIn } from "class-validator";
 
 
 @Injectable()
@@ -21,7 +14,6 @@ export class ProjectService {
     constructor(
         @InjectRepository(Project)
         private readonly projectRepository: ProjectRepository,
-        private readonly projectToOrganizationService: ProjectToOrganizationService,
         @Inject('winston') private readonly logger: Logger,
     ) {
 
@@ -39,7 +31,7 @@ export class ProjectService {
                 type: project.type,
                 createdAt: project.createdAt,
                 updatedAt: project.updatedAt,
-                projectToOrganizations: project.projectToOrganizations,
+                organization: project.organization,
                 targets: project.targets,
                 strategy: project.strategy,
                 account: project.account,
@@ -79,7 +71,7 @@ export class ProjectService {
                 type: program.type,
                 createdAt: program.createdAt,
                 updatedAt: program.updatedAt,
-                projectToOrganizations: program.projectToOrganizations,
+                organization: program.organization,
                 targets: program.targets,
                 strategy: program.strategy,
                 account: program.account,
@@ -99,14 +91,18 @@ export class ProjectService {
                 .createQueryBuilder('project')
                 .leftJoinAndSelect('project.strategy', 'strategy')
                 .leftJoinAndSelect('project.targets', 'targets')
-                .leftJoin('targets.targetHolders', 'targetHolders')
-                .leftJoin('targetHolders.user', 'user')
-                .leftJoinAndSelect('project.projectToOrganizations', 'projectToOrganizations')
-                .leftJoinAndSelect('projectToOrganizations.organization', 'organization')
+                .leftJoinAndSelect('targets.targetHolders', 'targetHolders')
+                .leftJoinAndSelect('targetHolders.user', 'user')
+                .leftJoinAndSelect('project.organization', 'organization')
                 .where('project.id = :id', { id })
-                .andWhere('targets.holderUserId = user.id')  // Добавляем условие на совпадение
                 .getOne();
-            const program = project.programId !== null ? await this.projectRepository.findOne({where: {id: project.programId}}): null
+            let program: ProjectReadDto;
+            if (project.programId !== null){
+                program = await this.projectRepository.findOne({where: {id: project.programId}})
+            }
+            else {
+                program = null
+            }
             if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
             const projectReadDto: ProjectReadDto = {
                 id: project.id,
@@ -117,7 +113,7 @@ export class ProjectService {
                 type: project.type,
                 createdAt: project.createdAt,
                 updatedAt: project.updatedAt,
-                projectToOrganizations: project.projectToOrganizations,
+                organization: project.organization,
                 targets: project.targets,
                 strategy: project.strategy,
                 account: project.account,
@@ -139,27 +135,27 @@ export class ProjectService {
         }
     }
 
-    async create(projectCreateDto: ProjectCreateDto): Promise<Project> {
+    async create(projectCreateDto: ProjectCreateDto): Promise<string> {
         try {
 
 
             // Проверка на наличие обязательных данных
 
-            if (!projectCreateDto.projectToOrganizations) {
-                throw new BadRequestException('Выберите хотя бы одну организацию для проекта!');
+            if (!projectCreateDto.organizationId) {
+                throw new BadRequestException('Выберите организацию для проекта!');
             }
 
             const project = new Project();
             project.programId = projectCreateDto.programId;
             project.content = projectCreateDto.content;
             project.type = projectCreateDto.type;
+            project.organization = projectCreateDto.organization;
             project.user = projectCreateDto.user;
             project.account = projectCreateDto.account;
             project.strategy = projectCreateDto.strategy;
-            const projectCreated = await this.projectRepository.save(project);
-            await this.projectToOrganizationService.createSeveral(projectCreated, projectCreateDto.projectToOrganizations);
+            const projectCreatedId = await this.projectRepository.insert(project);
 
-            return projectCreated;
+            return projectCreatedId.identifiers[0].id;
         }
         catch (err) {
 
@@ -184,12 +180,9 @@ export class ProjectService {
             if (updateProjectDto.programId) project.programId = updateProjectDto.programId;
             if (updateProjectDto.content) project.content = updateProjectDto.content;
             if (updateProjectDto.type) project.type = updateProjectDto.type;
+            if (updateProjectDto.organizationId) project.organization = updateProjectDto.organization;
 
-            if (updateProjectDto.projectToOrganizations) {
-                await this.projectToOrganizationService.remove(project);
-                await this.projectToOrganizationService.createSeveral(project, updateProjectDto.projectToOrganizations);
-            }
-            await this.projectRepository.update(project.id, {programId: project.programId, content: project.content, type: project.type});
+            await this.projectRepository.update(project.id, {programId: project.programId, content: project.content, type: project.type, organization: project.organization});
             return project.id
         }
         catch (err) {

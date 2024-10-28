@@ -143,15 +143,19 @@ export class ProjectController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto, @Ip() ip: string): Promise<string> {
-    const user = await this.userService.findOne(userId);
+    const [user, organization] = await Promise.all([
+      this.userService.findOne(userId),
+      this.organizationService.findOneById(projectCreateDto.organizationId)
+    ]);
     if (projectCreateDto.strategyId) {
       const strategy = await this.strategyService.findOneById(projectCreateDto.strategyId);
       projectCreateDto.strategy = strategy;
     }
     projectCreateDto.user = user;
     projectCreateDto.account = user.account;
-    const createdProject = await this.projectService.create(projectCreateDto);
-
+    projectCreateDto.organization = organization;
+    const createdProjectId = await this.projectService.create(projectCreateDto);
+    const createdProject = await this.projectService.findOneById(createdProjectId);
     const targetCreateEventDtos: TargetCreateEventDto[] = [];
 
     if (projectCreateDto.targetCreateDtos !== undefined) {
@@ -182,7 +186,7 @@ export class ProjectController {
       programId: projectCreateDto.programId !== undefined ? projectCreateDto.programId : null,
       content: projectCreateDto.content !== undefined ? projectCreateDto.content : null,
       type: projectCreateDto.type !== undefined ? projectCreateDto.type as string : TypeProject.PROJECT as string, // TypeProject alias for Type (project)
-      projectToOrganizations: projectCreateDto.projectToOrganizations,
+      organizationId: projectCreateDto.organizationId,
       createdAt: new Date(),
       strategyId: projectCreateDto.strategyId !== undefined ? projectCreateDto.strategyId : null,
       accountId: user.account.id,
@@ -191,7 +195,7 @@ export class ProjectController {
     };
     await this.producerService.sendCreatedProjectToQueue(createdEventProjectDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - projectCreateDto: ${JSON.stringify(projectCreateDto)} - Создан новый проект!`)
-    return createdProject.id;
+    return createdProjectId;
   }
 
   @Patch(':projectId/update')
@@ -210,6 +214,10 @@ export class ProjectController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
   async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<string> {
+    if(projectUpdateDto.organizationId){
+      const organization = await this.organizationService.findOneById(projectUpdateDto.organizationId);
+      projectUpdateDto.organization = organization;
+    }
     const updatedProjectId = await this.projectService.update(projectId, projectUpdateDto);
     const project = await this.projectService.findOneById(updatedProjectId);
     if (projectUpdateDto.targetUpdateDtos !== undefined) {
@@ -242,42 +250,63 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK, description: "ОК!",
     example: {
-      id: "f2c217bc-367b-4d72-99c3-37d725306786",
-      projectNumber: 15,
+      id: "31a2c203-17bf-41be-a8db-92f747700a4c",
+      projectNumber: 97,
       programId: null,
       programNumber: null,
-      content: "Контент политики",
+      content: "Контент проекта",
       type: "Проект",
-      createdAt: "2024-10-09T12:32:25.762Z",
-      updatedAt: "2024-10-09T12:32:25.762Z",
-      projectToOrganizations: [
-        {
-          id: "6d1b65ae-d7fd-4eb2-8188-ede120948abd",
-          createdAt: "2024-09-20T14:44:44.499Z",
-          updatedAt: "2024-09-20T14:44:44.499Z",
-          organization: {
-            id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-            organizationName: "soplya firma",
-            parentOrganizationId: null,
-            createdAt: "2024-09-16T14:24:33.841Z",
-            updatedAt: "2024-09-16T14:24:33.841Z"
-          }
-        }
-      ],
+      createdAt: "2024-10-28T12:30:37.771Z",
+      updatedAt: "2024-10-28T12:30:37.771Z",
+      organization: {
+        id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+        organizationName: "soplya firma",
+        parentOrganizationId: null,
+        createdAt: "2024-09-16T14:24:33.841Z",
+        updatedAt: "2024-09-16T14:24:33.841Z"
+      },
       targets: [
         {
-          id: "7a269e8f-26ba-46da-9ef9-e1b17475b6d9",
-          type: "Продукт",
-          orderNumber: 1,
-          activeResponsibleUserId: "702dc852-4806-47b7-8b03-1214ef428efd",
+          id: "3e01eb60-b4d8-4ad7-adb7-473a82df44bc",
+          type: "Обычная",
+          orderNumber: 3,
           content: "Контент задачи",
-          dateStart: "2024-09-20T14:44:44.274Z",
-          deadline: "2024-09-27T14:59:47.010Z",
+          holderUserId: "702dc852-4806-47b7-8b03-1214ef428efd",
+          dateStart: "2024-10-28T12:30:37.699Z",
+          deadline: "2024-09-18T14:59:47.010Z",
           dateComplete: null,
-          createdAt: "2024-09-20T14:44:44.980Z",
-          updatedAt: "2024-09-20T14:44:44.980Z"
+          createdAt: "2024-10-28T12:30:37.997Z",
+          updatedAt: "2024-10-28T12:30:37.997Z",
+          targetHolders: [
+            {
+              id: "382343fd-c5b2-4be8-9fa6-d30ae0540a3f",
+              createdAt: "2024-10-28T12:30:38.093Z",
+              updatedAt: "2024-10-28T12:30:38.093Z",
+              user: {
+                id: "702dc852-4806-47b7-8b03-1214ef428efd",
+                firstName: "Валерий",
+                lastName: "Лысенко",
+                middleName: null,
+                telegramId: 803348257,
+                telephoneNumber: "+79787512027",
+                avatar_url: null,
+                vk_id: null,
+                createdAt: "2024-09-30T14:10:48.302Z",
+                updatedAt: "2024-10-09T09:27:30.811Z"
+              }
+            }
+          ]
         }
-      ]
+      ],
+      "strategy": {
+        "id": "fbc2871c-37b3-435f-8b9a-d30235e59e33",
+        "strategyNumber": 71,
+        "dateActive": null,
+        "content": "HTML текст",
+        "state": "Черновик",
+        "createdAt": "2024-10-28T12:09:02.936Z",
+        "updatedAt": "2024-10-28T12:09:02.936Z"
+      }
     }
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
