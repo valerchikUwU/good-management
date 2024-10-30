@@ -26,6 +26,7 @@ export class ProjectService {
             return projects.map(project => ({
                 id: project.id,
                 projectNumber: project.projectNumber,
+                projectName: project.projectName,
                 programId: project.programId,
                 content: project.content,
                 type: project.type,
@@ -66,6 +67,7 @@ export class ProjectService {
             return programsWithoutProject.map(program => ({
                 id: program.id,
                 projectNumber: program.projectNumber,
+                projectName: program.projectName,
                 programId: program.programId,
                 content: program.content,
                 type: program.type,
@@ -107,6 +109,7 @@ export class ProjectService {
             const projectReadDto: ProjectReadDto = {
                 id: project.id,
                 projectNumber: project.projectNumber,
+                projectName: project.projectName,
                 programId: project.programId,
                 programNumber: program !== null ? program.projectNumber : null,
                 content: project.content,
@@ -146,6 +149,7 @@ export class ProjectService {
             }
 
             const project = new Project();
+            project.projectName = projectCreateDto.projectName;
             project.programId = projectCreateDto.programId;
             project.content = projectCreateDto.content;
             project.type = projectCreateDto.type;
@@ -177,12 +181,13 @@ export class ProjectService {
                 throw new NotFoundException(`Проект с ID ${_id} не найден`);
             }
             // Обновить свойства, если они указаны в DTO
+            if (updateProjectDto.projectName) project.projectName = updateProjectDto.projectName;
             if (updateProjectDto.programId) project.programId = updateProjectDto.programId;
             if (updateProjectDto.content) project.content = updateProjectDto.content;
             if (updateProjectDto.type) project.type = updateProjectDto.type;
             if (updateProjectDto.organizationId) project.organization = updateProjectDto.organization;
 
-            await this.projectRepository.update(project.id, {programId: project.programId, content: project.content, type: project.type, organization: project.organization});
+            await this.projectRepository.update(project.id, {projectName: project.projectName, programId: project.programId, content: project.content, type: project.type, organization: project.organization});
             return project.id
         }
         catch (err) {

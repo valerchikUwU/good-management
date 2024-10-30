@@ -62,3 +62,6 @@ src/config/database.ts
 
 #images
 uploads
+
+#tests
+test

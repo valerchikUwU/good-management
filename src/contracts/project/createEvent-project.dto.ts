@@ -3,6 +3,7 @@ import { TargetCreateEventDto } from "../target/createEvent-target.dto";
 export class ProjectCreateEventDto {
     eventType: string;
     id: string;
+    projectName: string;
     programId: string | null;
     content: string | null;
     type: string; 
