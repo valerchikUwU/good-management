@@ -12,6 +12,9 @@ export class Group{
     @Column({ length: 50, nullable: false })
     groupName: string;
 
+    @Column({ length: 50, nullable: true })
+    groupDivisionName: string;
+
     @Column()
     @Generated('increment')
     groupNumber: number;
