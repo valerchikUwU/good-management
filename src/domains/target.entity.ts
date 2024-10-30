@@ -9,6 +9,11 @@ export enum Type {
     PRODUCT = 'Продукт'
 }
 
+export enum State {
+    ACTIVE = 'Активная',
+    REJECTED = 'Отменена',
+    FINISHED = 'Завершена'
+}
 @Entity()
 export class Target{
     @PrimaryGeneratedColumn('uuid')
@@ -30,6 +35,14 @@ export class Target{
 
     @Column({type: 'uuid', nullable: false})
     holderUserId: string;
+
+    @Column({
+        type: 'enum',
+        enum: State,
+        default: State.ACTIVE,
+        nullable: false
+    })
+    targetState: State;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', nullable: false})
     dateStart: Date

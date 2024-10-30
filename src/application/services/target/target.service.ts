@@ -34,6 +34,7 @@ export class TargetService {
             orderNumber: target.orderNumber,
             content: target.content,
             holderUserId: target.holderUserId,
+            targetState: target.targetState,
             dateStart: target.dateStart,
             deadline: target.deadline,
             dateComplete: target.dateComplete,
@@ -62,6 +63,7 @@ export class TargetService {
             orderNumber: target.orderNumber,
             content: target.content,
             holderUserId: target.holderUserId,
+            targetState: target.targetState,
             dateStart: target.dateStart,
             deadline: target.deadline,
             dateComplete: target.dateComplete,
@@ -101,7 +103,8 @@ export class TargetService {
             target.type = targetCreateDto.type;
             target.orderNumber = targetCreateDto.orderNumber;
             target.content = targetCreateDto.content;
-            target.holderUserId = targetCreateDto.holderUserId
+            target.holderUserId = targetCreateDto.holderUserId;
+            if (targetCreateDto.targetState) target.targetState = targetCreateDto.targetState;
             target.dateStart = new Date();
             target.deadline = targetCreateDto.deadline;
             target.project = targetCreateDto.project;
@@ -143,6 +146,7 @@ export class TargetService {
                 await this.targetHolderService.create(targetHolderCreateDto);
                 target.holderUserId = updateTargetDto.holderUserId;
             }
+            if (updateTargetDto.targetState) target.targetState = updateTargetDto.targetState;
             if (updateTargetDto.dateStart) target.dateStart = updateTargetDto.dateStart;
             if (updateTargetDto.deadline) target.deadline = updateTargetDto.deadline;
             await this.targetRepository.update(target.id, {content: target.content, holderUserId: target.holderUserId, dateStart: target.dateStart, deadline: target.deadline});

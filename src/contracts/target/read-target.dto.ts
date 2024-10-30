@@ -1,5 +1,5 @@
 import { Project } from "src/domains/project.entity";
-import { Type } from "src/domains/target.entity";
+import { State, Type } from "src/domains/target.entity";
 import { TargetHolder } from "src/domains/targetHolder.entity";
 
 export class TargetReadDto{
@@ -8,6 +8,7 @@ export class TargetReadDto{
     orderNumber: number;
     content: string;
     holderUserId: string;
+    targetState: State;
     dateStart: Date
     deadline: Date
     dateComplete: Date

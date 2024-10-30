@@ -8,6 +8,7 @@ import { User } from "src/domains/user.entity";
 export class ProjectReadDto{
     id: string;
     projectNumber: number;
+    projectName: string;
     programId: string;
     content: string;
     programNumber?: number | null

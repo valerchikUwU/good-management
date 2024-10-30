@@ -10,6 +10,11 @@ import { Organization } from "src/domains/organization.entity";
 
 export class ProjectCreateDto {
 
+    @ApiProperty({ description: 'Название проекта', required: true, example: 'Название проекта' })
+    @IsString()
+    @IsNotEmpty({message: 'Название проекта не может быть пустым!'})
+    projectName: string;
+
     @ApiProperty({ description: 'Id программы', required: false, example: 'b6ed2664-9510-4a47-9117-6ce89903b4b5' })
     @IsOptional()
     @IsUUID()

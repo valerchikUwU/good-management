@@ -19,6 +19,9 @@ export class Project{
     @Generated('increment')
     projectNumber: number;
 
+    @Column({ length: 50, default: 'Название проекта', nullable: false  })
+    projectName: string;
+
     @Column({type: 'uuid', nullable: true})
     programId: string;
 

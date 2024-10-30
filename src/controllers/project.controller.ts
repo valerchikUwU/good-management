@@ -18,7 +18,7 @@ import { ProjectUpdateDto } from "src/contracts/project/update-project.dto";
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
 import { ProjectCreateEventDto } from "src/contracts/project/createEvent-project.dto";
 import { TargetCreateEventDto } from "src/contracts/target/createEvent-target.dto";
-import { Type as TypeTarget } from "src/domains/target.entity";
+import { State, Type as TypeTarget } from "src/domains/target.entity";
 import { ProducerService } from "src/application/services/producer/producer.service";
 
 
@@ -171,6 +171,7 @@ export class ProjectController {
           content: targetCreateDto.content,
           createdAt: new Date(),
           holderUserId: targetCreateDto.holderUserId,
+          targetState: targetCreateDto.targetState !== undefined ? targetCreateDto.targetState as string : State.ACTIVE as string,
           dateStart: targetCreateDto.dateStart !== undefined ? targetCreateDto.dateStart : new Date(), //default createdAt
           deadline: targetCreateDto.deadline !== undefined ? targetCreateDto.deadline : null,
           projectId: createdProject.id 
@@ -183,6 +184,7 @@ export class ProjectController {
     const createdEventProjectDto: ProjectCreateEventDto = {
       eventType: 'PROJECT_CREATED',
       id: createdProject.id,
+      projectName: projectCreateDto.projectName,
       programId: projectCreateDto.programId !== undefined ? projectCreateDto.programId : null,
       content: projectCreateDto.content !== undefined ? projectCreateDto.content : null,
       type: projectCreateDto.type !== undefined ? projectCreateDto.type as string : TypeProject.PROJECT as string, // TypeProject alias for Type (project)
