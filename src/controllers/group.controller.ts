@@ -31,7 +31,15 @@ export class GroupController {
     @ApiOperation({ summary: 'Все группы' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
-        example: {}
+        example: [
+          {
+            id: "a438f7df-ceec-430d-944a-0a79492e30ee",
+            groupName: "Говнюки",
+            groupNumber: 1,
+            createdAt: "2024-10-28T13:35:35.305Z",
+            updatedAt: "2024-10-28T13:35:35.305Z"
+          }
+        ]
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
@@ -50,8 +58,70 @@ export class GroupController {
     @ApiOperation({ summary: 'Получить данные для создания новой группы' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
-        example: {
-        }
+        example: [
+            {
+              id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+              organizationName: "soplya firma",
+              parentOrganizationId: null,
+              createdAt: "2024-09-16T14:24:33.841Z",
+              updatedAt: "2024-09-16T14:24:33.841Z",
+              posts: [
+                {
+                  id: "7730b6c2-c037-4c45-9dcc-603d7035d6a3",
+                  postName: "srdsg",
+                  divisionName: "fggg",
+                  parentId: null,
+                  product: "sdfdsf",
+                  purpose: "fsdfsd",
+                  createdAt: "2024-10-04T09:38:04.947Z",
+                  updatedAt: "2024-10-04T09:38:04.947Z",
+                  user: {
+                    id: "702dc852-4806-47b7-8b03-1214ef428efd",
+                    firstName: "Валерий",
+                    lastName: "Лысенко",
+                    middleName: null,
+                    telegramId: 803348257,
+                    telephoneNumber: "+79787512027",
+                    avatar_url: null,
+                    vk_id: null,
+                    createdAt: "2024-09-30T14:10:48.302Z",
+                    updatedAt: "2024-10-09T09:27:30.811Z"
+                  }
+                },
+              ]
+            },
+            {
+              id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+              organizationName: "OOO BOBRIK",
+              parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+              createdAt: "2024-09-16T15:09:48.995Z",
+              updatedAt: "2024-09-16T15:09:48.995Z",
+              posts: [
+                {
+                  id: "fcf0d021-25f3-47f5-89dd-11d01be2e97d",
+                  postName: "SDfxcg",
+                  divisionName: "sdf",
+                  parentId: null,
+                  product: "df",
+                  purpose: "fg",
+                  createdAt: "2024-10-04T09:40:38.891Z",
+                  updatedAt: "2024-10-04T09:40:38.891Z",
+                  user: {
+                    id: "702dc852-4806-47b7-8b03-1214ef428efd",
+                    firstName: "Валерий",
+                    lastName: "Лысенко",
+                    middleName: null,
+                    telegramId: 803348257,
+                    telephoneNumber: "+79787512027",
+                    avatar_url: null,
+                    vk_id: null,
+                    createdAt: "2024-09-30T14:10:48.302Z",
+                    updatedAt: "2024-10-09T09:27:30.811Z"
+                  }
+                }
+              ]
+            }
+          ]
 
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
@@ -92,6 +162,47 @@ export class GroupController {
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
         example: {
+          id: "a438f7df-ceec-430d-944a-0a79492e30ee",
+          groupName: "Говнюки",
+          groupNumber: 1,
+          createdAt: "2024-10-28T13:35:35.305Z",
+          updatedAt: "2024-10-28T13:35:35.305Z",
+          groupToUsers: [
+            {
+              id: "498ea906-3af3-42cd-a75e-b4cafa17552c",
+              createdAt: "2024-10-28T13:35:35.557Z",
+              updatedAt: "2024-10-28T13:35:35.557Z",
+              user: {
+                id: "702dc852-4806-47b7-8b03-1214ef428efd",
+                firstName: "Валерий",
+                lastName: "Лысенко",
+                middleName: null,
+                telegramId: 803348257,
+                telephoneNumber: "+79787512027",
+                avatar_url: null,
+                vk_id: null,
+                createdAt: "2024-09-30T14:10:48.302Z",
+                updatedAt: "2024-10-09T09:27:30.811Z"
+              }
+            },
+            {
+              id: "bc220491-fac3-4952-8eb4-51ba497aa083",
+              createdAt: "2024-10-28T13:35:35.777Z",
+              updatedAt: "2024-10-28T13:35:35.777Z",
+              user: {
+                id: "3b809c42-2824-46c1-9686-dd666403402a",
+                firstName: "Maxik",
+                lastName: "Koval",
+                middleName: null,
+                telegramId: 453120600,
+                telephoneNumber: "+79787513901",
+                avatar_url: null,
+                vk_id: null,
+                createdAt: "2024-09-16T14:03:31.000Z",
+                updatedAt: "2024-10-09T09:25:39.735Z"
+              }
+            }
+          ]
         }
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })

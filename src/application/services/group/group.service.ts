@@ -47,7 +47,7 @@ export class GroupService {
 
     async findOneById(id: string): Promise<GroupReadDto> {
         try {
-            const group = await this.groupRepository.findOne({where: { id }, relations: ['users']});
+            const group = await this.groupRepository.findOne({where: { id }, relations: ['groupToUsers.user']});
             if (!group) throw new NotFoundException(`Группа с ID: ${id} не найдена`);
             const groupReadDto: GroupReadDto = {
                 id: group.id,
