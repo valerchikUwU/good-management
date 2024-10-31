@@ -148,10 +148,10 @@ export class GroupController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Группа не найдена!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'groupId', required: true, description: 'Id группы' })
-    async update(@Param('groupId') groupId: string, @Body() groupUpdateDto: GroupUpdateDto, @Ip() ip: string): Promise<string> {
+    async update(@Param('groupId') groupId: string, @Body() groupUpdateDto: GroupUpdateDto, @Ip() ip: string): Promise<{id: string}> {
         const updatedGroupId = await this.groupService.update(groupId, groupUpdateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - groupUpdateDto: ${JSON.stringify(groupUpdateDto)} - Группа успешно обновлена!`);
-        return updatedGroupId;
+        return {id: updatedGroupId};
     }
 
     @Get(':groupId')
@@ -234,7 +234,7 @@ export class GroupController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async create(@Param('userId') userId: string, @Body() groupCreateDto: GroupCreateDto, @Ip() ip: string): Promise<string> {
+    async create(@Param('userId') userId: string, @Body() groupCreateDto: GroupCreateDto, @Ip() ip: string): Promise<{id: string}> {
         const user = await this.userService.findOne(userId);
         groupCreateDto.account = user.account;
         const createdGroupId = await this.groupService.create(groupCreateDto);
@@ -252,6 +252,6 @@ export class GroupController {
         // };
         // await this.producerService.sendCreatedPolicyToQueue(createdEventPolicyDto)
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - groupCreateDto: ${JSON.stringify(groupCreateDto)} - Создана новая группа!`)
-        return createdGroupId;
+        return {id: createdGroupId};
     }
 }

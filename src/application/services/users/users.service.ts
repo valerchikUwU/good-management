@@ -297,7 +297,7 @@ export class UsersService {
     }
 
 
-    async create(createUserDto: CreateUserDto): Promise<User> {
+    async create(createUserDto: CreateUserDto): Promise<string> {
         try {
             // Проверка на наличие обязательных данных
             if (!createUserDto.firstName) {
@@ -320,8 +320,8 @@ export class UsersService {
             user.telephoneNumber = createUserDto.telephoneNumber;
             user.role = createUserDto.role;
             user.account = createUserDto.account;
-            // Присваиваем значения из DTO объекту пользователя
-            return await this.usersRepository.save(user);
+            const createdUserId = await this.usersRepository.insert(user);
+            return createdUserId.identifiers[0].id
         }
         catch (err) {
 

@@ -108,14 +108,14 @@ export class UsersController {
         required: true,
     })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async create(@Param('userId') userId: string, @Body() userCreateDto: CreateUserDto, @Ip() ip: string): Promise<User>{
+    async create(@Param('userId') userId: string, @Body() userCreateDto: CreateUserDto, @Ip() ip: string): Promise<{id: string}>{
         const user = await this.usersService.findOne(userId);
         const role = await this.roleService.findOneById(userCreateDto.roleId)
         userCreateDto.account = user.account;
         userCreateDto.role = role;
-        const createdUser = await this.usersService.create(userCreateDto);
+        const createdUserId = await this.usersService.create(userCreateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - userCreateDto: ${JSON.stringify(userCreateDto)} - Создан юзер!`);
-        return createdUser;
+        return {id: createdUserId};
     }
 
 }

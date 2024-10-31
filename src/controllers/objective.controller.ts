@@ -100,14 +100,14 @@ export class ObjectiveController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'objectiveId', required: true, description: 'Id краткосрочной цели' })
-    async update(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto, @Ip() ip: string): Promise<string> {
+    async update(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto, @Ip() ip: string): Promise<{id: string}> {
         if (objectiveUpdateDto.strategyId) {
             const strategy = await this.strategyService.findOneById(objectiveUpdateDto.strategyId);
             objectiveUpdateDto.strategy = strategy
         }
         const updatedObjectiveId = await this.objectiveService.update(objectiveId, objectiveUpdateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED OBJECTIVE: ${JSON.stringify(objectiveUpdateDto)} - Краткосрочная цель успешно обновлена!`);
-        return updatedObjectiveId;
+        return {id: updatedObjectiveId};
     }
 
 

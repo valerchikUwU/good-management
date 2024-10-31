@@ -161,10 +161,10 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
-    async update(@Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<string> {
+    async update(@Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<{id: string}> {
         const updatedPolicyId = await this.policyService.update(policyId, policyUpdateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POLICY: ${JSON.stringify(policyUpdateDto)} - Политика успешно обновлена!`);
-        return updatedPolicyId;
+        return {id: updatedPolicyId};
     }
 
     @Get(':policyId')
@@ -250,7 +250,7 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<string> {
+    async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<{id: string}> {
         const user = await this.userService.findOne(userId);
         policyCreateDto.user = user;
         policyCreateDto.account = user.account;
@@ -269,6 +269,6 @@ export class PolicyController {
         };
         await this.producerService.sendCreatedPolicyToQueue(createdEventPolicyDto)
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - policyCreateDto: ${JSON.stringify(policyCreateDto)} - Создана новая политика!`)
-        return createdPolicyId;
+        return {id: createdPolicyId};
     }
 }

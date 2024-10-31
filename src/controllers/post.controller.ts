@@ -130,7 +130,7 @@ export class PostController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Пост не найдена!` })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'postId', required: true, description: 'Id поста' })
-  async update(@Param('postId') postId: string, @Body() postUpdateDto: PostUpdateDto, @Ip() ip: string): Promise<string> {
+  async update(@Param('postId') postId: string, @Body() postUpdateDto: PostUpdateDto, @Ip() ip: string): Promise<{id: string}> {
     if (postUpdateDto.responsibleUserId) {
       const responsibleUser = await this.userService.findOne(postUpdateDto.responsibleUserId)
       postUpdateDto.user = responsibleUser;
@@ -141,7 +141,7 @@ export class PostController {
     }
     const updatedPostId = await this.postService.update(postId, postUpdateDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POST: ${JSON.stringify(postUpdateDto)} - Пост успешно обновлен!`);
-    return updatedPostId;
+    return {id: updatedPostId};
   }
 
   @Get('new')
@@ -303,7 +303,7 @@ export class PostController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiQuery({ name: 'addPolicyId', required: false, description: 'Id политики', example: 'null' })
-  async create(@Param('userId') userId: string, @Body() postCreateDto: PostCreateDto, @Ip() ip: string, @Query('addPolicyId') addPolicyId?: string): Promise<string> {
+  async create(@Param('userId') userId: string, @Body() postCreateDto: PostCreateDto, @Ip() ip: string, @Query('addPolicyId') addPolicyId?: string): Promise<{id: string}> {
     const user = await this.userService.findOne(userId);
     if (addPolicyId !== 'null') {
       const policy = await this.policyService.findOneById(addPolicyId)
@@ -337,6 +337,6 @@ export class PostController {
     };
     await this.producerService.sendCreatedPostToQueue(createdEventPostDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - postCreateDto: ${JSON.stringify(postCreateDto)} - Создан новый пост!`)
-    return createdPostId;
+    return {id: createdPostId};
   }
 }   

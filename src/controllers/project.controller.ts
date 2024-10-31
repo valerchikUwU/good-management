@@ -142,7 +142,7 @@ export class ProjectController {
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto, @Ip() ip: string): Promise<string> {
+  async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto, @Ip() ip: string): Promise<{id: string}> {
     const [user, organization] = await Promise.all([
       this.userService.findOne(userId),
       this.organizationService.findOneById(projectCreateDto.organizationId)
@@ -197,7 +197,7 @@ export class ProjectController {
     };
     await this.producerService.sendCreatedProjectToQueue(createdEventProjectDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - projectCreateDto: ${JSON.stringify(projectCreateDto)} - Создан новый проект!`)
-    return createdProjectId;
+    return {id: createdProjectId};
   }
 
   @Patch(':projectId/update')
@@ -215,7 +215,7 @@ export class ProjectController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Проект не найден!` })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
-  async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<string> {
+  async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<{id: string}> {
     if(projectUpdateDto.organizationId){
       const organization = await this.organizationService.findOneById(projectUpdateDto.organizationId);
       projectUpdateDto.organization = organization;
@@ -243,7 +243,7 @@ export class ProjectController {
 
 
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`);
-    return updatedProjectId;
+    return {id: updatedProjectId};
   }
 
 
