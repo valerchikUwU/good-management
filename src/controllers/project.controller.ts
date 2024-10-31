@@ -77,15 +77,46 @@ export class ProjectController {
     example: {
       workers: [
         {
-          id: "3b809c42-2824-46c1-9686-dd666403402a",
-          firstName: "Maxik",
-          lastName: "Koval",
-          telegramId: 453120600,
+          id: "a76caf62-bc78-44e9-ba64-6e8e4c5b3248",
+          firstName: "Илюха",
+          lastName: "Белописькин",
+          middleName: null,
+          telegramId: 0,
           telephoneNumber: null,
-          avatar_url: "https://sun1-98.userapi.com/s/v1/ig2/dcjf3yMOOjHp5QM1hqZL_ZJj2z9cHsM2f0Xcv7AMH0WoifdFkLn8U7w5SFtY6tUP8pQrW-Gs8gXdcztvuy7DNDaS.jpg?quality=95&crop=253,160,669,669&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=50x50",
-          vk_id: 175696487,
-          createdAt: "2024-09-16T14:03:31.000Z",
-          updatedAt: "2024-10-09T09:25:39.735Z"
+          avatar_url: null,
+          vk_id: null,
+          createdAt: "2024-10-03T12:53:00.698Z",
+          updatedAt: "2024-10-09T09:36:58.656Z"
+        }
+      ],
+      strategies: [
+        {
+          id: "a21ce28a-72ab-472e-a53d-cbd1f69d619a",
+          strategyNumber: 100,
+          dateActive: null,
+          content: "<p>1111</p>\n",
+          state: "Черновик",
+          createdAt: "2024-10-31T08:44:57.466Z",
+          updatedAt: "2024-10-31T08:44:57.466Z",
+          organization: {
+            id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+            organizationName: "soplya firma",
+            parentOrganizationId: null,
+            createdAt: "2024-09-16T14:24:33.841Z",
+            updatedAt: "2024-09-16T14:24:33.841Z"
+          }
+        }
+      ],
+      programs: [
+        {
+          id: "b7f4064f-cddf-4faa-b0fb-4601c6c77418",
+          projectNumber: 100,
+          projectName: "Название проекта",
+          programId: null,
+          content: null,
+          type: "Программа",
+          createdAt: "2024-10-29T15:16:25.171Z",
+          updatedAt: "2024-10-29T15:16:25.171Z"
         }
       ],
       organizations: [
@@ -95,24 +126,6 @@ export class ProjectController {
           parentOrganizationId: null,
           createdAt: "2024-09-16T14:24:33.841Z",
           updatedAt: "2024-09-16T14:24:33.841Z"
-        },
-        {
-          id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
-          organizationName: "OOO BOBRIK",
-          parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-          createdAt: "2024-09-16T15:09:48.995Z",
-          updatedAt: "2024-09-16T15:09:48.995Z"
-        }
-      ],
-      programsWithoutProject: [
-        {
-          id: "e60b25a2-f01a-49f5-a55e-994bc5987010",
-          projectNumber: 13,
-          programId: "b6ed2664-9510-4a47-9117-6ce89903b4b5",
-          content: "Контент проекта",
-          type: "Программа",
-          createdAt: "2024-10-09T12:31:01.634Z",
-          updatedAt: "2024-10-09T12:31:01.634Z"
         }
       ]
     }
@@ -120,12 +133,13 @@ export class ProjectController {
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ workers: ReadUserDto[], strategies: StrategyReadDto[], programs: ProjectReadDto[] }> {
+  async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ workers: ReadUserDto[], strategies: StrategyReadDto[], programs: ProjectReadDto[], organizations: OrganizationReadDto[]}> {
     const user = await this.userService.findOne(userId);
     const workers = await this.userService.findAllForAccount(user.account);
     const strategies = await this.strategyService.findAllActiveForAccount(user.account);
     const programs = await this.projectService.findAllProgramsForAccount(user.account);
-    return { workers: workers, strategies: strategies,  programs: programs }
+    const organizations = await this.organizationService.findAllForAccount(user.account, false);
+    return { workers: workers, strategies: strategies,  programs: programs, organizations: organizations }
   }
 
   @Post('new')
@@ -245,6 +259,21 @@ export class ProjectController {
     return {id: updatedProjectId};
   }
 
+
+  @Get(':programId/program')
+  @ApiOperation({ summary: 'Вернуть программу по ID' })
+  @ApiResponse({
+    status: HttpStatus.OK, description: "ОК!",
+    example: {
+    }
+  })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+  @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+  @ApiParam({ name: 'programId', required: true, description: 'Id программы' })
+  async findOneProgram(@Param('userId') userId: string, @Param('programId') programId: string): Promise<{program: ProjectReadDto, projects: ProjectReadDto[]}> {
+    const programWithProjects = await this.projectService.findOneProgramById(programId);
+    return {program: programWithProjects.program, projects: programWithProjects.projects}
+  }
 
   @Get(':projectId')
   @ApiOperation({ summary: 'Вернуть проект по ID' })

@@ -124,6 +124,42 @@ export class ProjectService {
         }
     }
 
+    async findOneProgramById(id: string): Promise<{program: ProjectReadDto, projects: ProjectReadDto[]}> {
+        try {
+            const program = await this.projectRepository.findOne({where: {id: id}})
+            const projects = await this.projectRepository.find({where: {programId: id}})
+            if (!program) throw new NotFoundException(`Проект с ID: ${id} не найден`);
+            const programReadDto: ProjectReadDto = {
+                id: program.id,
+                projectNumber: program.projectNumber,
+                projectName: program.projectName,
+                programId: program.programId,
+                content: program.content,
+                type: program.type,
+                createdAt: program.createdAt,
+                updatedAt: program.updatedAt,
+                organization: program.organization,
+                targets: program.targets,
+                strategy: program.strategy,
+                account: program.account,
+                user: program.user,
+            }
+
+            return {program: programReadDto, projects: projects};
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении проекта');
+        }
+    }
+
     async create(projectCreateDto: ProjectCreateDto): Promise<string> {
         try {
 

@@ -26,7 +26,7 @@ export class OrganizationController{
     @ApiParam({name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a'})
     async findOrganization(@Param('userId') userId: string): Promise<OrganizationReadDto[]>{
         const user = await this.userService.findOne(userId)
-        return await this.organizationService.findAllForAccount(user.account);
+        return await this.organizationService.findAllForAccount(user.account, false);
     }
 
     @Patch(':organizationId/update')
