@@ -7,7 +7,7 @@ import { StrategyCreateDto } from "src/contracts/strategy/create-strategy.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { StrategyUpdateDto } from "src/contracts/strategy/update-strategy.dto";
 import { Logger } from "winston";
-import { IsNull, Not } from "typeorm";
+import { In, IsNull, Not } from "typeorm";
 
 
 
@@ -82,8 +82,13 @@ export class StrategyService {
 
     async findAllActiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
         try {
-
-            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE || State.DRAFT}, relations: ['organization']});
+            const strategies = await this.strategyRepository.find({
+                where: {
+                  account: { id: account.id },
+                  state: In([State.ACTIVE, State.DRAFT]), // Используем In для OR условия
+                },
+                relations: ['organization'],
+              });
 
             return strategies.map(strategy => ({
                 id: strategy.id,
