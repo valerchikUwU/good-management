@@ -87,7 +87,7 @@ export class ProjectCreateDto {
     })
     @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
-    targetCreateDtos?: TargetCreateDto[] //nullable
+    targetCreateDtos?: TargetCreateDto[] 
 }
 
 

@@ -185,7 +185,7 @@ export class PostController {
     const policies = await this.policyService.findAllWithoutPost(user.account);
     const workers = await this.userService.findAllForAccount(user.account);
     const postsWithoutParentId = await this.postService.findAllWithoutParentId(user.account);
-    const organizations = await this.organizationService.findAllForAccount(user.account)
+    const organizations = await this.organizationService.findAllForAccount(user.account, false)
     return { workers: workers, policies: policies, postsWithoutParentId: postsWithoutParentId, organizations: organizations };
   }
 
@@ -281,7 +281,7 @@ export class PostController {
     const post = await this.postService.findOneById(postId);
     const parentPost = await this.postService.findOneById(post.parentId)
     const workers = await this.userService.findAllForAccount(user.account);
-    const organizations = await this.organizationService.findAllForAccount(user.account)
+    const organizations = await this.organizationService.findAllForAccount(user.account, false)
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`);
     return { currentPost: post, parentPost: parentPost, workers: workers, organizations: organizations }
   }

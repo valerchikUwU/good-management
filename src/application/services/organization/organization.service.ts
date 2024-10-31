@@ -16,10 +16,10 @@ export class OrganizationService {
 
     }
 
-    async findAllForAccount(account: AccountReadDto): Promise<OrganizationReadDto[]> {
+    async findAllForAccount(account: AccountReadDto, relationsFlag: boolean): Promise<OrganizationReadDto[]> {
         try {
-
-            const organizations = await this.organizationRepository.find({ where: { account: { id: account.id } }, relations: ['goal'] });
+            
+            const organizations = await this.organizationRepository.find({ where: { account: { id: account.id } }, relations: relationsFlag ? ['goal'] : [] });
             return organizations.map(organization => ({
                 id: organization.id,
                 organizationName: organization.organizationName,

@@ -140,7 +140,7 @@ export class PolicyController {
         const user = await this.userService.findOne(userId)
         const directives = await this.policyService.findDirectivesForAccount(user.account);
         const instructions = await this.policyService.findInstructionsForAccount(user.account);
-        const organizations = await this.organizationService.findAllForAccount(user.account);
+        const organizations = await this.organizationService.findAllForAccount(user.account, false);
         const policies = await this.policyService.findAllForAccount(user.account)
         return { directives: directives, instructions: instructions, policies: policies, organizations: organizations }
     }
@@ -226,7 +226,7 @@ export class PolicyController {
     async findOne(@Param('userId') userId: string, @Param('policyId') policyId: string, @Ip() ip: string): Promise<{ currentPolicy: PolicyReadDto, organizations: OrganizationReadDto[] }> {
         const policy = await this.policyService.findOneById(policyId);
         const user = await this.userService.findOne(userId)
-        const organizations = await this.organizationService.findAllForAccount(user.account);
+        const organizations = await this.organizationService.findAllForAccount(user.account, false);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POLICY: ${JSON.stringify(policy)} - Получить политику по ID!`);
         return { currentPolicy: policy, organizations: organizations }
     }
