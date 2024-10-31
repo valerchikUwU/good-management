@@ -7,6 +7,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 import { Organization } from "src/domains/organization.entity";
+import { HasProductAndRegularTasks } from "src/utils/TargetTypeValidation";
 
 export class ProjectCreateDto {
 
@@ -64,6 +65,7 @@ export class ProjectCreateDto {
                 orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+                state: 'Актвная',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -72,6 +74,7 @@ export class ProjectCreateDto {
                 orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+                state: 'Завершена',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -80,13 +83,33 @@ export class ProjectCreateDto {
                 orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+                state: 'Отменена',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
+            {
+                type: 'Статистика',
+                orderNumber: 1,
+                content: 'Контент задачи',
+                holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+                state: 'Просрочена',
+                dateStart: '2024-09-18T14:59:47.010Z',
+                deadline: '2024-09-18T14:59:47.010Z',
+            },
+            {
+                type: 'Организационные мероприятия',
+                orderNumber: 1,
+                content: 'Контент задачи',
+                holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+                state: 'Активная',
+                dateStart: '2024-09-18T14:59:47.010Z',
+                deadline: '2024-09-18T14:59:47.010Z',
+            }
         ]
     })
     @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
+    @HasProductAndRegularTasks({ message: 'Должен быть хотя бы один тип "Продукт" и один тип "Обычная" в задачах.' })
     targetCreateDtos?: TargetCreateDto[] 
 }
 
