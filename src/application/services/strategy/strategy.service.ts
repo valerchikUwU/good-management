@@ -83,7 +83,7 @@ export class StrategyService {
     async findAllActiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
         try {
 
-            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE}});
+            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE || State.DRAFT}, relations: ['organization']});
 
             return strategies.map(strategy => ({
                 id: strategy.id,

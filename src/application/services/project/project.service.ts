@@ -46,25 +46,11 @@ export class ProjectService {
         }
     }
 
-    async findAllProgramsWithoutProjectForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
+    async findAllProgramsForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
         try {
-            const programsWithoutProject = await this.projectRepository.createQueryBuilder('program')
-                .where('program.accountId = :accountId', { accountId: account.id })
-                .andWhere('program.type = :programType', { programType: Type.PROGRAM })
-                .andWhere(qb => {
-                    const subQuery = qb.subQuery()
-                        .select('project.programId')
-                        .from('project', 'project')
-                        .where('project.accountId = :accountId', { accountId: account.id })
-                        .andWhere('project.type = :projectType', { projectType: Type.PROJECT })
-                        .andWhere('project.programId IS NOT NULL')
-                        .groupBy('project.programId')  // Добавляем группировку по programId
-                        .getQuery();
-                    return 'program.id NOT IN ' + subQuery;
-                })
-                .getMany();
+            const programs = await this.projectRepository.find({where: {type: Type.PROGRAM}})
 
-            return programsWithoutProject.map(program => ({
+            return programs.map(program => ({
                 id: program.id,
                 projectNumber: program.projectNumber,
                 projectName: program.projectName,

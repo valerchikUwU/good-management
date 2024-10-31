@@ -6,13 +6,15 @@ export enum Type {
     COMMON = 'Обычная',
     STATISTIC = 'Статистика',
     RULE = 'Правила',
-    PRODUCT = 'Продукт'
+    PRODUCT = 'Продукт',
+    EVENT = 'Организационные мероприятия'
 }
 
 export enum State {
     ACTIVE = 'Активная',
     REJECTED = 'Отменена',
-    FINISHED = 'Завершена'
+    FINISHED = 'Завершена',
+    EXPIRED = 'Просрочена'
 }
 @Entity()
 export class Target{
