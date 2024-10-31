@@ -78,7 +78,7 @@ export class StatisticController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'statisticId', required: true, description: 'Id статистики' })
-  async update(@Param('statisticId') statisticId: string, @Param('userId') userId: string, @Body() statisticUpdateDto: StatisticUpdateDto, @Ip() ip: string): Promise<string> {
+  async update(@Param('statisticId') statisticId: string, @Param('userId') userId: string, @Body() statisticUpdateDto: StatisticUpdateDto, @Ip() ip: string): Promise<{id: string}> {
     const post = statisticUpdateDto.postId !== undefined ? await this.postService.findOneById(statisticUpdateDto.postId) : null
     if (post !== null) {
       statisticUpdateDto.post = post;
@@ -102,7 +102,7 @@ export class StatisticController {
 
 
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED STATISTIC: ${JSON.stringify(statisticUpdateDto)} - Статистика успешно обновлена!`);
-    return updatedStatisticId;
+    return {id: updatedStatisticId};
   }
 
   @Get('new')
@@ -161,7 +161,7 @@ export class StatisticController {
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async create(@Param('userId') userId: string, @Body() statisticCreateDto: StatisticCreateDto, @Ip() ip: string): Promise<string> {
+  async create(@Param('userId') userId: string, @Body() statisticCreateDto: StatisticCreateDto, @Ip() ip: string): Promise<{id: string}> {
     const statisticDataCreateEventDtos: StatisticDataCreateEventDto[] = [];
     const [user, post] = await Promise.all([
       this.userService.findOne(userId),
@@ -206,7 +206,7 @@ export class StatisticController {
     await this.producerService.sendCreatedStatisticToQueue(statisticCreateEventDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - statisticCreateDto: ${JSON.stringify(statisticCreateDto)} - Создана новая статистика!`);
     // Возвращаем результат
-    return createdStatistic.id;
+    return {id: createdStatistic.id};
 
   }
 

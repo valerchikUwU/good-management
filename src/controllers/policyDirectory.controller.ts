@@ -37,12 +37,12 @@ export class PolicyDirectoryController{
         required: true,
     })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async create(@Param('userId') userId: string, @Body() policyDirectoryCreateDto: PolicyDirectoryCreateDto, @Ip() ip: string): Promise<PolicyDirectory>{
+    async create(@Param('userId') userId: string, @Body() policyDirectoryCreateDto: PolicyDirectoryCreateDto, @Ip() ip: string): Promise<{id: string}>{
         const user = await this.userService.findOne(userId);
         policyDirectoryCreateDto.account = user.account;
         const createdPolicyDirectory = await this.policyDirectoryService.create(policyDirectoryCreateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - policyDirectoryCreateDto: ${JSON.stringify(policyDirectoryCreateDto)} - Создана новая папка!`)
-        return createdPolicyDirectory;
+        return {id: createdPolicyDirectory.id};
     }
 
     @Patch(':policyDirectoryId/update')
@@ -54,10 +54,10 @@ export class PolicyDirectoryController{
     })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyDirectoryId', required: true, description: 'Id папки', example: 'a8b9c962-13d7-4b6f-a445-233b51fa6988' })
-    async update(@Param('policyDirectoryId') policyDirectoryId: string, @Body() policyDirectoryUpdateDto: PolicyDirectoryUpdateDto, @Ip() ip: string): Promise<PolicyDirectoryReadDto>{
+    async update(@Param('policyDirectoryId') policyDirectoryId: string, @Body() policyDirectoryUpdateDto: PolicyDirectoryUpdateDto, @Ip() ip: string): Promise<{id: string}>{
         const updatedPolicyDirectory = await this.policyDirectoryService.update(policyDirectoryId, policyDirectoryUpdateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POLICYDIRECTORY: ${JSON.stringify(policyDirectoryUpdateDto)} - Папка успешно обновлена!`);
-        return updatedPolicyDirectory;
+        return {id: updatedPolicyDirectory.id};
     }
 
 
