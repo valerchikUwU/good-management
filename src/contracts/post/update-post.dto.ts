@@ -56,11 +56,20 @@ export class PostUpdateDto {
     @IsNotEmpty({ message: 'ID организации не может быть пустым!' })
     organizationId?: string
 
+    @ApiProperty({ description:'ID политики, с которой связать пост', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
+    @IsOptional()
+    @IsUUID()
+    @IsNotEmpty({ message: 'ID политики не может быть пустым!' })
+    policyId?: string
+
     @Exclude({toPlainOnly: true})
     user: User;
 
     @Exclude({toPlainOnly: true})
     organization: Organization
+
+    @Exclude({toPlainOnly: true})
+    policy: Policy
     
 }
 

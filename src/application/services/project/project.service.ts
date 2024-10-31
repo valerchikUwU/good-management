@@ -208,8 +208,9 @@ export class ProjectService {
             if (updateProjectDto.content) project.content = updateProjectDto.content;
             if (updateProjectDto.type) project.type = updateProjectDto.type;
             if (updateProjectDto.organizationId) project.organization = updateProjectDto.organization;
+            if (updateProjectDto.strategyId) project.strategy = updateProjectDto.strategy;
 
-            await this.projectRepository.update(project.id, {projectName: project.projectName, programId: project.programId, content: project.content, type: project.type, organization: project.organization});
+            await this.projectRepository.update(project.id, {projectName: project.projectName, programId: project.programId, content: project.content, type: project.type, organization: project.organization, strategy: project.strategy});
             return project.id
         }
         catch (err) {

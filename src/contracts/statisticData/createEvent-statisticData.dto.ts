@@ -4,5 +4,6 @@ export class StatisticDataCreateEventDto{
     valueDate: Date;
     createdAt: Date;
     statisticId: string;
+    accountId: string;
 }
 

@@ -1,5 +1,3 @@
-import { State } from "src/domains/target.entity";
-
 export class TargetCreateEventDto{
     id: string;
     type: string; 
@@ -11,4 +9,5 @@ export class TargetCreateEventDto{
     dateStart: Date; 
     deadline: Date | null;
     projectId: string; 
+    accountId: string;
 }

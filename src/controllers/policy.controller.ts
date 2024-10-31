@@ -17,6 +17,7 @@ import { AccessTokenGuard } from "src/guards/accessToken.guard";
 import { PolicyCreateEventDto } from "src/contracts/policy/createEvent-policy.dto";
 import { ProducerService } from "src/application/services/producer/producer.service";
 import { State, Type } from "src/domains/policy.entity";
+import { PolicyUpdateEventDto } from "src/contracts/policy/updateEvent-policy.dto";
 
 @ApiTags('Policy')
 // @UseGuards(AccessTokenGuard)
@@ -66,8 +67,8 @@ export class PolicyController {
     async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<{ policies: PolicyReadDto[], directives: PolicyReadDto[], instructions: PolicyReadDto[] }> {
         const user = await this.userService.findOne(userId);
         const policies = await this.policyService.findAllForAccount(user.account);
-        const directives = await this.policyService.findDirectivesForAccount(user.account);
-        const instructions = await this.policyService.findInstructionsForAccount(user.account);
+        const directives = policies.filter((policy) => policy.type === Type.DIRECTIVE);
+        const instructions = policies.filter((policy) => policy.type === Type.INSTRUCTION);
         return { policies: policies, directives: directives, instructions: instructions }
     }
 
@@ -137,11 +138,11 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ directives: PolicyReadDto[], instructions: PolicyReadDto[], policies: PolicyReadDto[], organizations: OrganizationReadDto[] }> {
-        const user = await this.userService.findOne(userId)
-        const directives = await this.policyService.findDirectivesForAccount(user.account);
-        const instructions = await this.policyService.findInstructionsForAccount(user.account);
+        const user = await this.userService.findOne(userId);
+        const policies = await this.policyService.findAllForAccount(user.account);
+        const directives = policies.filter((policy) => policy.type === Type.DIRECTIVE);
+        const instructions = policies.filter((policy) => policy.type === Type.INSTRUCTION);
         const organizations = await this.organizationService.findAllForAccount(user.account, false);
-        const policies = await this.policyService.findAllForAccount(user.account)
         return { directives: directives, instructions: instructions, policies: policies, organizations: organizations }
     }
 
@@ -161,8 +162,21 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
-    async update(@Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+    async update(@Param('userId') userId: string, @Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+        const user = await this.userService.findOne(userId);
         const updatedPolicyId = await this.policyService.update(policyId, policyUpdateDto);
+        const updatedEventPolicyDto: PolicyUpdateEventDto = {
+            eventType: 'POLICY_UPDATED',
+            id: updatedPolicyId,
+            policyName: policyUpdateDto.policyName !== undefined ? policyUpdateDto.policyName: null,
+            state: policyUpdateDto.state !== undefined ? policyUpdateDto.state as string : null,
+            type: policyUpdateDto.type !== undefined ? policyUpdateDto.type as string : null, 
+            content: policyUpdateDto.content !== undefined ? policyUpdateDto.content: null, 
+            updatedAt: new Date(),
+            policyToOrganizations: policyUpdateDto.policyToOrganizations !== undefined ? policyUpdateDto.policyToOrganizations: null,
+            accountId: user.account.id
+        };
+        await this.producerService.sendUpdatedPolicyToQueue(updatedEventPolicyDto)
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POLICY: ${JSON.stringify(policyUpdateDto)} - Политика успешно обновлена!`);
         return {id: updatedPolicyId};
     }

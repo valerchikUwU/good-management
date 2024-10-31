@@ -20,6 +20,8 @@ import { ProjectCreateEventDto } from "src/contracts/project/createEvent-project
 import { TargetCreateEventDto } from "src/contracts/target/createEvent-target.dto";
 import { State, Type as TypeTarget } from "src/domains/target.entity";
 import { ProducerService } from "src/application/services/producer/producer.service";
+import { TargetUpdateEventDto } from "src/contracts/target/updateEvent-target.dto";
+import { ProjectUpdateEventDto } from "src/contracts/project/updateEvent-project.dto";
 
 
 
@@ -169,6 +171,8 @@ export class ProjectController {
     projectCreateDto.organization = organization;
     const createdProjectId = await this.projectService.create(projectCreateDto);
     const createdProject = await this.projectService.findOneById(createdProjectId);
+
+
     const targetCreateEventDtos: TargetCreateEventDto[] = [];
 
     if (projectCreateDto.targetCreateDtos !== undefined) {
@@ -187,7 +191,8 @@ export class ProjectController {
           targetState: targetCreateDto.targetState !== undefined ? targetCreateDto.targetState as string : State.ACTIVE as string,
           dateStart: targetCreateDto.dateStart !== undefined ? targetCreateDto.dateStart : new Date(), //default createdAt
           deadline: targetCreateDto.deadline !== undefined ? targetCreateDto.deadline : null,
-          projectId: createdProject.id 
+          projectId: createdProject.id,
+          accountId: user.account.id
         }
         targetCreateEventDtos.push(targetCreateEventDto);
         return createdTarget;
@@ -228,18 +233,41 @@ export class ProjectController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Проект не найден!` })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
-  async update(@Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+  async update(@Param('userId') userId: string, @Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+    const user = await this.userService.findOne(userId);
     if(projectUpdateDto.organizationId){
       const organization = await this.organizationService.findOneById(projectUpdateDto.organizationId);
       projectUpdateDto.organization = organization;
     }
+    if(projectUpdateDto.strategyId){
+      const strategy = await this.strategyService.findOneById(projectUpdateDto.strategyId);
+      projectUpdateDto.strategy = strategy;
+    }
     const updatedProjectId = await this.projectService.update(projectId, projectUpdateDto);
     const project = await this.projectService.findOneById(updatedProjectId);
+
+
+    const targetCreateEventDtos: TargetCreateEventDto[] = [];
+    const targetUpdateEventDtos: TargetUpdateEventDto[] = [];
     if (projectUpdateDto.targetUpdateDtos !== undefined) {
       const updateTargetsPromises = projectUpdateDto.targetUpdateDtos.map(async (targetUpdateDto) => {
         const holderUser = await this.userService.findOne(targetUpdateDto.holderUserId);
         targetUpdateDto.holderUser = holderUser;
-        return await this.targetService.update(targetUpdateDto);
+        const updatedTargetId = await this.targetService.update(targetUpdateDto);
+        const targetUpdateEventDto: TargetUpdateEventDto = {
+          id: updatedTargetId,
+          orderNumber: targetUpdateDto.orderNumber !== undefined ? targetUpdateDto.orderNumber : null,
+          content: targetUpdateDto.content !== undefined ? targetUpdateDto.content : null,
+          updatedAt: new Date(),
+          holderUserId: targetUpdateDto.holderUserId !== undefined ? targetUpdateDto.holderUserId : null,
+          targetState: targetUpdateDto.targetState !== undefined ? targetUpdateDto.targetState as string : null,
+          dateStart: targetUpdateDto.dateStart !== undefined ? targetUpdateDto.dateStart : null, 
+          deadline: targetUpdateDto.deadline !== undefined ? targetUpdateDto.deadline : null,
+          projectId: project.id,
+          accountId: user.account.id
+        }
+        targetUpdateEventDtos.push(targetUpdateEventDto);
+        return updatedTargetId;
       });
       await Promise.all(updateTargetsPromises); // Ждём выполнения всех операций update
     }
@@ -249,12 +277,41 @@ export class ProjectController {
         targetCreateDto.project = project; // Присваиваем обновленный проект
         const holderUser = await this.userService.findOne(targetCreateDto.holderUserId);
         targetCreateDto.holderUser = holderUser;
-        return await this.targetService.create(targetCreateDto); // Возвращаем промис создания
+        const createdTarget = await this.targetService.create(targetCreateDto);
+        const targetCreateEventDto: TargetCreateEventDto = {
+          id: createdTarget.id,
+          type: targetCreateDto.type !== undefined ? targetCreateDto.type as string : TypeTarget.COMMON as string, // TypeTarget alias for Type (target)
+          orderNumber: targetCreateDto.orderNumber,
+          content: targetCreateDto.content,
+          createdAt: new Date(),
+          holderUserId: targetCreateDto.holderUserId,
+          targetState: targetCreateDto.targetState !== undefined ? targetCreateDto.targetState as string : State.ACTIVE as string,
+          dateStart: targetCreateDto.dateStart !== undefined ? targetCreateDto.dateStart : new Date(), //default createdAt
+          deadline: targetCreateDto.deadline !== undefined ? targetCreateDto.deadline : null,
+          projectId: project.id,
+          accountId: user.account.id
+        }
+        targetCreateEventDtos.push(targetCreateEventDto);
+        return createdTarget;
       });
       await Promise.all(createTargetsPromises); // Ждём выполнения всех операций create
     }
 
-
+    const updatedEventProjectDto: ProjectUpdateEventDto = {
+      eventType: 'PROJECT_UPDATED',
+      id: project.id,
+      projectName: projectUpdateDto.projectName !== undefined ? projectUpdateDto.projectName : null,
+      programId: projectUpdateDto.programId !== undefined ? projectUpdateDto.programId : null,
+      content: projectUpdateDto.content !== undefined ? projectUpdateDto.content : null,
+      type: projectUpdateDto.type !== undefined ? projectUpdateDto.type as string : null,
+      organizationId: projectUpdateDto.organizationId !== undefined ? projectUpdateDto.organizationId : null,
+      updatedAt: new Date(),
+      strategyId: projectUpdateDto.strategyId !== undefined ? projectUpdateDto.strategyId : null,
+      accountId: user.account.id,
+      targetUpdateDtos: targetUpdateEventDtos.length > 0 ? targetUpdateEventDtos : null,
+      targetCreateDtos: targetCreateEventDtos.length > 0 ? targetCreateEventDtos : null
+    };
+    await this.producerService.sendUpdatedProjectToQueue(updatedEventProjectDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`);
     return {id: updatedProjectId};
   }
