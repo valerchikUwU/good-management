@@ -159,7 +159,7 @@ export class StrategyController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Стратегия не найдена!` })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  @ApiParam({ name: 'strategyId', required: true, description: 'Id политики' })
+  @ApiParam({ name: 'strategyId', required: true, description: 'Id стратегии' })
   async findOne(@Param('strategyId') strategyId: string, @Ip() ip: string): Promise<{ currentStrategy: StrategyReadDto }> {
     const strategy = await this.strategyService.findOneById(strategyId);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT STRATEGY: ${JSON.stringify(strategy)} - Получить стратегию по ID!`);
@@ -180,43 +180,7 @@ export class StrategyController {
     status: HttpStatus.OK, description: "ОК!",
     example:
     {
-      content: "HTML текст",
-      state: "Черновик",
-      user: {
-        id: "3b809c42-2824-46c1-9686-dd666403402a",
-        firstName: "Maxik",
-        lastName: "Koval",
-        telegramId: 453120600,
-        telephoneNumber: null,
-        avatar_url: null,
-        vk_id: null,
-        createdAt: "2024-09-16T14:03:31.000Z",
-        updatedAt: "2024-09-16T14:03:31.000Z",
-        organization: {
-          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-          organizationName: "soplya firma",
-          parentOrganizationId: null,
-          createdAt: "2024-09-16T14:24:33.841Z",
-          updatedAt: "2024-09-16T14:24:33.841Z"
-        },
-        account: {
-          id: "a1118813-8985-465b-848e-9a78b1627f11",
-          accountName: "OOO PIPKA",
-          createdAt: "2024-09-16T12:53:29.593Z",
-          updatedAt: "2024-09-16T12:53:29.593Z"
-        }
-      },
-      account: {
-        id: "a1118813-8985-465b-848e-9a78b1627f11",
-        accountName: "OOO PIPKA",
-        createdAt: "2024-09-16T12:53:29.593Z",
-        updatedAt: "2024-09-16T12:53:29.593Z"
-      },
-      dateActive: null,
-      id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93",
-      strategyNumber: 2,
-      createdAt: "2024-09-20T14:35:56.273Z",
-      updatedAt: "2024-09-20T14:35:56.273Z"
+      id: "21dcf96d-1e6a-4c8c-bc12-c90589b40e93"
     }
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })

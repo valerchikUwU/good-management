@@ -385,21 +385,26 @@ export class ProjectController {
           ]
         }
       ],
-      "strategy": {
-        "id": "fbc2871c-37b3-435f-8b9a-d30235e59e33",
-        "strategyNumber": 71,
-        "dateActive": null,
-        "content": "HTML текст",
-        "state": "Черновик",
-        "createdAt": "2024-10-28T12:09:02.936Z",
-        "updatedAt": "2024-10-28T12:09:02.936Z"
+      strategy: {
+        id: "fbc2871c-37b3-435f-8b9a-d30235e59e33",
+        strategyNumber: 71,
+        dateActive: null,
+        content: "HTML текст",
+        state: "Черновик",
+        createdAt: "2024-10-28T12:09:02.936Z",
+        updatedAt: "2024-10-28T12:09:02.936Z"
       }
     }
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
-  async findOne(@Param('userId') userId: string, @Param('projectId') projectId: string): Promise<ProjectReadDto> {
-    return await this.projectService.findOneById(projectId);
+  async findOne(@Param('userId') userId: string, @Param('projectId') projectId: string): Promise<{project: ProjectReadDto, strategies: StrategyReadDto[]}> {
+    const [user, project] = await Promise.all([
+      this.userService.findOne(userId),
+      this.projectService.findOneById(projectId)
+    ])
+    const strategies = await this.strategyService.findAllForAccount(user.account)
+    return {project: project, strategies: strategies}
   }
 }

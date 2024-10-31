@@ -114,10 +114,10 @@ export class StrategyService {
         }
     }
 
-    async findAllRelatedForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+    async findAllWithObjectiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
         try {
 
-            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, objective: {id: Not(IsNull()) }}});
+            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, objective: {id: Not(IsNull()) }}, relations: ['objective']});
 
             return strategies.map(strategy => ({
                 id: strategy.id,
@@ -212,7 +212,7 @@ export class StrategyService {
     async update(_id: string, updateStrategyDto: StrategyUpdateDto): Promise<string> {
         try {
 
-            const strategy = await this.strategyRepository.findOne({ where: { id: _id } });
+            const strategy = await this.strategyRepository.findOne({ where: { id: _id }, relations: ['organization'] });
             if (!strategy) {
                 throw new NotFoundException(`Стратегия с ID ${_id} не найдена`);
             }
