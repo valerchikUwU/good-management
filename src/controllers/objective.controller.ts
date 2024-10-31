@@ -31,15 +31,20 @@ export class ObjectiveController {
         status: HttpStatus.OK, description: "ОК!",
         example: [
             {
-                id: "2f17f491-03c4-4bf8-8e40-c741263ed9df",
-                orderNumber: 1,
-                situation: "Текст",
-                content: "Контент",
-                rootCause: "Причина",
-                createdAt: "2024-09-20T14:58:53.054Z",
-                updatedAt: "2024-09-20T14:58:53.054Z"
+              id: "59fd156c-9a24-43f5-a521-2e9c888cca2c",
+              situation: [
+                "Текст"
+              ],
+              content: [
+                "Контент"
+              ],
+              rootCause: [
+                "Причина"
+              ],
+              createdAt: "2024-10-31T15:11:47.146Z",
+              updatedAt: "2024-10-31T15:11:47.146Z"
             }
-        ]
+          ]
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
@@ -80,14 +85,37 @@ export class ObjectiveController {
     @ApiOperation({ summary: 'Получить данные для обновления краткосрочной цели по ID' })
     @ApiResponse({
         status: HttpStatus.OK, description: "ОК!",
-        example: {
-        }
+        example: [
+            {
+              id: "3dea05a6-eba2-482a-b8bb-7f80bdcbc9c2",
+              strategyNumber: 81,
+              dateActive: null,
+              content: "HTML текст",
+              state: "Активный",
+              createdAt: "2024-10-29T18:43:46.953Z",
+              updatedAt: "2024-10-31T15:10:08.283Z",
+              objective: {
+                id: "59fd156c-9a24-43f5-a521-2e9c888cca2c",
+                situation: [
+                  "Текст"
+                ],
+                content: [
+                  "Контент"
+                ],
+                rootCause: [
+                  "Причина"
+                ],
+                createdAt: "2024-10-31T15:11:47.146Z",
+                updatedAt: "2024-10-31T15:11:47.146Z"
+              }
+            }
+          ]
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeUpdate(@Param('userId') userId: string): Promise<StrategyReadDto[]> {
         const user = await this.userService.findOne(userId)
-        const strategies = await this.strategyService.findAllRelatedForAccount(user.account)
+        const strategies = await this.strategyService.findAllWithObjectiveForAccount(user.account)
         return strategies;
     }
 
