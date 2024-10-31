@@ -212,7 +212,7 @@ export class StrategyController {
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async create(@Param('userId') userId: string, @Body() strategyCreateDto: StrategyCreateDto, @Ip() ip: string): Promise<string> {
+  async create(@Param('userId') userId: string, @Body() strategyCreateDto: StrategyCreateDto, @Ip() ip: string): Promise<{id: string}> {
     const [user, organization] = await Promise.all([
       this.userService.findOne(userId),
       this.organizationService.findOneById(strategyCreateDto.organizationId)
@@ -232,7 +232,7 @@ export class StrategyController {
     await this.producerService.sendCreatedStrategyToQueue(createdStrategyEventDto);
 
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - strategyCreateDto: ${JSON.stringify(strategyCreateDto)} - Создана новая стратегия!`)
-    return createdStrategyId
+    return {id: createdStrategyId}
   }
 
 
