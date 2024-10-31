@@ -224,6 +224,7 @@ export class PostService {
             if (updatePostDto.purpose) post.purpose = updatePostDto.purpose;
             if (updatePostDto.user) post.user = updatePostDto.user;
             if (updatePostDto.organization) post.organization = updatePostDto.organization;
+            if (updatePostDto.policy) post.policy = updatePostDto.policy;
             await this.postRepository.update(post.id, {
                 postName: post.postName, 
                 divisionName: post.divisionName, 
@@ -231,7 +232,8 @@ export class PostService {
                 product: post.product, 
                 purpose: post.purpose, 
                 user: post.user, 
-                organization: post.organization
+                organization: post.organization,
+                policy: post.policy
             });
             return post.id
         }

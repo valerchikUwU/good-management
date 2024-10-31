@@ -14,6 +14,7 @@ import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { StrategyCreateEventDto } from "src/contracts/strategy/createEvent-strategy.dto";
 import { ProducerService } from "src/application/services/producer/producer.service";
+import { StrategyUpdateEventDto } from "src/contracts/strategy/updateEvent-strategy.dto";
 
 @ApiTags('Strategy')
 @Controller(':userId/strategies')
@@ -47,6 +48,14 @@ export class StrategyController {
       strategyUpdateDto.organization = organization;
     }
     const updatedStrategyId = await this.strategyService.update(strategyId, strategyUpdateDto);
+    const updatedStrategyEventDto: StrategyUpdateEventDto = {
+      eventType: 'STRATEGY_UPDATED',
+      id: updatedStrategyId,
+      state: strategyUpdateDto.state !== undefined ? strategyUpdateDto.state as string : null,
+      content: strategyUpdateDto.content !== undefined ? strategyUpdateDto.content : null,
+      organizationId: strategyUpdateDto.organizationId !== undefined ? strategyUpdateDto.organizationId : null,
+    }
+    await this.producerService.sendUpdatedStrategyToQueue(updatedStrategyEventDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - strategyUpdateDto: ${JSON.stringify(strategyUpdateDto)} - Стратегия успешно обновлена!`);
     return {id: updatedStrategyId};
   }

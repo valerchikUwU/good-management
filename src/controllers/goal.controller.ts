@@ -6,12 +6,12 @@ import { UsersService } from "src/application/services/users/users.service";
 import { GoalCreateDto } from "src/contracts/goal/create-goal.dto";
 import { GoalReadDto } from "src/contracts/goal/read-goal.dto";
 import { GoalUpdateDto } from "src/contracts/goal/update-goal.dto";
-import { Goal } from "src/domains/goal.entity";
 import { Logger } from "winston";
 import { blue, red, green, yellow, bold } from 'colorette';
 import { OrganizationReadDto } from "src/contracts/organization/read-organization.dto";
 import { ProducerService } from "src/application/services/producer/producer.service";
 import { GoalCreateEventDto } from "src/contracts/goal/createEvent-goal.dto";
+import { GoalUpdateEventDto } from "src/contracts/goal/updateEvent-goal.dto";
 
 
 @ApiTags('Goal')
@@ -105,7 +105,16 @@ export class GoalController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
   async update(@Param('userId') userId: string, @Param('goalId') goalId: string, @Body() goalUpdateDto: GoalUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+    const user = await this.userService.findOne(userId);
     const updatedGoalId = await this.goalService.update(goalId, goalUpdateDto);
+    const updateEventGoalDto: GoalUpdateEventDto = {
+      eventType: 'GOAL_UPDATED',
+      id: updatedGoalId,
+      content: goalUpdateDto.content,
+      updatedAt: new Date(),
+      accountId: user.account.id
+    };
+    await this.producerService.sendUpdatedGoalToQueue(updateEventGoalDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED GOAL: ${JSON.stringify(goalUpdateDto)} - Цель успешно обновлена!`);
     return {id: updatedGoalId};
   }

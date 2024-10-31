@@ -11,6 +11,7 @@ import { blue, red, green, yellow, bold } from 'colorette';
 import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
 import { ProducerService } from "src/application/services/producer/producer.service";
 import { ObjectiveCreateEventDto } from "src/contracts/objective/createEvent-objective.dto";
+import { ObjectiveUpdateEventDto } from "src/contracts/objective/updateEvent-objective.dto";
 
 
 @ApiTags('Objective')
@@ -101,11 +102,23 @@ export class ObjectiveController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'objectiveId', required: true, description: 'Id краткосрочной цели' })
     async update(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+        const user = await this.userService.findOne(userId);
         if (objectiveUpdateDto.strategyId) {
             const strategy = await this.strategyService.findOneById(objectiveUpdateDto.strategyId);
             objectiveUpdateDto.strategy = strategy
         }
         const updatedObjectiveId = await this.objectiveService.update(objectiveId, objectiveUpdateDto);
+        const updatedEventObjectiveDto: ObjectiveUpdateEventDto = {
+            eventType: 'OBJECTIVE_UPDATED',
+            id: updatedObjectiveId,
+            situation: objectiveUpdateDto.situation !== undefined ? objectiveUpdateDto.situation : null,
+            content: objectiveUpdateDto.content !== undefined ? objectiveUpdateDto.content : null,
+            rootCause: objectiveUpdateDto.rootCause !== undefined ? objectiveUpdateDto.rootCause : null,
+            updatedAt: new Date(),
+            strategyId: objectiveUpdateDto.strategyId !== undefined ? objectiveUpdateDto.strategyId : null,
+            accountId: user.account.id
+        };
+        await this.producerService.sendUpdatedObjectiveToQueue(updatedEventObjectiveDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED OBJECTIVE: ${JSON.stringify(objectiveUpdateDto)} - Краткосрочная цель успешно обновлена!`);
         return {id: updatedObjectiveId};
     }

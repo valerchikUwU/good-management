@@ -5,6 +5,7 @@ import { ArrayNotEmpty, IsArray, IsEmpty, IsEnum, IsNotEmpty, IsOptional, IsStri
 import { TargetUpdateDto } from "../target/update-target.dto";
 import { Exclude } from "class-transformer";
 import { Organization } from "src/domains/organization.entity";
+import { Strategy } from "src/domains/strategy.entity";
 
 export class ProjectUpdateDto {
     
@@ -36,14 +37,23 @@ export class ProjectUpdateDto {
     @IsEnum(Type)
     type?: Type;
 
-    @ApiProperty({ description: 'IDs организаций, которые связать с проектом', required: false, example: '1f1cca9a-2633-489c-8f16-cddd411ff2d0' })
+    @ApiProperty({ description: 'ID организации, с которой связать проект', required: false, example: '1f1cca9a-2633-489c-8f16-cddd411ff2d0' })
     @IsOptional()
     @IsUUID()
     @IsNotEmpty({message: 'Выберите организацию!'})
     organizationId?: string;
 
+    @ApiProperty({ description: 'ID стратегии, которую связать с проектом', required: false, example: '221cca9a-2633-489c-8f16-cddd411ff2d0' })
+    @IsOptional()
+    @IsUUID()
+    @IsNotEmpty({message: 'Выберите стратегию!'})
+    strategyId?: string;
+
     @Exclude({toPlainOnly: true})
     organization: Organization;
+
+    @Exclude({toPlainOnly: true})
+    strategy: Strategy;
 
     @ApiProperty({
         description: 'Список задач', required: false, example: 

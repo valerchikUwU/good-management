@@ -16,6 +16,8 @@ import { StatisticUpdateDto } from "src/contracts/statistic/update-statistic.dto
 import { ProducerService } from "src/application/services/producer/producer.service";
 import { StatisticDataCreateEventDto } from "src/contracts/statisticData/createEvent-statisticData.dto";
 import { StatisticCreateEventDto } from "src/contracts/statistic/createEvent-statistic.dto";
+import { StatisticDataUpdateEventDto } from "src/contracts/statisticData/updateEvent-statisticData.dto";
+import { StatisticUpdateEventDto } from "src/contracts/statistic/updateEvent-statistic.dto";
 
 @ApiTags('Statistic')
 @Controller(':userId/statistics')
@@ -79,6 +81,9 @@ export class StatisticController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'statisticId', required: true, description: 'Id статистики' })
   async update(@Param('statisticId') statisticId: string, @Param('userId') userId: string, @Body() statisticUpdateDto: StatisticUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+    const user = await this.userService.findOne(userId);
+    const statisticDataCreateEventDtos: StatisticDataCreateEventDto[] = [];
+    const statisticDataUpdateEventDtos: StatisticDataUpdateEventDto[] = [];
     const post = statisticUpdateDto.postId !== undefined ? await this.postService.findOneById(statisticUpdateDto.postId) : null
     if (post !== null) {
       statisticUpdateDto.post = post;
@@ -87,7 +92,17 @@ export class StatisticController {
     const statistic = await this.statisticService.findOneById(updatedStatisticId);
     if (statisticUpdateDto.statisticDataUpdateDtos !== undefined) {
       const updateStatisticDataPromises = statisticUpdateDto.statisticDataUpdateDtos.map(async (statisticDataUpdateDto) => {
-        return await this.statisticDataService.update(statisticDataUpdateDto);
+        const updatedStatisticDataId = await this.statisticDataService.update(statisticDataUpdateDto);
+        const statisticDataUpdateEventDto: StatisticDataUpdateEventDto = {
+          id: updatedStatisticDataId,
+          value: statisticDataUpdateDto.value !== undefined ? statisticDataUpdateDto.value : null,
+          valueDate: statisticDataUpdateDto.valueDate !== undefined ? statisticDataUpdateDto.valueDate : null,
+          updatedAt: new Date(),
+          statisticId: statistic.id,
+          accountId: user.account.id
+        };
+        statisticDataUpdateEventDtos.push(statisticDataUpdateEventDto);
+        return updatedStatisticDataId;
       });
       await Promise.all(updateStatisticDataPromises); // Ждём выполнения всех операций update
     }
@@ -95,12 +110,35 @@ export class StatisticController {
     if (statisticUpdateDto.statisticDataCreateDtos !== undefined) {
       const createStatisticDataPromises = statisticUpdateDto.statisticDataCreateDtos.map(async (statisticDataCreateDto) => {
         statisticDataCreateDto.statistic = statistic;
-        return this.statisticDataService.create(statisticDataCreateDto); // Возвращаем промис создания
+        const createdStatisticDataId = await this.statisticDataService.create(statisticDataCreateDto);
+        const statisticDataCreateEventDto: StatisticDataCreateEventDto = {
+          id: createdStatisticDataId,
+          value: statisticDataCreateDto.value,
+          valueDate: statisticDataCreateDto.valueDate,
+          createdAt: new Date(),
+          statisticId: statistic.id,
+          accountId: statistic.account.id
+        };
+        statisticDataCreateEventDtos.push(statisticDataCreateEventDto);
+        return createdStatisticDataId; // Возвращаем промис создания
       });
       await Promise.all(createStatisticDataPromises); // Ждём выполнения всех операций create
     }
 
+    const statisticUpdateEventDto: StatisticUpdateEventDto = {
 
+      eventType: 'STATISTIC_UPDATED',
+      id: statistic.id,
+      type: statisticUpdateDto.type !== undefined ? statisticUpdateDto.type as string : null,
+      name: statisticUpdateDto.name !== undefined ? statisticUpdateDto.name : null,
+      description: statisticUpdateDto.description !== undefined ? statisticUpdateDto.description : null,
+      updatedAt: new Date(),
+      postId: statisticUpdateDto.postId !== undefined ? statisticUpdateDto.postId : null,
+      statisticDataUpdateDtos: statisticDataUpdateEventDtos.length > 0 ? statisticDataUpdateEventDtos : null,
+      statisticDataCreateDtos: statisticDataCreateEventDtos.length > 0 ? statisticDataCreateEventDtos : null,
+      accountId: user.account.id
+    }
+    await this.producerService.sendUpdatedStatisticToQueue(statisticUpdateEventDto);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED STATISTIC: ${JSON.stringify(statisticUpdateDto)} - Статистика успешно обновлена!`);
     return {id: updatedStatisticId};
   }
@@ -173,23 +211,27 @@ export class StatisticController {
 
     const createdStatistic = await this.statisticService.create(statisticCreateDto);
 
+    if(statisticCreateDto.statisticDataCreateDtos !== undefined){
+      const statisticDataCreatePromises = statisticCreateDto.statisticDataCreateDtos.map(async (statisticDataCreateDto) => {
+        statisticDataCreateDto.statistic = createdStatistic;
+        const createdStatisticDataId = await this.statisticDataService.create(statisticDataCreateDto);
+        const statisticDataCreateEventDto: StatisticDataCreateEventDto = {
+          id: createdStatisticDataId,
+          value: statisticDataCreateDto.value,
+          valueDate: statisticDataCreateDto.valueDate,
+          createdAt: new Date(),
+          statisticId: createdStatistic.id,
+          accountId: user.account.id
+        };
+        statisticDataCreateEventDtos.push(statisticDataCreateEventDto);
+        return createdStatisticDataId; // Возвращаем промис создания
+      });
+  
+      // Ожидаем выполнения всех промисов параллельно и сохраняем результаты
+      await Promise.all(statisticDataCreatePromises);
+    }
     // Используем map для создания массива промисов
-    const statisticDataCreatePromises = statisticCreateDto.statisticDataCreateDtos.map(async (statisticDataCreateDto) => {
-      statisticDataCreateDto.statistic = createdStatistic;
-      const createdStatisticDataId = await this.statisticDataService.create(statisticDataCreateDto);
-      const statisticDataCreateEventDto: StatisticDataCreateEventDto = {
-        id: createdStatisticDataId,
-        value: statisticDataCreateDto.value,
-        valueDate: statisticDataCreateDto.valueDate,
-        createdAt: new Date(),
-        statisticId: createdStatistic.id
-      };
-      statisticDataCreateEventDtos.push(statisticDataCreateEventDto);
-      return createdStatisticDataId; // Возвращаем промис создания
-    });
 
-    // Ожидаем выполнения всех промисов параллельно и сохраняем результаты
-    await Promise.all(statisticDataCreatePromises);
 
     const statisticCreateEventDto: StatisticCreateEventDto = {
 

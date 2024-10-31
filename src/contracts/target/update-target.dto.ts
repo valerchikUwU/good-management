@@ -13,5 +13,5 @@ export class TargetUpdateDto{
     dateStart?: Date;
     deadline?: Date;
     @Exclude({toPlainOnly: true})
-    holderUser?: User
+    holderUser: User
 }

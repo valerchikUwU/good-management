@@ -159,31 +159,31 @@ export class PolicyService {
     }
 
 
-    async findDirectivesForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
-        try {
-            // Поиск всех политик с типом DIRECTIVE
-            const directives = await this.policyRepository.find({ where: { type: Type.DIRECTIVE, account: { id: account.id } } });
+    // async findDirectivesForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
+    //     try {
+    //         // Поиск всех политик с типом DIRECTIVE
+    //         const directives = await this.policyRepository.find({ where: { type: Type.DIRECTIVE, account: { id: account.id } } });
 
-            return directives;
-        }
-        catch (err) {
-            this.logger.error(err);
-            throw new InternalServerErrorException('Ошибка при получении директив!')
-        }
-    }
+    //         return directives;
+    //     }
+    //     catch (err) {
+    //         this.logger.error(err);
+    //         throw new InternalServerErrorException('Ошибка при получении директив!')
+    //     }
+    // }
 
-    async findInstructionsForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
-        try {
-            // Поиск всех политик с типом INSTRUCTION
-            const instructions = await this.policyRepository.find({ where: { type: Type.INSTRUCTION, account: { id: account.id } } });
-            return instructions
-        }
-        catch (err) {
+    // async findInstructionsForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
+    //     try {
+    //         // Поиск всех политик с типом INSTRUCTION
+    //         const instructions = await this.policyRepository.find({ where: { type: Type.INSTRUCTION, account: { id: account.id } } });
+    //         return instructions
+    //     }
+    //     catch (err) {
 
-            this.logger.error(err);
-            throw new InternalServerErrorException('Ошибка при получении инструкций!')
-        }
-    }
+    //         this.logger.error(err);
+    //         throw new InternalServerErrorException('Ошибка при получении инструкций!')
+    //     }
+    // }
 
     async update(_id: string, updatePolicyDto: PolicyUpdateDto): Promise<string> {
         try {
