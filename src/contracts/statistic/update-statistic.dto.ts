@@ -15,12 +15,12 @@ export class StatisticUpdateDto{
     @IsNotEmpty({message: 'ID статистики не может быть пустым!'})
     _id: string;
     
-    @ApiProperty({description: 'Значение', required: true, example: 'Прямая', examples: ['Прямая', 'Обратная']})
+    @ApiProperty({description: 'Значение', required: false, example: 'Прямая', examples: ['Прямая', 'Обратная']})
     @IsOptional()
     @IsEnum(Type)
     type?: Type;
     
-    @ApiProperty({description: 'Название статистики', required: true, example: 'Название'})
+    @ApiProperty({description: 'Название статистики', required: false, example: 'Название'})
     @IsOptional()
     @IsString()
     @IsNotEmpty({message: 'У статистики должно быть название!'})
@@ -32,7 +32,7 @@ export class StatisticUpdateDto{
     @IsNotEmpty({message: 'Описание статистики не может быть пустым!'})
     description?: string
     
-    @ApiProperty({description: 'Id поста, к которому привязать статистику', required: true, example: '2420fabb-3e37-445f-87e6-652bfd5a050c'})
+    @ApiProperty({description: 'Id поста, к которому привязать статистику', required: false, example: '2420fabb-3e37-445f-87e6-652bfd5a050c'})
     @IsOptional()
     @IsUUID()
     @IsNotEmpty({message: 'ID поста не может быть пустым!'})
@@ -41,7 +41,7 @@ export class StatisticUpdateDto{
     @Exclude({toPlainOnly: true})
     post: Post;
 
-    @ApiProperty({description: 'Значения статистики', required: true, example: [
+    @ApiProperty({description: 'Значения статистики', required: false, example: [
         {
             value: 4500,
             valueDate: '2024-09-26 15:54:37.211744'
@@ -56,7 +56,7 @@ export class StatisticUpdateDto{
     @ArrayNotEmpty({message: 'Добавьте хотя бы одно значение для статистики!'})
     statisticDataCreateDtos?: StatisticDataCreateDto[]
     
-    @ApiProperty({description: 'Значения статистики', required: true, example: [
+    @ApiProperty({description: 'Значения статистики', required: false, example: [
         {
             _id: '1111fabb-3e37-445f-87e6-652bfd5a050c',
             value: 4500

@@ -23,7 +23,6 @@ export class ProjectUpdateDto {
     @ApiProperty({ description: 'Id программы', required: false, example: 'b6ed2664-9510-4a47-9117-6ce89903b4b5' })
     @IsOptional()
     @IsUUID()
-    @IsNotEmpty({message: 'ID программы не может быть пустым!'})
     programId?: string;
 
     @ApiProperty({ description: 'Содержание проекта', required: false, example: 'Контент проекта' })

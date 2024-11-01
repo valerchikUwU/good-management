@@ -194,6 +194,10 @@ export class StrategyService {
             strategy.user = strategyCreateDto.user;
             strategy.account = strategyCreateDto.account;
             strategy.organization = strategyCreateDto.organization;
+            const existingDraftStrategy = await this.strategyRepository.findOne({ where: { state: State.DRAFT, organization: {id: strategy.organization.id} } });
+            if (existingDraftStrategy) {
+              throw new BadRequestException('Может существовать только одна стратегия со статусом "Черновик".');
+            }
             const createdStrategyId = await this.strategyRepository.insert(strategy);
 
             return createdStrategyId.identifiers[0].id;
@@ -218,7 +222,7 @@ export class StrategyService {
             }
             // Обновить свойства, если они указаны в DTO
             if (updateStrategyDto.content) strategy.content = updateStrategyDto.content;
-            if (updateStrategyDto.organizationId) strategy.organization = updateStrategyDto.organization;
+            if (updateStrategyDto.organization) strategy.organization = updateStrategyDto.organization;
             if (updateStrategyDto.state){
                 if (updateStrategyDto.state === State.DRAFT) {
                     const existingDraftStrategy = await this.strategyRepository.findOne({ where: { state: State.DRAFT, organization: {id: strategy.organization.id} } });
@@ -242,6 +246,9 @@ export class StrategyService {
         catch (err) {
             this.logger.error(err);
             if (err instanceof NotFoundException) {
+                throw err;
+            }
+            if (err instanceof BadRequestException) {
                 throw err;
             }
             throw new InternalServerErrorException('Ой, что - то пошло не так при обновлении стратегии!')

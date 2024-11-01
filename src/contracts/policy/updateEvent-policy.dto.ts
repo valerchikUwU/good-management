@@ -7,6 +7,6 @@ export class PolicyUpdateEventDto{
     type: string | null; 
     content: string | null;
     updatedAt: Date;
-    policyToOrganizations: string[]; // Ids организаций, с которыми связать политику. У меня политика и организации M:M. 
+    policyToOrganizations: string[] | null; // Ids организаций, с которыми связать политику. У меня политика и организации M:M. 
     accountId: string;
 }
