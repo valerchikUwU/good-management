@@ -14,11 +14,11 @@ export class ProjectUpdateDto {
     @IsNotEmpty({message: 'ID проекта не может быть пустым!'})
     _id: string
 
-    @ApiProperty({ description: 'Название проекта', required: true, example: 'Название проекта' })
+    @ApiProperty({ description: 'Название проекта', required: false, example: 'Название проекта' })
     @IsOptional()
     @IsString()
     @IsNotEmpty({message: 'Название проекта не может быть пустым!'})
-    projectName: string;
+    projectName?: string;
 
     @ApiProperty({ description: 'Id программы', required: false, example: 'b6ed2664-9510-4a47-9117-6ce89903b4b5' })
     @IsOptional()

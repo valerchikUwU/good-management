@@ -3,7 +3,7 @@ import { ArrayNotEmpty, IsArray, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID
 
 export class GoalUpdateDto{
     
-    @ApiProperty({ description: 'Id цели', example: '907b0875-d29d-4f84-89fe-6b037d1ecc7f'})
+    @ApiProperty({ description: 'Id цели', required: true, example: '907b0875-d29d-4f84-89fe-6b037d1ecc7f'})
     @IsUUID()
     @IsNotEmpty({message: 'ID цели не может быть пустым!'})
     _id: string;

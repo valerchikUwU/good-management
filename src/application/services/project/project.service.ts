@@ -7,6 +7,7 @@ import { ProjectCreateDto } from "src/contracts/project/create-project.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { Logger } from 'winston';
 import { ProjectUpdateDto } from "src/contracts/project/update-project.dto";
+import { IsNull } from "typeorm";
 
 
 @Injectable()
@@ -75,7 +76,7 @@ export class ProjectService {
 
     async findAllProjectsWithoutProgramForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
         try {
-            const projects = await this.projectRepository.find({ where: { type: Type.PROJECT, programId: null, account: {id: account.id} }, relations: ['organization'] })
+            const projects = await this.projectRepository.find({ where: { type: Type.PROJECT, programId: IsNull(), account: {id: account.id} }, relations: ['organization', 'targets'] })
 
             return projects.map(project => ({
                 id: project.id,
