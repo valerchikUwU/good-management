@@ -11,13 +11,13 @@ export class StatisticDataUpdateDto{
     @IsNotEmpty({message: 'ID обновляемых данных не может быть пустым!'})
     _id: string;
 
-    @ApiProperty({description: 'Значение', required: true, example: 3500})
+    @ApiProperty({description: 'Значение', required: false, example: 3500})
     @IsOptional()
     @IsNumber()
     @IsNotEmpty({message: 'Значение не может быть пустым!'})
     value?: number;
     
-    @ApiProperty({description: 'Дата значения', required: true, example: '2024-10-10 18:26:17.301486'})
+    @ApiProperty({description: 'Дата значения', required: false, example: '2024-10-10 18:26:17.301486'})
     @IsOptional()
     @IsDate()
     @IsNotEmpty({message: 'Дата не может быть пустым!'})

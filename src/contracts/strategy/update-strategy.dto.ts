@@ -12,18 +12,18 @@ export class StrategyUpdateDto{
     @IsNotEmpty({message: 'ID стратегии не может быть пустым!'})
     _id: string;
 
-    @ApiProperty({required: false, description: 'Состояние стратегии', example: 'Черновик', examples: ['Черновик', 'Активный', 'Завершено'] })
+    @ApiProperty({ description: 'Состояние стратегии', required: false, example: 'Черновик', examples: ['Черновик', 'Активный', 'Завершено'] })
     @IsOptional()
     @IsEnum(State)
     state?: State;
 
-    @ApiProperty({description: 'Контент стратегии', example: 'Контент'})
+    @ApiProperty({description: 'Контент стратегии', required: false, example: 'Контент'})
     @IsOptional()
     @IsString()
     @IsNotEmpty({message: 'Содержание стратегии не может быть пустым!'})
     content?: string;
 
-    @ApiProperty({ description:'ID организаций, с которыми связать стратегию', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
+    @ApiProperty({ description:'ID организаций, с которыми связать стратегию', required: false, example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f'})
     @IsOptional()
     @IsUUID()
     @IsNotEmpty({message: 'Выберите хотя бы одну организацию!'})
