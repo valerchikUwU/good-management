@@ -12,6 +12,7 @@ import { OrganizationReadDto } from "src/contracts/organization/read-organizatio
 import { ProducerService } from "src/application/services/producer/producer.service";
 import { GoalCreateEventDto } from "src/contracts/goal/createEvent-goal.dto";
 import { GoalUpdateEventDto } from "src/contracts/goal/updateEvent-goal.dto";
+import { TimeoutError } from "rxjs";
 
 
 @ApiTags('Goal')
@@ -104,7 +105,7 @@ export class GoalController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
-  async update(@Param('userId') userId: string, @Param('goalId') goalId: string, @Body() goalUpdateDto: GoalUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+  async update(@Param('userId') userId: string, @Param('goalId') goalId: string, @Body() goalUpdateDto: GoalUpdateDto, @Ip() ip: string): Promise<{ id: string }> {
     const user = await this.userService.findOne(userId);
     const updatedGoalId = await this.goalService.update(goalId, goalUpdateDto);
     const updateEventGoalDto: GoalUpdateEventDto = {
@@ -114,9 +115,21 @@ export class GoalController {
       updatedAt: new Date(),
       accountId: user.account.id
     };
-    await this.producerService.sendUpdatedGoalToQueue(updateEventGoalDto);
+    try {
+      // Установка тайм-аута на отправку через RabbitMQ
+      await Promise.race([
+        this.producerService.sendUpdatedGoalToQueue(updateEventGoalDto),
+        new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+      ]);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+      } else {
+        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+      }
+    }
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED GOAL: ${JSON.stringify(goalUpdateDto)} - Цель успешно обновлена!`);
-    return {id: updatedGoalId};
+    return { id: updatedGoalId };
   }
 
   @Get(':goalId')
@@ -204,7 +217,19 @@ export class GoalController {
       userId: user.id,
       accountId: user.account.id
     };
-    await this.producerService.sendCreatedGoalToQueue(createEventGoalDto);
+    try {
+      // Установка тайм-аута на отправку через RabbitMQ
+      await Promise.race([
+        this.producerService.sendCreatedGoalToQueue(createEventGoalDto),
+        new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+      ]);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+      } else {
+        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+      }
+    }
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - goalCreateDto: ${JSON.stringify(goalCreateDto)} - Создана новая цель!`)
     return createdGoalId;
   }

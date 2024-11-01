@@ -18,6 +18,7 @@ import { PolicyCreateEventDto } from "src/contracts/policy/createEvent-policy.dt
 import { ProducerService } from "src/application/services/producer/producer.service";
 import { State, Type } from "src/domains/policy.entity";
 import { PolicyUpdateEventDto } from "src/contracts/policy/updateEvent-policy.dto";
+import { TimeoutError } from "rxjs";
 
 @ApiTags('Policy')
 // @UseGuards(AccessTokenGuard)
@@ -162,23 +163,35 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Политика не найдена!` })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
-    async update(@Param('userId') userId: string, @Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+    async update(@Param('userId') userId: string, @Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<{ id: string }> {
         const user = await this.userService.findOne(userId);
         const updatedPolicyId = await this.policyService.update(policyId, policyUpdateDto);
         const updatedEventPolicyDto: PolicyUpdateEventDto = {
             eventType: 'POLICY_UPDATED',
             id: updatedPolicyId,
-            policyName: policyUpdateDto.policyName !== undefined ? policyUpdateDto.policyName: null,
+            policyName: policyUpdateDto.policyName !== undefined ? policyUpdateDto.policyName : null,
             state: policyUpdateDto.state !== undefined ? policyUpdateDto.state as string : null,
-            type: policyUpdateDto.type !== undefined ? policyUpdateDto.type as string : null, 
-            content: policyUpdateDto.content !== undefined ? policyUpdateDto.content: null, 
+            type: policyUpdateDto.type !== undefined ? policyUpdateDto.type as string : null,
+            content: policyUpdateDto.content !== undefined ? policyUpdateDto.content : null,
             updatedAt: new Date(),
-            policyToOrganizations: policyUpdateDto.policyToOrganizations !== undefined ? policyUpdateDto.policyToOrganizations: null,
+            policyToOrganizations: policyUpdateDto.policyToOrganizations !== undefined ? policyUpdateDto.policyToOrganizations : null,
             accountId: user.account.id
         };
-        await this.producerService.sendUpdatedPolicyToQueue(updatedEventPolicyDto)
+        try {
+            // Установка тайм-аута на отправку через RabbitMQ
+            await Promise.race([
+                this.producerService.sendUpdatedPolicyToQueue(updatedEventPolicyDto),
+                new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+            ]);
+        } catch (error) {
+            if (error instanceof TimeoutError) {
+                this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+            } else {
+                this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+            }
+        }
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED POLICY: ${JSON.stringify(policyUpdateDto)} - Политика успешно обновлена!`);
-        return {id: updatedPolicyId};
+        return { id: updatedPolicyId };
     }
 
     @Get(':policyId')
@@ -264,7 +277,7 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<{id: string}> {
+    async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<{ id: string }> {
         const user = await this.userService.findOne(userId);
         policyCreateDto.user = user;
         policyCreateDto.account = user.account;
@@ -274,15 +287,27 @@ export class PolicyController {
             id: createdPolicyId,
             policyName: policyCreateDto.policyName,
             state: policyCreateDto.state !== undefined ? policyCreateDto.state as string : State.DRAFT as string,
-            type: policyCreateDto.type !== undefined ? policyCreateDto.type as string : Type.DIRECTIVE as string, 
-            content: policyCreateDto.content, 
+            type: policyCreateDto.type !== undefined ? policyCreateDto.type as string : Type.DIRECTIVE as string,
+            content: policyCreateDto.content,
             createdAt: new Date(),
             userId: user.id,
             accountId: user.account.id,
             policyToOrganizations: policyCreateDto.policyToOrganizations
         };
-        await this.producerService.sendCreatedPolicyToQueue(createdEventPolicyDto)
+        try {
+            // Установка тайм-аута на отправку через RabbitMQ
+            await Promise.race([
+                this.producerService.sendCreatedPolicyToQueue(createdEventPolicyDto),
+                new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+            ]);
+        } catch (error) {
+            if (error instanceof TimeoutError) {
+                this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+            } else {
+                this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+            }
+        }
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - policyCreateDto: ${JSON.stringify(policyCreateDto)} - Создана новая политика!`)
-        return {id: createdPolicyId};
+        return { id: createdPolicyId };
     }
 }

@@ -12,6 +12,7 @@ import { StrategyReadDto } from "src/contracts/strategy/read-strategy.dto";
 import { ProducerService } from "src/application/services/producer/producer.service";
 import { ObjectiveCreateEventDto } from "src/contracts/objective/createEvent-objective.dto";
 import { ObjectiveUpdateEventDto } from "src/contracts/objective/updateEvent-objective.dto";
+import { TimeoutError } from "rxjs";
 
 
 @ApiTags('Objective')
@@ -31,20 +32,20 @@ export class ObjectiveController {
         status: HttpStatus.OK, description: "ОК!",
         example: [
             {
-              id: "59fd156c-9a24-43f5-a521-2e9c888cca2c",
-              situation: [
-                "Текст"
-              ],
-              content: [
-                "Контент"
-              ],
-              rootCause: [
-                "Причина"
-              ],
-              createdAt: "2024-10-31T15:11:47.146Z",
-              updatedAt: "2024-10-31T15:11:47.146Z"
+                id: "59fd156c-9a24-43f5-a521-2e9c888cca2c",
+                situation: [
+                    "Текст"
+                ],
+                content: [
+                    "Контент"
+                ],
+                rootCause: [
+                    "Причина"
+                ],
+                createdAt: "2024-10-31T15:11:47.146Z",
+                updatedAt: "2024-10-31T15:11:47.146Z"
             }
-          ]
+        ]
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
@@ -87,29 +88,29 @@ export class ObjectiveController {
         status: HttpStatus.OK, description: "ОК!",
         example: [
             {
-              id: "3dea05a6-eba2-482a-b8bb-7f80bdcbc9c2",
-              strategyNumber: 81,
-              dateActive: null,
-              content: "HTML текст",
-              state: "Активный",
-              createdAt: "2024-10-29T18:43:46.953Z",
-              updatedAt: "2024-10-31T15:10:08.283Z",
-              objective: {
-                id: "59fd156c-9a24-43f5-a521-2e9c888cca2c",
-                situation: [
-                  "Текст"
-                ],
-                content: [
-                  "Контент"
-                ],
-                rootCause: [
-                  "Причина"
-                ],
-                createdAt: "2024-10-31T15:11:47.146Z",
-                updatedAt: "2024-10-31T15:11:47.146Z"
-              }
+                id: "3dea05a6-eba2-482a-b8bb-7f80bdcbc9c2",
+                strategyNumber: 81,
+                dateActive: null,
+                content: "HTML текст",
+                state: "Активный",
+                createdAt: "2024-10-29T18:43:46.953Z",
+                updatedAt: "2024-10-31T15:10:08.283Z",
+                objective: {
+                    id: "59fd156c-9a24-43f5-a521-2e9c888cca2c",
+                    situation: [
+                        "Текст"
+                    ],
+                    content: [
+                        "Контент"
+                    ],
+                    rootCause: [
+                        "Причина"
+                    ],
+                    createdAt: "2024-10-31T15:11:47.146Z",
+                    updatedAt: "2024-10-31T15:11:47.146Z"
+                }
             }
-          ]
+        ]
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
@@ -129,7 +130,7 @@ export class ObjectiveController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'objectiveId', required: true, description: 'Id краткосрочной цели' })
-    async update(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+    async update(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto, @Ip() ip: string): Promise<{ id: string }> {
         const user = await this.userService.findOne(userId);
         if (objectiveUpdateDto.strategyId) {
             const strategy = await this.strategyService.findOneById(objectiveUpdateDto.strategyId);
@@ -146,9 +147,21 @@ export class ObjectiveController {
             strategyId: objectiveUpdateDto.strategyId !== undefined ? objectiveUpdateDto.strategyId : null,
             accountId: user.account.id
         };
-        await this.producerService.sendUpdatedObjectiveToQueue(updatedEventObjectiveDto);
+        try {
+            // Установка тайм-аута на отправку через RabbitMQ
+            await Promise.race([
+                this.producerService.sendUpdatedObjectiveToQueue(updatedEventObjectiveDto),
+                new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+            ]);
+        } catch (error) {
+            if (error instanceof TimeoutError) {
+                this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+            } else {
+                this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+            }
+        }
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED OBJECTIVE: ${JSON.stringify(objectiveUpdateDto)} - Краткосрочная цель успешно обновлена!`);
-        return {id: updatedObjectiveId};
+        return { id: updatedObjectiveId };
     }
 
 
@@ -185,7 +198,19 @@ export class ObjectiveController {
             strategyId: chosenStrategy.id,
             accountId: user.account.id
         };
-        await this.producerService.sendCreatedObjectiveToQueue(createdEventObjectiveDto);
+        try {
+            // Установка тайм-аута на отправку через RabbitMQ
+            await Promise.race([
+                this.producerService.sendCreatedObjectiveToQueue(createdEventObjectiveDto),
+                new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+            ]);
+        } catch (error) {
+            if (error instanceof TimeoutError) {
+                this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+            } else {
+                this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+            }
+        }
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - objectiveCreateDto: ${JSON.stringify(objectiveCreateDto)} - Создана новая краткосрочная цель!`)
         return createdObjectiveId;
     }

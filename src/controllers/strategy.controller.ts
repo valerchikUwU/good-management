@@ -15,6 +15,7 @@ import { blue, red, green, yellow, bold } from 'colorette';
 import { StrategyCreateEventDto } from "src/contracts/strategy/createEvent-strategy.dto";
 import { ProducerService } from "src/application/services/producer/producer.service";
 import { StrategyUpdateEventDto } from "src/contracts/strategy/updateEvent-strategy.dto";
+import { TimeoutError } from "rxjs";
 
 @ApiTags('Strategy')
 @Controller(':userId/strategies')
@@ -55,7 +56,19 @@ export class StrategyController {
       content: strategyUpdateDto.content !== undefined ? strategyUpdateDto.content : null,
       organizationId: strategyUpdateDto.organizationId !== undefined ? strategyUpdateDto.organizationId : null,
     }
-    await this.producerService.sendUpdatedStrategyToQueue(updatedStrategyEventDto);
+    try {
+      // Установка тайм-аута на отправку через RabbitMQ
+      await Promise.race([
+        this.producerService.sendUpdatedStrategyToQueue(updatedStrategyEventDto),
+        new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+      ]);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+      } else {
+        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+      }
+    }
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - strategyUpdateDto: ${JSON.stringify(strategyUpdateDto)} - Стратегия успешно обновлена!`);
     return {id: updatedStrategyId};
   }
@@ -202,7 +215,19 @@ export class StrategyController {
       accountId: user.account.id,
       organizationId: strategyCreateDto.organizationId
     }
-    await this.producerService.sendCreatedStrategyToQueue(createdStrategyEventDto);
+    try {
+      // Установка тайм-аута на отправку через RabbitMQ
+      await Promise.race([
+        this.producerService.sendCreatedStrategyToQueue(createdStrategyEventDto),
+        new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+      ]);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+      } else {
+        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+      }
+    }
 
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - strategyCreateDto: ${JSON.stringify(strategyCreateDto)} - Создана новая стратегия!`)
     return {id: createdStrategyId}

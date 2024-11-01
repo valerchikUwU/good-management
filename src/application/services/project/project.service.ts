@@ -48,7 +48,7 @@ export class ProjectService {
 
     async findAllProgramsForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
         try {
-            const programs = await this.projectRepository.find({where: {type: Type.PROGRAM}})
+            const programs = await this.projectRepository.find({ where: { type: Type.PROGRAM, account: {id: account.id} }, relations: ['organization'] })
 
             return programs.map(program => ({
                 id: program.id,
@@ -64,6 +64,33 @@ export class ProjectService {
                 strategy: program.strategy,
                 account: program.account,
                 user: program.user
+            }))
+        }
+        catch (err) {
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении всех програм!');
+        }
+    }
+
+    async findAllProjectsWithoutProgramForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
+        try {
+            const projects = await this.projectRepository.find({ where: { type: Type.PROJECT, programId: null, account: {id: account.id} }, relations: ['organization'] })
+
+            return projects.map(project => ({
+                id: project.id,
+                projectNumber: project.projectNumber,
+                projectName: project.projectName,
+                programId: project.programId,
+                content: project.content,
+                type: project.type,
+                createdAt: project.createdAt,
+                updatedAt: project.updatedAt,
+                organization: project.organization,
+                targets: project.targets,
+                strategy: project.strategy,
+                account: project.account,
+                user: project.user
             }))
         }
         catch (err) {
@@ -85,13 +112,18 @@ export class ProjectService {
                 .where('project.id = :id', { id })
                 .getOne();
             let program: ProjectReadDto;
-            if (project.programId !== null){
-                program = await this.projectRepository.findOne({where: {id: project.programId}})
+            if (project.programId !== null) {
+                program = await this.projectRepository.findOne({ where: { id: project.programId } })
             }
             else {
                 program = null
             }
             if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
+            // Проверка просроченности для каждого объекта target
+            const targetsWithIsExpired = project.targets.map(target => ({
+                ...target,
+                isExpired: target.deadline ? new Date(target.deadline) < new Date() : false,
+            }));
             const projectReadDto: ProjectReadDto = {
                 id: project.id,
                 projectNumber: project.projectNumber,
@@ -103,12 +135,11 @@ export class ProjectService {
                 createdAt: project.createdAt,
                 updatedAt: project.updatedAt,
                 organization: project.organization,
-                targets: project.targets,
+                targets: targetsWithIsExpired,
                 strategy: project.strategy,
                 account: project.account,
                 user: project.user,
             }
-
             return projectReadDto;
         }
         catch (err) {
@@ -124,10 +155,10 @@ export class ProjectService {
         }
     }
 
-    async findOneProgramById(id: string): Promise<{program: ProjectReadDto, projects: ProjectReadDto[]}> {
+    async findOneProgramById(id: string): Promise<{ program: ProjectReadDto, projects: ProjectReadDto[] }> {
         try {
-            const program = await this.projectRepository.findOne({where: {id: id}})
-            const projects = await this.projectRepository.find({where: {programId: id}})
+            const program = await this.projectRepository.findOne({ where: { id: id } })
+            const projects = await this.projectRepository.find({ where: { programId: id } })
             if (!program) throw new NotFoundException(`Проект с ID: ${id} не найден`);
             const programReadDto: ProjectReadDto = {
                 id: program.id,
@@ -145,7 +176,7 @@ export class ProjectService {
                 user: program.user,
             }
 
-            return {program: programReadDto, projects: projects};
+            return { program: programReadDto, projects: projects };
         }
         catch (err) {
 
@@ -210,7 +241,7 @@ export class ProjectService {
             if (updateProjectDto.organizationId) project.organization = updateProjectDto.organization;
             if (updateProjectDto.strategyId) project.strategy = updateProjectDto.strategy;
 
-            await this.projectRepository.update(project.id, {projectName: project.projectName, programId: project.programId, content: project.content, type: project.type, organization: project.organization, strategy: project.strategy});
+            await this.projectRepository.update(project.id, { projectName: project.projectName, programId: project.programId, content: project.content, type: project.type, organization: project.organization, strategy: project.strategy });
             return project.id
         }
         catch (err) {
