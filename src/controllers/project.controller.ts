@@ -22,6 +22,7 @@ import { State, Type as TypeTarget } from "src/domains/target.entity";
 import { ProducerService } from "src/application/services/producer/producer.service";
 import { TargetUpdateEventDto } from "src/contracts/target/updateEvent-target.dto";
 import { ProjectUpdateEventDto } from "src/contracts/project/updateEvent-project.dto";
+import { TimeoutError } from "rxjs";
 
 
 
@@ -72,6 +73,85 @@ export class ProjectController {
     return await this.projectService.findAllForAccount(user.account)
   }
 
+  @Get('program/new')
+  @ApiOperation({ summary: 'Получить данные для создания новой програмы' })
+  @ApiResponse({
+    status: HttpStatus.OK, description: "ОК!",
+    example: {
+      workers: [
+        {
+          id: "a76caf62-bc78-44e9-ba64-6e8e4c5b3248",
+          firstName: "Илюха",
+          lastName: "Белописькин",
+          middleName: null,
+          telegramId: 0,
+          telephoneNumber: null,
+          avatar_url: null,
+          vk_id: null,
+          createdAt: "2024-10-03T12:53:00.698Z",
+          updatedAt: "2024-10-09T09:36:58.656Z"
+        }
+      ],
+      strategies: [
+        {
+          id: "a21ce28a-72ab-472e-a53d-cbd1f69d619a",
+          strategyNumber: 100,
+          dateActive: null,
+          content: "<p>1111</p>\n",
+          state: "Черновик",
+          createdAt: "2024-10-31T08:44:57.466Z",
+          updatedAt: "2024-10-31T08:44:57.466Z",
+          organization: {
+            id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+            organizationName: "soplya firma",
+            parentOrganizationId: null,
+            createdAt: "2024-09-16T14:24:33.841Z",
+            updatedAt: "2024-09-16T14:24:33.841Z"
+          }
+        }
+      ],
+      projects: [
+        {
+          id: "a07df38f-4f40-403d-9d1b-d26e9786eab3",
+          projectNumber: 98,
+          projectName: "Название проекта",
+          programId: null,
+          content: "Контент проекта",
+          type: "Проект",
+          createdAt: "2024-10-29T14:49:38.686Z",
+          updatedAt: "2024-10-29T14:49:38.686Z",
+          organization: {
+            id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+            organizationName: "soplya firma",
+            parentOrganizationId: null,
+            createdAt: "2024-09-16T14:24:33.841Z",
+            updatedAt: "2024-09-16T14:24:33.841Z"
+          }
+        }
+      ],
+      organizations: [
+        {
+          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          organizationName: "soplya firma",
+          parentOrganizationId: null,
+          createdAt: "2024-09-16T14:24:33.841Z",
+          updatedAt: "2024-09-16T14:24:33.841Z"
+        }
+      ]
+    }
+
+  })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
+  @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
+  async beforeCreateProgram(@Param('userId') userId: string, @Ip() ip: string): Promise<{ workers: ReadUserDto[], strategies: StrategyReadDto[], projects: ProjectReadDto[], organizations: OrganizationReadDto[] }> {
+    const user = await this.userService.findOne(userId);
+    const workers = await this.userService.findAllForAccount(user.account);
+    const strategies = await this.strategyService.findAllActiveForAccount(user.account);
+    const projects = await this.projectService.findAllProjectsWithoutProgramForAccount(user.account);
+    const organizations = await this.organizationService.findAllForAccount(user.account, false);
+    return { workers: workers, strategies: strategies, projects: projects, organizations: organizations }
+  }
+
   @Get('new')
   @ApiOperation({ summary: 'Получить данные для создания нового проекта' })
   @ApiResponse({
@@ -118,7 +198,14 @@ export class ProjectController {
           content: null,
           type: "Программа",
           createdAt: "2024-10-29T15:16:25.171Z",
-          updatedAt: "2024-10-29T15:16:25.171Z"
+          updatedAt: "2024-10-29T15:16:25.171Z",
+          organization: {
+            id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+            organizationName: "OOO BOBRIK",
+            parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+            createdAt: "2024-09-16T15:09:48.995Z",
+            updatedAt: "2024-09-16T15:09:48.995Z"
+          }
         }
       ],
       organizations: [
@@ -135,17 +222,17 @@ export class ProjectController {
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ workers: ReadUserDto[], strategies: StrategyReadDto[], programs: ProjectReadDto[], organizations: OrganizationReadDto[]}> {
+  async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ workers: ReadUserDto[], strategies: StrategyReadDto[], programs: ProjectReadDto[], organizations: OrganizationReadDto[] }> {
     const user = await this.userService.findOne(userId);
     const workers = await this.userService.findAllForAccount(user.account);
     const strategies = await this.strategyService.findAllActiveForAccount(user.account);
     const programs = await this.projectService.findAllProgramsForAccount(user.account);
     const organizations = await this.organizationService.findAllForAccount(user.account, false);
-    return { workers: workers, strategies: strategies,  programs: programs, organizations: organizations }
+    return { workers: workers, strategies: strategies, programs: programs, organizations: organizations }
   }
 
   @Post('new')
-  @ApiOperation({ summary: 'Создать политику' })
+  @ApiOperation({ summary: 'Создать проект' })
   @ApiBody({
     description: 'Данные для создания задач и проекта',
     type: ProjectCreateDto,
@@ -157,7 +244,7 @@ export class ProjectController {
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto, @Ip() ip: string): Promise<{id: string}> {
+  async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto, @Ip() ip: string): Promise<{ id: string }> {
     const [user, organization] = await Promise.all([
       this.userService.findOne(userId),
       this.organizationService.findOneById(projectCreateDto.organizationId)
@@ -213,9 +300,21 @@ export class ProjectController {
       userId: user.id,
       targetCreateDtos: targetCreateEventDtos.length > 0 ? targetCreateEventDtos : null //nullable
     };
-    await this.producerService.sendCreatedProjectToQueue(createdEventProjectDto);
+    try {
+      // Установка тайм-аута на отправку через RabbitMQ
+      await Promise.race([
+        this.producerService.sendCreatedProjectToQueue(createdEventProjectDto),
+        new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+      ]);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+      } else {
+        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+      }
+    }
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - projectCreateDto: ${JSON.stringify(projectCreateDto)} - Создан новый проект!`)
-    return {id: createdProjectId};
+    return { id: createdProjectId };
   }
 
   @Patch(':projectId/update')
@@ -233,13 +332,13 @@ export class ProjectController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Проект не найден!` })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
-  async update(@Param('userId') userId: string, @Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<{id: string}> {
+  async update(@Param('userId') userId: string, @Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<{ id: string }> {
     const user = await this.userService.findOne(userId);
-    if(projectUpdateDto.organizationId){
+    if (projectUpdateDto.organizationId) {
       const organization = await this.organizationService.findOneById(projectUpdateDto.organizationId);
       projectUpdateDto.organization = organization;
     }
-    if(projectUpdateDto.strategyId){
+    if (projectUpdateDto.strategyId) {
       const strategy = await this.strategyService.findOneById(projectUpdateDto.strategyId);
       projectUpdateDto.strategy = strategy;
     }
@@ -261,7 +360,7 @@ export class ProjectController {
           updatedAt: new Date(),
           holderUserId: targetUpdateDto.holderUserId !== undefined ? targetUpdateDto.holderUserId : null,
           targetState: targetUpdateDto.targetState !== undefined ? targetUpdateDto.targetState as string : null,
-          dateStart: targetUpdateDto.dateStart !== undefined ? targetUpdateDto.dateStart : null, 
+          dateStart: targetUpdateDto.dateStart !== undefined ? targetUpdateDto.dateStart : null,
           deadline: targetUpdateDto.deadline !== undefined ? targetUpdateDto.deadline : null,
           projectId: project.id,
           accountId: user.account.id
@@ -311,9 +410,21 @@ export class ProjectController {
       targetUpdateDtos: targetUpdateEventDtos.length > 0 ? targetUpdateEventDtos : null,
       targetCreateDtos: targetCreateEventDtos.length > 0 ? targetCreateEventDtos : null
     };
-    await this.producerService.sendUpdatedProjectToQueue(updatedEventProjectDto);
+    try {
+      // Установка тайм-аута на отправку через RabbitMQ
+      await Promise.race([
+        this.producerService.sendUpdatedProjectToQueue(updatedEventProjectDto),
+        new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+      ]);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+      } else {
+        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+      }
+    }
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`);
-    return {id: updatedProjectId};
+    return { id: updatedProjectId };
   }
 
 
@@ -327,9 +438,9 @@ export class ProjectController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'programId', required: true, description: 'Id программы' })
-  async findOneProgram(@Param('userId') userId: string, @Param('programId') programId: string): Promise<{program: ProjectReadDto, projects: ProjectReadDto[]}> {
+  async findOneProgram(@Param('userId') userId: string, @Param('programId') programId: string): Promise<{ program: ProjectReadDto, projects: ProjectReadDto[] }> {
     const programWithProjects = await this.projectService.findOneProgramById(programId);
-    return {program: programWithProjects.program, projects: programWithProjects.projects}
+    return { program: programWithProjects.program, projects: programWithProjects.projects }
   }
 
   @Get(':projectId')
@@ -399,12 +510,12 @@ export class ProjectController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
-  async findOne(@Param('userId') userId: string, @Param('projectId') projectId: string): Promise<{project: ProjectReadDto, strategies: StrategyReadDto[]}> {
+  async findOne(@Param('userId') userId: string, @Param('projectId') projectId: string): Promise<{ project: ProjectReadDto, strategies: StrategyReadDto[] }> {
     const [user, project] = await Promise.all([
       this.userService.findOne(userId),
       this.projectService.findOneById(projectId)
     ])
     const strategies = await this.strategyService.findAllForAccount(user.account)
-    return {project: project, strategies: strategies}
+    return { project: project, strategies: strategies }
   }
 }

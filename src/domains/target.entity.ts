@@ -14,7 +14,6 @@ export enum State {
     ACTIVE = 'Активная',
     REJECTED = 'Отменена',
     FINISHED = 'Завершена',
-    EXPIRED = 'Просрочена'
 }
 @Entity()
 export class Target{

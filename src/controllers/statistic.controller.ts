@@ -18,6 +18,7 @@ import { StatisticDataCreateEventDto } from "src/contracts/statisticData/createE
 import { StatisticCreateEventDto } from "src/contracts/statistic/createEvent-statistic.dto";
 import { StatisticDataUpdateEventDto } from "src/contracts/statisticData/updateEvent-statisticData.dto";
 import { StatisticUpdateEventDto } from "src/contracts/statistic/updateEvent-statistic.dto";
+import { TimeoutError } from "rxjs";
 
 @ApiTags('Statistic')
 @Controller(':userId/statistics')
@@ -138,7 +139,19 @@ export class StatisticController {
       statisticDataCreateDtos: statisticDataCreateEventDtos.length > 0 ? statisticDataCreateEventDtos : null,
       accountId: user.account.id
     }
-    await this.producerService.sendUpdatedStatisticToQueue(statisticUpdateEventDto);
+    try {
+      // Установка тайм-аута на отправку через RabbitMQ
+      await Promise.race([
+        this.producerService.sendUpdatedStatisticToQueue(statisticUpdateEventDto),
+        new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+      ]);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+      } else {
+        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+      }
+    }
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - UPDATED STATISTIC: ${JSON.stringify(statisticUpdateDto)} - Статистика успешно обновлена!`);
     return {id: updatedStatisticId};
   }
@@ -245,7 +258,20 @@ export class StatisticController {
       accountId: user.account.id,
       statisticDataCreateDtos: statisticDataCreateEventDtos.length > 0 ? statisticDataCreateEventDtos : null
     }
-    await this.producerService.sendCreatedStatisticToQueue(statisticCreateEventDto);
+    
+    try {
+      // Установка тайм-аута на отправку через RabbitMQ
+      await Promise.race([
+        this.producerService.sendCreatedStatisticToQueue(statisticCreateEventDto),
+        new Promise((_, reject) => setTimeout(() => reject(new TimeoutError()), 5000)), // Тайм-аут 5 секунд
+      ]);
+    } catch (error) {
+      if (error instanceof TimeoutError) {
+        this.logger.error(`Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`);
+      } else {
+        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+      }
+    }
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - statisticCreateDto: ${JSON.stringify(statisticCreateDto)} - Создана новая статистика!`);
     // Возвращаем результат
     return {id: createdStatistic.id};
