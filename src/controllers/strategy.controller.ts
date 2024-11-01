@@ -42,7 +42,7 @@ export class StrategyController {
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-  @ApiParam({ name: 'strategyId', required: true, description: 'Id политики' })
+  @ApiParam({ name: 'strategyId', required: true, description: 'Id стратегии' })
   async update(@Param('strategyId') strategyId: string, @Body() strategyUpdateDto: StrategyUpdateDto, @Ip() ip: string): Promise<{id: string}> {
     if(strategyUpdateDto.organizationId){
       const organization = await this.organizationService.findOneById(strategyUpdateDto.organizationId);
