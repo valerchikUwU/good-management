@@ -90,7 +90,7 @@ export class StatisticController {
       statisticUpdateDto.post = post;
     }
     const updatedStatisticId = await this.statisticService.update(statisticId, statisticUpdateDto);
-    const statistic = await this.statisticService.findOneById(updatedStatisticId);
+    const statistic = await this.statisticService.findOneById(updatedStatisticId, ['account']);
     if (statisticUpdateDto.statisticDataUpdateDtos !== undefined) {
       const updateStatisticDataPromises = statisticUpdateDto.statisticDataUpdateDtos.map(async (statisticDataUpdateDto) => {
         const updatedStatisticDataId = await this.statisticDataService.update(statisticDataUpdateDto);

@@ -105,6 +105,8 @@ export class ProjectUpdateDto {
     })
     @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
+    @ValidateNested()
+    @Type(() => TargetUpdateDto)
     targetUpdateDtos?: TargetUpdateDto[];
 
     @ApiProperty({ description: 'IDs проектов, которые привязать с програмой', example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'] })
