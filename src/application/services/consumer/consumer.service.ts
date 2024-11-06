@@ -159,8 +159,8 @@ export class ConsumerService implements OnModuleInit {
       parentOrganizationId: payload.parentId,
       account: account
     }
-    const createdOrganization = await this.organizationService.create(organizationCreateDto);
-
+    const createdOrganizationId = await this.organizationService.create(organizationCreateDto);
+    const createdOrganization = await this.organizationService.findOneById(createdOrganizationId)
     const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
 
     const createEmployeesPromises = payload.users.map(async (user: any) => {

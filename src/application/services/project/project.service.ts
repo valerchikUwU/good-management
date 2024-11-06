@@ -158,7 +158,7 @@ export class ProjectService {
 
     async findOneProgramById(id: string): Promise<{ program: ProjectReadDto, projects: ProjectReadDto[] }> {
         try {
-            const program = await this.projectRepository.findOne({ where: { id: id } })
+            const program = await this.projectRepository.findOne({ where: { id: id }, relations: ['targets.targetHolders.user', 'organization', 'strategy'] })
             const projects = await this.projectRepository.find({ where: { programId: id } })
             if (!program) throw new NotFoundException(`Проект с ID: ${id} не найден`);
             const programReadDto: ProjectReadDto = {
