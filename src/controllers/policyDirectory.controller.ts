@@ -24,8 +24,8 @@ export class PolicyDirectoryController{
     @ApiOperation({ summary: 'Все папки' })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<PolicyDirectoryReadDto[]>{
-        const user = await this.userService.findOne(userId);
-        const policyDirectories = await this.policyDirectoryService.findAllForAccount(user.account);
+        const user = await this.userService.findOne(userId, ['account']);
+        const policyDirectories = await this.policyDirectoryService.findAllForAccount(user.account, ['policyToPolicyDirectories.policy']);
         return policyDirectories;
     }
 
@@ -38,7 +38,7 @@ export class PolicyDirectoryController{
     })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async create(@Param('userId') userId: string, @Body() policyDirectoryCreateDto: PolicyDirectoryCreateDto, @Ip() ip: string): Promise<{id: string}>{
-        const user = await this.userService.findOne(userId);
+        const user = await this.userService.findOne(userId, ['account']);
         policyDirectoryCreateDto.account = user.account;
         const createdPolicyDirectory = await this.policyDirectoryService.create(policyDirectoryCreateDto);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - policyDirectoryCreateDto: ${JSON.stringify(policyDirectoryCreateDto)} - Создана новая папка!`)

@@ -15,6 +15,9 @@ export class Convert{
     @Column({nullable: false})
     expirationTime: string;
 
+    @Column({type: 'uuid', array: true, nullable: true})
+    pathOfPosts: string[];
+
     @Column({type: 'timestamp', nullable: true})
     dateFinish: Date
 

@@ -26,6 +26,7 @@ export class ConvertService {
         return converts.map((convert) => ({
             id: convert.id,
             convertTheme: convert.convertTheme,
+            pathOfPosts: convert.pathOfPosts,
             expirationTime: convert.expirationTime,
             dateFinish: convert.dateFinish,
             createdAt: convert.createdAt,
@@ -38,14 +39,15 @@ export class ConvertService {
     }
 
 
-    async findOneById(id: string): Promise<ConvertReadDto> {
+    async findOneById(id: string, relations?: string[]): Promise<ConvertReadDto> {
         try {
-            const convert = await this.convertRepository.findOne({ where: { id: id }, relations: ['convertToUsers.user', 'host', 'messages.sender'] });
+            const convert = await this.convertRepository.findOne({ where: { id: id }, relations: relations !== undefined ? relations : [] });
 
             if (!convert) throw new NotFoundException(`Чат с ID: ${id} не найдена!`);
             const convertReadDto: ConvertReadDto = {
                 id: convert.id,
                 convertTheme: convert.convertTheme,
+                pathOfPosts: convert.pathOfPosts,
                 expirationTime: convert.expirationTime,
                 dateFinish: convert.dateFinish,
                 createdAt: convert.createdAt,
@@ -77,11 +79,9 @@ export class ConvertService {
             if (!convertCreateDto.convertTheme) {
                 throw new BadRequestException('Тема не может быть пустой!');
             }
-            if (convertCreateDto.userIds.length < 2) {
-                throw new BadRequestException('Добавьте участников в чат!');
-            }
             const convert = new Convert();
             convert.convertTheme = convertCreateDto.convertTheme;
+            convert.pathOfPosts = convertCreateDto.pathOfPosts;
             convert.expirationTime = convertCreateDto.expirationTime;
             convert.dateFinish = convertCreateDto.dateFinish;
             convert.host = convertCreateDto.host;
@@ -100,18 +100,22 @@ export class ConvertService {
         }
     }
 
-    async updateUsersInConvert(_id: string, convertUpdateDto: ConvertUpdateDto): Promise<Convert> {
+    async update(_id: string, convertUpdateDto: ConvertUpdateDto): Promise<string> {
 
         try {
             const convert = await this.convertRepository.findOne({ where: { id: _id } });
             if (!convert) {
                 throw new NotFoundException(`Чат с ID ${_id} не найден`);
             }
+            if(convertUpdateDto.pathOfPosts) {
+                convert.pathOfPosts = convertUpdateDto.pathOfPosts;
+                await this.convertRepository.update(convert.id, {pathOfPosts: convert.pathOfPosts});
+            }
             if (convertUpdateDto.userIds) {
                 await this.convertToUserService.remove(convert);
                 await this.convertToUserService.createSeveral(convert, convertUpdateDto.userIds);
             }
-            return this.convertRepository.save(convert);
+            return convert.id
 
         }
         catch (err) {

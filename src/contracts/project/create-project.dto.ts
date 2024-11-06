@@ -1,13 +1,13 @@
 import { Account } from "src/domains/account.entity";
-import { Type } from "src/domains/project.entity";
+import { Type as TypeProject } from "src/domains/project.entity";
 import { Strategy } from "src/domains/strategy.entity";
 import { User } from "src/domains/user.entity";
 import { TargetCreateDto } from "../target/create-target.dto";
 import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import { Exclude, Type } from "class-transformer";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { Organization } from "src/domains/organization.entity";
-import { HasProductAndRegularTasks } from "src/utils/TargetTypeValidation";
+import { HasProductAndRegularTasksForProject, HasProductTaskAndProjectIdsForProgram } from "src/utils/TargetTypeValidation";
 
 export class ProjectCreateDto {
 
@@ -28,11 +28,11 @@ export class ProjectCreateDto {
     @IsNotEmpty({message: 'Проект не может быть пустым!'})
     content?: string;
 
-    @ApiProperty({ description: 'Тип проекта', required: false, default: Type.PROJECT, example: 'Проект', examples: ['Проект', 'Программа'] })
+    @ApiProperty({ description: 'Тип проекта', required: false, default: TypeProject.PROJECT, example: 'Проект', examples: ['Проект', 'Программа'] })
     @IsOptional()
-    @IsEnum(Type)
+    @IsEnum(TypeProject)
     @IsNotEmpty({message: 'Выберите тип проекта!'})
-    type?: Type; //default project
+    type?: TypeProject; //default project
 
     @ApiProperty({ description: 'ID организации, которую связать с проектом', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f' })
     @IsUUID()
@@ -65,7 +65,6 @@ export class ProjectCreateDto {
                 orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
-                state: 'Актвная',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -74,7 +73,6 @@ export class ProjectCreateDto {
                 orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
-                state: 'Завершена',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -83,7 +81,6 @@ export class ProjectCreateDto {
                 orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
-                state: 'Отменена',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -92,7 +89,6 @@ export class ProjectCreateDto {
                 orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
-                state: 'Просрочена',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             },
@@ -101,16 +97,23 @@ export class ProjectCreateDto {
                 orderNumber: 1,
                 content: 'Контент задачи',
                 holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
-                state: 'Активная',
                 dateStart: '2024-09-18T14:59:47.010Z',
                 deadline: '2024-09-18T14:59:47.010Z',
             }
         ]
     })
     @IsOptional()
-    @IsArray({message: 'Должен быть массив!'})
-    @HasProductAndRegularTasks({ message: 'Должен быть хотя бы один тип "Продукт" и один тип "Обычная" в задачах.' })
-    targetCreateDtos?: TargetCreateDto[] 
+    @IsArray({message: 'Должен быть массив!'}) 
+    @ValidateNested()
+    @Type(() => TargetCreateDto)
+    @HasProductAndRegularTasksForProject({ message: 'Список задач должен содержать хотя бы одну задачу с типом "Продукт" и одну с типом "Обычная".' })
+    targetCreateDtos?: TargetCreateDto[];
+
+    @ApiProperty({ description: 'IDs проектов, которые привязать с програмой', example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'] })
+    @IsOptional()
+    @IsArray()
+    @HasProductTaskAndProjectIdsForProgram({message: 'Для программы список задач должен содержать хотя бы одну задачу с типом "Продукт", также выберите хотя бы один проект для программы!'})
+    projectIds?: string[]
 }
 
 

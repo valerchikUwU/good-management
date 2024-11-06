@@ -98,8 +98,8 @@ export class StrategyController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<OrganizationReadDto[]> {
-    const user = await this.userService.findOne(userId)
-    const organizations = await this.organizationService.findAllForAccount(user.account, false);
+    const user = await this.userService.findOne(userId, ['account'])
+    const organizations = await this.organizationService.findAllForAccount(user.account);
     return organizations
   }
 
@@ -136,7 +136,7 @@ export class StrategyController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'organizationId', required: true, description: 'Id организации', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f' })
   async findAll(@Param('organizationId') organizationId: string): Promise<OrganizationReadDto> {
-    return await this.organizationService.findOneById(organizationId);
+    return await this.organizationService.findOneById(organizationId, ['strategies']);
   }
 
   @Get(':strategyId')
@@ -174,7 +174,7 @@ export class StrategyController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'strategyId', required: true, description: 'Id стратегии' })
   async findOne(@Param('strategyId') strategyId: string, @Ip() ip: string): Promise<{ currentStrategy: StrategyReadDto }> {
-    const strategy = await this.strategyService.findOneById(strategyId);
+    const strategy = await this.strategyService.findOneById(strategyId, ['organization']);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT STRATEGY: ${JSON.stringify(strategy)} - Получить стратегию по ID!`);
     return { currentStrategy: strategy }
   }
@@ -200,7 +200,7 @@ export class StrategyController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async create(@Param('userId') userId: string, @Body() strategyCreateDto: StrategyCreateDto, @Ip() ip: string): Promise<{id: string}> {
     const [user, organization] = await Promise.all([
-      this.userService.findOne(userId),
+      this.userService.findOne(userId, ['account']),
       this.organizationService.findOneById(strategyCreateDto.organizationId)
     ]);
     strategyCreateDto.user = user;

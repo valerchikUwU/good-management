@@ -72,8 +72,8 @@ export class PostController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<PostReadDto[]> {
-    const user = await this.userService.findOne(userId);
-    const posts = await this.postService.findAllForAccount(user.account);
+    const user = await this.userService.findOne(userId, ['account']);
+    const posts = await this.postService.findAllForAccount(user.account, ['user', 'organization']);
     return posts;
   }
 
@@ -95,7 +95,7 @@ export class PostController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'postId', required: true, description: 'Id поста' })
   async update(@Param('userId') userId: string, @Param('postId') postId: string, @Body() postUpdateDto: PostUpdateDto, @Ip() ip: string): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne(userId, ['account']);
     if (postUpdateDto.responsibleUserId) {
       const responsibleUser = await this.userService.findOne(postUpdateDto.responsibleUserId)
       postUpdateDto.user = responsibleUser;
@@ -177,11 +177,11 @@ export class PostController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ workers: ReadUserDto[], policies: PolicyReadDto[], postsWithoutParentId: PostReadDto[], organizations: OrganizationReadDto[] }> {
-    const user = await this.userService.findOne(userId);
-    const policies = await this.policyService.findAllWithoutPost(user.account);
+    const user = await this.userService.findOne(userId, ['account']);
+    const policies = await this.policyService.findAllActiveWithoutPost(user.account);
     const workers = await this.userService.findAllForAccount(user.account);
     const postsWithoutParentId = await this.postService.findAllWithoutParentId(user.account);
-    const organizations = await this.organizationService.findAllForAccount(user.account, false)
+    const organizations = await this.organizationService.findAllForAccount(user.account)
     return { workers: workers, policies: policies, postsWithoutParentId: postsWithoutParentId, organizations: organizations };
   }
 
@@ -273,12 +273,12 @@ export class PostController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Пост не найден!` })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async findOne(@Param('userId') userId: string, @Param('postId') postId: string, @Ip() ip: string): Promise<{ currentPost: PostReadDto, parentPost: PostReadDto, workers: ReadUserDto[], organizations: OrganizationReadDto[], policiesWithoutPost: PolicyReadDto[] }> {
-    const user = await this.userService.findOne(userId);
-    const post = await this.postService.findOneById(postId);
-    const parentPost = post.parentId !== null ? await this.postService.findOneById(post.parentId) : null;
+    const user = await this.userService.findOne(userId, ['account']);
+    const post = await this.postService.findOneById(postId, ['policy', 'user', 'organization']);
+    const parentPost = post.parentId !== null ? await this.postService.findOneById(post.parentId, ['policy', 'user', 'organization']) : null;
     const workers = await this.userService.findAllForAccount(user.account);
-    const organizations = await this.organizationService.findAllForAccount(user.account, false);
-    const policiesWithoutPost = await this.policyService.findAllWithoutPost(user.account)
+    const organizations = await this.organizationService.findAllForAccount(user.account);
+    const policiesWithoutPost = await this.policyService.findAllActiveWithoutPost(user.account)
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`);
     return { currentPost: post, parentPost: parentPost, workers: workers, organizations: organizations, policiesWithoutPost: policiesWithoutPost }
   }
@@ -301,7 +301,7 @@ export class PostController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiQuery({ name: 'addPolicyId', required: false, description: 'Id политики', example: 'null' })
   async create(@Param('userId') userId: string, @Body() postCreateDto: PostCreateDto, @Ip() ip: string, @Query('addPolicyId') addPolicyId?: string): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne(userId, ['account']);
     if (addPolicyId !== 'null') {
       const policy = await this.policyService.findOneById(addPolicyId)
       postCreateDto.policy = policy

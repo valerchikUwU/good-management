@@ -7,7 +7,7 @@ import { ProjectCreateDto } from "src/contracts/project/create-project.dto";
 import { AccountReadDto } from "src/contracts/account/read-account.dto";
 import { Logger } from 'winston';
 import { ProjectUpdateDto } from "src/contracts/project/update-project.dto";
-import { IsNull } from "typeorm";
+import { In, IsNull } from "typeorm";
 
 
 @Injectable()
@@ -202,6 +202,7 @@ export class ProjectService {
                 throw new BadRequestException('Выберите организацию для проекта!');
             }
 
+
             const project = new Project();
             project.projectName = projectCreateDto.projectName;
             project.programId = projectCreateDto.programId;
@@ -212,7 +213,9 @@ export class ProjectService {
             project.account = projectCreateDto.account;
             project.strategy = projectCreateDto.strategy;
             const projectCreatedId = await this.projectRepository.insert(project);
-
+            if(projectCreateDto.type === Type.PROGRAM){
+                await this.projectRepository.update({id: In(projectCreateDto.projectIds)}, {programId: projectCreatedId.identifiers[0].id})
+            }
             return projectCreatedId.identifiers[0].id;
         }
         catch (err) {

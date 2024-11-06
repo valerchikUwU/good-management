@@ -8,7 +8,6 @@ import { User } from "src/domains/user.entity";
 
 export class MessageCreateDto{
 
-    @ApiProperty({ description: 'Текст сообщения', required: true, example: 'Прывит' })
     @IsString()
     content: string;
 

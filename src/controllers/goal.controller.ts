@@ -52,8 +52,8 @@ export class GoalController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<GoalReadDto[]> {
-    const user = await this.userService.findOne(userId);
-    const goals = await this.goalService.findAllForAccount(user.account);
+    const user = await this.userService.findOne(userId, ['account']);
+    const goals = await this.goalService.findAllForAccount(user.account, ['organization']);
     return goals;
   }
 
@@ -84,7 +84,7 @@ export class GoalController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<OrganizationReadDto[]> {
-    const user = await this.userService.findOne(userId)
+    const user = await this.userService.findOne(userId, ['account'])
     const organizations = await this.organizationService.findAllWithoutGoalsForAccount(user.account);
     return organizations
   }
@@ -106,7 +106,7 @@ export class GoalController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
   async update(@Param('userId') userId: string, @Param('goalId') goalId: string, @Body() goalUpdateDto: GoalUpdateDto, @Ip() ip: string): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne(userId, ['account']);
     const updatedGoalId = await this.goalService.update(goalId, goalUpdateDto);
     const updateEventGoalDto: GoalUpdateEventDto = {
       eventType: 'GOAL_UPDATED',
@@ -175,8 +175,8 @@ export class GoalController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
   async findOne(@Param('userId') userId: string, @Param('goalId') goalId: string, @Ip() ip: string): Promise<{ currentGoal: GoalReadDto, organizations: OrganizationReadDto[] }> {
-    const user = await this.userService.findOne(userId)
-    const goal = await this.goalService.findOneById(goalId);
+    const user = await this.userService.findOne(userId, ['account'])
+    const goal = await this.goalService.findOneById(goalId, ['user', 'organization']);
     const organizations = await this.organizationService.findAllWithGoalsForAccount(user.account);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT GOAL: ${JSON.stringify(goal)} - Получить цель по ID!`);
     return { currentGoal: goal, organizations: organizations };
@@ -201,7 +201,7 @@ export class GoalController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async create(@Param('userId') userId: string, @Body() goalCreateDto: GoalCreateDto, @Ip() ip: string): Promise<string> {
     const [user, organization] = await Promise.all([
-      this.userService.findOne(userId),
+      this.userService.findOne(userId, ['account']),
       this.organizationService.findOneById(goalCreateDto.organizationId)
     ]);
     goalCreateDto.user = user;

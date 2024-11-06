@@ -6,6 +6,7 @@ import { User } from "src/domains/user.entity";
 export class ConvertReadDto{
     id: string;
     convertTheme: string;
+    pathOfPosts: string[];
     expirationTime: string;
     dateFinish: Date
     createdAt: Date;

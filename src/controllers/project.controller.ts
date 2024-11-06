@@ -69,7 +69,7 @@ export class ProjectController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async findAll(@Param('userId') userId: string): Promise<ProjectReadDto[]> {
-    const user = await this.userService.findOne(userId)
+    const user = await this.userService.findOne(userId, ['account'])
     return await this.projectService.findAllForAccount(user.account)
   }
 
@@ -144,11 +144,11 @@ export class ProjectController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async beforeCreateProgram(@Param('userId') userId: string, @Ip() ip: string): Promise<{ workers: ReadUserDto[], strategies: StrategyReadDto[], projects: ProjectReadDto[], organizations: OrganizationReadDto[] }> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne(userId, ['account']);
     const workers = await this.userService.findAllForAccount(user.account);
-    const strategies = await this.strategyService.findAllActiveForAccount(user.account);
+    const strategies = await this.strategyService.findAllActiveForAccount(user.account, ['organization']);
     const projects = await this.projectService.findAllProjectsWithoutProgramForAccount(user.account);
-    const organizations = await this.organizationService.findAllForAccount(user.account, false);
+    const organizations = await this.organizationService.findAllForAccount(user.account);
     return { workers: workers, strategies: strategies, projects: projects, organizations: organizations }
   }
 
@@ -223,11 +223,11 @@ export class ProjectController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ workers: ReadUserDto[], strategies: StrategyReadDto[], programs: ProjectReadDto[], organizations: OrganizationReadDto[] }> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne(userId, ['account']);
     const workers = await this.userService.findAllForAccount(user.account);
-    const strategies = await this.strategyService.findAllActiveForAccount(user.account);
+    const strategies = await this.strategyService.findAllActiveForAccount(user.account, ['organization']);
     const programs = await this.projectService.findAllProgramsForAccount(user.account);
-    const organizations = await this.organizationService.findAllForAccount(user.account, false);
+    const organizations = await this.organizationService.findAllForAccount(user.account);
     return { workers: workers, strategies: strategies, programs: programs, organizations: organizations }
   }
 
@@ -246,11 +246,11 @@ export class ProjectController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async create(@Param('userId') userId: string, @Body() projectCreateDto: ProjectCreateDto, @Ip() ip: string): Promise<{ id: string }> {
     const [user, organization] = await Promise.all([
-      this.userService.findOne(userId),
+      this.userService.findOne(userId, ['account']),
       this.organizationService.findOneById(projectCreateDto.organizationId)
     ]);
     if (projectCreateDto.strategyId) {
-      const strategy = await this.strategyService.findOneById(projectCreateDto.strategyId);
+      const strategy = await this.strategyService.findOneById(projectCreateDto.strategyId, ['organization']);
       projectCreateDto.strategy = strategy;
     }
     projectCreateDto.user = user;
@@ -275,7 +275,7 @@ export class ProjectController {
           content: targetCreateDto.content,
           createdAt: new Date(),
           holderUserId: targetCreateDto.holderUserId,
-          targetState: targetCreateDto.targetState !== undefined ? targetCreateDto.targetState as string : State.ACTIVE as string,
+          targetState: State.ACTIVE as string,
           dateStart: targetCreateDto.dateStart !== undefined ? targetCreateDto.dateStart : new Date(), //default createdAt
           deadline: targetCreateDto.deadline !== undefined ? targetCreateDto.deadline : null,
           projectId: createdProject.id,
@@ -326,20 +326,22 @@ export class ProjectController {
   })
   @ApiResponse({
     status: HttpStatus.OK, description: "ОК!",
-    example: "ff6c48ae-8493-48cc-9c5d-cdd1393858e6"
+    example: {
+      id: "ff6c48ae-8493-48cc-9c5d-cdd1393858e6"
+    }
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Проект не найден!` })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
   async update(@Param('userId') userId: string, @Param('projectId') projectId: string, @Body() projectUpdateDto: ProjectUpdateDto, @Ip() ip: string): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne(userId, ['account']);
     if (projectUpdateDto.organizationId) {
       const organization = await this.organizationService.findOneById(projectUpdateDto.organizationId);
       projectUpdateDto.organization = organization;
     }
     if (projectUpdateDto.strategyId) {
-      const strategy = await this.strategyService.findOneById(projectUpdateDto.strategyId);
+      const strategy = await this.strategyService.findOneById(projectUpdateDto.strategyId, ['organization']);
       projectUpdateDto.strategy = strategy;
     }
     const updatedProjectId = await this.projectService.update(projectId, projectUpdateDto);
@@ -350,8 +352,10 @@ export class ProjectController {
     const targetUpdateEventDtos: TargetUpdateEventDto[] = [];
     if (projectUpdateDto.targetUpdateDtos !== undefined) {
       const updateTargetsPromises = projectUpdateDto.targetUpdateDtos.map(async (targetUpdateDto) => {
-        const holderUser = await this.userService.findOne(targetUpdateDto.holderUserId);
-        targetUpdateDto.holderUser = holderUser;
+        if(targetUpdateDto.holderUserId){
+          const holderUser = await this.userService.findOne(targetUpdateDto.holderUserId);
+          targetUpdateDto.holderUser = holderUser;
+        }
         const updatedTargetId = await this.targetService.update(targetUpdateDto);
         const targetUpdateEventDto: TargetUpdateEventDto = {
           id: updatedTargetId,
@@ -384,7 +388,7 @@ export class ProjectController {
           content: targetCreateDto.content,
           createdAt: new Date(),
           holderUserId: targetCreateDto.holderUserId,
-          targetState: targetCreateDto.targetState !== undefined ? targetCreateDto.targetState as string : State.ACTIVE as string,
+          targetState: State.ACTIVE as string,
           dateStart: targetCreateDto.dateStart !== undefined ? targetCreateDto.dateStart : new Date(), //default createdAt
           deadline: targetCreateDto.deadline !== undefined ? targetCreateDto.deadline : null,
           projectId: project.id,
@@ -512,7 +516,7 @@ export class ProjectController {
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
   async findOne(@Param('userId') userId: string, @Param('projectId') projectId: string): Promise<{ project: ProjectReadDto, strategies: StrategyReadDto[] }> {
     const [user, project] = await Promise.all([
-      this.userService.findOne(userId),
+      this.userService.findOne(userId, ['account']),
       this.projectService.findOneById(projectId)
     ])
     const strategies = await this.strategyService.findAllForAccount(user.account)

@@ -74,10 +74,10 @@ export class PostService {
         }
     }
 
-    async findAllForAccount(account: AccountReadDto): Promise<PostReadDto[]> {
+    async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PostReadDto[]> {
         try {
 
-            const posts = await this.postRepository.find({ where: { account: { id: account.id } }, relations: ['user', 'organization'] });
+            const posts = await this.postRepository.find({ where: { account: { id: account.id } }, relations: relations !== undefined ? relations : [] });
 
             return posts.map(post => ({
 
@@ -135,10 +135,10 @@ export class PostService {
         }
     }
 
-    async findOneById(id: string): Promise<PostReadDto | null> {
+    async findOneById(id: string, relations?: string[]): Promise<PostReadDto | null> {
         try {
 
-            const post = await this.postRepository.findOne({ where: { id: id }, relations: ['policy', 'user', 'organization'] });
+            const post = await this.postRepository.findOne({ where: { id: id }, relations: relations !== undefined ? relations : [] });
 
             if (!post) throw new NotFoundException(`Пост с ID: ${id} не найден`);
             const postReadDto: PostReadDto = {
@@ -171,6 +171,19 @@ export class PostService {
             throw new InternalServerErrorException('Ошибка при получении поста');
 
         }
+    }
+
+
+    async getHierarchyToTop(postId: string): Promise<string[]> {
+        const hierarchyIds: string[] = [];
+        let currentPost = await this.postRepository.findOne({ where: { id: postId }, relations: ['user'] });
+        while (currentPost && currentPost.parentId) {
+          hierarchyIds.push(currentPost.id);
+          currentPost = await this.postRepository.findOne({ where: { id: currentPost.parentId }, relations: ['user'] });
+        }
+        // Добавляем верхний уровень (пост без parentId)
+        if (currentPost) hierarchyIds.push(currentPost.id);
+        return hierarchyIds;
     }
 
     async create(postCreateDto: PostCreateDto): Promise<string> {
