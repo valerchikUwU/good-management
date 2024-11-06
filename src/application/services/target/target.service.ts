@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Target, Type } from "src/domains/target.entity";
+import { State, Target, Type } from "src/domains/target.entity";
 import { TargetRepository } from "./repository/target.repository";
 import { TargetReadDto } from "src/contracts/target/read-target.dto";
 import { TargetCreateDto } from "src/contracts/target/create-target.dto";
@@ -104,7 +104,6 @@ export class TargetService {
             target.orderNumber = targetCreateDto.orderNumber;
             target.content = targetCreateDto.content;
             target.holderUserId = targetCreateDto.holderUserId;
-            if (targetCreateDto.targetState) target.targetState = targetCreateDto.targetState;
             target.dateStart = new Date();
             target.deadline = targetCreateDto.deadline;
             target.project = targetCreateDto.project;
@@ -138,7 +137,7 @@ export class TargetService {
             }
             // Обновить свойства, если они указаны в DTO
             if (updateTargetDto.content) target.content = updateTargetDto.content;
-            if (updateTargetDto.holderUserId) {
+            if (updateTargetDto.holderUser) {
                 const targetHolderCreateDto: TargetHolderCreateDto = {
                     target: target,
                     user: updateTargetDto.holderUser
@@ -147,9 +146,10 @@ export class TargetService {
                 target.holderUserId = updateTargetDto.holderUserId;
             }
             if (updateTargetDto.targetState) target.targetState = updateTargetDto.targetState;
+            if (updateTargetDto.targetState === State.FINISHED) target.dateComplete = new Date()
             if (updateTargetDto.dateStart) target.dateStart = updateTargetDto.dateStart;
             if (updateTargetDto.deadline) target.deadline = updateTargetDto.deadline;
-            await this.targetRepository.update(target.id, {content: target.content, holderUserId: target.holderUserId, dateStart: target.dateStart, deadline: target.deadline});
+            await this.targetRepository.update(target.id, {content: target.content, holderUserId: target.holderUserId, targetState: target.targetState, dateStart: target.dateStart, deadline: target.deadline, dateComplete: target.dateComplete});
             return target.id
         }
         catch (err) {

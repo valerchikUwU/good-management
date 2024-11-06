@@ -50,7 +50,7 @@ export class ObjectiveController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<ObjectiveReadDto[]> {
-        const user = await this.userService.findOne(userId);
+        const user = await this.userService.findOne(userId, ['account']);
         const objectives = await this.objectiveService.findAllForAccount(user.account);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - OBJECTIVES: ${JSON.stringify(objectives)} - ВСЕ КРАТКОСРОЧНЫЕ ЦЕЛИ!`);
         return objectives;
@@ -76,7 +76,7 @@ export class ObjectiveController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<StrategyReadDto[]> {
-        const user = await this.userService.findOne(userId)
+        const user = await this.userService.findOne(userId, ['account'])
         const strategies = await this.strategyService.findAllActiveWithoutObjectiveForAccount(user.account)
         return strategies;
     }
@@ -115,8 +115,8 @@ export class ObjectiveController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeUpdate(@Param('userId') userId: string): Promise<StrategyReadDto[]> {
-        const user = await this.userService.findOne(userId)
-        const strategies = await this.strategyService.findAllWithObjectiveForAccount(user.account)
+        const user = await this.userService.findOne(userId, ['account'])
+        const strategies = await this.strategyService.findAllActiveWithObjectiveForAccount(user.account)
         return strategies;
     }
 
@@ -131,9 +131,9 @@ export class ObjectiveController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'objectiveId', required: true, description: 'Id краткосрочной цели' })
     async update(@Param('userId') userId: string, @Param('objectiveId') objectiveId: string, @Body() objectiveUpdateDto: ObjectiveUpdateDto, @Ip() ip: string): Promise<{ id: string }> {
-        const user = await this.userService.findOne(userId);
+        const user = await this.userService.findOne(userId, ['account']);
         if (objectiveUpdateDto.strategyId) {
-            const strategy = await this.strategyService.findOneById(objectiveUpdateDto.strategyId);
+            const strategy = await this.strategyService.findOneById(objectiveUpdateDto.strategyId, ['organization']);
             objectiveUpdateDto.strategy = strategy
         }
         const updatedObjectiveId = await this.objectiveService.update(objectiveId, objectiveUpdateDto);
@@ -182,8 +182,8 @@ export class ObjectiveController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async create(@Param('userId') userId: string, @Body() objectiveCreateDto: ObjectiveCreateDto, @Ip() ip: string): Promise<string> {
         const [user, chosenStrategy] = await Promise.all([
-            this.userService.findOne(userId),
-            this.strategyService.findOneById(objectiveCreateDto.strategyId)
+            this.userService.findOne(userId, ['account']),
+            this.strategyService.findOneById(objectiveCreateDto.strategyId, ['organization'])
         ]);
         objectiveCreateDto.strategy = chosenStrategy;
         objectiveCreateDto.account = user.account;
@@ -234,7 +234,7 @@ export class ObjectiveController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'strategyId', required: true, description: 'Id стратегии' })
     async findOne(@Param('userId') userId: string, @Param('strategyId') strategyId: string, @Ip() ip: string): Promise<ObjectiveReadDto> {
-        const objective = await this.objectiveService.findeOneByStrategyId(strategyId);
+        const objective = await this.objectiveService.findOneByStrategyId(strategyId, ['strategy']);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT OBJECTIVE: ${JSON.stringify(objective)} - Получить краткосрочную цель по ID!`);
         return objective;
     }

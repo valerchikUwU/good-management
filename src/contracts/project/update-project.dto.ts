@@ -1,11 +1,12 @@
-import { Type } from "src/domains/project.entity";
+import { Type as TypeProject } from "src/domains/project.entity";
 import { TargetCreateDto } from "../target/create-target.dto";
 import { ApiProperty } from "@nestjs/swagger";
-import { ArrayNotEmpty, IsArray, IsEmpty, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEmpty, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { TargetUpdateDto } from "../target/update-target.dto";
-import { Exclude } from "class-transformer";
+import { Exclude, Type } from "class-transformer";
 import { Organization } from "src/domains/organization.entity";
 import { Strategy } from "src/domains/strategy.entity";
+import { HasProductAndRegularTasksForProject } from "src/utils/TargetTypeValidation";
 
 export class ProjectUpdateDto {
     
@@ -33,8 +34,8 @@ export class ProjectUpdateDto {
 
     @ApiProperty({ description: 'Тип проекта', required: false, example: 'Проект', examples: ['Проект', 'Программа'] })
     @IsOptional()
-    @IsEnum(Type)
-    type?: Type;
+    @IsEnum(TypeProject)
+    type?: TypeProject;
 
     @ApiProperty({ description: 'ID организации, с которой связать проект', required: false, example: '1f1cca9a-2633-489c-8f16-cddd411ff2d0' })
     @IsOptional()
@@ -85,6 +86,8 @@ export class ProjectUpdateDto {
     })
     @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
+    @ValidateNested()
+    @Type(() => TargetCreateDto)
     targetCreateDtos?: TargetCreateDto[];
 
 
@@ -102,7 +105,12 @@ export class ProjectUpdateDto {
     })
     @IsOptional()
     @IsArray({message: 'Должен быть массив!'})
-    targetUpdateDtos?: TargetUpdateDto[]
+    targetUpdateDtos?: TargetUpdateDto[];
+
+    @ApiProperty({ description: 'IDs проектов, которые привязать с програмой', example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'] })
+    @IsOptional()
+    @IsArray()
+    projectIds?: string[]
 }
 
 

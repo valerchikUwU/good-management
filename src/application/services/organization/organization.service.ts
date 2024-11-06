@@ -16,10 +16,10 @@ export class OrganizationService {
 
     }
 
-    async findAllForAccount(account: AccountReadDto, relationsFlag: boolean): Promise<OrganizationReadDto[]> {
+    async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<OrganizationReadDto[]> {
         try {
             
-            const organizations = await this.organizationRepository.find({ where: { account: { id: account.id } }, relations: relationsFlag ? ['goal'] : [] });
+            const organizations = await this.organizationRepository.find({ where: { account: { id: account.id } }, relations: relations !== undefined ? relations : [] });
             return organizations.map(organization => ({
                 id: organization.id,
                 organizationName: organization.organizationName,
@@ -43,33 +43,6 @@ export class OrganizationService {
         }
     }
 
-
-    async findAllForAccountWithRelations(account: AccountReadDto): Promise<OrganizationReadDto[]> {
-        try {
-
-            const organizations = await this.organizationRepository.find({ where: { account: { id: account.id } }, relations: ['posts.user'] });
-            return organizations.map(organization => ({
-                id: organization.id,
-                organizationName: organization.organizationName,
-                parentOrganizationId: organization.parentOrganizationId,
-                createdAt: organization.createdAt,
-                updatedAt: organization.updatedAt,
-                users: organization.users,
-                posts: organization.posts,
-                goal: organization.goal,
-                policyToOrganizations: organization.policyToOrganizations,
-                projects: organization.projects,
-                strategies: organization.strategies,
-                account: organization.account,
-            }));
-        }
-        catch (err) {
-
-            this.logger.error(err);
-            // Обработка других ошибок
-            throw new InternalServerErrorException('Ошибка при получении всех организаций!');
-        }
-    }
 
 
     async findAllWithoutGoalsForAccount(account: AccountReadDto): Promise<OrganizationReadDto[]> {
@@ -128,9 +101,9 @@ export class OrganizationService {
         }
     }
 
-    async findOneById(id: string): Promise<OrganizationReadDto> {
+    async findOneById(id: string, relations?: string[]): Promise<OrganizationReadDto> {
         try {
-            const organization = await this.organizationRepository.findOne({where: { id: id }, relations: ['strategies']});
+            const organization = await this.organizationRepository.findOne({where: { id: id }, relations: relations !== undefined ? relations : []});
 
             if (!organization) throw new NotFoundException(`Организация с ID: ${id} не найдена`);
             const organizationReadDto: OrganizationReadDto = {

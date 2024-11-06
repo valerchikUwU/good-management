@@ -12,7 +12,7 @@ import { QueueModule } from "./queue.module";
 
 @Module({
     imports: [TypeOrmModule.forFeature([Statistic]),
-    UsersModule, StatisticDataModule, PostModule, forwardRef(() => QueueModule)],
+    UsersModule, StatisticDataModule, forwardRef(() => PostModule), forwardRef(() => QueueModule)],
     controllers: [StatisticController],
     providers: [StatisticService, StatisticRepository],
     exports: [StatisticService]

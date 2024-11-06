@@ -45,7 +45,7 @@ export class UsersController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findAll(@Param('userId') userId: string): Promise<ReadUserDto[]> {
-        const user = await this.usersService.findOne(userId)
+        const user = await this.usersService.findOne(userId, ['account'])
         return this.usersService.findAllForAccount(user.account);
     }
 
@@ -94,7 +94,7 @@ export class UsersController {
     })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
-    async findOne(@Param('id') id: string): Promise<ReadUserDto | null> {
+    async findOne(@Param('id') id: string): Promise<ReadUserDto> {
         return this.usersService.findOne(id);
     }
 
@@ -109,7 +109,7 @@ export class UsersController {
     })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async create(@Param('userId') userId: string, @Body() userCreateDto: CreateUserDto, @Ip() ip: string): Promise<{id: string}>{
-        const user = await this.usersService.findOne(userId);
+        const user = await this.usersService.findOne(userId, ['account']);
         const role = await this.roleService.findOneById(userCreateDto.roleId)
         userCreateDto.account = user.account;
         userCreateDto.role = role;

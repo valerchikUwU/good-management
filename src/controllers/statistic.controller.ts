@@ -61,7 +61,7 @@ export class StatisticController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async findAll(@Param('userId') userId: string): Promise<StatisticReadDto[]> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne(userId, ['account']);
     return await this.statisticService.findAllForAccount(user.account)
   }
 
@@ -82,7 +82,7 @@ export class StatisticController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'statisticId', required: true, description: 'Id статистики' })
   async update(@Param('statisticId') statisticId: string, @Param('userId') userId: string, @Body() statisticUpdateDto: StatisticUpdateDto, @Ip() ip: string): Promise<{id: string}> {
-    const user = await this.userService.findOne(userId);
+    const user = await this.userService.findOne(userId, ['account']);
     const statisticDataCreateEventDtos: StatisticDataCreateEventDto[] = [];
     const statisticDataUpdateEventDtos: StatisticDataUpdateEventDto[] = [];
     const post = statisticUpdateDto.postId !== undefined ? await this.postService.findOneById(statisticUpdateDto.postId) : null
@@ -194,8 +194,8 @@ export class StatisticController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<PostReadDto[]> {
-    const user = await this.userService.findOne(userId)
-    const posts = await this.postService.findAllForAccount(user.account)
+    const user = await this.userService.findOne(userId, ['account'])
+    const posts = await this.postService.findAllForAccount(user.account, ['user', 'organization'])
     return posts;
   }
 
@@ -215,7 +215,7 @@ export class StatisticController {
   async create(@Param('userId') userId: string, @Body() statisticCreateDto: StatisticCreateDto, @Ip() ip: string): Promise<{id: string}> {
     const statisticDataCreateEventDtos: StatisticDataCreateEventDto[] = [];
     const [user, post] = await Promise.all([
-      this.userService.findOne(userId),
+      this.userService.findOne(userId, ['account']),
       this.postService.findOneById(statisticCreateDto.postId)
     ]);
 
@@ -343,7 +343,7 @@ export class StatisticController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'statisticId', required: true, description: 'Id статистики' })
   async findOne(@Param('statisticId') statisticId: string, @Ip() ip: string): Promise<StatisticReadDto> {
-    const statistic = await this.statisticService.findOneById(statisticId);
+    const statistic = await this.statisticService.findOneById(statisticId, ['statisticDatas', 'post']);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT STATISTIC: ${JSON.stringify(statistic)} - Получить статистику по ID!`);
     return statistic;
   }

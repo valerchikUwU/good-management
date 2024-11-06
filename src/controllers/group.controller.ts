@@ -44,7 +44,7 @@ export class GroupController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<GroupReadDto[]> {
-        const user = await this.userService.findOne(userId);
+        const user = await this.userService.findOne(userId, ['account']);
         const groups = await this.groupService.findAllForAccount(user.account);
         return groups;
     }
@@ -127,8 +127,8 @@ export class GroupController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<OrganizationReadDto[]> {
-        const user = await this.userService.findOne(userId)
-        const organizations = await this.organizationService.findAllForAccountWithRelations(user.account);
+        const user = await this.userService.findOne(userId, ['account'])
+        const organizations = await this.organizationService.findAllForAccount(user.account, ['posts.user']);
         return organizations;
     }
 
@@ -210,7 +210,7 @@ export class GroupController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'groupId', required: true, description: 'Id группы' })
     async findOne(@Param('userId') userId: string, @Param('groupId') groupId: string, @Ip() ip: string): Promise<GroupReadDto> {
-        const group = await this.groupService.findOneById(groupId);
+        const group = await this.groupService.findOneById(groupId, ['groupToUsers.user']);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT GROUP: ${JSON.stringify(group)} - Получить группу по ID!`);
         return group
     }
@@ -235,7 +235,7 @@ export class GroupController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async create(@Param('userId') userId: string, @Body() groupCreateDto: GroupCreateDto, @Ip() ip: string): Promise<{id: string}> {
-        const user = await this.userService.findOne(userId);
+        const user = await this.userService.findOne(userId, ['account']);
         groupCreateDto.account = user.account;
         const createdGroupId = await this.groupService.create(groupCreateDto);
         // const createdEventPolicyDto: PolicyCreateEventDto = {

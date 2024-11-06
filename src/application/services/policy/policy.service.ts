@@ -53,7 +53,7 @@ export class PolicyService {
         }
     }
 
-    async findAllWithoutPost(account: AccountReadDto): Promise<PolicyReadDto[]> {
+    async findAllActiveWithoutPost(account: AccountReadDto): Promise<PolicyReadDto[]> {
         try {
             const policies = await this.policyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, post: {id: IsNull()} }, relations: ['post'] });
 
@@ -83,9 +83,9 @@ export class PolicyService {
         }
     }
 
-    async findOneById(id: string): Promise<PolicyReadDto | null> {
+    async findOneById(id: string, relations?: string[]): Promise<PolicyReadDto | null> {
         try {
-            const policy = await this.policyRepository.findOne({where: { id }, relations: ['policyToOrganizations.organization', 'files']});
+            const policy = await this.policyRepository.findOne({where: { id }, relations: relations !== undefined ? relations : []});
             if (!policy) throw new NotFoundException(`Политика с ID: ${id} не найдена`);
             const policyReadDto: PolicyReadDto = {
                 id: policy.id,

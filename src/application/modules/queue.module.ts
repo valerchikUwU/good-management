@@ -12,7 +12,7 @@ import { StatisticModule } from './statistic.module';
 import { StatisticDataModule } from './statisticData.module';
 
 @Module({
-  imports: [UsersModule, forwardRef(() => AccountModule), OrganizationModule, RoleSettingModule, RoleModule, PostModule, PolicyModule, StatisticModule, StatisticDataModule],
+  imports: [UsersModule, forwardRef(() => AccountModule), OrganizationModule, RoleSettingModule, RoleModule, forwardRef(() => PostModule), forwardRef(() => PolicyModule), StatisticModule, StatisticDataModule],
   providers: [ProducerService, ConsumerService],
   exports: [ProducerService],
 })

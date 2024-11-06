@@ -86,14 +86,15 @@ export class UsersService {
             }));
         }
         catch (err) {
+            this.logger.error(err);
             throw new InternalServerErrorException('Ошибка при получении всех пользователей!')
         }
     }
 
 
-    async findOne(id: string): Promise<ReadUserDto | null> {
+    async findOne(id: string, relations?: string[]): Promise<ReadUserDto | null> {
         try {
-            const user = await this.usersRepository.findOne({ where: { id }, relations: ['account', 'organization', 'role'] });
+            const user = await this.usersRepository.findOne({ where: { id }, relations: relations !== undefined ? relations : [] });
             if (!user) throw new NotFoundException(`Пользователь с ${id} не найден!`);
             // Преобразование объекта User в ReadUserDto
             const readUserDto: ReadUserDto = {

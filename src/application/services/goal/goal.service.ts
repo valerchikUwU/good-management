@@ -16,9 +16,9 @@ export class GoalService {
         @Inject('winston') private readonly logger: Logger
     ) { }
 
-    async findAllForAccount(account: AccountReadDto): Promise<GoalReadDto[]> {
+    async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<GoalReadDto[]> {
         try {
-            const goals = await this.goalRepository.find({ where: { account: { id: account.id } }, relations: ['organization'] });
+            const goals = await this.goalRepository.find({ where: { account: { id: account.id } }, relations: relations !== undefined ? relations : [] });
             return goals.map(goal => ({
                 id: goal.id,
                 content: goal.content,
@@ -37,9 +37,9 @@ export class GoalService {
         }
     }
 
-    async findOneById(id: string): Promise<GoalReadDto> {
+    async findOneById(id: string, relations?: string[]): Promise<GoalReadDto> {
         try {
-            const goal = await this.goalRepository.findOne({ where: { id: id }, relations: ['user', 'organization'] });
+            const goal = await this.goalRepository.findOne({ where: { id: id }, relations: relations !== undefined ? relations : []});
 
             if (!goal) throw new NotFoundException(`Цель с ID: ${id} не найдена!`);
             const goalReadDto: GoalReadDto = {

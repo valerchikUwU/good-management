@@ -3,17 +3,23 @@ import { SubscribeMessage, WebSocketGateway, OnGatewayConnection, OnGatewayDisco
 import { Server, Socket } from 'socket.io';
 import { ConvertService } from 'src/application/services/convert/convert.service';
 import { MessageService } from 'src/application/services/message/message.service';
+import { PostService } from 'src/application/services/post/post.service';
 import { UsersService } from 'src/application/services/users/users.service';
+import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
+import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
+import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { Logger } from 'winston';
 
 
-@WebSocketGateway({ namespace: 'chat', cors: '*:*' })
+@WebSocketGateway(5001, {namespace: 'chat', cors: '*:*' })
 export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private readonly messageService: MessageService,
         private readonly userService: UsersService,
         private readonly convertService: ConvertService,
+        private readonly postService: PostService,
         @Inject('winston') private readonly logger: Logger, // инъекция логгера
     ) { }
     private clients: Map<string, Socket> = new Map();
@@ -23,24 +29,91 @@ export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect 
         this.logger.info(`WebSocket for chat initialized`);
     }
 
+    async handleSendingConvert(
+            message: MessageCreateDto,
+            sender: ReadUserDto,
+            convert: ConvertReadDto,
+            userIdOfFirstPost: string
+    ) {
+        this.ws.to(convert.id).emit('convertEmit', message) // broadcast messages
+        const convertUserIds = convert.convertToUsers.map(convertToUser => convertToUser.user.id);
+        convertUserIds.push(userIdOfFirstPost);
+        const convertUpdateDto: ConvertUpdateDto = {
+            _id: convert.id,
+            userIds: convertUserIds,
+            pathOfPosts: convert.pathOfPosts
+        }
+        await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+        message.convert = convert;
+        message.sender = sender;
+        await this.messageService.create(message);
+        return true;
+    }
 
-    @SubscribeMessage('chat')
-    async handleChatEvent(
+    @SubscribeMessage('approve')
+    async handleApproval(
         @MessageBody()
         payload: {
-            convertId: string,
-            senderId: string,
-            message: MessageCreateDto
+            isApproved: boolean,
+            message: MessageCreateDto,
+            sender: ReadUserDto,
+            convert: ConvertReadDto
         }
-    ) {
-        this.logger.info(payload)
-        this.ws.to(payload.convertId).emit('chat', payload.message) // broadcast messages
-        const convert = await this.convertService.findOneById(payload.convertId);
-        const sender = await this.userService.findOne(payload.senderId)
-        payload.message.convert = convert;
-        payload.message.sender = sender;
-        return await this.messageService.create(payload.message);
+    ){
+        try{
+            this.logger.info(JSON.stringify(payload));
+            this.ws.to(payload.convert.id).emit('convertEmit', payload.message) // broadcast messages
+            const postOfSender = await this.postService.findOneById(payload.convert.pathOfPosts[0], ['user'])
+            if(postOfSender.user.id === payload.sender.id){
+                payload.message.convert = payload.convert;
+                payload.message.sender = payload.sender;
+                await this.messageService.create(payload.message);
+                if(payload.isApproved){
+                    const convertUserIds = payload.convert.convertToUsers.map(convertToUser => convertToUser.user.id);
+                    if (payload.convert.pathOfPosts.length > 1) payload.convert.pathOfPosts.shift();
+                    const nextPost = await this.postService.findOneById(payload.convert.pathOfPosts[0], ['user']);
+                    convertUserIds.push(nextPost.user.id);
+                    const convertUpdateDto: ConvertUpdateDto = {
+                        _id: payload.convert.id,
+                        userIds: convertUserIds,
+                        pathOfPosts: payload.convert.pathOfPosts
+                    }
+                    await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+                    payload.message.convert = payload.convert;
+                    payload.message.sender = payload.sender;
+                    await this.messageService.create(payload.message);
+                    this.ws.to(payload.convert.id).emit('convertEmit', payload.message) // broadcast messages
+                    return true;
+                }
+            }
+            else throw new ForbiddenException('У вас нет прав для работы с этим конвертом!')
+        }
+        catch(err){
+            this.logger.error(err);
+            if (err instanceof ForbiddenException){
+                throw err;
+            }
+            throw new InternalServerErrorException('Ошибка при одобрении конверта!')
+        }
     }
+
+    // @SubscribeMessage('chat')
+    // async handleChatEvent(
+    //     @MessageBody()
+    //     payload: {
+    //         convertId: string,
+    //         senderId: string,
+    //         message: MessageCreateDto
+    //     }
+    // ) {
+    //     this.logger.info(payload)
+    //     this.ws.to(payload.convertId).emit('chat', payload.message) // broadcast messages
+    //     const convert = await this.convertService.findOneById(payload.convertId);
+    //     const sender = await this.userService.findOne(payload.senderId)
+    //     payload.message.convert = convert;
+    //     payload.message.sender = sender;
+    //     return await this.messageService.create(payload.message);
+    // }
 
     @SubscribeMessage('join_room')
     async handleSetClientDataEvent(
@@ -53,7 +126,7 @@ export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect 
         try {
 
             const compareId = async (payload: { convertId: string, userId: string }): Promise<boolean> => {
-                const convert = await this.convertService.findOneById(payload.convertId);
+                const convert = await this.convertService.findOneById(payload.convertId, ['convertToUsers.user']);
                 const convertToUsers = convert.convertToUsers;
                 for (const convertToUser of convertToUsers) {
                     if (convertToUser.user.id === payload.userId) {

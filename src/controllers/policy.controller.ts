@@ -66,7 +66,7 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<{ policies: PolicyReadDto[], directives: PolicyReadDto[], instructions: PolicyReadDto[] }> {
-        const user = await this.userService.findOne(userId);
+        const user = await this.userService.findOne(userId, ['account']);
         const policies = await this.policyService.findAllForAccount(user.account);
         const directives = policies.filter((policy) => policy.type === Type.DIRECTIVE);
         const instructions = policies.filter((policy) => policy.type === Type.INSTRUCTION);
@@ -139,11 +139,11 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async beforeCreate(@Param('userId') userId: string, @Ip() ip: string): Promise<{ directives: PolicyReadDto[], instructions: PolicyReadDto[], policies: PolicyReadDto[], organizations: OrganizationReadDto[] }> {
-        const user = await this.userService.findOne(userId);
+        const user = await this.userService.findOne(userId, ['account']);
         const policies = await this.policyService.findAllForAccount(user.account);
         const directives = policies.filter((policy) => policy.type === Type.DIRECTIVE);
         const instructions = policies.filter((policy) => policy.type === Type.INSTRUCTION);
-        const organizations = await this.organizationService.findAllForAccount(user.account, false);
+        const organizations = await this.organizationService.findAllForAccount(user.account);
         return { directives: directives, instructions: instructions, policies: policies, organizations: organizations }
     }
 
@@ -164,7 +164,7 @@ export class PolicyController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
     async update(@Param('userId') userId: string, @Param('policyId') policyId: string, @Body() policyUpdateDto: PolicyUpdateDto, @Ip() ip: string): Promise<{ id: string }> {
-        const user = await this.userService.findOne(userId);
+        const user = await this.userService.findOne(userId, ['account']);
         const updatedPolicyId = await this.policyService.update(policyId, policyUpdateDto);
         const updatedEventPolicyDto: PolicyUpdateEventDto = {
             eventType: 'POLICY_UPDATED',
@@ -251,9 +251,9 @@ export class PolicyController {
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
     async findOne(@Param('userId') userId: string, @Param('policyId') policyId: string, @Ip() ip: string): Promise<{ currentPolicy: PolicyReadDto, organizations: OrganizationReadDto[] }> {
-        const policy = await this.policyService.findOneById(policyId);
-        const user = await this.userService.findOne(userId)
-        const organizations = await this.organizationService.findAllForAccount(user.account, false);
+        const policy = await this.policyService.findOneById(policyId, ['policyToOrganizations.organization', 'files']);
+        const user = await this.userService.findOne(userId, ['account'])
+        const organizations = await this.organizationService.findAllForAccount(user.account);
         this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT POLICY: ${JSON.stringify(policy)} - Получить политику по ID!`);
         return { currentPolicy: policy, organizations: organizations }
     }
@@ -278,7 +278,7 @@ export class PolicyController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: "Ошибка валидации!" })
     @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
     async create(@Param('userId') userId: string, @Body() policyCreateDto: PolicyCreateDto, @Ip() ip: string): Promise<{ id: string }> {
-        const user = await this.userService.findOne(userId);
+        const user = await this.userService.findOne(userId, ['account']);
         policyCreateDto.user = user;
         policyCreateDto.account = user.account;
         const createdPolicyId = await this.policyService.create(policyCreateDto);

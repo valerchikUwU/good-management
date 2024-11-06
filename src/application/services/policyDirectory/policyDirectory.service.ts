@@ -25,9 +25,9 @@ export class PolicyDirectoryService{
         
     }
 
-    async findAllForAccount(account: AccountReadDto): Promise<PolicyDirectoryReadDto[]> {
+    async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PolicyDirectoryReadDto[]> {
         try {
-            const policyDirectories = await this.policyDirectoryRepository.find({ where: { account: { id: account.id } }, relations: ['policyToPolicyDirectories.policy'] });
+            const policyDirectories = await this.policyDirectoryRepository.find({ where: { account: { id: account.id } }, relations: relations !== undefined ? relations : [] });
 
             return policyDirectories.map(policyDirectory => ({
                 id: policyDirectory.id,

@@ -38,7 +38,7 @@ export class ObjectiveService {
         }
     }
 
-    async findeOneById(id: string): Promise<ObjectiveReadDto | null> {
+    async findOneById(id: string): Promise<ObjectiveReadDto | null> {
         try {
             const objective = await this.objectiveRepository.findOne({where: {id: id }, relations: ['strategy']});
 
@@ -68,9 +68,9 @@ export class ObjectiveService {
         }
     }
 
-    async findeOneByStrategyId(strategyId: string): Promise<ObjectiveReadDto | null> {
+    async findOneByStrategyId(strategyId: string, relations?: string[]): Promise<ObjectiveReadDto | null> {
         try {
-            const objective = await this.objectiveRepository.findOne({where: {strategy: {id: strategyId} }, relations: ['strategy']});
+            const objective = await this.objectiveRepository.findOne({where: {strategy: {id: strategyId} }, relations: relations !== undefined ? relations : []});
 
             if (!objective) throw new NotFoundException(`Краткосрочная цель с ID: ${strategyId} не найдена`);;
             const objectiveReadDto: ObjectiveReadDto = {

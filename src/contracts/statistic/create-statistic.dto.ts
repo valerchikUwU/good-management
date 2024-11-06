@@ -1,10 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
+import { Exclude, Type } from "class-transformer";
 import { Account } from "src/domains/account.entity";
 import { Post } from "src/domains/post.entity";
-import { Type } from "src/domains/statistic.entity";
+import { Type as TypeStatistic } from "src/domains/statistic.entity";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { StatisticDataCreateDto } from "../statisticData/create-statisticData.dto";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
 
 
 export class StatisticCreateDto{
@@ -14,10 +14,10 @@ export class StatisticCreateDto{
     @IsNotEmpty({message: 'ID статистики не может быть пустым!'})
     id?: string
     
-    @ApiProperty({description: 'Значение', required: true, example: 'Прямая', examples: ['Прямая', 'Обратная']})
+    @ApiProperty({description: 'Значение', required: false, default: 'Прямая', example: 'Прямая', examples: ['Прямая', 'Обратная']})
     @IsOptional()
-    @IsEnum(Type)
-    type?: Type;
+    @IsEnum(TypeStatistic)
+    type?: TypeStatistic;
     
     @ApiProperty({description: 'Название статистики', required: true, example: 'Название'})
     @IsString()
@@ -54,6 +54,8 @@ export class StatisticCreateDto{
     ]})
     @IsOptional()
     @IsArray({message: 'Должно быть массивом!'})
+    @ValidateNested()
+    @Type(() => StatisticDataCreateDto)
     @ArrayNotEmpty({message: 'Добавьте хотя бы одно значение для статистики!'})
     statisticDataCreateDtos?: StatisticDataCreateDto[]
 }

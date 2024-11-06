@@ -1,20 +1,48 @@
-import { ApiExtraModels } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
+import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
+import { Exclude, Type } from "class-transformer";
+import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, min } from "class-validator";
 import { Project } from "src/domains/project.entity";
-import { State, Type } from "src/domains/target.entity";
+import { State, Type as TypeTarget } from "src/domains/target.entity";
 import { User } from "src/domains/user.entity";
 
 @ApiExtraModels()
 export class TargetCreateDto{
-    type?: Type; // default common
-    orderNumber: number; // change in domain
+    
+
+    @ApiProperty({ description: 'Тип задачи', required: false, example: 'Обычная', examples: ['Обычная', 'Статистика', 'Правила', 'Продукт', 'Организационные мероприятия'] })
+    @IsOptional()
+    @IsEnum(TypeTarget)
+    type?: TypeTarget;
+
+    @ApiProperty({ description: 'Порядковый номер задачи (минимум 1)', required: true, example: 1 })
+    @IsNumber()
+    @Min(1)
+    orderNumber: number; 
+
+    @ApiProperty({ description: 'Содержание задачи', required: true, example: 'Контент задачи' })
+    @IsString()
+    @IsNotEmpty({message: 'Задача не может быть пустой!'})
     content: string;
+
+    @ApiProperty({ description: 'Id ответственного юзера', required: true, example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a' })
+    @IsUUID()
+    @IsNotEmpty({message: 'Id ответственного не может быть пустой'})
     holderUserId: string;
-    targetState?: State;
-    dateStart?: Date; //default createdAt
+
+    @ApiProperty({ description: 'Дата начала выполнения (default: new Date())', required: false, default: new Date(), example: '2024-09-16 17:03:31.000111' })
+    @IsOptional()
+    @Type(() => Date)
+    @IsDate()
+    dateStart?: Date; 
+
+    @ApiProperty({ description: 'Дедлайн', required: false, nullable: true, example: '2025-09-16 17:03:31.000111' })
+    @IsOptional()
+    @Type(() => Date)
+    @IsDate()
     deadline?: Date;
+
     @Exclude({toPlainOnly: true})
     holderUser: User
     @Exclude({toPlainOnly: true})
-    project: Project; // nullable
+    project: Project; 
 }

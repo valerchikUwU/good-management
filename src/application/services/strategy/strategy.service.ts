@@ -54,7 +54,7 @@ export class StrategyService {
     async findAllActiveWithoutObjectiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
         try {
 
-            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, objective: {id: IsNull()}}});
+            const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, objective: {id: IsNull()}}, relations: ['objective']});
 
             return strategies.map(strategy => ({
                 id: strategy.id,
@@ -80,14 +80,14 @@ export class StrategyService {
         }
     }
 
-    async findAllActiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+    async findAllActiveForAccount(account: AccountReadDto, relations?: string[]): Promise<StrategyReadDto[]> {
         try {
             const strategies = await this.strategyRepository.find({
                 where: {
                   account: { id: account.id },
                   state: In([State.ACTIVE, State.DRAFT]), // Используем In для OR условия
                 },
-                relations: ['organization'],
+                relations: relations !== undefined ? relations : [],
               });
 
             return strategies.map(strategy => ({
@@ -114,7 +114,7 @@ export class StrategyService {
         }
     }
 
-    async findAllWithObjectiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+    async findAllActiveWithObjectiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
         try {
 
             const strategies = await this.strategyRepository.find({ where: { account: { id: account.id }, state: State.ACTIVE, objective: {id: Not(IsNull()) }}, relations: ['objective']});
@@ -143,9 +143,9 @@ export class StrategyService {
         }
     }
 
-    async findOneById(id: string): Promise<StrategyReadDto | null> {
+    async findOneById(id: string, relations?: string[]): Promise<StrategyReadDto | null> {
         try {
-            const strategy = await this.strategyRepository.findOne({ where: { id: id }, relations: ['organization'] });
+            const strategy = await this.strategyRepository.findOne({ where: { id: id }, relations: relations !== undefined ? relations : [] });
 
             if (!strategy) throw new NotFoundException(`Стратегия с ID: ${id} не найдена`);
             const strategyReadDto: StrategyReadDto = {
