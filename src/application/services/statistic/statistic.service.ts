@@ -82,9 +82,6 @@ export class StatisticService {
         try {
 
             // Проверка на наличие обязательных данных
-            if (!statisticCreateDto.type) {
-                throw new BadRequestException('У статистики обязательно наличие типа!');
-            }
             if (!statisticCreateDto.name) {
                 throw new BadRequestException('У статистики обязательно наличие названия!');
             }

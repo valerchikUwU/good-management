@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
+import { Exclude, Type } from "class-transformer";
 import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsUUID } from "class-validator";
 import { Statistic } from "src/domains/statistic.entity";
 
@@ -19,6 +19,7 @@ export class StatisticDataUpdateDto{
     
     @ApiProperty({description: 'Дата значения', required: false, example: '2024-10-10 18:26:17.301486'})
     @IsOptional()
+    @Type(() => Date)
     @IsDate()
     @IsNotEmpty({message: 'Дата не может быть пустым!'})
     valueDate?: Date;
