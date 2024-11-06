@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Account } from "src/domains/account.entity";
 import { Goal } from "src/domains/goal.entity";
+import { ReportDay } from "src/domains/organization.entity";
 import { PolicyToOrganization } from "src/domains/policyToOrganization.entity";
 import { Post } from "src/domains/post.entity";
 import { Project } from "src/domains/project.entity";
@@ -18,7 +19,10 @@ export class OrganizationReadDto {
     organizationName: string;
     
     @ApiProperty({ description: 'ID родительской организации' })
-    parentOrganizationId: string
+    parentOrganizationId: string;
+
+    @ApiProperty({ description: 'Отчетный день' })
+    reportDay: ReportDay;
     
     @ApiProperty({ description: 'Дата создания' })
     createdAt: Date;

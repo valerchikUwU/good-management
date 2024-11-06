@@ -13,7 +13,7 @@ import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { Logger } from 'winston';
 
 
-@WebSocketGateway(5001, {namespace: 'chat', cors: '*:*' })
+@WebSocketGateway(5001, { namespace: 'chat', cors: '*:*' })
 export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
         private readonly messageService: MessageService,
@@ -30,10 +30,10 @@ export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect 
     }
 
     async handleSendingConvert(
-            message: MessageCreateDto,
-            sender: ReadUserDto,
-            convert: ConvertReadDto,
-            userIdOfFirstPost: string
+        message: MessageCreateDto,
+        sender: ReadUserDto,
+        convert: ConvertReadDto,
+        userIdOfFirstPost: string
     ) {
         this.ws.to(convert.id).emit('convertEmit', message) // broadcast messages
         const convertUserIds = convert.convertToUsers.map(convertToUser => convertToUser.user.id);
@@ -59,16 +59,19 @@ export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect 
             sender: ReadUserDto,
             convert: ConvertReadDto
         }
-    ){
-        try{
+    ) {
+        try {
+
+            const startTime = Date.now(); // Записываем начальное время
             this.logger.info(JSON.stringify(payload));
             this.ws.to(payload.convert.id).emit('convertEmit', payload.message) // broadcast messages
             const postOfSender = await this.postService.findOneById(payload.convert.pathOfPosts[0], ['user'])
-            if(postOfSender.user.id === payload.sender.id){
+            console.log(JSON.stringify(postOfSender))
+            if (postOfSender.user.id === payload.sender.id) {
                 payload.message.convert = payload.convert;
                 payload.message.sender = payload.sender;
                 await this.messageService.create(payload.message);
-                if(payload.isApproved){
+                if (payload.isApproved) {
                     const convertUserIds = payload.convert.convertToUsers.map(convertToUser => convertToUser.user.id);
                     if (payload.convert.pathOfPosts.length > 1) payload.convert.pathOfPosts.shift();
                     const nextPost = await this.postService.findOneById(payload.convert.pathOfPosts[0], ['user']);
@@ -79,18 +82,19 @@ export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect 
                         pathOfPosts: payload.convert.pathOfPosts
                     }
                     await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
-                    payload.message.convert = payload.convert;
-                    payload.message.sender = payload.sender;
-                    await this.messageService.create(payload.message);
-                    this.ws.to(payload.convert.id).emit('convertEmit', payload.message) // broadcast messages
+                    this.ws.to(payload.convert.id).emit('convertEmit', payload.message) // НЕ ЯСНО НУЖНО ЛИ ДУБЛИРОВАТЬ СООБЩЕНИЕ С ЗАПРОСОМ
+
+                    const endTime = Date.now(); // Записываем конечное время
+                    const executionTime = endTime - startTime; // Рассчитываем время выполнения
+                    console.log(executionTime)
                     return true;
                 }
             }
             else throw new ForbiddenException('У вас нет прав для работы с этим конвертом!')
         }
-        catch(err){
+        catch (err) {
             this.logger.error(err);
-            if (err instanceof ForbiddenException){
+            if (err instanceof ForbiddenException) {
                 throw err;
             }
             throw new InternalServerErrorException('Ошибка при одобрении конверта!')

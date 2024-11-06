@@ -24,6 +24,7 @@ export class OrganizationService {
                 id: organization.id,
                 organizationName: organization.organizationName,
                 parentOrganizationId: organization.parentOrganizationId,
+                reportDay: organization.reportDay,
                 createdAt: organization.createdAt,
                 updatedAt: organization.updatedAt,
                 users: organization.users,
@@ -53,6 +54,7 @@ export class OrganizationService {
                 id: organization.id,
                 organizationName: organization.organizationName,
                 parentOrganizationId: organization.parentOrganizationId,
+                reportDay: organization.reportDay,
                 createdAt: organization.createdAt,
                 updatedAt: organization.updatedAt,
                 users: organization.users,
@@ -82,6 +84,7 @@ export class OrganizationService {
                 id: organization.id,
                 organizationName: organization.organizationName,
                 parentOrganizationId: organization.parentOrganizationId,
+                reportDay: organization.reportDay,
                 createdAt: organization.createdAt,
                 updatedAt: organization.updatedAt,
                 users: organization.users,
@@ -110,6 +113,7 @@ export class OrganizationService {
                 id: organization.id,
                 organizationName: organization.organizationName,
                 parentOrganizationId: organization.parentOrganizationId,
+                reportDay: organization.reportDay,
                 createdAt: organization.createdAt,
                 updatedAt: organization.updatedAt,
                 users: organization.users,
@@ -135,7 +139,7 @@ export class OrganizationService {
         }
     }
 
-    async create(organizationCreateDto: OrganizationCreateDto): Promise<Organization> {
+    async create(organizationCreateDto: OrganizationCreateDto): Promise<string> {
 
         try {
             // Проверка на наличие обязательных данных
@@ -146,9 +150,10 @@ export class OrganizationService {
             if(organizationCreateDto.id) organization.id = organizationCreateDto.id;
             organization.organizationName = organizationCreateDto.organizationName;
             if(organizationCreateDto.parentOrganizationId) organization.parentOrganizationId = organizationCreateDto.parentOrganizationId;
+            if(organizationCreateDto.reportDay) organization.reportDay = organizationCreateDto.reportDay;
             organization.account = organizationCreateDto.account;
-
-            return await this.organizationRepository.save(organization);
+            const createdOrganizationId = await this.organizationRepository.insert(organization);
+            return createdOrganizationId.identifiers[0].id
         }
         catch (err) {
 

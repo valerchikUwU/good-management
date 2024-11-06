@@ -90,7 +90,7 @@ export class StatisticController {
       statisticUpdateDto.post = post;
     }
     const updatedStatisticId = await this.statisticService.update(statisticId, statisticUpdateDto);
-    const statistic = await this.statisticService.findOneById(updatedStatisticId, ['account']);
+    const statistic = await this.statisticService.findOneById(updatedStatisticId);
     if (statisticUpdateDto.statisticDataUpdateDtos !== undefined) {
       const updateStatisticDataPromises = statisticUpdateDto.statisticDataUpdateDtos.map(async (statisticDataUpdateDto) => {
         const updatedStatisticDataId = await this.statisticDataService.update(statisticDataUpdateDto);
@@ -118,7 +118,7 @@ export class StatisticController {
           valueDate: statisticDataCreateDto.valueDate,
           createdAt: new Date(),
           statisticId: statistic.id,
-          accountId: statistic.account.id
+          accountId: user.account.id
         };
         statisticDataCreateEventDtos.push(statisticDataCreateEventDto);
         return createdStatisticDataId; // Возвращаем промис создания
@@ -343,7 +343,7 @@ export class StatisticController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'statisticId', required: true, description: 'Id статистики' })
   async findOne(@Param('statisticId') statisticId: string, @Ip() ip: string): Promise<StatisticReadDto> {
-    const statistic = await this.statisticService.findOneById(statisticId, ['statisticDatas', 'post']);
+    const statistic = await this.statisticService.findOneById(statisticId, ['statisticDatas', 'post.organization']);
     this.logger.info(`${yellow('OK!')} - ${red(ip)} - CURRENT STATISTIC: ${JSON.stringify(statistic)} - Получить статистику по ID!`);
     return statistic;
   }

@@ -7,6 +7,15 @@ import { Goal } from './goal.entity';
 import { Strategy } from './strategy.entity';
 import { Project } from './project.entity';
 
+export enum ReportDay {
+    MONDAY = 1,
+    TUESDAY = 2,
+    WEDNESDAY = 3,
+    THURSDAY = 4,
+    FRIDAY = 5,
+    SUNDAY = 6,
+    SATURDAY = 0
+}
 
 @Entity()
 export class Organization {
@@ -18,6 +27,14 @@ export class Organization {
 
     @Column({type: 'uuid', nullable: true})
     parentOrganizationId: string
+
+    @Column({
+        type: 'enum',
+        enum: ReportDay,
+        default: ReportDay.FRIDAY,
+        nullable: false
+    })
+    reportDay: ReportDay;
 
     @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
