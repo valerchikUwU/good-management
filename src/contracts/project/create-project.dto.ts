@@ -7,7 +7,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Type } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { Organization } from "src/domains/organization.entity";
-import { HasProductAndRegularTasksForProject, HasProductTaskAndProjectIdsForProgram } from "src/utils/TargetTypeValidation";
+import { HasProductAndRegularTasksForProject, HasProductTaskAndProjectIdsForProgram } from "src/validators/project-validator";
 
 export class ProjectCreateDto {
 

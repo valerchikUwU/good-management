@@ -6,7 +6,7 @@ import { TargetUpdateDto } from "../target/update-target.dto";
 import { Exclude, Type } from "class-transformer";
 import { Organization } from "src/domains/organization.entity";
 import { Strategy } from "src/domains/strategy.entity";
-import { HasProductAndRegularTasksForProject } from "src/utils/TargetTypeValidation";
+import { HasProductAndRegularTasksForProject } from "src/validators/project-validator";
 
 export class ProjectUpdateDto {
     

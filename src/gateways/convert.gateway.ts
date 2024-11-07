@@ -55,6 +55,7 @@ export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect 
         @MessageBody()
         payload: {
             isApproved: boolean,
+            orderNumberInPath: number,
             message: MessageCreateDto,
             sender: ReadUserDto,
             convert: ConvertReadDto
@@ -64,22 +65,20 @@ export class ConvertGateway implements OnGatewayConnection, OnGatewayDisconnect 
 
             const startTime = Date.now(); // Записываем начальное время
             this.logger.info(JSON.stringify(payload));
-            this.ws.to(payload.convert.id).emit('convertEmit', payload.message) // broadcast messages
-            const postOfSender = await this.postService.findOneById(payload.convert.pathOfPosts[0], ['user'])
+            const postOfSender = await this.postService.findOneById(payload.convert.pathOfPosts[payload.orderNumberInPath], ['user'])
             console.log(JSON.stringify(postOfSender))
             if (postOfSender.user.id === payload.sender.id) {
+                this.ws.to(payload.convert.id).emit('convertEmit', payload.message) // broadcast messages
                 payload.message.convert = payload.convert;
                 payload.message.sender = payload.sender;
                 await this.messageService.create(payload.message);
                 if (payload.isApproved) {
                     const convertUserIds = payload.convert.convertToUsers.map(convertToUser => convertToUser.user.id);
-                    if (payload.convert.pathOfPosts.length > 1) payload.convert.pathOfPosts.shift();
                     const nextPost = await this.postService.findOneById(payload.convert.pathOfPosts[0], ['user']);
                     convertUserIds.push(nextPost.user.id);
                     const convertUpdateDto: ConvertUpdateDto = {
                         _id: payload.convert.id,
                         userIds: convertUserIds,
-                        pathOfPosts: payload.convert.pathOfPosts
                     }
                     await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
                     this.ws.to(payload.convert.id).emit('convertEmit', payload.message) // НЕ ЯСНО НУЖНО ЛИ ДУБЛИРОВАТЬ СООБЩЕНИЕ С ЗАПРОСОМ

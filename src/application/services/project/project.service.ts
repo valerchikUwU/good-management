@@ -156,10 +156,9 @@ export class ProjectService {
         }
     }
 
-    async findOneProgramById(id: string): Promise<{ program: ProjectReadDto, projects: ProjectReadDto[] }> {
+    async findOneProgramById(id: string): Promise<ProjectReadDto> {
         try {
             const program = await this.projectRepository.findOne({ where: { id: id }, relations: ['targets.targetHolders.user', 'organization', 'strategy'] })
-            const projects = await this.projectRepository.find({ where: { programId: id } })
             if (!program) throw new NotFoundException(`Проект с ID: ${id} не найден`);
             const programReadDto: ProjectReadDto = {
                 id: program.id,
@@ -177,7 +176,39 @@ export class ProjectService {
                 user: program.user,
             }
 
-            return { program: programReadDto, projects: projects };
+            return programReadDto;
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при получении проекта');
+        }
+    }
+
+    async findAllProjectsByProgramId(programId: string): Promise<ProjectReadDto[]> {
+        try {
+            const projects = await this.projectRepository.find({ where: { programId: programId }, relations: ['targets.targetHolders.user'] })
+            return projects.map(project => ({
+                id: project.id,
+                projectNumber: project.projectNumber,
+                projectName: project.projectName,
+                programId: project.programId,
+                content: project.content,
+                type: project.type,
+                createdAt: project.createdAt,
+                updatedAt: project.updatedAt,
+                organization: project.organization,
+                targets: project.targets,
+                strategy: project.strategy,
+                account: project.account,
+                user: project.user
+            }))
         }
         catch (err) {
 
