@@ -284,58 +284,46 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.OK, description: "ОК!",
     example: {
-      currentStatistic: {
-        id: "84e424e5-f1fa-47f6-888a-75ecf7625ced",
-        type: "Прямая",
-        name: "Название 9",
-        description: "Описание",
-        createdAt: "2024-09-26T13:03:19.759Z",
-        updatedAt: "2024-09-26T13:03:19.759Z",
-        statisticDatas: [
-          {
-            id: "946da215-34c4-495b-b648-6063877c8590",
-            createdAt: "2024-09-26T13:03:19.898Z",
-            updatedAt: "2024-09-26T13:03:19.898Z",
-            value: 44500
-          },
-          {
-            id: "93a03130-9692-4934-bbfc-0ae29d69cf3b",
-            createdAt: "2024-09-26T13:03:20.023Z",
-            updatedAt: "2024-09-26T13:03:20.023Z",
-            value: 54000
-          }
-        ]
-      },
-      posts: [
+      id: "e954602d-9513-4998-bf3d-779b13a44cd8",
+      type: "Прямая",
+      name: "Название 7",
+      description: "Описание",
+      createdAt: "2024-09-26T12:56:30.851Z",
+      updatedAt: "2024-09-26T12:56:30.851Z",
+      statisticDatas: [
         {
-          id: "2420fabb-3e37-445f-87e6-652bfd5a050c",
-          postName: "Директор",
-          divisionName: "Отдел продаж",
-          parentId: null,
-          product: "Продукт",
-          purpose: "Предназначение поста",
-          createdAt: "2024-09-20T15:09:14.997Z",
-          updatedAt: "2024-09-20T15:09:14.997Z",
-          user: {
-            id: "3b809c42-2824-46c1-9686-dd666403402a",
-            firstName: "Maxik",
-            lastName: "Koval",
-            telegramId: 453120600,
-            telephoneNumber: null,
-            avatar_url: null,
-            vk_id: null,
-            createdAt: "2024-09-16T14:03:31.000Z",
-            updatedAt: "2024-09-16T14:03:31.000Z"
-          },
-          organization: {
-            id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-            organizationName: "soplya firma",
-            parentOrganizationId: null,
-            createdAt: "2024-09-16T14:24:33.841Z",
-            updatedAt: "2024-09-16T14:24:33.841Z"
-          }
+          id: "ea993b7d-f98f-4c03-8f7a-d5894252782f",
+          createdAt: "2024-09-26T12:56:31.009Z",
+          updatedAt: "2024-09-26T12:56:31.009Z",
+          value: 44500,
+          valueDate: "2024-10-16T09:44:40.843Z"
+        },
+        {
+          id: "93a3c15a-1381-4a64-8ab1-8ad3679f8a02",
+          createdAt: "2024-09-26T12:56:31.156Z",
+          updatedAt: "2024-09-26T12:56:31.156Z",
+          value: 54000,
+          valueDate: "2024-10-16T09:44:40.843Z"
         }
-      ]
+      ],
+      post: {
+        id: "2420fabb-3e37-445f-87e6-652bfd5a050c",
+        postName: "Чурка",
+        divisionName: "Отдел дубней",
+        parentId: "87af2eb9-a17d-4e78-b847-9d512cb9a0c9",
+        product: "Продукт1234",
+        purpose: "asdasd",
+        createdAt: "2024-09-20T15:09:14.997Z",
+        updatedAt: "2024-10-04T14:57:24.294Z",
+        organization: {
+          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          organizationName: "soplya firma",
+          parentOrganizationId: null,
+          reportDay: 5,
+          createdAt: "2024-09-16T14:24:33.841Z",
+          updatedAt: "2024-09-16T14:24:33.841Z"
+        }
+      }
     }
   })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: "Ошибка сервера!" })

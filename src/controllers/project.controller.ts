@@ -443,8 +443,9 @@ export class ProjectController {
   @ApiParam({ name: 'userId', required: true, description: 'Id пользователя', example: '3b809c42-2824-46c1-9686-dd666403402a' })
   @ApiParam({ name: 'programId', required: true, description: 'Id программы' })
   async findOneProgram(@Param('userId') userId: string, @Param('programId') programId: string): Promise<{ program: ProjectReadDto, projects: ProjectReadDto[] }> {
-    const programWithProjects = await this.projectService.findOneProgramById(programId);
-    return { program: programWithProjects.program, projects: programWithProjects.projects }
+    const program = await this.projectService.findOneProgramById(programId);
+    const projectsByProgramId = await this.projectService.findAllProjectsByProgramId(programId);
+    return { program: program, projects: projectsByProgramId }
   }
 
   @Get(':projectId')
