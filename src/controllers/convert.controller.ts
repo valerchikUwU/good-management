@@ -9,6 +9,7 @@ import { blue, red, green, yellow, bold } from 'colorette';
 import { PostService } from "src/application/services/post/post.service";
 import { ConvertGateway } from "src/gateways/convert.gateway";
 import { MessageCreateDto } from "src/contracts/message/create-message.dto";
+import { TypeConvert } from "src/domains/convert.entity";
 
 
 @ApiTags('Converts')
@@ -169,18 +170,21 @@ export class ConvertController {
     const isCommonDivision = postIdsFromSenderToTop.some(postId => postIdsFromRecieverToTop.includes(postId));
     const postIdsFromSenderToReciver: string[] = [];
     console.log(isCommonDivision)
-    if (isCommonDivision) {
+    if(convertCreateDto.convertType === TypeConvert.DIRECT){
+      postIdsFromSenderToReciver.push(userPostId, reciverPostId);
+    }
+    else if (isCommonDivision) {
       postIdsFromSenderToReciver.push(...(createPathInOneDivision(postIdsFromSenderToTop, postIdsFromRecieverToTop)));
     }
     else {
       postIdsFromRecieverToTop.reverse();
       postIdsFromSenderToReciver.push(...(postIdsFromSenderToTop.concat(postIdsFromRecieverToTop)));
     }
-    postIdsFromSenderToReciver.shift();
+    // postIdsFromSenderToReciver.shift();
     console.log(postIdsFromSenderToTop)
     console.log(postIdsFromRecieverToTop)
     console.log(postIdsFromSenderToReciver)
-    const firstPost = await this.postService.findOneById(postIdsFromSenderToReciver[0], ['user'])
+    const firstPost = await this.postService.findOneById(postIdsFromSenderToReciver[1], ['user'])
     convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
     convertCreateDto.host = user;
     convertCreateDto.account = user.account;

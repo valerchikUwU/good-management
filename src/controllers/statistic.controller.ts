@@ -98,6 +98,7 @@ export class StatisticController {
           id: updatedStatisticDataId,
           value: statisticDataUpdateDto.value !== undefined ? statisticDataUpdateDto.value : null,
           valueDate: statisticDataUpdateDto.valueDate !== undefined ? statisticDataUpdateDto.valueDate : null,
+          isCorrelation: statisticDataUpdateDto.isCorrelation !== undefined ? statisticDataUpdateDto.isCorrelation : null,
           updatedAt: new Date(),
           statisticId: statistic.id,
           accountId: user.account.id
@@ -116,6 +117,7 @@ export class StatisticController {
           id: createdStatisticDataId,
           value: statisticDataCreateDto.value,
           valueDate: statisticDataCreateDto.valueDate,
+          isCorrelation: statisticDataCreateDto.isCorrelation,
           createdAt: new Date(),
           statisticId: statistic.id,
           accountId: user.account.id
@@ -232,6 +234,7 @@ export class StatisticController {
           id: createdStatisticDataId,
           value: statisticDataCreateDto.value,
           valueDate: statisticDataCreateDto.valueDate,
+          isCorrelation: statisticDataCreateDto.isCorrelation,
           createdAt: new Date(),
           statisticId: createdStatistic.id,
           accountId: user.account.id

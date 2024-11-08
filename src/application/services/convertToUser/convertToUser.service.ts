@@ -19,8 +19,8 @@ export class ConvertToUserService{
     )
     {}
 
-    async createSeveral(convert: Convert, userIds: string[]): Promise<ConvertToUser[]> {
-        const createdRelations: ConvertToUser[] = [];
+    async createSeveral(convert: Convert, userIds: string[]): Promise<string[]> {
+        const createdRelations: string[] = [];
     
         for (const userId of userIds) {
             try {
@@ -33,8 +33,8 @@ export class ConvertToUserService{
                 convertToUser.user = user;
                 convertToUser.convert = convert;
     
-                const savedRelation = await this.convertToUserRepository.save(convertToUser);
-                createdRelations.push(savedRelation);
+                const savedRelationId = await this.convertToUserRepository.insert(convertToUser);
+                createdRelations.push(savedRelationId.identifiers[0].id);
             } catch (err) {
                 this.logger.error(err);
                 if(err instanceof NotFoundException){

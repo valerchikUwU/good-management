@@ -4,6 +4,13 @@ import { User } from './user.entity';
 import { Message } from './message.entity';
 import { ConvertToUser } from './convertToUser.entity';
 
+
+
+export enum TypeConvert {
+    DIRECT = 'Прямой',
+    ORDER = 'Приказ',
+    COORDINATION = 'Согласование'
+}
 @Entity()
 export class Convert{
     @PrimaryGeneratedColumn('uuid')
@@ -17,6 +24,17 @@ export class Convert{
 
     @Column({type: 'uuid', array: true, nullable: true})
     pathOfPosts: string[];
+
+    @Column({
+        type: 'enum',
+        enum: TypeConvert,
+        nullable: true
+    })
+    convertType: TypeConvert;
+
+    @Column({type: 'uuid', nullable: true})
+    activeUserId: string;
+
 
     @Column({type: 'timestamp', nullable: true})
     dateFinish: Date
