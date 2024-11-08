@@ -28,6 +28,8 @@ export class ConvertService {
             convertTheme: convert.convertTheme,
             pathOfPosts: convert.pathOfPosts,
             expirationTime: convert.expirationTime,
+            convertType: convert.convertType,
+            activeUserId: convert.activeUserId,
             dateFinish: convert.dateFinish,
             createdAt: convert.createdAt,
             messages: convert.messages,
@@ -49,6 +51,8 @@ export class ConvertService {
                 convertTheme: convert.convertTheme,
                 pathOfPosts: convert.pathOfPosts,
                 expirationTime: convert.expirationTime,
+                convertType: convert.convertType,
+                activeUserId: convert.activeUserId,
                 dateFinish: convert.dateFinish,
                 createdAt: convert.createdAt,
                 messages: convert.messages,
@@ -83,6 +87,7 @@ export class ConvertService {
             convert.convertTheme = convertCreateDto.convertTheme;
             convert.pathOfPosts = convertCreateDto.pathOfPosts;
             convert.expirationTime = convertCreateDto.expirationTime;
+            convert.convertType = convertCreateDto.convertType;
             convert.dateFinish = convertCreateDto.dateFinish;
             convert.host = convertCreateDto.host;
             convert.account = convertCreateDto.account;
@@ -109,12 +114,15 @@ export class ConvertService {
             }
             if(convertUpdateDto.pathOfPosts) {
                 convert.pathOfPosts = convertUpdateDto.pathOfPosts;
-                await this.convertRepository.update(convert.id, {pathOfPosts: convert.pathOfPosts});
+            }
+            if(convertUpdateDto.activeUserId){
+                convert.activeUserId = convertUpdateDto.activeUserId;
             }
             if (convertUpdateDto.userIds) {
                 await this.convertToUserService.remove(convert);
                 await this.convertToUserService.createSeveral(convert, convertUpdateDto.userIds);
             }
+            await this.convertRepository.update(convert.id, {pathOfPosts: convert.pathOfPosts});
             return convert.id
 
         }

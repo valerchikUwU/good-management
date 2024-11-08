@@ -32,6 +32,7 @@ export class StatisticDataService {
                 updatedAt: statisticData.updatedAt,
                 value: statisticData.value,
                 valueDate: statisticData.valueDate,
+                isCorrelation: statisticData.isCorrelation,
                 statistic: statisticData.statistic
 
             }))
@@ -56,6 +57,7 @@ export class StatisticDataService {
             const statisticData = new StatisticData();
             statisticData.value = statisticDataCreateDto.value;
             statisticData.valueDate = statisticDataCreateDto.valueDate;
+            statisticData.isCorrelation = statisticDataCreateDto.isCorrelation;
             statisticData.statistic = statisticDataCreateDto.statistic;
             const createdStatisticDataId = await this.statisticDataRepository.insert(statisticData);
 
@@ -81,7 +83,8 @@ export class StatisticDataService {
             // Обновить свойства, если они указаны в DTO
             if (statisticDataUpdateDto.value) statisticData.value = statisticDataUpdateDto.value;
             if (statisticDataUpdateDto.valueDate) statisticData.valueDate = statisticDataUpdateDto.valueDate;
-            await this.statisticDataRepository.update(statisticData.id, {value: statisticData.value, valueDate: statisticData.valueDate}) 
+            if (statisticDataUpdateDto.isCorrelation !== undefined) statisticData.isCorrelation = statisticDataUpdateDto.isCorrelation;
+            await this.statisticDataRepository.update(statisticData.id, {value: statisticData.value, valueDate: statisticData.valueDate, isCorrelation: statisticData.isCorrelation}) 
             return statisticData.id
 
         }

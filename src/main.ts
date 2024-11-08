@@ -7,6 +7,7 @@ import * as dotenv from 'dotenv';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ValidationExceptionFilter } from './utils/validationExceptionFilter';
+// import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 dotenv.config();
 
 
@@ -15,6 +16,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
   });
+  // const app = await NestFactory.create<NestFastifyApplication>(
+  //   AppModule,
+  //   new FastifyAdapter(),
+  //   {
+  //     logger: WinstonModule.createLogger(winstonConfig),
+  //   }
+  // );
   const logger = app.get('NestWinston');
 
   app.useGlobalFilters(new ValidationExceptionFilter(logger));

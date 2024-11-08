@@ -7,9 +7,11 @@ export class ConvertUpdateDto{
     @IsUUID()
     _id: string
     @IsArray()
-    userIds: string[];
+    userIds?: string[];
     @IsArray()
     pathOfPosts?: string[];
+    @IsUUID()
+    activeUserId?: string;
 
 
     // @ApiProperty({

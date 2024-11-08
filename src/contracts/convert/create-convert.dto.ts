@@ -1,14 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsDate, IsNotEmpty, IsObject, IsString, IsUUID, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsDate, IsEAN, IsEnum, IsNotEmpty, IsObject, IsString, IsUUID, ValidateNested } from "class-validator";
 import { Account } from "src/domains/account.entity";
 import { User } from "src/domains/user.entity";
 import { MessageCreateDto } from "../message/create-message.dto";
+import { TypeConvert } from "src/domains/convert.entity";
 // import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
 
 export class ConvertCreateDto {
 
-    @ApiProperty({ description: 'Тема чата', example: 'Тема' })
+    @ApiProperty({ description: 'Тема конверта', example: 'Тема' })
     @IsString()
     @IsNotEmpty({ message: 'Тема не может быть пустой!' })
     convertTheme: string;
@@ -16,23 +17,23 @@ export class ConvertCreateDto {
     @Exclude({ toPlainOnly: true })
     pathOfPosts: string[];
 
-    @ApiProperty({ description: 'Длительность чата', example: 'хз как еще реализовать' })
+    @ApiProperty({ description: 'Длительность конверта', example: 'хз как еще реализовать' })
     @IsString()
     @IsNotEmpty({ message: 'Длительность чата не может быть пустой!' })
     expirationTime: string;
 
-    @ApiProperty({ description: 'Длительность чата', example: '2024-09-26T13:03:19.759Z' })
+    @ApiProperty({ description: 'Тип конверта', example: TypeConvert.DIRECT, examples: [TypeConvert.DIRECT, TypeConvert.ORDER, TypeConvert.COORDINATION] })
+    @IsEnum(TypeConvert)
+    @IsNotEmpty({ message: 'Тип конверта не может быть пустой!' })
+    convertType: TypeConvert;
+
+    @ApiProperty({ description: 'Дата окончания актуальности конверта', example: '2024-09-26T13:03:19.759Z' })
     @IsDate()
     @Type(() => Date)
     @IsNotEmpty({ message: 'Дата не может быть пустой!' })
     dateFinish: Date;
 
-    @ApiProperty({ description: 'Id получателя', example: '6234e436-87eb-4bcf-82d1-db191aaa11a1' })
-    @IsUUID()
-    @IsNotEmpty({ message: 'Id получателя не может быть пустой!' })
-    recieverId: string
-
-    @ApiProperty({ description: 'IDs участников чата', example: ['3b809c42-2824-46c1-9686-dd666403402a'] })
+    @ApiProperty({ description: 'IDs участников конверта', example: ['3b809c42-2824-46c1-9686-dd666403402a'] })
     @IsArray({ message: 'Должен быть массив' })
     @ArrayNotEmpty({ message: 'Добавьте хотя бы одного участника чата!' })
     userIds: string[];

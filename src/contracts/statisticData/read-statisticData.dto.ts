@@ -7,4 +7,5 @@ export class StatisticDataReadDto{
     updatedAt: Date;
     value: number;
     valueDate: Date;
+    isCorrelation: boolean;
 }

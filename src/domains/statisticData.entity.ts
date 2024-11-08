@@ -8,17 +8,21 @@ export class StatisticData{
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date;
-  
-    @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt: Date;
 
     @Column({nullable: false})
     value: number;
 
     @Column({type: 'timestamp', nullable: false, default: () => 'CURRENT_TIMESTAMP'})
     valueDate: Date
+
+    @Column({nullable: false, default: false})
+    isCorrelation: boolean;
+
+    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt: Date;
+  
+    @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    updatedAt: Date;
 
     @ManyToOne(() => Statistic, (statistic) => statistic.statisticDatas, {eager: false})
     statistic: Statistic;

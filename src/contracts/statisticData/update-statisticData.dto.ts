@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude, Type } from "class-transformer";
-import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsUUID } from "class-validator";
+import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsOptional, IsUUID } from "class-validator";
 import { Statistic } from "src/domains/statistic.entity";
 
 export class StatisticDataUpdateDto{
@@ -23,6 +23,11 @@ export class StatisticDataUpdateDto{
     @IsDate()
     @IsNotEmpty({message: 'Дата не может быть пустым!'})
     valueDate?: Date;
+
+    @ApiProperty({description: 'Флаг корреляционного значения', required: false, example: true})
+    @IsOptional()
+    @IsBoolean()
+    isCorrelation?: boolean;
 
 }
 
