@@ -8,7 +8,12 @@ export class FileUploadService {
     }
 
     // validate file type
-    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+    ];
     if (!allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException('Загружать можно только картинки и гифки!');
     }

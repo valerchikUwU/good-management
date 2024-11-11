@@ -1,36 +1,39 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
-import { IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
-import { Account } from "src/domains/account.entity";
-import { ReportDay } from "src/domains/organization.entity";
-
-
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
+import { Account } from 'src/domains/account.entity';
+import { ReportDay } from 'src/domains/organization.entity';
 
 export class OrganizationCreateDto {
+  @ApiProperty({ description: 'ID организации', required: false })
+  @IsOptional()
+  @IsUUID()
+  @IsNotEmpty()
+  id?: string;
 
-    @ApiProperty({ description: 'ID организации', required: false  })
-    @IsOptional()
-    @IsUUID()
-    @IsNotEmpty()
-    id?: string;
-    
-    @ApiProperty({ description: 'Название организации' })
-    @IsString()
-    @IsNotEmpty()
-    organizationName: string;
-    
-    @ApiProperty({ description: 'ID родительской организации', required: false  })
-    @IsOptional()
-    @IsUUID()
-    @IsNotEmpty()
-    parentOrganizationId?: string;
+  @ApiProperty({ description: 'Название организации' })
+  @IsString()
+  @IsNotEmpty()
+  organizationName: string;
 
-    @ApiProperty({ description: 'Отчетный день', required: false })
-    @IsOptional()
-    @IsEnum(ReportDay)
-    @IsNotEmpty()
-    reportDay?: ReportDay;
-    
-    @Exclude({toPlainOnly: true})
-    account?: Account;
+  @ApiProperty({ description: 'ID родительской организации', required: false })
+  @IsOptional()
+  @IsUUID()
+  @IsNotEmpty()
+  parentOrganizationId?: string;
+
+  @ApiProperty({ description: 'Отчетный день', required: false })
+  @IsOptional()
+  @IsEnum(ReportDay)
+  @IsNotEmpty()
+  reportDay?: ReportDay;
+
+  @Exclude({ toPlainOnly: true })
+  account?: Account;
 }

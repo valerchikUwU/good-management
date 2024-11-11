@@ -1,4 +1,16 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, ManyToOne, CreateDateColumn, UpdateDateColumn, JoinColumn, Index } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  OneToOne,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+  Index,
+} from 'typeorm';
 import { RefreshSession } from './refreshSession.entity';
 import { Post } from './post.entity';
 import { Organization } from './organization.entity';
@@ -14,7 +26,6 @@ import { ConvertToUser } from './convertToUser.entity';
 import { Message } from './message.entity';
 import { GroupToUser } from './groupToUser.entity';
 
-
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -23,10 +34,10 @@ export class User {
   @Column({ length: 50, nullable: false })
   firstName: string;
 
-  @Column({ length: 50, nullable: false  })
+  @Column({ length: 50, nullable: false })
   lastName: string;
 
-  @Column({ length: 50, nullable: true  })
+  @Column({ length: 50, nullable: true })
   middleName: string;
 
   @Column({ nullable: true, unique: true })
@@ -47,12 +58,7 @@ export class User {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-
-
-
-
-   
-  @OneToMany(() => Post, (post) => post.user, {nullable: true})
+  @OneToMany(() => Post, (post) => post.user, { nullable: true })
   posts: Post[];
 
   @OneToMany(() => RefreshSession, (refreshSession) => refreshSession.user)
@@ -80,18 +86,20 @@ export class User {
   messages: Message[];
 
   @OneToMany(() => ConvertToUser, (convertToUser) => convertToUser.user)
-  convertToUsers: ConvertToUser[]
+  convertToUsers: ConvertToUser[];
 
   @OneToMany(() => GroupToUser, (groupToUser) => groupToUser.user)
-  groupToUsers: GroupToUser[]
+  groupToUsers: GroupToUser[];
 
-  @ManyToOne(() => Organization, (organization) => organization.users, {nullable: true})
+  @ManyToOne(() => Organization, (organization) => organization.users, {
+    nullable: true,
+  })
   organization: Organization;
 
-  @ManyToOne(() => Account, (account) => account.users, {nullable: true})
+  @ManyToOne(() => Account, (account) => account.users, { nullable: true })
   @Index() // Добавляем индекс на поле account
   account: Account;
 
-  @ManyToOne(() => Role, (role) => role.users, {nullable: true})
-  role: Role
+  @ManyToOne(() => Role, (role) => role.users, { nullable: true })
+  role: Role;
 }

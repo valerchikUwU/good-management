@@ -1,4 +1,14 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToOne,
+} from 'typeorm';
 import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Post } from './post.entity';
@@ -8,58 +18,63 @@ import { Strategy } from './strategy.entity';
 import { Project } from './project.entity';
 
 export enum ReportDay {
-    MONDAY = 1,
-    TUESDAY = 2,
-    WEDNESDAY = 3,
-    THURSDAY = 4,
-    FRIDAY = 5,
-    SUNDAY = 6,
-    SATURDAY = 0
+  MONDAY = 1,
+  TUESDAY = 2,
+  WEDNESDAY = 3,
+  THURSDAY = 4,
+  FRIDAY = 5,
+  SUNDAY = 6,
+  SATURDAY = 0,
 }
 
 @Entity()
 export class Organization {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column({nullable: false})
-    organizationName: string;
+  @Column({ nullable: false })
+  organizationName: string;
 
-    @Column({type: 'uuid', nullable: true})
-    parentOrganizationId: string
+  @Column({ type: 'uuid', nullable: true })
+  parentOrganizationId: string;
 
-    @Column({
-        type: 'enum',
-        enum: ReportDay,
-        default: ReportDay.FRIDAY,
-        nullable: false
-    })
-    reportDay: ReportDay;
+  @Column({
+    type: 'enum',
+    enum: ReportDay,
+    default: ReportDay.FRIDAY,
+    nullable: false,
+  })
+  reportDay: ReportDay;
 
-    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date;
-  
-    @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt: Date;
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 
-    @OneToOne(() => Goal, (goal) => goal.organization)
-    goal: Goal
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 
-    @OneToMany(() => User, (user) => user.organization)
-    users: User[];
+  @OneToOne(() => Goal, (goal) => goal.organization)
+  goal: Goal;
 
-    @OneToMany(() => Post, (post) => post.organization)
-    posts: Post[];
+  @OneToMany(() => User, (user) => user.organization)
+  users: User[];
 
-    @OneToMany(() => PolicyToOrganization, (policyToOrganization) => policyToOrganization.organization)
-    policyToOrganizations: PolicyToOrganization[]
+  @OneToMany(() => Post, (post) => post.organization)
+  posts: Post[];
 
-    @OneToMany(() => Project, (project) => project.organization)
-    projects: Project[];
+  @OneToMany(
+    () => PolicyToOrganization,
+    (policyToOrganization) => policyToOrganization.organization,
+  )
+  policyToOrganizations: PolicyToOrganization[];
 
-    @OneToMany(() => Strategy, (strategy) => strategy.organization)
-    strategies: Strategy[];
+  @OneToMany(() => Project, (project) => project.organization)
+  projects: Project[];
 
-    @ManyToOne(() => Account, (account) => account.organizations, {nullable: false})
-    account: Account;
+  @OneToMany(() => Strategy, (strategy) => strategy.organization)
+  strategies: Strategy[];
+
+  @ManyToOne(() => Account, (account) => account.organizations, {
+    nullable: false,
+  })
+  account: Account;
 }

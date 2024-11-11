@@ -1,59 +1,69 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
-import { OrganizationService } from "../organization/organization.service";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Policy } from "src/domains/policy.entity";
-import { PolicyReadDto } from "src/contracts/policy/read-policy.dto";
-import { Logger } from "winston";
-import { PolicyToPolicyDirectory } from "src/domains/policyToPolicyDirectories.entity";
-import { PolicyToPolicyDirectoryRepository } from "./repository/policyToPolicyDirectory.repository";
-import { PolicyDirectory } from "src/domains/policyDirectory.entity";
-import { PolicyService } from "../policy/policy.service";
-import { PolicyDirectoryReadDto } from "src/contracts/policyDirectory/read-policyDirectory.dto";
-
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { OrganizationService } from '../organization/organization.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Policy } from 'src/domains/policy.entity';
+import { PolicyReadDto } from 'src/contracts/policy/read-policy.dto';
+import { Logger } from 'winston';
+import { PolicyToPolicyDirectory } from 'src/domains/policyToPolicyDirectories.entity';
+import { PolicyToPolicyDirectoryRepository } from './repository/policyToPolicyDirectory.repository';
+import { PolicyDirectory } from 'src/domains/policyDirectory.entity';
+import { PolicyService } from '../policy/policy.service';
+import { PolicyDirectoryReadDto } from 'src/contracts/policyDirectory/read-policyDirectory.dto';
 
 @Injectable()
-export class PolicyToPolicyDirectoryService{
-    constructor(
-        @InjectRepository(PolicyToPolicyDirectory)
-        private readonly policyToPolicyDirectoryRepository: PolicyToPolicyDirectoryRepository,
-        private readonly policyService: PolicyService,
-        @Inject('winston') private readonly logger: Logger
-    )
-    {}
+export class PolicyToPolicyDirectoryService {
+  constructor(
+    @InjectRepository(PolicyToPolicyDirectory)
+    private readonly policyToPolicyDirectoryRepository: PolicyToPolicyDirectoryRepository,
+    private readonly policyService: PolicyService,
+    @Inject('winston') private readonly logger: Logger,
+  ) {}
 
-    async createSeveral(policyDirectory: PolicyDirectory, policyIds: string[]): Promise<PolicyToPolicyDirectory[]> {
-        const createdRelations: PolicyToPolicyDirectory[] = [];
-    
-        for (const policyId of policyIds) {
-            try {
-                const policy = await this.policyService.findOneById(policyId);
-                if (!policy) {
-                    throw new NotFoundException(`Policy not found with id ${policyId}`);
-                }
-    
-                const policyToPolicyDirectory = new PolicyToPolicyDirectory();
-                policyToPolicyDirectory.policy = policy;
-                policyToPolicyDirectory.policyDirectory = policyDirectory;
-    
-                const savedRelation = await this.policyToPolicyDirectoryRepository.save(policyToPolicyDirectory);
-                createdRelations.push(savedRelation);
-            } catch (err) {
-                this.logger.error(err);
-                if(err instanceof NotFoundException){
-                    throw err;
-                }
+  async createSeveral(
+    policyDirectory: PolicyDirectory,
+    policyIds: string[],
+  ): Promise<PolicyToPolicyDirectory[]> {
+    const createdRelations: PolicyToPolicyDirectory[] = [];
 
-                throw new InternalServerErrorException('Ой, что - то пошло не так при добавлении политик в папку!')
-                // Здесь можно добавить логику для обработки ошибок, например, откат транзакции
-            }
+    for (const policyId of policyIds) {
+      try {
+        const policy = await this.policyService.findOneById(policyId);
+        if (!policy) {
+          throw new NotFoundException(`Policy not found with id ${policyId}`);
         }
-    
-        return createdRelations;
+
+        const policyToPolicyDirectory = new PolicyToPolicyDirectory();
+        policyToPolicyDirectory.policy = policy;
+        policyToPolicyDirectory.policyDirectory = policyDirectory;
+
+        const savedRelation = await this.policyToPolicyDirectoryRepository.save(
+          policyToPolicyDirectory,
+        );
+        createdRelations.push(savedRelation);
+      } catch (err) {
+        this.logger.error(err);
+        if (err instanceof NotFoundException) {
+          throw err;
+        }
+
+        throw new InternalServerErrorException(
+          'Ой, что - то пошло не так при добавлении политик в папку!',
+        );
+        // Здесь можно добавить логику для обработки ошибок, например, откат транзакции
+      }
     }
 
-    async remove(policyDirectory: PolicyDirectoryReadDto): Promise<void>{
-        await this.policyToPolicyDirectoryRepository.delete({policyDirectory: policyDirectory});
-    }
-    
+    return createdRelations;
+  }
 
+  async remove(policyDirectory: PolicyDirectoryReadDto): Promise<void> {
+    await this.policyToPolicyDirectoryRepository.delete({
+      policyDirectory: policyDirectory,
+    });
+  }
 }

@@ -1,4 +1,15 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn, OneToOne, AfterInsert, getManager } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToOne,
+  AfterInsert,
+  getManager,
+} from 'typeorm';
 import { Organization } from './organization.entity';
 import { User } from './user.entity';
 import { Goal } from './goal.entity';
@@ -13,62 +24,62 @@ import { PolicyDirectory } from './policyDirectory.entity';
 import { Convert } from './convert.entity';
 import { Group } from './group.entity';
 
-
 @Entity()
 export class Account {
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column({nullable: false})
-    accountName: string;
+  @Column({ nullable: false })
+  accountName: string;
 
-    @Column({type: 'uuid', nullable: true, unique: true})
-    tenantId: string
+  @Column({ type: 'uuid', nullable: true, unique: true })
+  tenantId: string;
 
-    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date;
-  
-    @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt: Date;
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 
-    @OneToMany(() => User, (user) => user.account)
-    users: User[];
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 
-    @OneToMany(() => Organization, (organization) => organization.account)
-    organizations: Organization[];
+  @OneToMany(() => User, (user) => user.account)
+  users: User[];
 
-    @OneToMany(() => Goal, (goal) => goal.account)
-    goals: Goal[];
+  @OneToMany(() => Organization, (organization) => organization.account)
+  organizations: Organization[];
 
-    @OneToMany(() => Objective, (objective) => objective.account)
-    objectives: Objective[];
+  @OneToMany(() => Goal, (goal) => goal.account)
+  goals: Goal[];
 
-    @OneToMany(() => Policy, (policy) => policy.account)
-    policies: Policy[];
+  @OneToMany(() => Objective, (objective) => objective.account)
+  objectives: Objective[];
 
-    @OneToMany(() => Project, (project) => project.account)
-    projects: Project[];
+  @OneToMany(() => Policy, (policy) => policy.account)
+  policies: Policy[];
 
-    @OneToMany(() => Strategy, (strategy) => strategy.account)
-    strategies: Strategy[];
+  @OneToMany(() => Project, (project) => project.account)
+  projects: Project[];
 
-    @OneToMany(() => Post, (post) => post.account)
-    posts: Post[];
+  @OneToMany(() => Strategy, (strategy) => strategy.account)
+  strategies: Strategy[];
 
-    @OneToMany(() => Statistic, (statistic) => statistic.account)
-    statistics: Statistic[];
+  @OneToMany(() => Post, (post) => post.account)
+  posts: Post[];
 
-    @OneToMany(() => RoleSetting, (roleSetting) => roleSetting.account)
-    roleSettings: RoleSetting[];
+  @OneToMany(() => Statistic, (statistic) => statistic.account)
+  statistics: Statistic[];
 
-    @OneToMany(() => PolicyDirectory, (policyDirectory) => policyDirectory.account)
-    policyDirectories: PolicyDirectory[];
+  @OneToMany(() => RoleSetting, (roleSetting) => roleSetting.account)
+  roleSettings: RoleSetting[];
 
-    @OneToMany(() => Convert, (convert) => convert.account)
-    converts: Convert[];
+  @OneToMany(
+    () => PolicyDirectory,
+    (policyDirectory) => policyDirectory.account,
+  )
+  policyDirectories: PolicyDirectory[];
 
-    @OneToMany(() => Group, (group) => group.account)
-    groups: Group[];
+  @OneToMany(() => Convert, (convert) => convert.account)
+  converts: Convert[];
 
-
+  @OneToMany(() => Group, (group) => group.account)
+  groups: Group[];
 }

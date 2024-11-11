@@ -1,37 +1,41 @@
-import { IsEmail, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsEmail,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class UpdateUserDto {
+  @IsUUID()
+  id: string;
 
+  @IsOptional()
+  @IsString()
+  firstName?: string;
 
-    @IsUUID()
-    id: string;
+  @IsOptional()
+  @IsString()
+  lastName?: string;
 
-    @IsOptional()
-    @IsString()
-    firstName?: string;
+  @IsOptional()
+  @IsString()
+  middleName?: string;
 
-    @IsOptional()
-    @IsString()
-    lastName?: string;
+  @IsOptional()
+  @IsInt()
+  vk_id?: number | null;
 
-    @IsOptional()
-    @IsString()
-    middleName?: string;
+  @IsOptional()
+  @IsInt()
+  telegramId?: number | null;
 
-    @IsOptional()
-    @IsInt()
-    vk_id?: number | null
+  @IsOptional()
+  @IsString()
+  avatar_url?: string | null;
 
-    @IsOptional()
-    @IsInt()
-    telegramId?: number | null
-
-    @IsOptional()
-    @IsString()
-    avatar_url?: string | null
-
-    @IsOptional()
-    @IsString()
-    telephoneNumber?: string | null;
-
+  @IsOptional()
+  @IsString()
+  telephoneNumber?: string | null;
 }

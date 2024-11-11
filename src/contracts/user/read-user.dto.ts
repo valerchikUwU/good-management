@@ -15,29 +15,29 @@ import { Message } from 'src/domains/message.entity';
 import { GroupToUser } from 'src/domains/groupToUser.entity';
 
 export class ReadUserDto {
-    @IsUUID()
-    id: string;
-    firstName: string;
-    lastName: string;
-    middleName: string;
-    telegramId: number;
-    telephoneNumber: string;
-    avatar_url: string;
-    vk_id: number;
-    createdAt: Date;
-    updatedAt: Date;
-    posts: Post[];
-    refreshSessions: ReadRefreshSessionDto[];
-    goals: Goal[];
-    policies: Policy[];
-    strategies: Strategy[];
-    targetHolders: TargetHolder[];
-    projects: Project[];
-    organization: Organization;
-    account: Account;
-    role: Role;
-    convert: Convert;
-    convertToUsers: ConvertToUser[];
-    messages: Message[];
-    groupToUsers: GroupToUser[];;
-  }
+  @IsUUID()
+  id: string;
+  firstName: string;
+  lastName: string;
+  middleName: string;
+  telegramId: number;
+  telephoneNumber: string;
+  avatar_url: string;
+  vk_id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  posts: Post[];
+  refreshSessions: ReadRefreshSessionDto[];
+  goals: Goal[];
+  policies: Policy[];
+  strategies: Strategy[];
+  targetHolders: TargetHolder[];
+  projects: Project[];
+  organization: Organization;
+  account: Account;
+  role: Role;
+  convert: Convert;
+  convertToUsers: ConvertToUser[];
+  messages: Message[];
+  groupToUsers: GroupToUser[];
+}

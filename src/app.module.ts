@@ -35,24 +35,50 @@ import { MessageModule } from './application/modules/message.module';
 import { GroupModule } from './application/modules/group.module';
 import { GroupToUserModule } from './application/modules/groupToUser.module';
 
-
-
 @Module({
   imports: [
-    ConfigModule.load(path.resolve(__dirname, 'config', '**', '!(*.d).{ts,js}')),
+    ConfigModule.load(
+      path.resolve(__dirname, 'config', '**', '!(*.d).{ts,js}'),
+    ),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => (configService.get('database'))
+      useFactory: async (configService: ConfigService) =>
+        configService.get('database'),
     }),
     WinstonModule.forRoot(winstonConfig),
-    UsersModule, AuthModule, EventsModule, TelegramModule, OrganizationModule, AccountModule,
-    PolicyModule, GoalModule, ObjectiveModule, ProjectModule, StrategyModule, TargetModule, TargetHolderModule, PostModule, StatisticModule, FileUploadModule, FileModule, RoleSettingModule, RoleModule, QueueModule, PolicyToPolicyDirectoryModule, PolicyDirectoryModule, ConvertModule, ConvertToUserModule, MessageModule, GroupModule, GroupToUserModule
+    UsersModule,
+    AuthModule,
+    EventsModule,
+    TelegramModule,
+    OrganizationModule,
+    AccountModule,
+    PolicyModule,
+    GoalModule,
+    ObjectiveModule,
+    ProjectModule,
+    StrategyModule,
+    TargetModule,
+    TargetHolderModule,
+    PostModule,
+    StatisticModule,
+    FileUploadModule,
+    FileModule,
+    RoleSettingModule,
+    RoleModule,
+    QueueModule,
+    PolicyToPolicyDirectoryModule,
+    PolicyDirectoryModule,
+    ConvertModule,
+    ConvertToUserModule,
+    MessageModule,
+    GroupModule,
+    GroupToUserModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
-    configure(consumer: MiddlewareConsumer) {
-      consumer.apply(RequestLoggerMiddleware).forRoutes('*');
-    }
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
 }

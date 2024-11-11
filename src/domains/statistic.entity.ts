@@ -1,47 +1,56 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Post } from "./post.entity";
-import { StatisticData } from "./statisticData.entity";
-import { Account } from "./account.entity";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { Post } from './post.entity';
+import { StatisticData } from './statisticData.entity';
+import { Account } from './account.entity';
 
 export enum Type {
-    DIRECT = 'Прямая',
-    REVERSE = 'Перевернутая'
+  DIRECT = 'Прямая',
+  REVERSE = 'Перевернутая',
 }
 
 @Entity()
-export class Statistic{
-    @PrimaryGeneratedColumn('uuid')
-    id: string;
+export class Statistic {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    
-    @Column({
-        type: 'enum',
-        enum: Type,
-        default: Type.DIRECT,
-        nullable: false
-    })
-    type: Type;
+  @Column({
+    type: 'enum',
+    enum: Type,
+    default: Type.DIRECT,
+    nullable: false,
+  })
+  type: Type;
 
-    @Column({type: 'text', nullable: false})
-    name: string;
+  @Column({ type: 'text', nullable: false })
+  name: string;
 
-    @Column({type: 'text', nullable: true})
-    description: string
+  @Column({ type: 'text', nullable: true })
+  description: string;
 
-    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date;
-  
-    @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt: Date;
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 
-    @OneToMany(() => StatisticData, (statisticData) => statisticData.statistic)
-    statisticDatas: StatisticData[];
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 
-    @ManyToOne(() => Post, (post) => post.statistics)
-    post: Post;
+  @OneToMany(() => StatisticData, (statisticData) => statisticData.statistic)
+  statisticDatas: StatisticData[];
 
-    @ManyToOne(() => Account, (account) => account.statistics, {nullable: false})
-    account: Account
+  @ManyToOne(() => Post, (post) => post.statistics)
+  post: Post;
 
+  @ManyToOne(() => Account, (account) => account.statistics, {
+    nullable: false,
+  })
+  account: Account;
 }
 // отчетный день добавить поле

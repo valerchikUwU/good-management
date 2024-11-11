@@ -20,7 +20,6 @@ import { StrategyUpdateEventDto } from 'src/contracts/strategy/updateEvent-strat
 export class ProducerService {
   private channelWrapper: ChannelWrapper;
   constructor() {
-
     if (process.env.NODE_ENV === 'dev') {
       //
       // ДЛЯ ЛОКАЛЬНЫХ ТЕСТОВ
@@ -30,21 +29,21 @@ export class ProducerService {
           return channel.assertQueue('test_events', { durable: true });
         },
       });
-    }
-    else {
+    } else {
       // ДЛЯ ПРОДА
-      const connection = amqp.connect([{
-        hostname: `${process.env.RABBITMQ_HOSTNAME}`,
-        username: `${process.env.RABBITMQ_USERNAME}`,
-        password: `${process.env.RABBITMQ_PASSWORD}`,
-        vhost: '/'
-      }]);
+      const connection = amqp.connect([
+        {
+          hostname: `${process.env.RABBITMQ_HOSTNAME}`,
+          username: `${process.env.RABBITMQ_USERNAME}`,
+          password: `${process.env.RABBITMQ_PASSWORD}`,
+          vhost: '/',
+        },
+      ]);
       this.channelWrapper = connection.createChannel({
         setup: (channel: Channel) => {
           return channel.assertQueue('gm-to-nest-events', { durable: true });
         },
       });
-
     }
   }
 
@@ -120,7 +119,6 @@ export class ProducerService {
     }
   }
 
-  
   async sendCreatedPolicyToQueue(policy: PolicyCreateEventDto) {
     try {
       await this.channelWrapper.sendToQueue(
@@ -246,7 +244,6 @@ export class ProducerService {
       );
     }
   }
-
 
   async sendUpdatedStatisticToQueue(statistic: StatisticUpdateEventDto) {
     try {

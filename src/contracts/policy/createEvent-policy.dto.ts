@@ -1,13 +1,12 @@
-
-export class PolicyCreateEventDto{
-    eventType: string;
-    id: string;
-    policyName: string;
-    state: string;
-    type: string; 
-    content: string;
-    createdAt: Date;
-    userId: string;
-    accountId: string;
-    policyToOrganizations: string[]; // Ids организаций, с которыми связать политику. У меня политика и организации M:M. 
+export class PolicyCreateEventDto {
+  eventType: string;
+  id: string;
+  policyName: string;
+  state: string;
+  type: string;
+  content: string;
+  createdAt: Date;
+  userId: string;
+  accountId: string;
+  policyToOrganizations: string[]; // Ids организаций, с которыми связать политику. У меня политика и организации M:M.
 }

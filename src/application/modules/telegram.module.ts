@@ -5,12 +5,9 @@ import { HttpModule } from '@nestjs/axios';
 import { Telegraf } from 'telegraf';
 import { ChatStorageService } from '../services/telegram/chatStorage.service';
 
-
 @Module({
-    imports: [UsersModule, 
-        HttpModule ],
-    providers: [TelegramService, Telegraf, ChatStorageService],
-    exports: [TelegramService]
-  })
-  export class TelegramModule {}
-  
+  imports: [UsersModule, HttpModule],
+  providers: [TelegramService, Telegraf, ChatStorageService],
+  exports: [TelegramService],
+})
+export class TelegramModule {}

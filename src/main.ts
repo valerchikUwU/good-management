@@ -10,8 +10,6 @@ import { ValidationExceptionFilter } from './utils/validationExceptionFilter';
 // import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 dotenv.config();
 
-
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
@@ -27,13 +25,15 @@ async function bootstrap() {
 
   app.useGlobalFilters(new ValidationExceptionFilter(logger));
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    forbidNonWhitelisted: true,
-    transform: true,
-    forbidUnknownValues: true,
-    exceptionFactory: (errors) => new BadRequestException(errors),
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      forbidUnknownValues: true,
+      exceptionFactory: (errors) => new BadRequestException(errors),
+    }),
+  );
   app.use(cookieParser());
   app.enableCors({ origin: true });
 
@@ -43,7 +43,9 @@ async function bootstrap() {
 
   const swaggerApi = new DocumentBuilder()
     .setTitle('Good-Management API')
-    .setDescription('The GM API description.\n\n[Export JSON](http://localhost:5000/swagger-json)')
+    .setDescription(
+      'The GM API description.\n\n[Export JSON](http://localhost:5000/swagger-json)',
+    )
     .setVersion('1.0')
     .build();
 
@@ -57,7 +59,7 @@ async function bootstrap() {
 
   // Добавляем маршрут для экспорта документации в формате JSON
   app.getHttpAdapter().get('/swagger-json', (req, res) => {
-    res.json(document);  // Возвращаем JSON-документ
+    res.json(document); // Возвращаем JSON-документ
   });
 
   const port = process.env.PORT || 5000;

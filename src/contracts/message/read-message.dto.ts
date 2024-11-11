@@ -1,15 +1,12 @@
-import { Convert } from "src/domains/convert.entity";
-import { User } from "src/domains/user.entity";
+import { Convert } from 'src/domains/convert.entity';
+import { User } from 'src/domains/user.entity';
 
+export class MessageReadDto {
+  id: string;
 
+  content: string;
 
-export class MessageReadDto{
+  convert: Convert;
 
-    id: string;
-
-    content: string;
-
-    convert: Convert;
-
-    sender: User;
+  sender: User;
 }

@@ -1,28 +1,38 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Exclude } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
-import { Account } from "src/domains/account.entity";
-import { Organization } from "src/domains/organization.entity";
-import { User } from "src/domains/user.entity";
+import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
+import { Account } from 'src/domains/account.entity';
+import { Organization } from 'src/domains/organization.entity';
+import { User } from 'src/domains/user.entity';
 
-export class StrategyCreateDto{
+export class StrategyCreateDto {
+  @ApiProperty({ description: 'Контент стратегии', example: 'HTML текст' })
+  @IsString()
+  @IsNotEmpty({ message: 'Содержание стратегии не может быть пустым!' })
+  content: string;
 
-    @ApiProperty({ description: 'Контент стратегии', example: 'HTML текст' })
-    @IsString()
-    @IsNotEmpty({message: 'Содержание стратегии не может быть пустым!'})
-    content: string;
+  @Exclude({ toPlainOnly: true })
+  user: User;
 
-    @Exclude({toPlainOnly: true})
-    user: User;
+  @Exclude({ toPlainOnly: true })
+  account: Account;
 
-    @Exclude({toPlainOnly: true})
-    account: Account;
+  @Exclude({ toPlainOnly: true })
+  organization: Organization;
 
-    @Exclude({toPlainOnly: true})
-    organization: Organization;
-
-    @ApiProperty({ description: 'ID организации, с которым связать стратегию', example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f' })
-    @IsUUID()
-    @IsNotEmpty({message: 'Выберите организацию!'})
-    organizationId: string;
+  @ApiProperty({
+    description: 'ID организации, с которым связать стратегию',
+    example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
+  })
+  @IsUUID()
+  @IsNotEmpty({ message: 'Выберите организацию!' })
+  organizationId: string;
 }

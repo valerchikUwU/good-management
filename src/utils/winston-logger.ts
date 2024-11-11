@@ -1,38 +1,36 @@
 import { transports, format, exitOnError } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
-import 'winston-daily-rotate-file'; 
+import 'winston-daily-rotate-file';
 
-const { combine, timestamp, json, errors, colorize, align, printf } =
-  format;
+const { combine, timestamp, json, errors, colorize, align, printf } = format;
 
 const errorFilter = format((info, opts) => {
-  return info.level === "error" ? info : false;
+  return info.level === 'error' ? info : false;
 });
 
 const infoFilter = format((info, opts) => {
-  return info.level === "info" ? info : false;
+  return info.level === 'info' ? info : false;
 });
 
-
 const combinedFileRotateTransport = new transports.DailyRotateFile({
-  filename: "logs/combined-%DATE%.log",
-  datePattern: "DD-MM-YYYY",
-  maxFiles: "10d",
+  filename: 'logs/combined-%DATE%.log',
+  datePattern: 'DD-MM-YYYY',
+  maxFiles: '10d',
 });
 
 const errorFileRotateTransport = new transports.DailyRotateFile({
-  filename: "logs/app-error-%DATE%.log",
-  level: "error",
-  datePattern: "DD-MM-YYYY",
-  maxFiles: "10d",
+  filename: 'logs/app-error-%DATE%.log',
+  level: 'error',
+  datePattern: 'DD-MM-YYYY',
+  maxFiles: '10d',
   format: combine(errors({ stack: true }), errorFilter(), timestamp(), json()),
 });
 
 const infoFileRotateTransport = new transports.DailyRotateFile({
-  filename: "logs/app-info-%DATE%.log",
-  level: "info",
-  datePattern: "DD-MM-YYYY",
-  maxFiles: "10d",
+  filename: 'logs/app-info-%DATE%.log',
+  level: 'info',
+  datePattern: 'DD-MM-YYYY',
+  maxFiles: '10d',
   format: combine(infoFilter(), timestamp(), json()),
 });
 
@@ -43,9 +41,9 @@ export const winstonConfig = {
   format: combine(
     errors({ stack: true }),
     timestamp({
-      format: "DD-MM-YYYY hh:mm:ss.SSS A",
+      format: 'DD-MM-YYYY hh:mm:ss.SSS A',
     }),
-    json()
+    json(),
   ),
   transports: [
     new transports.Console({
@@ -54,16 +52,22 @@ export const winstonConfig = {
         align(),
         printf(
           (info) =>
-            `[${blue(info.timestamp)}]  ${info.level}:  ${bold(yellow(
-              info.status ? info.status : (info.level.includes('info') ? 200 : 500)
-            ))} - ${info.url ? info.url : ""} - ${
-              info.method ? info.method : ""
-            } - ${info.response_time ? info.response_time : ""} - ${
-              info.ip ? red(info.ip) : ""
+            `[${blue(info.timestamp)}]  ${info.level}:  ${bold(
+              yellow(
+                info.status
+                  ? info.status
+                  : info.level.includes('info')
+                    ? 200
+                    : 500,
+              ),
+            )} - ${info.url ? info.url : ''} - ${
+              info.method ? info.method : ''
+            } - ${info.response_time ? info.response_time : ''} - ${
+              info.ip ? red(info.ip) : ''
             } - ${info.message} ---------------- \n ${
-              info.stack ? info.stack : "no stack trace"
-            } \n`
-        )
+              info.stack ? info.stack : 'no stack trace'
+            } \n`,
+        ),
       ),
     }),
     combinedFileRotateTransport,

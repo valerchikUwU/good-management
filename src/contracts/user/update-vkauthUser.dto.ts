@@ -1,8 +1,8 @@
-import { IsNumber, IsString } from "class-validator";
+import { IsNumber, IsString } from 'class-validator';
 
 export class UpdateVkAuthUserDto {
-    @IsNumber()
-    vk_id: number;
-    @IsString()
-    avatar_url: string;
+  @IsNumber()
+  vk_id: number;
+  @IsString()
+  avatar_url: string;
 }

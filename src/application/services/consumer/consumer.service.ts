@@ -38,19 +38,17 @@ export class ConsumerService implements OnModuleInit {
     if (process.env.NODE_ENV === 'dev') {
       const connection = amqp.connect(['amqp://localhost']);
       this.channelWrapper = connection.createChannel();
-    }
-    else {
-      const connection = amqp.connect([{
-        hostname: `${process.env.RABBITMQ_HOSTNAME}`,
-        username: `${process.env.RABBITMQ_USERNAME}`,
-        password: `${process.env.RABBITMQ_PASSWORD}`,
-        vhost: '/'
-      }]);
+    } else {
+      const connection = amqp.connect([
+        {
+          hostname: `${process.env.RABBITMQ_HOSTNAME}`,
+          username: `${process.env.RABBITMQ_USERNAME}`,
+          password: `${process.env.RABBITMQ_PASSWORD}`,
+          vhost: '/',
+        },
+      ]);
       this.channelWrapper = connection.createChannel();
-
     }
-
-
   }
 
   public async onModuleInit() {
@@ -66,12 +64,9 @@ export class ConsumerService implements OnModuleInit {
               this.logger.log(`Received message: ${JSON.stringify(event)}`);
               // Подтверждение сообщения
               channel.ack(message);
-
             }
-
           });
-        }
-        else {
+        } else {
           // ДЛЯ ПРОДА
           await channel.assertQueue('gm-to-nest-events', { durable: true });
           await channel.consume('gm-to-nest-events', async (message) => {
@@ -106,14 +101,11 @@ export class ConsumerService implements OnModuleInit {
                 case 'EMPLOYEE_EDITED':
                   await this.handleEmployeeUpdatedEvent(event);
                   break;
-
               }
 
               // Подтверждение сообщения
               channel.ack(message);
-
             }
-
           });
         }
       });
@@ -131,8 +123,8 @@ export class ConsumerService implements OnModuleInit {
     const accountCreateDto: AccountCreateDto = {
       id: payload.company.id,
       accountName: payload.company.name,
-      tenantId: payload.company.tenantId
-    }
+      tenantId: payload.company.tenantId,
+    };
     const createdAccount = await this.accountService.create(accountCreateDto);
     const ownerRole = await this.roleService.findOneByName(Roles.OWNER);
     const userCreateDto: CreateUserDto = {
@@ -142,8 +134,8 @@ export class ConsumerService implements OnModuleInit {
       middleName: payload.middleName,
       telephoneNumber: payload.phone,
       role: ownerRole,
-      account: createdAccount
-    }
+      account: createdAccount,
+    };
     await this.userService.create(userCreateDto);
     // Здесь можно реализовать сохранение данных или другую логику
   }
@@ -151,16 +143,22 @@ export class ConsumerService implements OnModuleInit {
   // Обработка события OrganizationCreatedEvent
   private async handleOrganizationCreatedEvent(event: any) {
     const payload = event.payload;
-    this.logger.log(`Handling OrganizationCreatedEvent: ${JSON.stringify(payload)}`);
-    const account = await this.accountService.findOneById(event.accountId)
+    this.logger.log(
+      `Handling OrganizationCreatedEvent: ${JSON.stringify(payload)}`,
+    );
+    const account = await this.accountService.findOneById(event.accountId);
     const organizationCreateDto: OrganizationCreateDto = {
       id: payload.id,
       organizationName: payload.name,
       parentOrganizationId: payload.parentId,
-      account: account
-    }
-    const createdOrganizationId = await this.organizationService.create(organizationCreateDto);
-    const createdOrganization = await this.organizationService.findOneById(createdOrganizationId)
+      account: account,
+    };
+    const createdOrganizationId = await this.organizationService.create(
+      organizationCreateDto,
+    );
+    const createdOrganization = await this.organizationService.findOneById(
+      createdOrganizationId,
+    );
     const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
 
     const createEmployeesPromises = payload.users.map(async (user: any) => {
@@ -171,15 +169,21 @@ export class ConsumerService implements OnModuleInit {
         middleName: user.middleName,
         telephoneNumber: user.phone,
         role: employeeRole,
-        account: account
-      }
+        account: account,
+      };
       return await this.userService.create(userCreateDto);
     });
     await Promise.all(createEmployeesPromises);
 
     const createPostsPromises = payload.posts.map(async (post: any) => {
-      const responsibleUser = post.userId !== null ? await this.userService.findOne(post.userId) : null;
-      const policy = post.policyId !== null ? await this.policyService.findOneById(post.policyId) : null;
+      const responsibleUser =
+        post.userId !== null
+          ? await this.userService.findOne(post.userId)
+          : null;
+      const policy =
+        post.policyId !== null
+          ? await this.policyService.findOneById(post.policyId)
+          : null;
       const postCreateDto: PostCreateDto = {
         id: post.id,
         postName: post.name,
@@ -190,24 +194,31 @@ export class ConsumerService implements OnModuleInit {
         user: responsibleUser,
         organization: createdOrganization,
         policy: policy,
-        account: account
-      }
+        account: account,
+      };
       return await this.postService.create(postCreateDto);
     });
     await Promise.all(createPostsPromises);
     // Здесь можно реализовать сохранение данных или другую логику
   }
 
-
   // Обработка события PostCreatedEvent
   private async handlePostCreatedEvent(event: any) {
     const payload = event.payload;
     this.logger.log(`Handling PostCreatedEvent: ${JSON.stringify(payload)}`);
 
-    const account = await this.accountService.findOneById(event.accountId)
-    const responsibleUser = payload.userId !== null ? await this.userService.findOne(payload.userId) : null;
-    const policy = payload.policyId !== null ? await this.policyService.findOneById(payload.policyId) : null;
-    const organization = await this.organizationService.findOneById(payload.organizationId);
+    const account = await this.accountService.findOneById(event.accountId);
+    const responsibleUser =
+      payload.userId !== null
+        ? await this.userService.findOne(payload.userId)
+        : null;
+    const policy =
+      payload.policyId !== null
+        ? await this.policyService.findOneById(payload.policyId)
+        : null;
+    const organization = await this.organizationService.findOneById(
+      payload.organizationId,
+    );
     const postCreateDto: PostCreateDto = {
       id: payload.id,
       postName: payload.name,
@@ -218,17 +229,19 @@ export class ConsumerService implements OnModuleInit {
       user: responsibleUser,
       organization: organization,
       policy: policy,
-      account: account
-    }
+      account: account,
+    };
     return await this.postService.create(postCreateDto);
   }
 
   // Обработка события StatisticsCreatedEvent
   private async handleStatisticsCreatedEvent(event: any) {
     const payload = event.payload;
-    this.logger.log(`Handling StatisticsCreatedEvent: ${JSON.stringify(payload)}`);
+    this.logger.log(
+      `Handling StatisticsCreatedEvent: ${JSON.stringify(payload)}`,
+    );
 
-    const account = await this.accountService.findOneById(event.accountId)
+    const account = await this.accountService.findOneById(event.accountId);
     const post = await this.postService.findOneById(payload.responsiblePostId);
     const statisticCreateDto: StatisticCreateDto = {
       id: payload.id,
@@ -237,8 +250,8 @@ export class ConsumerService implements OnModuleInit {
       description: payload.description,
       postId: payload.responsiblePostId,
       post: post,
-      account: account
-    }
+      account: account,
+    };
     return await this.statisticService.create(statisticCreateDto);
   }
 
@@ -259,8 +272,10 @@ export class ConsumerService implements OnModuleInit {
 
   private async handleEmployeeCreatedEvent(event: any) {
     const payload = event.payload;
-    this.logger.log(`Handling EmployeeCreatedEvent: ${JSON.stringify(payload)}`);
-    const account = await this.accountService.findOneById(event.accountId)
+    this.logger.log(
+      `Handling EmployeeCreatedEvent: ${JSON.stringify(payload)}`,
+    );
+    const account = await this.accountService.findOneById(event.accountId);
 
     const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
 
@@ -271,16 +286,17 @@ export class ConsumerService implements OnModuleInit {
       middleName: payload.middleName,
       telephoneNumber: payload.phone,
       role: employeeRole,
-      account: account
-    }
+      account: account,
+    };
     return await this.userService.create(userCreateDto);
   }
 
   private async handleEmployeeUpdatedEvent(event: any) {
     const payload = event.payload;
-    this.logger.log(`Handling EmployeeUpdatedEvent: ${JSON.stringify(payload)}`);
-    const account = await this.accountService.findOneById(event.accountId)
-
+    this.logger.log(
+      `Handling EmployeeUpdatedEvent: ${JSON.stringify(payload)}`,
+    );
+    const account = await this.accountService.findOneById(event.accountId);
 
     const userUpdateDto: UpdateUserDto = {
       id: payload.id,
@@ -288,11 +304,7 @@ export class ConsumerService implements OnModuleInit {
       lastName: payload.lastName,
       middleName: payload.middleName,
       telephoneNumber: payload.phone,
-    }
+    };
     return await this.userService.update(userUpdateDto.id, userUpdateDto);
   }
-
 }
-
-
-

@@ -1,7 +1,15 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { IsInt, IsIP, IsString } from 'class-validator';
-
 
 @Entity()
 export class RefreshSession {
@@ -9,7 +17,7 @@ export class RefreshSession {
   id: string;
 
   @IsString()
-  @Column({ length: 200, nullable: false  })
+  @Column({ length: 200, nullable: false })
   user_agent: string;
 
   @IsString()
@@ -25,7 +33,7 @@ export class RefreshSession {
   expiresIn: number;
 
   @IsString()
-  @Column({nullable: false})
+  @Column({ nullable: false })
   refreshToken: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -36,5 +44,4 @@ export class RefreshSession {
 
   @ManyToOne(() => User, (user) => user.refreshSessions)
   user: User;
-
 }
