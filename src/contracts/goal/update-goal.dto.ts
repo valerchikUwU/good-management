@@ -1,17 +1,32 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { ArrayNotEmpty, IsArray, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
-export class GoalUpdateDto{
-    
-    @ApiProperty({ description: 'Id цели', required: true, example: '907b0875-d29d-4f84-89fe-6b037d1ecc7f'})
-    @IsUUID()
-    @IsNotEmpty({message: 'ID цели не может быть пустым!'})
-    _id: string;
-    
-    @ApiProperty({ description: 'Текст цели', isArray: true, required: false, example: ['Новый контент', 'One more content']})
-    @IsOptional()
-    @IsArray()
-    @IsNotEmpty({message: 'Содержание цели не может быть пустым!'})
-    content?: string[];
-    
+export class GoalUpdateDto {
+  @ApiProperty({
+    description: 'Id цели',
+    required: true,
+    example: '907b0875-d29d-4f84-89fe-6b037d1ecc7f',
+  })
+  @IsUUID()
+  @IsNotEmpty({ message: 'ID цели не может быть пустым!' })
+  _id: string;
+
+  @ApiProperty({
+    description: 'Текст цели',
+    isArray: true,
+    required: false,
+    example: ['Новый контент', 'One more content'],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsNotEmpty({ message: 'Содержание цели не может быть пустым!' })
+  content?: string[];
 }

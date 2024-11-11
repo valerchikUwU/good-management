@@ -1,14 +1,11 @@
-
-
 export class GoalUpdateEventDto {
+  eventType: string;
 
-    eventType: string
+  id: string;
 
-    id: string;
+  content: string[]; // Текстовые блоки цели
 
-    content: string[]; // Текстовые блоки цели
+  updatedAt: Date;
 
-    updatedAt: Date;
-
-    accountId: string;
+  accountId: string;
 }

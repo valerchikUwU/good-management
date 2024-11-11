@@ -1,11 +1,10 @@
-import { Statistic } from "src/domains/statistic.entity";
+import { Statistic } from 'src/domains/statistic.entity';
 
-
-export class StatisticDataReadDto{
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    value: number;
-    valueDate: Date;
-    isCorrelation: boolean;
+export class StatisticDataReadDto {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  value: number;
+  valueDate: Date;
+  isCorrelation: boolean;
 }

@@ -4,11 +4,9 @@ import { RefreshSessionRepository } from '../services/refreshSession/Repository/
 import { RefreshSession } from 'src/domains/refreshSession.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-
 @Module({
-    imports: [TypeOrmModule.forFeature([RefreshSession])],
-    providers: [RefreshService, RefreshSessionRepository],
-    exports: [RefreshService]
-  })
-  export class RefreshModule {}
-  
+  imports: [TypeOrmModule.forFeature([RefreshSession])],
+  providers: [RefreshService, RefreshSessionRepository],
+  exports: [RefreshService],
+})
+export class RefreshModule {}

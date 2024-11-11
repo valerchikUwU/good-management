@@ -5,10 +5,8 @@ import { FileService } from '../services/file/file.service';
 import { FileRepository } from '../services/file/repository/file.repository';
 
 @Module({
-  imports: [
-   TypeOrmModule.forFeature([File])
-  ],
+  imports: [TypeOrmModule.forFeature([File])],
   providers: [FileService, FileRepository],
-  exports: [FileService]
+  exports: [FileService],
 })
 export class FileModule {}

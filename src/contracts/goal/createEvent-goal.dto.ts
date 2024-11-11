@@ -1,19 +1,15 @@
-
-
 export class GoalCreateEventDto {
+  eventType: string;
 
-    eventType: string
+  id: string;
 
-    id: string;
+  content: string[]; // Текстовые блоки цели
 
-    content: string[]; // Текстовые блоки цели
+  createdAt: Date;
 
-    createdAt: Date;
+  organizationId: string;
 
-    organizationId: string;
+  userId: string;
 
-    userId: string;
-
-    accountId: string;
-
+  accountId: string;
 }

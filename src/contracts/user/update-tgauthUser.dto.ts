@@ -1,8 +1,6 @@
-import { IsNumber } from "class-validator";
+import { IsNumber } from 'class-validator';
 
 export class UpdateTgAuthUserDto {
-
-    @IsNumber()
-    telegramId: number;
-
+  @IsNumber()
+  telegramId: number;
 }

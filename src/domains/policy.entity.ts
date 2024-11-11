@@ -1,4 +1,15 @@
-import { Entity, PrimaryColumn, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn, UpdateDateColumn, OneToOne, Generated } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToOne,
+  Generated,
+} from 'typeorm';
 import { User } from './user.entity';
 import { PolicyToOrganization } from './policyToOrganization.entity';
 import { Post } from './post.entity';
@@ -8,73 +19,76 @@ import { PolicyToPolicyDirectory } from './policyToPolicyDirectories.entity';
 // import { PolicyDirectory } from './policyDirectory.entity';
 
 export enum State {
-    DRAFT = 'Черновик',
-    ACTIVE = 'Активный',
-    REJECTED = 'Отменён'
+  DRAFT = 'Черновик',
+  ACTIVE = 'Активный',
+  REJECTED = 'Отменён',
 }
-
 
 export enum Type {
-    DIRECTIVE = 'Директива',
-    INSTRUCTION = 'Инструкция'
+  DIRECTIVE = 'Директива',
+  INSTRUCTION = 'Инструкция',
 }
 @Entity()
-export class Policy{
-    @PrimaryGeneratedColumn('uuid')
-    id: string
+export class Policy {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-    @Column({nullable: false})
-    policyName: string
+  @Column({ nullable: false })
+  policyName: string;
 
-    
-    @Column()
-    @Generated('increment')
-    policyNumber: number;
+  @Column()
+  @Generated('increment')
+  policyNumber: number;
 
-    @Column({
-        type: 'enum',
-        enum: State,
-        default: State.DRAFT,
-        nullable: false
-    })
-    state: State;
+  @Column({
+    type: 'enum',
+    enum: State,
+    default: State.DRAFT,
+    nullable: false,
+  })
+  state: State;
 
-    @Column({
-        type: 'enum',
-        enum: Type,
-        default: Type.DIRECTIVE,
-        nullable: false 
-    })
-    type: Type;
-    
-    @Column({type: 'timestamp', nullable: true})
-    dateActive: Date
+  @Column({
+    type: 'enum',
+    enum: Type,
+    default: Type.DIRECTIVE,
+    nullable: false,
+  })
+  type: Type;
 
-    @Column({type: 'text', nullable: false})
-    content: string;
+  @Column({ type: 'timestamp', nullable: true })
+  dateActive: Date;
 
-    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date;
-  
-    @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    updatedAt: Date;
+  @Column({ type: 'text', nullable: false })
+  content: string;
 
-    @OneToOne(() => Post, (post) => post.policy)
-    post: Post;
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 
-    @OneToMany(() => PolicyToOrganization, (policyToOrganization) => policyToOrganization.policy)
-    policyToOrganizations: PolicyToOrganization[]
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
 
-    @OneToMany(() => PolicyToPolicyDirectory, (policyToPolicyDirectory) => policyToPolicyDirectory.policy)
-    policyToPolicyDirectories: PolicyToPolicyDirectory[]
+  @OneToOne(() => Post, (post) => post.policy)
+  post: Post;
 
-    @OneToMany(() => File, (file) => file.policy)
-    files: File[]
+  @OneToMany(
+    () => PolicyToOrganization,
+    (policyToOrganization) => policyToOrganization.policy,
+  )
+  policyToOrganizations: PolicyToOrganization[];
 
-    @ManyToOne(() => User, (user) => user.policies, {nullable: false})
-    user: User
+  @OneToMany(
+    () => PolicyToPolicyDirectory,
+    (policyToPolicyDirectory) => policyToPolicyDirectory.policy,
+  )
+  policyToPolicyDirectories: PolicyToPolicyDirectory[];
 
-    @ManyToOne(() => Account, (account) => account.policies, {nullable: false})
-    account: Account
+  @OneToMany(() => File, (file) => file.policy)
+  files: File[];
 
+  @ManyToOne(() => User, (user) => user.policies, { nullable: false })
+  user: User;
+
+  @ManyToOne(() => Account, (account) => account.policies, { nullable: false })
+  account: Account;
 }

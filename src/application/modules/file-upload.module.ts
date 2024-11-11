@@ -20,7 +20,8 @@ import { PolicyModule } from './policy.module';
         },
       }),
     }),
-    FileModule, PolicyModule
+    FileModule,
+    PolicyModule,
   ],
   controllers: [FileUploadController],
   providers: [FileUploadService],

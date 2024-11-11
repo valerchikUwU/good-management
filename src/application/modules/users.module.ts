@@ -8,10 +8,9 @@ import { RoleSettingModule } from './roleSetting.module';
 import { RoleModule } from './role.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User]), RoleSettingModule, RoleModule],
-    providers: [UsersService, UsersRepository],
-    controllers: [UsersController],
-    exports: [UsersService],
+  imports: [TypeOrmModule.forFeature([User]), RoleSettingModule, RoleModule],
+  providers: [UsersService, UsersRepository],
+  controllers: [UsersController],
+  exports: [UsersService],
 })
-export class UsersModule { }
-
+export class UsersModule {}
