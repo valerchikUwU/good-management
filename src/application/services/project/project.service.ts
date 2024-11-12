@@ -65,7 +65,7 @@ export class ProjectService {
     try {
       const programs = await this.projectRepository.find({
         where: { type: Type.PROGRAM, account: { id: account.id } },
-        relations: ['organization'],
+        relations: ['organization', 'targets'],
       });
 
       return programs.map((program) => ({
