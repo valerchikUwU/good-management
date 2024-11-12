@@ -14,7 +14,7 @@ import { Account } from './account.entity';
 
 export enum Type {
   DIRECT = 'Прямая',
-  REVERSE = 'Перевернутая',
+  REVERSE = 'Обратная',
 }
 
 @Entity()

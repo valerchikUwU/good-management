@@ -39,7 +39,12 @@ export class ProjectService {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         organization: project.organization,
-        targets: project.targets,
+        targets: project.targets.map((target) => ({
+          ...target,
+          isExpired: target.deadline
+            ? new Date(target.deadline) < new Date()
+            : false,
+        })),
         strategy: project.strategy,
         account: project.account,
         user: project.user,
