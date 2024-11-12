@@ -78,7 +78,12 @@ export class ProjectService {
         createdAt: program.createdAt,
         updatedAt: program.updatedAt,
         organization: program.organization,
-        targets: program.targets,
+        targets: program.targets.map((target) => ({
+          ...target,
+          isExpired: target.deadline
+            ? new Date(target.deadline) < new Date()
+            : false,
+        })),
         strategy: program.strategy,
         account: program.account,
         user: program.user,
@@ -115,7 +120,12 @@ export class ProjectService {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         organization: project.organization,
-        targets: project.targets,
+        targets: project.targets.map((target) => ({
+          ...target,
+          isExpired: target.deadline
+            ? new Date(target.deadline) < new Date()
+            : false,
+        })),
         strategy: project.strategy,
         account: project.account,
         user: project.user,
@@ -202,7 +212,12 @@ export class ProjectService {
         createdAt: program.createdAt,
         updatedAt: program.updatedAt,
         organization: program.organization,
-        targets: program.targets,
+        targets: program.targets.map((target) => ({
+          ...target,
+          isExpired: target.deadline
+            ? new Date(target.deadline) < new Date()
+            : false,
+        })),
         strategy: program.strategy,
         account: program.account,
         user: program.user,
@@ -239,7 +254,12 @@ export class ProjectService {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         organization: project.organization,
-        targets: project.targets,
+        targets: project.targets.map((target) => ({
+          ...target,
+          isExpired: target.deadline
+            ? new Date(target.deadline) < new Date()
+            : false,
+        })),
         strategy: project.strategy,
         account: project.account,
         user: project.user,
