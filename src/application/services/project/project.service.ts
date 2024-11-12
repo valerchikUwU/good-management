@@ -360,12 +360,13 @@ export class ProjectService {
         .getMany();
         const projectIdsForProgram = projectsForProgram.map((project) => project.id)
         updateProjectDto.projectIds.concat(projectIdsForProgram);
+        console.log(updateProjectDto.projectIds)
         await this.projectRepository.update(
           { id: In(updateProjectDto.projectIds) },
           { programId: project.id, strategy: project.strategy },
         );
         await this.projectRepository.update(
-          { id: In(Not(updateProjectDto.projectIds)) },
+          { id: Not(In(updateProjectDto.projectIds)), programId: project.id },
           { programId: null },
         );
       }
