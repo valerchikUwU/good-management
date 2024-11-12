@@ -19,6 +19,7 @@ import { Organization } from 'src/domains/organization.entity';
 import {
   HasProductAndRegularTasksForProject,
   HasProductTaskAndProjectIdsForProgram,
+  HasStrategyForProgram,
 } from 'src/validators/project-validator';
 
 export class ProjectCreateDto {
@@ -78,7 +79,10 @@ export class ProjectCreateDto {
   })
   @IsOptional()
   @IsUUID()
-  @IsNotEmpty({ message: 'Выберите стратегию для проекта!' })
+  @HasStrategyForProgram({
+    message:
+      'Для программы обязательно нужно выбрать стратегию!',
+  })
   strategyId?: string;
 
   @Exclude({ toPlainOnly: true })
