@@ -29,7 +29,7 @@ export class StatisticService {
     try {
       const statistics = await this.statisticRepository.find({
         where: { account: { id: account.id } },
-        relations: ['statisticDatas', 'post'],
+        relations: ['statisticDatas', 'post.organization'],
       });
 
       return statistics.map((statistic) => ({
