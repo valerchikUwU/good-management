@@ -77,3 +77,33 @@ export function HasProductTaskAndProjectIdsForProgram(
     });
   };
 }
+
+export function HasStrategyForProgram(
+  validationOptions?: ValidationOptions,
+) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'HasStrategyForProgram',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: TargetCreateDto[], args: ValidationArguments) {
+          // Получаем объект DTO и проверяем тип
+          const dto = args.object as any;
+          if (dto.type !== TypeProject.PROGRAM) {
+            return true; // Пропускаем валидацию, если тип не PROGRAM
+          }
+
+          // Проверка, что в targetCreateDtos есть задача типа "Продукт"
+          const hasStrategy = dto.strategyId !== undefined ? true : false;
+
+          return hasStrategy;
+        },
+        defaultMessage(args: ValidationArguments) {
+          return 'Для программы обязательно нужно выбрать стратегию!';
+        },
+      },
+    });
+  };
+}

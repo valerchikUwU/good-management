@@ -28,7 +28,6 @@ import { PostService } from 'src/application/services/post/post.service';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
-import { StatisticDataReadDto } from 'src/contracts/statisticData/read-statisticData.dto';
 import { StatisticUpdateDto } from 'src/contracts/statistic/update-statistic.dto';
 import { ProducerService } from 'src/application/services/producer/producer.service';
 import { StatisticDataCreateEventDto } from 'src/contracts/statisticData/createEvent-statisticData.dto';
@@ -47,7 +46,7 @@ export class StatisticController {
     private readonly postService: PostService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Все статистики' })

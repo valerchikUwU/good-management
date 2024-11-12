@@ -68,7 +68,7 @@ export class StatisticCreateDto {
 
   @ApiProperty({
     description: 'Значения статистики',
-    required: true,
+    required: false,
     example: [
       {
         value: 4500,

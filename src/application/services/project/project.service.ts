@@ -14,6 +14,7 @@ import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
 import { ProjectUpdateDto } from 'src/contracts/project/update-project.dto';
 import { In, IsNull } from 'typeorm';
+import { Type as TypeTarget } from 'src/domains/target.entity';
 
 @Injectable()
 export class ProjectService {
@@ -321,6 +322,20 @@ export class ProjectService {
         organization: project.organization,
         strategy: project.strategy,
       });
+
+      if(project.type === Type.PROGRAM){
+        const projectsForProgram = await this.projectRepository.createQueryBuilder('project')
+        .leftJoinAndSelect('project.targets', 'targets')
+        .where('project.programId = :programId', {programId: project.id})
+        .where('targets.type = :type', { type: TypeTarget.PRODUCT })
+        .getMany();
+        const projectIdsForProgram = projectsForProgram.map((project) => project.id)
+        updateProjectDto.projectIds.concat(projectIdsForProgram);
+        await this.projectRepository.update(
+          { id: In(updateProjectDto.projectIds) },
+          { strategy: project.strategy },
+        );
+      }
       return project.id;
     } catch (err) {
       this.logger.error(err);
