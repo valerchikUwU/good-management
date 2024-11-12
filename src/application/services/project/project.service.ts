@@ -13,7 +13,7 @@ import { ProjectCreateDto } from 'src/contracts/project/create-project.dto';
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
 import { ProjectUpdateDto } from 'src/contracts/project/update-project.dto';
-import { In, IsNull } from 'typeorm';
+import { In, IsNull, Not } from 'typeorm';
 import { Type as TypeTarget } from 'src/domains/target.entity';
 
 @Injectable()
@@ -298,7 +298,8 @@ export class ProjectService {
         const projectsForProgram = await this.projectRepository.createQueryBuilder('project')
         .leftJoinAndSelect('project.targets', 'targets')
         .where('project.programId = :programId', {programId: project.id})
-        .where('targets.type = :type', { type: TypeTarget.PRODUCT })
+        .andWhere('targets.type = :type', { type: TypeTarget.PRODUCT })
+        .andWhere('targets.deadline > CURRENT_TIMESTAMP')
         .getMany();
         const projectIdsForProgram = projectsForProgram.map((project) => project.id)
         projectCreateDto.projectIds.concat(projectIdsForProgram);
@@ -354,13 +355,18 @@ export class ProjectService {
         const projectsForProgram = await this.projectRepository.createQueryBuilder('project')
         .leftJoinAndSelect('project.targets', 'targets')
         .where('project.programId = :programId', {programId: project.id})
-        .where('targets.type = :type', { type: TypeTarget.PRODUCT })
+        .andWhere('targets.type = :type', { type: TypeTarget.PRODUCT })
+        .andWhere('targets.deadline > CURRENT_TIMESTAMP')
         .getMany();
         const projectIdsForProgram = projectsForProgram.map((project) => project.id)
         updateProjectDto.projectIds.concat(projectIdsForProgram);
         await this.projectRepository.update(
           { id: In(updateProjectDto.projectIds) },
-          { strategy: project.strategy },
+          { programId: project.id, strategy: project.strategy },
+        );
+        await this.projectRepository.update(
+          { id: In(Not(updateProjectDto.projectIds)) },
+          { programId: null },
         );
       }
       return project.id;
