@@ -53,4 +53,4 @@ export class Statistic {
   })
   account: Account;
 }
-// отчетный день добавить поле
+
