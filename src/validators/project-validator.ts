@@ -97,7 +97,7 @@ export function HasStrategyForProgram(
 
           // Проверка, что в targetCreateDtos есть задача типа "Продукт"
           const hasStrategy = dto.strategyId !== undefined ? true : false;
-
+          console.log(hasStrategy)
           return hasStrategy;
         },
         defaultMessage(args: ValidationArguments) {

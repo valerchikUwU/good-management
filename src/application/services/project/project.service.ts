@@ -275,9 +275,16 @@ export class ProjectService {
       project.strategy = projectCreateDto.strategy;
       const projectCreatedId = await this.projectRepository.insert(project);
       if (projectCreateDto.type === Type.PROGRAM) {
+        const projectsForProgram = await this.projectRepository.createQueryBuilder('project')
+        .leftJoinAndSelect('project.targets', 'targets')
+        .where('project.programId = :programId', {programId: project.id})
+        .where('targets.type = :type', { type: TypeTarget.PRODUCT })
+        .getMany();
+        const projectIdsForProgram = projectsForProgram.map((project) => project.id)
+        projectCreateDto.projectIds.concat(projectIdsForProgram);
         await this.projectRepository.update(
           { id: In(projectCreateDto.projectIds) },
-          { programId: projectCreatedId.identifiers[0].id },
+          { programId: projectCreatedId.identifiers[0].id, strategy: projectCreateDto.strategy }
         );
       }
       return projectCreatedId.identifiers[0].id;
