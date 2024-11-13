@@ -24,10 +24,10 @@ export class ProjectService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
+  async findAllForOrganization(organizationId: string): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
-        where: { account: { id: account.id } }, relations: ['targets']
+        where: { organization: { id: organizationId } }, relations: ['targets']
       });
 
       return projects.map((project) => ({

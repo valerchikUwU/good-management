@@ -55,8 +55,8 @@ export class ProjectController {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  @Get()
-  @ApiOperation({ summary: 'Все проекты' })
+  @Get(':organizationId/projects')
+  @ApiOperation({ summary: 'Все проекты по Id организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
@@ -90,10 +90,15 @@ export class ProjectController {
     required: true,
     description: 'Id пользователя',
     example: '3b809c42-2824-46c1-9686-dd666403402a',
+  })  
+  @ApiParam({
+    name: 'organizationId',
+    required: true,
+    description: 'Id организации',
+    example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
   })
-  async findAll(@Param('userId') userId: string): Promise<ProjectReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
-    return await this.projectService.findAllForAccount(user.account);
+  async findAll(@Param('organizationId') organizationId: string): Promise<ProjectReadDto[]> {
+    return await this.projectService.findAllForOrganization(organizationId);
   }
 
   @Get('program/new')
