@@ -358,17 +358,24 @@ export class ProjectService {
         .andWhere('targets.type = :type', { type: TypeTarget.PRODUCT })
         .andWhere('targets.deadline > CURRENT_TIMESTAMP')
         .getMany();
-        const projectIdsForProgram = projectsForProgram.map((project) => project.id)
-        updateProjectDto.projectIds.concat(projectIdsForProgram);
-        console.log(updateProjectDto.projectIds)
-        await this.projectRepository.update(
-          { id: In(updateProjectDto.projectIds) },
-          { programId: project.id, strategy: project.strategy },
-        );
-        await this.projectRepository.update(
-          { id: Not(In(updateProjectDto.projectIds)), programId: project.id },
-          { programId: null },
-        );
+        const projectIdsForProgram = projectsForProgram.map((project) => project.id);
+        if(projectIdsForProgram.length !== updateProjectDto.projectIds.length && !(projectIdsForProgram.every(id => updateProjectDto.projectIds.includes(id))))
+        {
+          console.log('XYILA XYILA XYILA XYILA XYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILA')
+          if(projectIdsForProgram.length > 0){
+            updateProjectDto.projectIds.concat(projectIdsForProgram);
+          }
+          console.log(updateProjectDto.projectIds)
+          await this.projectRepository.update(
+            { id: In(updateProjectDto.projectIds) },
+            { programId: project.id, strategy: project.strategy },
+          );
+          await this.projectRepository.update(
+            { id: Not(In(updateProjectDto.projectIds)), programId: project.id },
+            { programId: null },
+          );
+        }
+
       }
       return project.id;
     } catch (err) {
