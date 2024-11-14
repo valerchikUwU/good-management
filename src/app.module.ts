@@ -34,6 +34,8 @@ import { ConvertToUserModule } from './application/modules/convertToUser.module'
 import { MessageModule } from './application/modules/message.module';
 import { GroupModule } from './application/modules/group.module';
 import { GroupToUserModule } from './application/modules/groupToUser.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -44,6 +46,10 @@ import { GroupToUserModule } from './application/modules/groupToUser.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) =>
         configService.get('database'),
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
     }),
     WinstonModule.forRoot(winstonConfig),
     UsersModule,
