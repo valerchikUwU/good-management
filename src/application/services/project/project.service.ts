@@ -358,7 +358,8 @@ export class ProjectService {
         .andWhere('targets.type = :type', { type: TypeTarget.PRODUCT })
         .andWhere('targets.deadline > CURRENT_TIMESTAMP')
         .getMany();
-        const projectIdsForProgram = projectsForProgram.map((project) => project.id);
+        let projectIdsForProgram = projectsForProgram.map((project) => project.id);
+        if(projectIdsForProgram === undefined) projectIdsForProgram = []
         if(projectIdsForProgram.length !== updateProjectDto.projectIds.length && !(projectIdsForProgram.every(id => updateProjectDto.projectIds.includes(id))))
         {
           console.log('XYILA XYILA XYILA XYILA XYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILAXYILA XYILA XYILA XYILA')
