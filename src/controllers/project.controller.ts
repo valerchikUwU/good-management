@@ -671,11 +671,11 @@ export class ProjectController {
   async findOneProgram(
     @Param('userId') userId: string,
     @Param('programId') programId: string,
-  ): Promise<{ program: ProjectReadDto; projects: ProjectReadDto[] }> {
+  ): Promise<{ program: ProjectReadDto; projects: ProjectReadDto[]}> {
     const program = await this.projectService.findOneProgramById(programId);
     const projectsByProgramId =
       await this.projectService.findAllProjectsByProgramId(programId);
-    return { program: program, projects: projectsByProgramId };
+    return { program: program, projects: projectsByProgramId};
   }
 
   @Get(':projectId')
@@ -762,9 +762,7 @@ export class ProjectController {
       this.userService.findOne(userId, ['account']),
       this.projectService.findOneById(projectId),
     ]);
-    const strategies = await this.strategyService.findAllForAccount(
-      user.account,
-    );
+    const strategies = await this.strategyService.findAllForAccount(user.account);
     return { project: project, strategies: strategies };
   }
 }

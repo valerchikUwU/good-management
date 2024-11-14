@@ -56,10 +56,51 @@ export class UsersService {
     }));
   }
 
-  async findAllForAccount(account: AccountReadDto): Promise<ReadUserDto[]> {
+  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<ReadUserDto[]> {
     try {
       const users = await this.usersRepository.find({
-        where: { account: { id: account.id } },
+        where: { account: { id: account.id } }, relations: relations !== undefined ? relations : []
+      });
+      return users.map((user) => ({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        middleName: user.middleName,
+        telegramId: user.telegramId,
+        telephoneNumber: user.telephoneNumber,
+        avatar_url: user.avatar_url,
+        vk_id: user.vk_id,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        posts: user.posts,
+        refreshSessions: user.refreshSessions,
+        goals: user.goals,
+        policies: user.policies,
+        strategies: user.strategies,
+        targetHolders: user.targetHolders,
+        projects: user.projects,
+        organization: user.organization,
+        account: user.account,
+        role: user.role,
+        convert: user.convert,
+        convertToUsers: user.convertToUsers,
+        messages: user.messages,
+        groupToUsers: user.groupToUsers,
+
+        // Добавьте любые другие поля, которые должны быть включены в ответ
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех пользователей!',
+      );
+    }
+  }
+
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ReadUserDto[]> {
+    try {
+      const users = await this.usersRepository.find({
+        where: { organization: { id: organizationId } }, relations: relations !== undefined ? relations : []
       });
       return users.map((user) => ({
         id: user.id,
