@@ -52,14 +52,14 @@ export class StrategyService {
     }
   }
 
-  async findAllActiveWithoutObjectiveForAccount(
+  async findAllActiveOrDraftWithoutObjectiveForAccount(
     account: AccountReadDto,
   ): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: {
           account: { id: account.id },
-          state: State.ACTIVE,
+          state: In([State.ACTIVE, State.DRAFT]),
           objective: { id: IsNull() },
         },
         relations: ['objective'],

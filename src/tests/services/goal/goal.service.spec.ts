@@ -12,7 +12,7 @@ import { GoalCreateDto } from 'src/contracts/goal/create-goal.dto';
 import { ReportDay } from 'src/domains/organization.entity';
 import { GoalReadDto } from 'src/contracts/goal/read-goal.dto';
 
-describe('GoalController', () => {
+describe('GoalService', () => {
     let goalService: GoalService;
     let goalRepository: GoalRepository;
     beforeEach(async () => {
