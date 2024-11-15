@@ -284,7 +284,7 @@ export class ObjectiveController {
     @Param('userId') userId: string,
     @Body() objectiveCreateDto: ObjectiveCreateDto,
     @Ip() ip: string,
-  ): Promise<string> {
+  ): Promise<{id: string}> {
     const [user, chosenStrategy] = await Promise.all([
       this.userService.findOne(userId, ['account']),
       this.strategyService.findOneById(objectiveCreateDto.strategyId, [
@@ -335,7 +335,7 @@ export class ObjectiveController {
     this.logger.info(
       `${yellow('OK!')} - ${red(ip)} - objectiveCreateDto: ${JSON.stringify(objectiveCreateDto)} - Создана новая краткосрочная цель!`,
     );
-    return createdObjectiveId;
+    return {id: createdObjectiveId};
   }
 
   @Get(':strategyId')
