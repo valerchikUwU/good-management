@@ -21,11 +21,8 @@ export class GoalService {
     private readonly goalRepository: GoalRepository,
     @Inject('winston') private readonly logger: Logger,
   ) {}
-
-  async findAllForAccount(
-    account: AccountReadDto,
-    relations?: string[],
-  ): Promise<GoalReadDto[]> {
+  
+  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<GoalReadDto[]> {
     try {
       const goals = await this.goalRepository.find({
         where: { account: { id: account.id } },

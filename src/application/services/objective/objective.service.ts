@@ -20,12 +20,10 @@ export class ObjectiveService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(
-    account: AccountReadDto,
-  ): Promise<ObjectiveReadDto[]> {
+  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<ObjectiveReadDto[]> {
     try {
       const objectives = await this.objectiveRepository.find({
-        where: { account: { id: account.id } },
+        where: { account: { id: account.id } }, relations: relations !== undefined ? relations : []
       });
 
       return objectives.map((objective) => ({
@@ -84,10 +82,7 @@ export class ObjectiveService {
     }
   }
 
-  async findOneByStrategyId(
-    strategyId: string,
-    relations?: string[],
-  ): Promise<ObjectiveReadDto | null> {
+  async findOneByStrategyId(strategyId: string, relations?: string[]): Promise<ObjectiveReadDto | null> {
     try {
       const objective = await this.objectiveRepository.findOne({
         where: { strategy: { id: strategyId } },

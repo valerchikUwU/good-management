@@ -75,7 +75,7 @@ export class ObjectiveController {
   ): Promise<ObjectiveReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
     const objectives = await this.objectiveService.findAllForAccount(
-      user.account,
+      user.account, ['strategy']
     );
     this.logger.info(
       `${yellow('OK!')} - ${red(ip)} - OBJECTIVES: ${JSON.stringify(objectives)} - ВСЕ КРАТКОСРОЧНЫЕ ЦЕЛИ!`,
@@ -118,7 +118,7 @@ export class ObjectiveController {
   ): Promise<StrategyReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
     const strategies =
-      await this.strategyService.findAllActiveWithoutObjectiveForAccount(
+      await this.strategyService.findAllActiveOrDraftWithoutObjectiveForAccount(
         user.account,
       );
     return strategies;
