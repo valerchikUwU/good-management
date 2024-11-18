@@ -76,59 +76,59 @@ export class GoalController {
   async findAll(
     @Param('userId') userId: string,
     @Ip() ip: string,
-  ): Promise<GoalReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const goals = await this.goalService.findAllForAccount(user.account, [
-      'organization',
-    ]);
-    return goals;
-  }
-
-  @Get('new')
-  @ApiOperation({ summary: 'Получить данные для создания новой цели' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
-    example: [
-      {
-        id: 'be720b9e-873b-4d4e-a866-b3c598878863',
-        organizationName: 'Ласка и Выдрочка',
-        parentOrganizationId: null,
-        createdAt: '2024-10-11T13:21:24.898Z',
-        updatedAt: '2024-10-11T13:21:24.898Z',
-        goal: null,
-      },
-      {
-        id: 'b1294a99-ec8d-4e62-8345-45da2d89b6b9',
-        organizationName: 'Светлоярский и Ко',
-        parentOrganizationId: null,
-        createdAt: '2024-10-11T13:22:01.835Z',
-        updatedAt: '2024-10-11T13:22:01.835Z',
-        goal: null,
-      },
-    ],
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
-  async beforeCreate(
-    @Param('userId') userId: string,
-    @Ip() ip: string,
   ): Promise<OrganizationReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
-    const organizations =
-      await this.organizationService.findAllWithoutGoalsForAccount(
-        user.account,
-      );
+    const orgainizationWithGoal = await this.organizationService.findAllWithGoalsForAccount(user.account);
+    const orgainizationWithoutGoal = await this.organizationService.findAllWithoutGoalsForAccount(user.account);
+    const organizations = orgainizationWithGoal.concat(orgainizationWithoutGoal);
     return organizations;
   }
+
+  // @Get('new')
+  // @ApiOperation({ summary: 'Получить данные для создания новой цели' })
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   description: 'ОК!',
+  //   example: [
+  //     {
+  //       id: 'be720b9e-873b-4d4e-a866-b3c598878863',
+  //       organizationName: 'Ласка и Выдрочка',
+  //       parentOrganizationId: null,
+  //       createdAt: '2024-10-11T13:21:24.898Z',
+  //       updatedAt: '2024-10-11T13:21:24.898Z',
+  //       goal: null,
+  //     },
+  //     {
+  //       id: 'b1294a99-ec8d-4e62-8345-45da2d89b6b9',
+  //       organizationName: 'Светлоярский и Ко',
+  //       parentOrganizationId: null,
+  //       createdAt: '2024-10-11T13:22:01.835Z',
+  //       updatedAt: '2024-10-11T13:22:01.835Z',
+  //       goal: null,
+  //     },
+  //   ],
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.INTERNAL_SERVER_ERROR,
+  //   description: 'Ошибка сервера!',
+  // })
+  // @ApiParam({
+  //   name: 'userId',
+  //   required: true,
+  //   description: 'Id пользователя',
+  //   example: '3b809c42-2824-46c1-9686-dd666403402a',
+  // })
+  // async beforeCreate(
+  //   @Param('userId') userId: string,
+  //   @Ip() ip: string,
+  // ): Promise<OrganizationReadDto[]> {
+  //   const user = await this.userService.findOne(userId, ['account']);
+  //   const organizations =
+  //     await this.organizationService.findAllWithoutGoalsForAccount(
+  //       user.account,
+  //     );
+  //   return organizations;
+  // }
 
   @Patch(':goalId/update')
   @ApiOperation({ summary: 'Обновить цель по ID' })
