@@ -258,85 +258,84 @@ export class ObjectiveController {
     return { id: updatedObjectiveId };
   }
 
-  @Post('new')
-  @ApiOperation({ summary: 'Создать краткосрочную цель' })
-  @ApiBody({
-    description: 'ДТО для создания цели',
-    type: ObjectiveCreateDto,
-    required: true,
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'ОК!',
-    example: '2f17f491-03c4-4bf8-8e40-c741263ed9df',
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
-  async create(
-    @Param('userId') userId: string,
-    @Body() objectiveCreateDto: ObjectiveCreateDto,
-    @Ip() ip: string,
-  ): Promise<{id: string}> {
-    const [user, chosenStrategy] = await Promise.all([
-      this.userService.findOne(userId, ['account']),
-      this.strategyService.findOneById(objectiveCreateDto.strategyId, [
-        'organization',
-      ]),
-    ]);
-    objectiveCreateDto.strategy = chosenStrategy;
-    objectiveCreateDto.account = user.account;
-    const createdObjectiveId =
-      await this.objectiveService.create(objectiveCreateDto);
-    const createdEventObjectiveDto: ObjectiveCreateEventDto = {
-      eventType: 'OBJECTIVE_CREATED',
-      id: createdObjectiveId,
-      situation:
-        objectiveCreateDto.situation !== undefined
-          ? objectiveCreateDto.situation
-          : null,
-      content:
-        objectiveCreateDto.content !== undefined
-          ? objectiveCreateDto.content
-          : null,
-      rootCause:
-        objectiveCreateDto.rootCause !== undefined
-          ? objectiveCreateDto.rootCause
-          : null,
-      createdAt: new Date(),
-      strategyId: chosenStrategy.id,
-      accountId: user.account.id,
-    };
-    try {
-      await Promise.race([
-        this.producerService.sendCreatedObjectiveToQueue(
-          createdEventObjectiveDto,
-        ),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
-    this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - objectiveCreateDto: ${JSON.stringify(objectiveCreateDto)} - Создана новая краткосрочная цель!`,
-    );
-    return {id: createdObjectiveId};
-  }
+  // @Post('new')
+  // @ApiOperation({ summary: 'Создать краткосрочную цель' })
+  // @ApiBody({
+  //   description: 'ДТО для создания цели',
+  //   type: ObjectiveCreateDto,
+  //   required: true,
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.CREATED,
+  //   description: 'ОК!',
+  //   example: '2f17f491-03c4-4bf8-8e40-c741263ed9df',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.INTERNAL_SERVER_ERROR,
+  //   description: 'Ошибка сервера!',
+  // })
+  // @ApiParam({
+  //   name: 'userId',
+  //   required: true,
+  //   description: 'Id пользователя',
+  //   example: '3b809c42-2824-46c1-9686-dd666403402a',
+  // })
+  // async create(
+  //   @Param('userId') userId: string,
+  //   @Body() objectiveCreateDto: ObjectiveCreateDto,
+  //   @Ip() ip: string,
+  // ): Promise<{id: string}> {
+  //   const [user, chosenStrategy] = await Promise.all([
+  //     this.userService.findOne(userId, ['account']),
+  //     this.strategyService.findOneById(objectiveCreateDto.strategyId, [
+  //       'organization',
+  //     ]),
+  //   ]);
+  //   objectiveCreateDto.strategy = chosenStrategy;
+  //   objectiveCreateDto.account = user.account;
+  //   const createdObjectiveId = await this.objectiveService.create(objectiveCreateDto);
+  //   const createdEventObjectiveDto: ObjectiveCreateEventDto = {
+  //     eventType: 'OBJECTIVE_CREATED',
+  //     id: createdObjectiveId,
+  //     situation:
+  //       objectiveCreateDto.situation !== undefined
+  //         ? objectiveCreateDto.situation
+  //         : null,
+  //     content:
+  //       objectiveCreateDto.content !== undefined
+  //         ? objectiveCreateDto.content
+  //         : null,
+  //     rootCause:
+  //       objectiveCreateDto.rootCause !== undefined
+  //         ? objectiveCreateDto.rootCause
+  //         : null,
+  //     createdAt: new Date(),
+  //     strategyId: chosenStrategy.id,
+  //     accountId: user.account.id,
+  //   };
+  //   try {
+  //     await Promise.race([
+  //       this.producerService.sendCreatedObjectiveToQueue(
+  //         createdEventObjectiveDto,
+  //       ),
+  //       new Promise((_, reject) =>
+  //         setTimeout(() => reject(new TimeoutError()), 5000),
+  //       ),
+  //     ]);
+  //   } catch (error) {
+  //     if (error instanceof TimeoutError) {
+  //       this.logger.error(
+  //         `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+  //       );
+  //     } else {
+  //       this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+  //     }
+  //   }
+  //   this.logger.info(
+  //     `${yellow('OK!')} - ${red(ip)} - objectiveCreateDto: ${JSON.stringify(objectiveCreateDto)} - Создана новая краткосрочная цель!`,
+  //   );
+  //   return {id: createdObjectiveId};
+  // }
 
   @Get(':strategyId')
   @ApiOperation({ summary: 'Получить цель по ID стратегии' })

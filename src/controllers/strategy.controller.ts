@@ -31,6 +31,9 @@ import { StrategyCreateEventDto } from 'src/contracts/strategy/createEvent-strat
 import { ProducerService } from 'src/application/services/producer/producer.service';
 import { StrategyUpdateEventDto } from 'src/contracts/strategy/updateEvent-strategy.dto';
 import { TimeoutError } from 'rxjs';
+import { ObjectiveCreateDto } from 'src/contracts/objective/create-objective.dto';
+import { ObjectiveService } from 'src/application/services/objective/objective.service';
+import { ObjectiveCreateEventDto } from 'src/contracts/objective/createEvent-objective.dto';
 
 @ApiTags('Strategy')
 @Controller(':userId/strategies')
@@ -40,6 +43,7 @@ export class StrategyController {
     private readonly userService: UsersService,
     private readonly organizationService: OrganizationService,
     private readonly producerService: ProducerService,
+    private readonly objectiveService: ObjectiveService,
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
@@ -312,8 +316,14 @@ export class StrategyController {
     strategyCreateDto.user = user;
     strategyCreateDto.account = user.account;
     strategyCreateDto.organization = organization;
-    const createdStrategyId =
-      await this.strategyService.create(strategyCreateDto);
+    const createdStrategyId = await this.strategyService.create(strategyCreateDto);
+    const createdStrategy = await this.strategyService.findOneById(createdStrategyId);
+    const objectiveCreateDto: ObjectiveCreateDto = {
+      strategyId: createdStrategyId,
+      strategy: createdStrategy,
+      account: user.account,
+    };
+    const createdObjectiveId = await this.objectiveService.create(objectiveCreateDto);
     const createdStrategyEventDto: StrategyCreateEventDto = {
       eventType: 'STRATEGY_CREATED',
       id: createdStrategyId,
@@ -322,11 +332,29 @@ export class StrategyController {
       accountId: user.account.id,
       organizationId: strategyCreateDto.organizationId,
     };
+    const createdEventObjectiveDto: ObjectiveCreateEventDto = {
+      eventType: 'OBJECTIVE_CREATED',
+      id: createdObjectiveId,
+      situation:
+        objectiveCreateDto.situation !== undefined
+          ? objectiveCreateDto.situation
+          : null,
+      content:
+        objectiveCreateDto.content !== undefined
+          ? objectiveCreateDto.content
+          : null,
+      rootCause:
+        objectiveCreateDto.rootCause !== undefined
+          ? objectiveCreateDto.rootCause
+          : null,
+      createdAt: new Date(),
+      strategyId: createdStrategy.id,
+      accountId: user.account.id,
+    };
     try {
       await Promise.race([
-        this.producerService.sendCreatedStrategyToQueue(
-          createdStrategyEventDto,
-        ),
+        this.producerService.sendCreatedStrategyToQueue(createdStrategyEventDto),
+        this.producerService.sendCreatedObjectiveToQueue(createdEventObjectiveDto),
         new Promise((_, reject) =>
           setTimeout(() => reject(new TimeoutError()), 5000),
         ),

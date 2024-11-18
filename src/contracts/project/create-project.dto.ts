@@ -141,7 +141,6 @@ export class ProjectCreateDto {
       },
     ],
   })
-  @IsOptional()
   @IsArray({ message: 'Должен быть массив!' })
   @ValidateNested()
   @Type(() => TargetCreateDto)
@@ -149,7 +148,7 @@ export class ProjectCreateDto {
     message:
       'Список задач должен содержать хотя бы одну задачу с типом "Продукт" и одну с типом "Обычная".',
   })
-  targetCreateDtos?: TargetCreateDto[];
+  targetCreateDtos: TargetCreateDto[];
 
   @ApiProperty({
     description: 'IDs проектов, которые привязать с програмой',

@@ -7,12 +7,14 @@ import { StrategyController } from 'src/controllers/strategy.controller';
 import { UsersModule } from './users.module';
 import { OrganizationModule } from './organization.module';
 import { QueueModule } from './queue.module';
+import { ObjectiveModule } from './objective.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Strategy]),
     UsersModule,
     OrganizationModule,
+    ObjectiveModule,
     forwardRef(() => QueueModule),
   ],
   controllers: [StrategyController],
