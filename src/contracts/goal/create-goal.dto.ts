@@ -19,7 +19,6 @@ export class GoalCreateDto {
     example: ['Контент цели', 'one more content'],
   })
   @IsArray()
-  @IsNotEmpty({ message: 'Содержание не может быть пустым!' })
   content: string[];
 
   @ApiProperty({
