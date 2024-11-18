@@ -13,6 +13,7 @@ import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { OrganizationUpdateDto } from 'src/contracts/organization/update-organization.dto';
 import { Logger } from 'winston';
 import { IsNull, Not } from 'typeorm';
+import { State } from 'src/domains/strategy.entity';
 
 @Injectable()
 export class OrganizationService {
@@ -93,6 +94,39 @@ export class OrganizationService {
             const organizations = await this.organizationRepository.find({
                 where: { account: { id: account.id }, goal: { id: Not(IsNull()) } },
                 relations: ['goal'],
+            });
+            return organizations.map((organization) => ({
+                id: organization.id,
+                organizationName: organization.organizationName,
+                parentOrganizationId: organization.parentOrganizationId,
+                reportDay: organization.reportDay,
+                createdAt: organization.createdAt,
+                updatedAt: organization.updatedAt,
+                users: organization.users,
+                posts: organization.posts,
+                goal: organization.goal,
+                policyToOrganizations: organization.policyToOrganizations,
+                projects: organization.projects,
+                strategies: organization.strategies,
+                account: organization.account,
+            }));
+        } catch (err) {
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException(
+                'Ошибка при получении всех организаций!',
+            );
+        }
+    }
+
+
+    async findAllWithDraftStrategyForAccount(
+        account: AccountReadDto,
+    ): Promise<OrganizationReadDto[]> {
+        try {
+            const organizations = await this.organizationRepository.find({
+                where: { account: { id: account.id }, strategies: { state: State.DRAFT } },
+                relations: ['strategies'],
             });
             return organizations.map((organization) => ({
                 id: organization.id,
