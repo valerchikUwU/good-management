@@ -280,10 +280,6 @@ export class ProjectService {
     try {
       // Проверка на наличие обязательных данных
 
-      if (!projectCreateDto.organizationId) {
-        throw new BadRequestException('Выберите организацию для проекта!');
-      }
-
       const project = new Project();
       project.projectName = projectCreateDto.projectName;
       project.programId = projectCreateDto.programId;
