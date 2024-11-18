@@ -132,20 +132,33 @@ export class StrategyController {
     description: 'ОК!',
     example: [
       {
-        id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-        organizationName: 'soplya firma',
+        id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+        organizationName: "soplya firma",
         parentOrganizationId: null,
-        createdAt: '2024-09-16T14:24:33.841Z',
-        updatedAt: '2024-09-16T14:24:33.841Z',
+        reportDay: 6,
+        createdAt: "2024-09-16T14:24:33.841Z",
+        updatedAt: "2024-11-14T11:34:37.670Z",
+        strategies: [
+          {
+            id: "59cfe865-ad11-48d2-bf0b-305d241113ed",
+            strategyNumber: 104,
+            dateActive: null,
+            content: "<p>сопля</p>\n",
+            state: "Черновик",
+            createdAt: "2024-11-18T09:34:25.303Z",
+            updatedAt: "2024-11-18T09:34:25.303Z"
+          }
+        ]
       },
       {
-        id: '1f1cca9a-2633-489c-8f16-cddd411ff2d0',
-        organizationName: 'OOO BOBRIK',
-        parentOrganizationId: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-        createdAt: '2024-09-16T15:09:48.995Z',
-        updatedAt: '2024-09-16T15:09:48.995Z',
-      },
-    ],
+        id: "be720b9e-873b-4d4e-a866-b3c598878863",
+        organizationName: "Ласка и Выдрочка",
+        parentOrganizationId: null,
+        reportDay: 3,
+        createdAt: "2024-10-11T13:21:24.898Z",
+        updatedAt: "2024-11-14T11:37:36.586Z"
+      }
+    ]
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
