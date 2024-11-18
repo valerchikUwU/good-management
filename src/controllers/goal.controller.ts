@@ -309,7 +309,7 @@ export class GoalController {
     @Param('userId') userId: string,
     @Body() goalCreateDto: GoalCreateDto,
     @Ip() ip: string,
-  ): Promise<string> {
+  ): Promise<{id: string}> {
     const [user, organization] = await Promise.all([
       this.userService.findOne(userId, ['account']),
       this.organizationService.findOneById(goalCreateDto.organizationId),
@@ -346,6 +346,6 @@ export class GoalController {
     this.logger.info(
       `${yellow('OK!')} - ${red(ip)} - goalCreateDto: ${JSON.stringify(goalCreateDto)} - Создана новая цель!`,
     );
-    return createdGoalId;
+    return {id: createdGoalId};
   }
 }
