@@ -152,6 +152,40 @@ export class OrganizationService {
         }
     }
 
+    async findAllWithoutDraftStrategyForAccount(account: AccountReadDto): Promise<OrganizationReadDto[]> {
+        try {
+            const organizations = await this.organizationRepository.createQueryBuilder('organization')
+            .leftJoin('organization.strategies', 'strategy')
+            .where('organization.accountId = :accountId', { accountId: account.id })
+            .andWhere(
+              'NOT EXISTS (SELECT 1 FROM strategy WHERE strategy.organizationId = organization.id AND strategy.state = :state)',
+              { state: State.DRAFT }
+            )
+            .getMany();
+            return organizations.map((organization) => ({
+                id: organization.id,
+                organizationName: organization.organizationName,
+                parentOrganizationId: organization.parentOrganizationId,
+                reportDay: organization.reportDay,
+                createdAt: organization.createdAt,
+                updatedAt: organization.updatedAt,
+                users: organization.users,
+                posts: organization.posts,
+                goal: organization.goal,
+                policyToOrganizations: organization.policyToOrganizations,
+                projects: organization.projects,
+                strategies: organization.strategies,
+                account: organization.account,
+            }));
+        } catch (err) {
+            this.logger.error(err);
+            // Обработка других ошибок
+            throw new InternalServerErrorException(
+                'Ошибка при получении всех организаций!',
+            );
+        }
+    }
+
     async findOneById(
         id: string,
         relations?: string[],

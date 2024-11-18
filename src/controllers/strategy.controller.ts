@@ -162,9 +162,9 @@ export class StrategyController {
     @Ip() ip: string,
   ): Promise<OrganizationReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
-    const organizations = await this.organizationService.findAllWithDraftStrategyForAccount(
-      user.account,
-    );
+    const organizationsWithDraft = await this.organizationService.findAllWithDraftStrategyForAccount(user.account);
+    const organizationsWithourDraft = await this.organizationService.findAllWithoutDraftStrategyForAccount(user.account);
+    const organizations = organizationsWithDraft.concat(organizationsWithourDraft);
     return organizations;
   }
 
