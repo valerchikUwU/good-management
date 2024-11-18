@@ -77,12 +77,8 @@ export class GoalService {
   async create(goalCreateDto: GoalCreateDto): Promise<string> {
     try {
       // Проверка на наличие обязательных данных
-      if (goalCreateDto.content.length < 1) {
-        throw new BadRequestException('Содержание не может быть пустым!');
-      }
-      if (!goalCreateDto.organizationId) {
-        throw new BadRequestException('Выберите организацию!');
-      }
+
+
       const goal = new Goal();
       goal.content = goalCreateDto.content;
       goal.user = goalCreateDto.user;
