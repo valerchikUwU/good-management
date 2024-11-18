@@ -13,10 +13,11 @@ import { QueueModule } from './queue.module';
   imports: [
     TypeOrmModule.forFeature([Objective]),
     UsersModule,
-    StrategyModule,
+    forwardRef(() => StrategyModule),
     forwardRef(() => QueueModule),
   ],
   controllers: [ObjectiveController],
   providers: [ObjectiveService, ObjectiveRepository],
+  exports: [ObjectiveService]
 })
 export class ObjectiveModule {}
