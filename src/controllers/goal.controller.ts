@@ -76,12 +76,11 @@ export class GoalController {
   async findAll(
     @Param('userId') userId: string,
     @Ip() ip: string,
-  ): Promise<OrganizationReadDto[]> {
+  ): Promise<{orgainizationWithGoal: OrganizationReadDto[], orgainizationWithoutGoal: OrganizationReadDto[]}> {
     const user = await this.userService.findOne(userId, ['account']);
     const orgainizationWithGoal = await this.organizationService.findAllWithGoalsForAccount(user.account);
     const orgainizationWithoutGoal = await this.organizationService.findAllWithoutGoalsForAccount(user.account);
-    const organizations = orgainizationWithGoal.concat(orgainizationWithoutGoal);
-    return organizations;
+    return {orgainizationWithGoal: orgainizationWithGoal, orgainizationWithoutGoal: orgainizationWithoutGoal};
   }
 
   // @Get('new')
