@@ -132,33 +132,33 @@ export class StrategyController {
     description: 'ОК!',
     example: [
       {
-        id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-        organizationName: "soplya firma",
+        id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
+        organizationName: 'soplya firma',
         parentOrganizationId: null,
         reportDay: 6,
-        createdAt: "2024-09-16T14:24:33.841Z",
-        updatedAt: "2024-11-14T11:34:37.670Z",
+        createdAt: '2024-09-16T14:24:33.841Z',
+        updatedAt: '2024-11-14T11:34:37.670Z',
         strategies: [
           {
-            id: "59cfe865-ad11-48d2-bf0b-305d241113ed",
+            id: '59cfe865-ad11-48d2-bf0b-305d241113ed',
             strategyNumber: 104,
             dateActive: null,
-            content: "<p>сопля</p>\n",
-            state: "Черновик",
-            createdAt: "2024-11-18T09:34:25.303Z",
-            updatedAt: "2024-11-18T09:34:25.303Z"
-          }
-        ]
+            content: '<p>сопля</p>\n',
+            state: 'Черновик',
+            createdAt: '2024-11-18T09:34:25.303Z',
+            updatedAt: '2024-11-18T09:34:25.303Z',
+          },
+        ],
       },
       {
-        id: "be720b9e-873b-4d4e-a866-b3c598878863",
-        organizationName: "Ласка и Выдрочка",
+        id: 'be720b9e-873b-4d4e-a866-b3c598878863',
+        organizationName: 'Ласка и Выдрочка',
         parentOrganizationId: null,
         reportDay: 3,
-        createdAt: "2024-10-11T13:21:24.898Z",
-        updatedAt: "2024-11-14T11:37:36.586Z"
-      }
-    ]
+        createdAt: '2024-10-11T13:21:24.898Z',
+        updatedAt: '2024-11-14T11:37:36.586Z',
+      },
+    ],
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -175,9 +175,17 @@ export class StrategyController {
     @Ip() ip: string,
   ): Promise<OrganizationReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
-    const organizationsWithDraft = await this.organizationService.findAllWithDraftStrategyForAccount(user.account);
-    const organizationsWithourDraft = await this.organizationService.findAllWithoutDraftStrategyForAccount(user.account);
-    const organizations = organizationsWithDraft.concat(organizationsWithourDraft);
+    const organizationsWithDraft =
+      await this.organizationService.findAllWithDraftStrategyForAccount(
+        user.account,
+      );
+    const organizationsWithourDraft =
+      await this.organizationService.findAllWithoutDraftStrategyForAccount(
+        user.account,
+      );
+    const organizations = organizationsWithDraft.concat(
+      organizationsWithourDraft,
+    );
     return organizations;
   }
 
@@ -329,14 +337,17 @@ export class StrategyController {
     strategyCreateDto.user = user;
     strategyCreateDto.account = user.account;
     strategyCreateDto.organization = organization;
-    const createdStrategyId = await this.strategyService.create(strategyCreateDto);
-    const createdStrategy = await this.strategyService.findOneById(createdStrategyId);
+    const createdStrategyId =
+      await this.strategyService.create(strategyCreateDto);
+    const createdStrategy =
+      await this.strategyService.findOneById(createdStrategyId);
     const objectiveCreateDto: ObjectiveCreateDto = {
       strategyId: createdStrategyId,
       strategy: createdStrategy,
       account: user.account,
     };
-    const createdObjectiveId = await this.objectiveService.create(objectiveCreateDto);
+    const createdObjectiveId =
+      await this.objectiveService.create(objectiveCreateDto);
     const createdStrategyEventDto: StrategyCreateEventDto = {
       eventType: 'STRATEGY_CREATED',
       id: createdStrategyId,
@@ -366,8 +377,12 @@ export class StrategyController {
     };
     try {
       await Promise.race([
-        this.producerService.sendCreatedStrategyToQueue(createdStrategyEventDto),
-        this.producerService.sendCreatedObjectiveToQueue(createdEventObjectiveDto),
+        this.producerService.sendCreatedStrategyToQueue(
+          createdStrategyEventDto,
+        ),
+        this.producerService.sendCreatedObjectiveToQueue(
+          createdEventObjectiveDto,
+        ),
         new Promise((_, reject) =>
           setTimeout(() => reject(new TimeoutError()), 5000),
         ),

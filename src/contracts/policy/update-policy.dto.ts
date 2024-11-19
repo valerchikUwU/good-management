@@ -9,9 +9,8 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { Account } from 'src/domains/account.entity';
+import { Organization } from 'src/domains/organization.entity';
 import { State, Type } from 'src/domains/policy.entity';
-import { User } from 'src/domains/user.entity';
 
 export class PolicyUpdateDto {
   @ApiProperty({
@@ -69,7 +68,11 @@ export class PolicyUpdateDto {
     example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'],
   })
   @IsOptional()
-  @IsArray({ message: 'Должен быть массив!' })
-  @ArrayNotEmpty({ message: 'Выберите хотя бы одну организацию!' })
-  policyToOrganizations?: string[];
+  @IsUUID()
+  @IsNotEmpty({ message: 'ID организации не может быть пустым!' })
+  organizationId?: string;
+
+
+  @Exclude({ toPlainOnly: true })
+  organization: Organization;
 }

@@ -88,12 +88,12 @@ export class OrganizationController {
     @Param('userId') userId: string,
     @Param('organizationId') organizationId: string,
     @Body() organizationUpdateDto: OrganizationUpdateDto,
-  ): Promise<{id: string}> {
+  ): Promise<{ id: string }> {
     organizationId = await this.organizationService.update(
       organizationId,
       organizationUpdateDto,
     );
-    return {id: organizationId};
+    return { id: organizationId };
   }
 
   @Post('new')

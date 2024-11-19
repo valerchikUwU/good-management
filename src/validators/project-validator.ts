@@ -78,9 +78,7 @@ export function HasProductTaskAndProjectIdsForProgram(
   };
 }
 
-export function HasStrategyForProgram(
-  validationOptions?: ValidationOptions,
-) {
+export function HasStrategyForProgram(validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
       name: 'HasStrategyForProgram',
@@ -97,7 +95,6 @@ export function HasStrategyForProgram(
 
           // Проверка, что в targetCreateDtos есть задача типа "Продукт"
           const hasStrategy = dto.strategyId !== undefined ? true : false;
-          console.log(hasStrategy)
           return hasStrategy;
         },
         defaultMessage(args: ValidationArguments) {

@@ -21,7 +21,7 @@ export class GoalService {
     private readonly goalRepository: GoalRepository,
     @Inject('winston') private readonly logger: Logger,
   ) {}
-  
+
   async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<GoalReadDto[]> {
     try {
       const goals = await this.goalRepository.find({
@@ -77,7 +77,6 @@ export class GoalService {
   async create(goalCreateDto: GoalCreateDto): Promise<string> {
     try {
       // Проверка на наличие обязательных данных
-
 
       const goal = new Goal();
       goal.content = goalCreateDto.content;

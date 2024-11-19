@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Account } from 'src/domains/account.entity';
 import { State, Type } from 'src/domains/policy.entity';
-import { PolicyToOrganization } from 'src/domains/policyToOrganization.entity';
 import { Post } from 'src/domains/post.entity';
 import { User } from 'src/domains/user.entity';
 import { AccountReadDto } from '../account/read-account.dto';
 import { ReadUserDto } from '../user/read-user.dto';
 import { File } from 'src/domains/file.entity';
 import { PolicyToPolicyDirectory } from 'src/domains/policyToPolicyDirectories.entity';
+import { Organization } from 'src/domains/organization.entity';
 
 export class PolicyReadDto {
   @ApiProperty({
@@ -71,8 +71,8 @@ export class PolicyReadDto {
   })
   post: Post;
 
-  @ApiProperty({ description: 'Связанные организации с политикой' })
-  policyToOrganizations: PolicyToOrganization[];
+  @ApiProperty({ description: 'Связанная организация с политикой' })
+  organization: Organization;
 
   @ApiProperty({ description: 'Связанный юзер политики' })
   user: User;

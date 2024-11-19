@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Account } from 'src/domains/account.entity';
 import { Goal } from 'src/domains/goal.entity';
 import { ReportDay } from 'src/domains/organization.entity';
-import { PolicyToOrganization } from 'src/domains/policyToOrganization.entity';
+import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
 import { Strategy } from 'src/domains/strategy.entity';
@@ -46,7 +46,7 @@ export class OrganizationReadDto {
     description: 'Список ID политик, принадлежащих организации',
     isArray: true,
   })
-  policyToOrganizations: PolicyToOrganization[];
+  policies: Policy[];
 
   @ApiProperty({
     description: 'Список ID проектов, принадлежащих организации',

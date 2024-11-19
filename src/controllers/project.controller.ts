@@ -90,14 +90,16 @@ export class ProjectController {
     required: true,
     description: 'Id пользователя',
     example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })  
+  })
   @ApiParam({
     name: 'organizationId',
     required: true,
     description: 'Id организации',
     example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
   })
-  async findAll(@Param('organizationId') organizationId: string): Promise<ProjectReadDto[]> {
+  async findAll(
+    @Param('organizationId') organizationId: string,
+  ): Promise<ProjectReadDto[]> {
     return await this.projectService.findAllForOrganization(organizationId);
   }
 
@@ -671,11 +673,11 @@ export class ProjectController {
   async findOneProgram(
     @Param('userId') userId: string,
     @Param('programId') programId: string,
-  ): Promise<{ program: ProjectReadDto; projects: ProjectReadDto[]}> {
+  ): Promise<{ program: ProjectReadDto; projects: ProjectReadDto[] }> {
     const program = await this.projectService.findOneProgramById(programId);
     const projectsByProgramId =
       await this.projectService.findAllProjectsByProgramId(programId);
-    return { program: program, projects: projectsByProgramId};
+    return { program: program, projects: projectsByProgramId };
   }
 
   @Get(':projectId')
@@ -762,7 +764,9 @@ export class ProjectController {
       this.userService.findOne(userId, ['account']),
       this.projectService.findOneById(projectId),
     ]);
-    const strategies = await this.strategyService.findAllForAccount(user.account);
+    const strategies = await this.strategyService.findAllForAccount(
+      user.account,
+    );
     return { project: project, strategies: strategies };
   }
 }

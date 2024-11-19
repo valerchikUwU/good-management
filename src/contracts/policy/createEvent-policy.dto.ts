@@ -8,5 +8,5 @@ export class PolicyCreateEventDto {
   createdAt: Date;
   userId: string;
   accountId: string;
-  policyToOrganizations: string[]; // Ids организаций, с которыми связать политику. У меня политика и организации M:M.
+  organizationId: string; // Ids организаций, с которыми связать политику. У меня политика и организации M:M.
 }

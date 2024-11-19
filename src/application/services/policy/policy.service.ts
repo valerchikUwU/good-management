@@ -10,7 +10,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Policy, State, Type } from 'src/domains/policy.entity';
 import { PolicyReadDto } from 'src/contracts/policy/read-policy.dto';
 import { PolicyCreateDto } from 'src/contracts/policy/create-policy.dto';
-import { PolicyToOrganizationService } from '../policyToOrganization/policyToOrganization.service';
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { PolicyUpdateDto } from 'src/contracts/policy/update-policy.dto';
 import { Logger } from 'winston';
@@ -21,7 +20,6 @@ export class PolicyService {
   constructor(
     @InjectRepository(Policy)
     private readonly policyRepository: PolicyRepository,
-    private readonly policyToOrganizationService: PolicyToOrganizationService,
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
@@ -42,7 +40,7 @@ export class PolicyService {
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
         post: policy.post,
-        policyToOrganizations: policy.policyToOrganizations,
+        organization: policy.organization,
         user: policy.user,
         account: policy.account,
         files: policy.files,
@@ -81,7 +79,7 @@ export class PolicyService {
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
         post: policy.post,
-        policyToOrganizations: policy.policyToOrganizations,
+        organization: policy.organization,
         user: policy.user,
         account: policy.account,
         files: policy.files,
@@ -118,7 +116,7 @@ export class PolicyService {
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
         post: policy.post,
-        policyToOrganizations: policy.policyToOrganizations,
+        organization: policy.organization,
         user: policy.user,
         account: policy.account,
         files: policy.files,
@@ -140,20 +138,6 @@ export class PolicyService {
 
   async create(policyCreateDto: PolicyCreateDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!policyCreateDto.policyName) {
-        throw new BadRequestException(
-          'У политики обязательно наличие названия!',
-        );
-      }
-      if (!policyCreateDto.content) {
-        throw new BadRequestException('Политика не может быть пустой!');
-      }
-      if (!policyCreateDto.policyToOrganizations) {
-        throw new BadRequestException(
-          'Выберите хотя бы одну организацию для политики!',
-        );
-      }
 
       const policy = new Policy();
       policy.policyName = policyCreateDto.policyName;
@@ -162,15 +146,13 @@ export class PolicyService {
       policy.content = policyCreateDto.content;
       policy.user = policyCreateDto.user;
       policy.account = policyCreateDto.account;
+      policy.organization = policyCreateDto.organization;
       if (policyCreateDto.state === State.ACTIVE)
         policy.dateActive = new Date();
-      const createdPolicy = await this.policyRepository.save(policy);
-      await this.policyToOrganizationService.createSeveral(
-        createdPolicy,
-        policyCreateDto.policyToOrganizations,
-      );
+      const createdPolicy = await this.policyRepository.insert(policy);
 
-      return createdPolicy.id;
+
+      return createdPolicy.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
@@ -224,12 +206,8 @@ export class PolicyService {
       if (updatePolicyDto.state === State.ACTIVE)
         policy.dateActive = new Date();
 
-      if (updatePolicyDto.policyToOrganizations) {
-        await this.policyToOrganizationService.remove(policy);
-        await this.policyToOrganizationService.createSeveral(
-          policy,
-          updatePolicyDto.policyToOrganizations,
-        );
+      if (updatePolicyDto.organization) {
+        policy.organization = updatePolicyDto.organization;
       }
       await this.policyRepository.update(policy.id, {
         policyName: policy.policyName,
@@ -237,6 +215,7 @@ export class PolicyService {
         type: policy.type,
         content: policy.content,
         dateActive: policy.dateActive,
+        organization: policy.organization
       });
       return policy.id;
     } catch (err) {

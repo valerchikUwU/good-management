@@ -18,6 +18,6 @@ import { QueueModule } from './queue.module';
   ],
   controllers: [ObjectiveController],
   providers: [ObjectiveService, ObjectiveRepository],
-  exports: [ObjectiveService]
+  exports: [ObjectiveService],
 })
 export class ObjectiveModule {}
