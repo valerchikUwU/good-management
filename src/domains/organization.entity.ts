@@ -12,10 +12,10 @@ import {
 import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Post } from './post.entity';
-import { PolicyToOrganization } from './policyToOrganization.entity';
 import { Goal } from './goal.entity';
 import { Strategy } from './strategy.entity';
 import { Project } from './project.entity';
+import { Policy } from './policy.entity';
 
 export enum ReportDay {
   MONDAY = 1,
@@ -62,10 +62,10 @@ export class Organization {
   posts: Post[];
 
   @OneToMany(
-    () => PolicyToOrganization,
-    (policyToOrganization) => policyToOrganization.organization,
+    () => Policy,
+    (policy) => policy.organization,
   )
-  policyToOrganizations: PolicyToOrganization[];
+  policies: Policy[];
 
   @OneToMany(() => Project, (project) => project.organization)
   projects: Project[];

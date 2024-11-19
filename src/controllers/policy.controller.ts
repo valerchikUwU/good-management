@@ -266,9 +266,9 @@ export class PolicyController {
       content:
         policyUpdateDto.content !== undefined ? policyUpdateDto.content : null,
       updatedAt: new Date(),
-      policyToOrganizations:
-        policyUpdateDto.policyToOrganizations !== undefined
-          ? policyUpdateDto.policyToOrganizations
+      organizationId:
+        policyUpdateDto.organizationId !== undefined
+          ? policyUpdateDto.organizationId
           : null,
       accountId: user.account.id,
     };
@@ -434,7 +434,7 @@ export class PolicyController {
       createdAt: new Date(),
       userId: user.id,
       accountId: user.account.id,
-      policyToOrganizations: policyCreateDto.policyToOrganizations,
+      organizationId: policyCreateDto.organizationId,
     };
     try {
       await Promise.race([

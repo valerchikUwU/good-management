@@ -76,10 +76,9 @@ export class ProjectCreateDto {
     description: 'Id стратегии',
     required: false,
     example: 'd5eaa436-f93f-4743-854a-6f10a5d290a1',
-  })  
+  })
   @HasStrategyForProgram({
-    message:
-      'Для программы обязательно нужно выбрать стратегию!',
+    message: 'Для программы обязательно нужно выбрать стратегию!',
   })
   strategyId?: string;
 

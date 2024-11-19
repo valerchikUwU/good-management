@@ -22,7 +22,7 @@ export class PolicyToPolicyDirectory {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @ManyToOne(() => Policy, (policy) => policy.policyToOrganizations)
+  @ManyToOne(() => Policy, (policy) => policy.policyToPolicyDirectories)
   @Index() // Добавляем индекс для поля policy
   policy: Policy;
 

@@ -46,7 +46,7 @@ export class StatisticController {
     private readonly postService: PostService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Все статистики' })

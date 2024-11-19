@@ -53,4 +53,3 @@ export class Statistic {
   })
   account: Account;
 }
-

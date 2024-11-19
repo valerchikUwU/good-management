@@ -50,35 +50,35 @@ export class GoalController {
     example: {
       organizationsWithGoal: [
         {
-          id: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-          organizationName: "soplya firma",
+          id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
+          organizationName: 'soplya firma',
           parentOrganizationId: null,
           reportDay: 6,
-          createdAt: "2024-09-16T14:24:33.841Z",
-          updatedAt: "2024-11-14T11:34:37.670Z",
+          createdAt: '2024-09-16T14:24:33.841Z',
+          updatedAt: '2024-11-14T11:34:37.670Z',
           goal: {
-            id: "7468bad1-a4b4-4600-8ac8-098f3e865b11",
+            id: '7468bad1-a4b4-4600-8ac8-098f3e865b11',
             content: [
-              "<p>221</p>\n",
-              "<p>2</p>\n<p>/* height: calc(100vh - 315px); */</p>\n<p>/* Высота редактора */</p>\n<p>color: #000;</p>\n<p>/* Цвет текста */</p>\n<p>}</p>\n<p>.demo-toolbar {</p>\n<p>border: 1px solid #ccc;</p>\n<p>margin-bottom: 10px;</p>\n<p>}</p>\n<p>.rdw-list-dropdown {</p>\n<p>width: 50px;</p>\n<p>z-index: 0;</p>\n<p>}</p>\n<p>/* height: calc(100vh - 315px); */</p>\n<p>/* Высота редактора */</p>\n<p>color: #000;</p>\n<p>/* Цвет текста */</p>\n<p>}</p>\n<p>.demo-toolbar {</p>\n<p>border: 1px solid #ccc;</p>\n<p>margin-bottom: 10px;</p>\n<p>}</p>\n<p>.rdw-list-dropdown {</p>\n<p>width: 50px;</p>\n<p>z-index: 0;</p>\n<p>}</p>\n"
+              '<p>221</p>\n',
+              '<p>2</p>\n<p>/* height: calc(100vh - 315px); */</p>\n<p>/* Высота редактора */</p>\n<p>color: #000;</p>\n<p>/* Цвет текста */</p>\n<p>}</p>\n<p>.demo-toolbar {</p>\n<p>border: 1px solid #ccc;</p>\n<p>margin-bottom: 10px;</p>\n<p>}</p>\n<p>.rdw-list-dropdown {</p>\n<p>width: 50px;</p>\n<p>z-index: 0;</p>\n<p>}</p>\n<p>/* height: calc(100vh - 315px); */</p>\n<p>/* Высота редактора */</p>\n<p>color: #000;</p>\n<p>/* Цвет текста */</p>\n<p>}</p>\n<p>.demo-toolbar {</p>\n<p>border: 1px solid #ccc;</p>\n<p>margin-bottom: 10px;</p>\n<p>}</p>\n<p>.rdw-list-dropdown {</p>\n<p>width: 50px;</p>\n<p>z-index: 0;</p>\n<p>}</p>\n',
             ],
-            createdAt: "2024-10-24T13:50:51.206Z",
-            updatedAt: "2024-11-14T13:55:08.135Z"
-          }
-        }
+            createdAt: '2024-10-24T13:50:51.206Z',
+            updatedAt: '2024-11-14T13:55:08.135Z',
+          },
+        },
       ],
       organizationsWithoutGoal: [
         {
-          id: "b1294a99-ec8d-4e62-8345-45da2d89b6b9",
-          organizationName: "Светлоярский и Ко",
+          id: 'b1294a99-ec8d-4e62-8345-45da2d89b6b9',
+          organizationName: 'Светлоярский и Ко',
           parentOrganizationId: null,
           reportDay: 3,
-          createdAt: "2024-10-11T13:22:01.835Z",
-          updatedAt: "2024-11-14T09:14:12.465Z",
-          goal: null
-        }
-      ]
-    }
+          createdAt: '2024-10-11T13:22:01.835Z',
+          updatedAt: '2024-11-14T09:14:12.465Z',
+          goal: null,
+        },
+      ],
+    },
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -93,11 +93,21 @@ export class GoalController {
   async findAll(
     @Param('userId') userId: string,
     @Ip() ip: string,
-  ): Promise<{organizationsWithGoal: OrganizationReadDto[], organizationsWithoutGoal: OrganizationReadDto[]}> {
+  ): Promise<{
+    organizationsWithGoal: OrganizationReadDto[];
+    organizationsWithoutGoal: OrganizationReadDto[];
+  }> {
     const user = await this.userService.findOne(userId, ['account']);
-    const organizationsWithGoal = await this.organizationService.findAllWithGoalsForAccount(user.account);
-    const organizationsWithoutGoal = await this.organizationService.findAllWithoutGoalsForAccount(user.account);
-    return {organizationsWithGoal: organizationsWithGoal, organizationsWithoutGoal: organizationsWithoutGoal};
+    const organizationsWithGoal =
+      await this.organizationService.findAllWithGoalsForAccount(user.account);
+    const organizationsWithoutGoal =
+      await this.organizationService.findAllWithoutGoalsForAccount(
+        user.account,
+      );
+    return {
+      organizationsWithGoal: organizationsWithGoal,
+      organizationsWithoutGoal: organizationsWithoutGoal,
+    };
   }
 
   // @Get('new')
@@ -309,7 +319,7 @@ export class GoalController {
     @Param('userId') userId: string,
     @Body() goalCreateDto: GoalCreateDto,
     @Ip() ip: string,
-  ): Promise<{id: string}> {
+  ): Promise<{ id: string }> {
     const [user, organization] = await Promise.all([
       this.userService.findOne(userId, ['account']),
       this.organizationService.findOneById(goalCreateDto.organizationId),
@@ -346,6 +356,6 @@ export class GoalController {
     this.logger.info(
       `${yellow('OK!')} - ${red(ip)} - goalCreateDto: ${JSON.stringify(goalCreateDto)} - Создана новая цель!`,
     );
-    return {id: createdGoalId};
+    return { id: createdGoalId };
   }
 }

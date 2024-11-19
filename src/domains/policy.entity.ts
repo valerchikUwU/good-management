@@ -11,11 +11,11 @@ import {
   Generated,
 } from 'typeorm';
 import { User } from './user.entity';
-import { PolicyToOrganization } from './policyToOrganization.entity';
 import { Post } from './post.entity';
 import { Account } from './account.entity';
 import { File } from './file.entity';
 import { PolicyToPolicyDirectory } from './policyToPolicyDirectories.entity';
+import { Organization } from './organization.entity';
 // import { PolicyDirectory } from './policyDirectory.entity';
 
 export enum State {
@@ -71,11 +71,6 @@ export class Policy {
   @OneToOne(() => Post, (post) => post.policy)
   post: Post;
 
-  @OneToMany(
-    () => PolicyToOrganization,
-    (policyToOrganization) => policyToOrganization.policy,
-  )
-  policyToOrganizations: PolicyToOrganization[];
 
   @OneToMany(
     () => PolicyToPolicyDirectory,
@@ -88,6 +83,13 @@ export class Policy {
 
   @ManyToOne(() => User, (user) => user.policies, { nullable: false })
   user: User;
+
+
+  @ManyToOne(
+    () => Organization,
+    (organization) => organization.policies,
+  )
+  organization: Organization;
 
   @ManyToOne(() => Account, (account) => account.policies, { nullable: false })
   account: Account;

@@ -56,10 +56,14 @@ export class UsersService {
     }));
   }
 
-  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<ReadUserDto[]> {
+  async findAllForAccount(
+    account: AccountReadDto,
+    relations?: string[],
+  ): Promise<ReadUserDto[]> {
     try {
       const users = await this.usersRepository.find({
-        where: { account: { id: account.id } }, relations: relations !== undefined ? relations : []
+        where: { account: { id: account.id } },
+        relations: relations !== undefined ? relations : [],
       });
       return users.map((user) => ({
         id: user.id,
@@ -97,10 +101,14 @@ export class UsersService {
     }
   }
 
-  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ReadUserDto[]> {
+  async findAllForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<ReadUserDto[]> {
     try {
       const users = await this.usersRepository.find({
-        where: { organization: { id: organizationId } }, relations: relations !== undefined ? relations : []
+        where: { organization: { id: organizationId } },
+        relations: relations !== undefined ? relations : [],
       });
       return users.map((user) => ({
         id: user.id,

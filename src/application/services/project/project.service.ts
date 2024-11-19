@@ -22,12 +22,15 @@ export class ProjectService {
     @InjectRepository(Project)
     private readonly projectRepository: ProjectRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
-  async findAllForOrganization(organizationId: string): Promise<ProjectReadDto[]> {
+  async findAllForOrganization(
+    organizationId: string,
+  ): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
-        where: { organization: { id: organizationId } }, relations: ['targets']
+        where: { organization: { id: organizationId } },
+        relations: ['targets'],
       });
 
       return projects.map((project) => ({
@@ -291,17 +294,23 @@ export class ProjectService {
       project.strategy = projectCreateDto.strategy;
       const projectCreatedId = await this.projectRepository.insert(project);
       if (projectCreateDto.type === Type.PROGRAM) {
-        const projectsForProgram = await this.projectRepository.createQueryBuilder('project')
+        const projectsForProgram = await this.projectRepository
+          .createQueryBuilder('project')
           .leftJoinAndSelect('project.targets', 'targets')
           .where('project.programId = :programId', { programId: project.id })
           .andWhere('targets.type = :type', { type: TypeTarget.PRODUCT })
           .andWhere('targets.deadline > CURRENT_TIMESTAMP')
           .getMany();
-        const projectIdsForProgram = projectsForProgram.map((project) => project.id)
+        const projectIdsForProgram = projectsForProgram.map(
+          (project) => project.id,
+        );
         projectCreateDto.projectIds.concat(projectIdsForProgram);
         await this.projectRepository.update(
           { id: In(projectCreateDto.projectIds) },
-          { programId: projectCreatedId.identifiers[0].id, strategy: projectCreateDto.strategy }
+          {
+            programId: projectCreatedId.identifiers[0].id,
+            strategy: projectCreateDto.strategy,
+          },
         );
       }
       return projectCreatedId.identifiers[0].id;
@@ -321,7 +330,8 @@ export class ProjectService {
   ): Promise<string> {
     try {
       const project = await this.projectRepository.findOne({
-        where: { id: _id }, relations: ['strategy']
+        where: { id: _id },
+        relations: ['strategy'],
       });
       if (!project) {
         throw new NotFoundException(`Проект с ID ${_id} не найден`);
@@ -362,21 +372,46 @@ export class ProjectService {
             return `EXISTS (${subQuery})`;
           })
           .getMany();
-          let activeProjectsWithCurrentProgramIds = projectsWithCurrentProgram
-          .filter(project => project.targets.some(target => new Date(target.deadline) > new Date() && target.targetState === State.ACTIVE && target.type === TypeTarget.PRODUCT))
-          .map(project => project.id);
+        let activeProjectsWithCurrentProgramIds = projectsWithCurrentProgram
+          .filter((project) =>
+            project.targets.some(
+              (target) =>
+                new Date(target.deadline) > new Date() &&
+                target.targetState === State.ACTIVE &&
+                target.type === TypeTarget.PRODUCT,
+            ),
+          )
+          .map((project) => project.id);
 
-          let expiredProjectsWithCurrentProgramIds = projectsWithCurrentProgram
-          .filter(project => project.targets.some(target => new Date(target.deadline) < new Date() && target.targetState === State.ACTIVE && target.type === TypeTarget.PRODUCT))
-          .map(project => project.id);
+        let expiredProjectsWithCurrentProgramIds = projectsWithCurrentProgram
+          .filter((project) =>
+            project.targets.some(
+              (target) =>
+                new Date(target.deadline) < new Date() &&
+                target.targetState === State.ACTIVE &&
+                target.type === TypeTarget.PRODUCT,
+            ),
+          )
+          .map((project) => project.id);
 
-        if (activeProjectsWithCurrentProgramIds === undefined) activeProjectsWithCurrentProgramIds = [];
-        if (expiredProjectsWithCurrentProgramIds === undefined) expiredProjectsWithCurrentProgramIds = [];
+        if (activeProjectsWithCurrentProgramIds === undefined)
+          activeProjectsWithCurrentProgramIds = [];
+        if (expiredProjectsWithCurrentProgramIds === undefined)
+          expiredProjectsWithCurrentProgramIds = [];
 
-
-        const projectIdsToAdd = updateProjectDto.projectIds.filter(id => !activeProjectsWithCurrentProgramIds.includes(id) && !expiredProjectsWithCurrentProgramIds.includes(id))
-        const projectIdsToUpdate = updateProjectDto.projectIds.filter(id => activeProjectsWithCurrentProgramIds.includes(id) && !expiredProjectsWithCurrentProgramIds.includes(id))
-        const projectIdsToDelete = activeProjectsWithCurrentProgramIds.filter(id => !updateProjectDto.projectIds.includes(id))
+        const projectIdsToAdd = updateProjectDto.projectIds.filter(
+          (id) =>
+            !activeProjectsWithCurrentProgramIds.includes(id) &&
+            !expiredProjectsWithCurrentProgramIds.includes(id),
+        );
+        const projectIdsToUpdate = updateProjectDto.projectIds.filter(
+          (id) =>
+            activeProjectsWithCurrentProgramIds.includes(id) &&
+            !expiredProjectsWithCurrentProgramIds.includes(id),
+        );
+        const projectIdsToDelete = activeProjectsWithCurrentProgramIds.filter(
+          (id) => !updateProjectDto.projectIds.includes(id),
+        );
 
         if (projectIdsToAdd.length > 0) {
           await this.projectRepository.update(
@@ -396,8 +431,6 @@ export class ProjectService {
             { programId: null, strategy: null },
           );
         }
-
-
       }
       return project.id;
     } catch (err) {
