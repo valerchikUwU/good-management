@@ -369,7 +369,7 @@ export class PolicyController {
     organizations: OrganizationReadDto[];
   }> {
     const policy = await this.policyService.findOneById(policyId, [
-      'policyToOrganizations.organization',
+      'organization',
       'files',
     ]);
     const user = await this.userService.findOne(userId, ['account']);

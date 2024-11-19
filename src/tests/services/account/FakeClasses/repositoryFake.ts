@@ -10,5 +10,6 @@ export class RepositoryFake {
   }
   public async remove(): Promise<void> {}
   public async findOne(): Promise<void> {}
-  public async findAll(): Promise<void> {}
+  public async find(): Promise<void> {}
+  public async update(): Promise<void> {}
 }
