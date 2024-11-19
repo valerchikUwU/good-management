@@ -243,7 +243,15 @@ export class PolicyController {
     @Body() policyUpdateDto: PolicyUpdateDto,
     @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId, ['account']);
+    const [user, organization] = await Promise.all([
+      await this.userService.findOne(userId, ['account']),
+      policyUpdateDto.organizationId !== undefined
+      ? this.organizationService.findOneById(policyUpdateDto.organizationId)
+      : Promise.resolve(null) // возвращаем "пустое" значение, если условие не выполняется
+    ])
+    if(organization !== null){
+      policyUpdateDto.organization = organization
+    }
     const updatedPolicyId = await this.policyService.update(
       policyId,
       policyUpdateDto,
@@ -413,7 +421,11 @@ export class PolicyController {
     @Body() policyCreateDto: PolicyCreateDto,
     @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId, ['account']);
+    const [user, organization] = await Promise.all([
+      await this.userService.findOne(userId, ['account']),
+      await this.organizationService.findOneById(policyCreateDto.organizationId)
+    ])
+    policyCreateDto.organization = organization;
     policyCreateDto.user = user;
     policyCreateDto.account = user.account;
     const createdPolicyId = await this.policyService.create(policyCreateDto);

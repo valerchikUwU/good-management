@@ -206,7 +206,7 @@ export class PolicyService {
       if (updatePolicyDto.state === State.ACTIVE)
         policy.dateActive = new Date();
 
-      if (updatePolicyDto.organization) {
+      if (updatePolicyDto.organization !== null) {
         policy.organization = updatePolicyDto.organization;
       }
       await this.policyRepository.update(policy.id, {
