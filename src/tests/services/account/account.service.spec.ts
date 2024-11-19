@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { RepositoryFake } from './FakeClasses/account-repositoryFake';
+import { RepositoryFake } from './FakeClasses/repositoryFake';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { faker } from '@faker-js/faker';
 import { AccountCreateDto } from '../../../contracts/account/create-account.dto';
@@ -9,8 +9,7 @@ import { AccountRepository } from '../../../application/services/account/reposit
 import { AccountService } from '../../../application/services/account/account.service';
 import { WinstonModule } from 'nest-winston';
 import { winstonConfig } from 'src/utils/winston-logger';
-import { User } from 'src/domains/user.entity';
-import { Organization, ReportDay } from 'src/domains/organization.entity';
+import { ReportDay } from 'src/domains/organization.entity';
 
 describe('AccountService', () => {
   let accountService: AccountService;
@@ -168,7 +167,7 @@ describe('AccountService', () => {
             goal: null,
             users: null,
             posts: null,
-            policyToOrganizations: null,
+            policies: null,
             projects: null,
             strategies: null,
             account: null,

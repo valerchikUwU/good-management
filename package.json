@@ -115,9 +115,16 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "clover"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
+    "resetMocks": true,
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   }
