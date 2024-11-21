@@ -48,6 +48,32 @@ export class PolicyDirectoryService {
     }
   }
 
+  async findOneById(id: string, relations?: string[]): Promise<PolicyDirectoryReadDto> {
+    try {
+      const policyDirectory = await this.policyDirectoryRepository.findOne({
+        where: {id: id},
+        relations: relations !== undefined ? relations : [],
+      });
+      if (!policyDirectory) throw new NotFoundException(`Папка с ID: ${id} не найдена`);
+
+      const policyDirectoryReadDto: PolicyDirectoryReadDto = {
+        id: policyDirectory.id,
+        directoryName: policyDirectory.directoryName,
+        policyToPolicyDirectories: policyDirectory.policyToPolicyDirectories,
+      }
+      return policyDirectoryReadDto;
+    } catch (err) {
+      this.logger.error(err);
+      
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+      throw new InternalServerErrorException(
+        'Ошибка при получении папки с политиками!',
+      );
+    }
+  }
+
   async create(
     policyDirectoryCreateDto: PolicyDirectoryCreateDto,
   ): Promise<PolicyDirectory> {

@@ -302,7 +302,10 @@ describe('GoalService', () => {
       expect(goalRepositoryFindOneSpy).toHaveBeenCalledWith({
         where: { id: goalId }
       });
-      expect(goalRepositoryUpdateSpy).toHaveBeenCalled();
+      expect(goalRepositoryUpdateSpy).toHaveBeenCalledWith(expect.objectContaining({
+        id: goalId,
+        content: updateGoalDto.content
+      }));
     });
   });
 });

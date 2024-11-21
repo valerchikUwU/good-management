@@ -150,7 +150,7 @@ export class PostService {
   async findOneById(
     id: string,
     relations?: string[],
-  ): Promise<PostReadDto | null> {
+  ): Promise<PostReadDto> {
     try {
       const post = await this.postRepository.findOne({
         where: { id: id },
