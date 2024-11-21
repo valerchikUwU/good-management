@@ -5,7 +5,7 @@ import { GoalService } from 'src/application/services/goal/goal.service';
 import { GoalRepository } from 'src/application/services/goal/repository/goal.repository';
 import { Goal } from 'src/domains/goal.entity';
 import { winstonConfig } from 'src/utils/winston-logger';
-import { RepositoryFake } from '../account/FakeClasses/repositoryFake';
+import { RepositoryFake } from '../FakeClasses/repositoryFake';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { faker } from '@faker-js/faker/.';
 import { GoalCreateDto } from 'src/contracts/goal/create-goal.dto';
@@ -33,8 +33,6 @@ describe('GoalService', () => {
   });
 
   describe('creating a goal', () => {
-
-
 
     it('calls the repository with correct paramaters', async () => {
       const content = faker.helpers.multiple(() => faker.animal.cat(), {
@@ -239,22 +237,30 @@ describe('GoalService', () => {
 
   describe('updating a goal', () => {
     it('throws an error when a goal doesnt exist', async () => {
-      const goalId = faker.string.uuid();
 
-      expect.assertions(2);
+      const goalId = faker.string.uuid()
+      const updateGoalDto: GoalUpdateDto = {
+        _id: goalId,
+        content: faker.helpers.multiple(() => faker.animal.cat(), {
+          count: 3,
+        }),
+      }
+
+      const goalRepositoryFindOneSpy = jest
+        .spyOn(goalRepository, 'findOne')
+        .mockResolvedValue(null);
+
+      expect.assertions(3);
 
       try {
-        const updateGoalDto: GoalUpdateDto = {
-          _id: faker.string.uuid(),
-          content: faker.helpers.multiple(() => faker.animal.cat(), {
-            count: 3,
-          }),
-        }
         await goalService.update(goalId, updateGoalDto);
       } catch (e) {
         expect(e).toBeInstanceOf(NotFoundException);
         expect(e.message).toBe(`Цель с ID ${goalId} не найдена`);
       }
+      expect(goalRepositoryFindOneSpy).toHaveBeenCalledWith({
+        where: { id: goalId }
+      });
     });
 
     it('returns the updated goalId', async () => {
@@ -279,9 +285,6 @@ describe('GoalService', () => {
         account: {} as any
       };
 
-      console.log(updateGoalDto)
-      console.log(existingGoal)
-
       const goalRepositoryFindOneSpy = jest
         .spyOn(goalRepository, 'findOne')
         .mockResolvedValue(existingGoal as Goal);
@@ -295,7 +298,6 @@ describe('GoalService', () => {
         });
 
       const result = await goalService.update(goalId, updateGoalDto);
-      console.log(result)
       expect(result).toMatch(existingGoal.id);
       expect(goalRepositoryFindOneSpy).toHaveBeenCalledWith({
         where: { id: goalId }

@@ -31,6 +31,7 @@ export class PostService {
       id: post.id,
       postName: post.postName,
       divisionName: post.divisionName,
+      divisionNumber: post.divisionNumber,
       parentId: post.parentId,
       product: post.product,
       purpose: post.purpose,
@@ -56,6 +57,7 @@ export class PostService {
         id: post.id,
         postName: post.postName,
         divisionName: post.divisionName,
+        divisionNumber: post.divisionNumber,
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
@@ -90,6 +92,7 @@ export class PostService {
         id: post.id,
         postName: post.postName,
         divisionName: post.divisionName,
+        divisionNumber: post.divisionNumber,
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
@@ -123,6 +126,7 @@ export class PostService {
         id: post.id,
         postName: post.postName,
         divisionName: post.divisionName,
+        divisionNumber: post.divisionNumber,
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
@@ -158,6 +162,7 @@ export class PostService {
         id: post.id,
         postName: post.postName,
         divisionName: post.divisionName,
+        divisionNumber: post.divisionNumber,
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
@@ -171,6 +176,44 @@ export class PostService {
       };
 
       return postReadDto;
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при получении поста');
+    }
+  }
+
+  async findMaxDivisionNumber(): Promise<number> {
+    try {
+      const postWithMaxDivisionNumber = await this.postRepository
+      .createQueryBuilder('post')
+      .orderBy('post.divisionNumber', 'DESC')
+      .getOne();
+
+      if (!postWithMaxDivisionNumber) return 1;
+      const postReadDto: PostReadDto = {
+        id: postWithMaxDivisionNumber.id,
+        postName: postWithMaxDivisionNumber.postName,
+        divisionName: postWithMaxDivisionNumber.divisionName,
+        divisionNumber: postWithMaxDivisionNumber.divisionNumber,
+        parentId: postWithMaxDivisionNumber.parentId,
+        product: postWithMaxDivisionNumber.product,
+        purpose: postWithMaxDivisionNumber.purpose,
+        createdAt: postWithMaxDivisionNumber.createdAt,
+        updatedAt: postWithMaxDivisionNumber.updatedAt,
+        user: postWithMaxDivisionNumber.user,
+        policy: postWithMaxDivisionNumber.policy,
+        statistics: postWithMaxDivisionNumber.statistics,
+        organization: postWithMaxDivisionNumber.organization,
+        account: postWithMaxDivisionNumber.account,
+      };
+
+      return postReadDto.divisionNumber;
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений

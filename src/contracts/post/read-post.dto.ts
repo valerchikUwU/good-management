@@ -8,6 +8,7 @@ export class PostReadDto {
   id: string;
   postName: string;
   divisionName: string;
+  divisionNumber: number;
   parentId: string;
   product: string;
   purpose: string;

@@ -4,7 +4,7 @@ import { WinstonModule } from 'nest-winston';
 import { ProjectService } from 'src/application/services/project/project.service';
 import { ProjectRepository } from 'src/application/services/project/repository/project.repository';
 import { winstonConfig } from 'src/utils/winston-logger';
-import { RepositoryFake } from '../account/FakeClasses/repositoryFake';
+import { RepositoryFake } from '../FakeClasses/repositoryFake';
 import { Project, Type } from 'src/domains/project.entity';
 import {
   Target,

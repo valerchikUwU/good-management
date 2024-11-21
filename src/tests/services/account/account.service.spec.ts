@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { RepositoryFake } from './FakeClasses/repositoryFake';
+import { RepositoryFake } from '../FakeClasses/repositoryFake';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { faker } from '@faker-js/faker';
 import { AccountCreateDto } from '../../../contracts/account/create-account.dto';

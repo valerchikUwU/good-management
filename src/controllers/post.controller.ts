@@ -50,7 +50,7 @@ export class PostController {
     private readonly producerService: ProducerService,
     private readonly groupService: GroupService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Все посты' })
@@ -146,24 +146,39 @@ export class PostController {
     @Ip() ip: string,
   ): Promise<{ id: string }> {
     const user = await this.userService.findOne(userId, ['account']);
-    if (postUpdateDto.responsibleUserId) {
-      const responsibleUser = await this.userService.findOne(
-        postUpdateDto.responsibleUserId,
-      );
-      postUpdateDto.user = responsibleUser;
-    }
-    if (postUpdateDto.organizationId) {
-      const organization = await this.organizationService.findOneById(
-        postUpdateDto.organizationId,
-      );
-      postUpdateDto.organization = organization;
-    }
+
+    const promises: Promise<void>[] = [];
+
+    // Условно добавляем запросы в массив промисов
     if (postUpdateDto.policyId) {
-      const policy = await this.policyService.findOneById(
-        postUpdateDto.policyId,
+      promises.push(
+        this.policyService.findOneById(postUpdateDto.policyId).then(policy => {
+          postUpdateDto.policy = policy;
+        }),
       );
-      postUpdateDto.policy = policy;
     }
+    
+    if (postUpdateDto.responsibleUserId) {
+      promises.push(
+        this.userService.findOne(postUpdateDto.responsibleUserId).then(user => {
+          postUpdateDto.user = user;
+        }),
+      );
+    }
+    
+    if (postUpdateDto.organizationId) {
+      promises.push(
+        this.organizationService.findOneById(postUpdateDto.organizationId).then(
+          organization => {
+            postUpdateDto.organization = organization;
+          },
+        ),
+      );
+    }
+    
+    // Выполняем все запросы параллельно
+    await Promise.all(promises);
+
     const updatedPostId = await this.postService.update(postId, postUpdateDto);
     const updatedEventPostDto: PostUpdateEventDto = {
       eventType: 'POST_UPDATED',
@@ -223,31 +238,77 @@ export class PostController {
     example: {
       workers: [
         {
-          id: '3b809c42-2824-46c1-9686-dd666403402a',
-          firstName: 'Maxik',
-          lastName: 'Koval',
-          telegramId: 453120600,
+          id: "a76caf62-bc78-44e9-ba64-6e8e4c5b3248",
+          firstName: "Илюха",
+          lastName: "Белописькин",
+          middleName: null,
+          telegramId: 0,
           telephoneNumber: null,
           avatar_url: null,
           vk_id: null,
-          createdAt: '2024-09-16T14:03:31.000Z',
-          updatedAt: '2024-09-16T14:03:31.000Z',
+          createdAt: "2024-10-03T12:53:00.698Z",
+          updatedAt: "2024-10-09T09:36:58.656Z"
         },
       ],
       policies: [
         {
-          id: 'f6e3ac1f-afd9-42c1-a9f3-d189961c325c',
-          policyName: 'Пипка',
-          policyNumber: 2,
-          state: 'Черновик',
-          type: 'Директива',
-          dateActive: null,
-          content: 'попа',
-          createdAt: '2024-09-18T15:06:52.222Z',
-          updatedAt: '2024-09-18T15:06:52.222Z',
-        },
+          id: "b86e3c85-c2ce-4918-be74-850e5ae3e2c2",
+          policyName: "Политика",
+          policyNumber: 112,
+          state: "Активный",
+          type: "Директива",
+          dateActive: "2024-11-20T11:35:38.352Z",
+          content: "HTML контент (любая строка пройдет)",
+          createdAt: "2024-11-20T09:33:48.863Z",
+          updatedAt: "2024-11-20T12:34:57.928Z",
+          post: null
+        }
       ],
-    },
+      postsWithoutParentId: [
+        {
+          id: "fcf0d021-25f3-47f5-89dd-11d01be2e97d",
+          postName: "SDfxcg",
+          divisionName: "sdf",
+          divisionNumber: 1,
+          parentId: null,
+          product: "df",
+          purpose: "fg",
+          createdAt: "2024-10-04T09:40:38.891Z",
+          updatedAt: "2024-10-04T09:40:38.891Z",
+          user: {
+            id: "702dc852-4806-47b7-8b03-1214ef428efd",
+            firstName: "Валерий",
+            lastName: "Лысенко",
+            middleName: null,
+            telegramId: 803348257,
+            telephoneNumber: "+79787512027",
+            avatar_url: null,
+            vk_id: null,
+            createdAt: "2024-09-30T14:10:48.302Z",
+            updatedAt: "2024-10-09T09:27:30.811Z"
+          },
+          organization: {
+            id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+            organizationName: "OOO BOBRIK",
+            parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+            reportDay: 2,
+            createdAt: "2024-09-16T15:09:48.995Z",
+            updatedAt: "2024-11-14T12:45:56.249Z"
+          }
+        }
+      ],
+      organizations: [
+        {
+          id: "b1294a99-ec8d-4e62-8345-45da2d89b6b9",
+          organizationName: "Светлоярский и Ко",
+          parentOrganizationId: null,
+          reportDay: 3,
+          createdAt: "2024-10-11T13:22:01.835Z",
+          updatedAt: "2024-11-14T09:14:12.465Z"
+        }
+      ],
+      maxDivisionNumber: 29
+    }
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -267,23 +328,23 @@ export class PostController {
     policies: PolicyReadDto[];
     postsWithoutParentId: PostReadDto[];
     organizations: OrganizationReadDto[];
+    maxDivisionNumber: number;
   }> {
     const user = await this.userService.findOne(userId, ['account']);
-    const policies = await this.policyService.findAllActiveWithoutPost(
-      user.account,
-    );
-    const workers = await this.userService.findAllForAccount(user.account);
-    const postsWithoutParentId = await this.postService.findAllWithoutParentId(
-      user.account,
-    );
-    const organizations = await this.organizationService.findAllForAccount(
-      user.account,
-    );
+    const [policies, workers, postsWithoutParentId, organizations, maxDivisionNumber] = await Promise.all([
+      await this.policyService.findAllActiveWithoutPost(user.account),
+      await this.userService.findAllForAccount(user.account),
+      await this.postService.findAllWithoutParentId(user.account),
+      await this.organizationService.findAllForAccount(user.account),
+      await this.postService.findMaxDivisionNumber()
+    ])
+
     return {
       workers: workers,
       policies: policies,
       postsWithoutParentId: postsWithoutParentId,
       organizations: organizations,
+      maxDivisionNumber: maxDivisionNumber
     };
   }
 
@@ -393,25 +454,20 @@ export class PostController {
     policiesWithoutPost: PolicyReadDto[];
   }> {
     const user = await this.userService.findOne(userId, ['account']);
-    const post = await this.postService.findOneById(postId, [
-      'policy',
-      'user',
-      'organization',
-    ]);
+    const post = await this.postService.findOneById(postId, ['policy', 'user', 'organization']);
     const parentPost =
       post.parentId !== null
         ? await this.postService.findOneById(post.parentId, [
-            'policy',
-            'user',
-            'organization',
-          ])
+          'policy',
+          'user',
+          'organization',
+        ])
         : null;
-    const workers = await this.userService.findAllForAccount(user.account);
-    const organizations = await this.organizationService.findAllForAccount(
-      user.account,
-    );
-    const policiesWithoutPost =
-      await this.policyService.findAllActiveWithoutPost(user.account);
+    const [workers, organizations, policiesWithoutPost] = await Promise.all([
+      await this.userService.findAllForAccount(user.account),
+      await this.organizationService.findAllForAccount(user.account),
+      await this.policyService.findAllActiveWithoutPost(user.account)
+    ])
     this.logger.info(
       `${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`,
     );
@@ -463,22 +519,37 @@ export class PostController {
     @Query('addPolicyId') addPolicyId?: string,
   ): Promise<{ id: string }> {
     const user = await this.userService.findOne(userId, ['account']);
+    const promises: Promise<void>[] = [];
+
+    // Условно добавляем запросы в массив промисов
     if (addPolicyId !== 'null') {
-      const policy = await this.policyService.findOneById(addPolicyId);
-      postCreateDto.policy = policy;
+      promises.push(
+        this.policyService.findOneById(addPolicyId).then(policy => {
+          postCreateDto.policy = policy;
+        }),
+      );
     }
+    
     if (postCreateDto.responsibleUserId) {
-      const responsibleUser = await this.userService.findOne(
-        postCreateDto.responsibleUserId,
+      promises.push(
+        this.userService.findOne(postCreateDto.responsibleUserId).then(user => {
+          postCreateDto.user = user;
+        }),
       );
-      postCreateDto.user = responsibleUser;
     }
+    
     if (postCreateDto.organizationId) {
-      const organization = await this.organizationService.findOneById(
-        postCreateDto.organizationId,
+      promises.push(
+        this.organizationService.findOneById(postCreateDto.organizationId).then(
+          organization => {
+            postCreateDto.organization = organization;
+          },
+        ),
       );
-      postCreateDto.organization = organization;
     }
+    
+    // Выполняем все запросы параллельно
+    await Promise.all(promises);
 
     postCreateDto.account = user.account;
     const createdPostId = await this.postService.create(postCreateDto);
