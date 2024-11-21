@@ -12,10 +12,12 @@ import { ObjectiveCreateDto } from 'src/contracts/objective/create-objective.dto
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { ObjectiveUpdateDto } from 'src/contracts/objective/update-objective.dto';
 import { Logger } from 'winston';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ObjectiveService {
   constructor(
+    @InjectRepository(Objective)
     private readonly objectiveRepository: ObjectiveRepository,
     @Inject('winston') private readonly logger: Logger,
   ) {}

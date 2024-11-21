@@ -10,6 +10,7 @@ import {
   JoinColumn,
   OneToOne,
   Index,
+  Generated,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
@@ -25,8 +26,12 @@ export class Post {
   @Column({ nullable: false })
   postName: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false, default: 'Подразделения' })
   divisionName: string;
+
+  @Column()
+  @Generated('increment')
+  divisionNumber: number;
 
   @Column({ type: 'uuid', nullable: true })
   parentId: string;
