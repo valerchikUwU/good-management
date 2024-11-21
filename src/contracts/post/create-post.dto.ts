@@ -74,11 +74,10 @@ export class PostCreateDto {
 
   @ApiProperty({
     description: 'ID организации, с которой связать пост',
-    required: false,
+    required: true,
     example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
   })
-  @IsOptional()
   @IsUUID()
-  @IsNotEmpty()
-  organizationId?: string;
+  @IsNotEmpty({message: 'Выберите организацию для поста!'})
+  organizationId: string;
 }

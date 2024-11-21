@@ -102,12 +102,8 @@ export class PolicyController {
   }> {
     const user = await this.userService.findOne(userId, ['account']);
     const policies = await this.policyService.findAllForAccount(user.account);
-    const directives = policies.filter(
-      (policy) => policy.type === Type.DIRECTIVE,
-    );
-    const instructions = policies.filter(
-      (policy) => policy.type === Type.INSTRUCTION,
-    );
+    const directives = policies.filter((policy) => policy.type === Type.DIRECTIVE);
+    const instructions = policies.filter((policy) => policy.type === Type.INSTRUCTION);
     return {
       policies: policies,
       directives: directives,

@@ -332,7 +332,7 @@ export class PostController {
   }> {
     const user = await this.userService.findOne(userId, ['account']);
     const [policies, workers, postsWithoutParentId, organizations, maxDivisionNumber] = await Promise.all([
-      await this.policyService.findAllActive(user.account),
+      await this.policyService.findAllActiveForAccount(user.account),
       await this.userService.findAllForAccount(user.account),
       await this.postService.findAllForAccount(user.account),
       await this.organizationService.findAllForAccount(user.account),
@@ -466,7 +466,7 @@ export class PostController {
     const [workers, organizations, policiesActive] = await Promise.all([
       await this.userService.findAllForAccount(user.account),
       await this.organizationService.findAllForAccount(user.account),
-      await this.policyService.findAllActive(user.account),
+      await this.policyService.findAllActiveForAccount(user.account),
     ])
     this.logger.info(
       `${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`,

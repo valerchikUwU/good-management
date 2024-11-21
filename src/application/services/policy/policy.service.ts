@@ -55,7 +55,7 @@ export class PolicyService {
     }
   }
 
-  async findAllActive(
+  async findAllActiveForAccount(
     account: AccountReadDto,
   ): Promise<PolicyReadDto[]> {
     try {
