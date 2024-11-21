@@ -94,8 +94,7 @@ export class PostUpdateDto {
   })
   @IsOptional()
   @IsUUID()
-  @IsNotEmpty({ message: 'ID политики не может быть пустым!' })
-  policyId?: string;
+  policyId?: string | null;
 
   @Exclude({ toPlainOnly: true })
   user: User;

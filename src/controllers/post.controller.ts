@@ -150,7 +150,7 @@ export class PostController {
     const promises: Promise<void>[] = [];
 
     // Условно добавляем запросы в массив промисов
-    if (postUpdateDto.policyId) {
+    if (postUpdateDto.policyId !== null) {
       promises.push(
         this.policyService.findOneById(postUpdateDto.policyId).then(policy => {
           postUpdateDto.policy = policy;

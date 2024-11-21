@@ -22,7 +22,7 @@ export class PostService {
     @InjectRepository(Post)
     private readonly postRepository: PostRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAll(): Promise<PostReadDto[]> {
     const posts = await this.postRepository.find();
@@ -191,9 +191,9 @@ export class PostService {
   async findMaxDivisionNumber(): Promise<number> {
     try {
       const postWithMaxDivisionNumber = await this.postRepository
-      .createQueryBuilder('post')
-      .orderBy('post.divisionNumber', 'DESC')
-      .getOne();
+        .createQueryBuilder('post')
+        .orderBy('post.divisionNumber', 'DESC')
+        .getOne();
 
       if (!postWithMaxDivisionNumber) return 1;
       const postReadDto: PostReadDto = {
@@ -295,7 +295,11 @@ export class PostService {
       if (updatePostDto.user) post.user = updatePostDto.user;
       if (updatePostDto.organization)
         post.organization = updatePostDto.organization;
-      if (updatePostDto.policy) post.policy = updatePostDto.policy;
+      if (updatePostDto.policy !== null) {
+        post.policy = updatePostDto.policy;
+      } else {
+        post.policy = null;
+      }
       await this.postRepository.update(post.id, {
         postName: post.postName,
         divisionName: post.divisionName,
