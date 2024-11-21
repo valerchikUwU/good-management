@@ -432,14 +432,12 @@ describe('ObjectiveService', () => {
         where: { id: objectiveId }
       });
       expect(objectiveRepositoryUpdateSpy).toHaveBeenCalledWith(
+        objectiveId,
         expect.objectContaining({
-          id: updateObjectiveDto._id,
-          {
-            situation: updateObjectiveDto.situation,
-            content: updateObjectiveDto.content,
-            rootCause: updateObjectiveDto.rootCause,
-            strategy: strategy
-          }
+          situation: updateObjectiveDto.situation,
+          content: updateObjectiveDto.content,
+          rootCause: updateObjectiveDto.rootCause,
+          strategy: strategy
         })
       );
     });
