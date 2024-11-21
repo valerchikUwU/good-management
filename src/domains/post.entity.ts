@@ -26,7 +26,7 @@ export class Post {
   @Column({ nullable: false })
   postName: string;
 
-  @Column({ nullable: false, default: 'Подразделения' })
+  @Column({ nullable: false, default: 'Подразделение' })
   divisionName: string;
 
   @Column()

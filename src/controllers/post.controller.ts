@@ -157,7 +157,7 @@ export class PostController {
         }),
       );
     }
-    
+
     if (postUpdateDto.responsibleUserId) {
       promises.push(
         this.userService.findOne(postUpdateDto.responsibleUserId).then(user => {
@@ -165,7 +165,7 @@ export class PostController {
         }),
       );
     }
-    
+
     if (postUpdateDto.organizationId) {
       promises.push(
         this.organizationService.findOneById(postUpdateDto.organizationId).then(
@@ -175,7 +175,7 @@ export class PostController {
         ),
       );
     }
-    
+
     // Выполняем все запросы параллельно
     await Promise.all(promises);
 
@@ -264,7 +264,7 @@ export class PostController {
           post: null
         }
       ],
-      postsWithoutParentId: [
+      posts: [
         {
           id: "fcf0d021-25f3-47f5-89dd-11d01be2e97d",
           postName: "SDfxcg",
@@ -274,27 +274,7 @@ export class PostController {
           product: "df",
           purpose: "fg",
           createdAt: "2024-10-04T09:40:38.891Z",
-          updatedAt: "2024-10-04T09:40:38.891Z",
-          user: {
-            id: "702dc852-4806-47b7-8b03-1214ef428efd",
-            firstName: "Валерий",
-            lastName: "Лысенко",
-            middleName: null,
-            telegramId: 803348257,
-            telephoneNumber: "+79787512027",
-            avatar_url: null,
-            vk_id: null,
-            createdAt: "2024-09-30T14:10:48.302Z",
-            updatedAt: "2024-10-09T09:27:30.811Z"
-          },
-          organization: {
-            id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
-            organizationName: "OOO BOBRIK",
-            parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
-            reportDay: 2,
-            createdAt: "2024-09-16T15:09:48.995Z",
-            updatedAt: "2024-11-14T12:45:56.249Z"
-          }
+          updatedAt: "2024-10-04T09:40:38.891Z"
         }
       ],
       organizations: [
@@ -326,12 +306,12 @@ export class PostController {
   ): Promise<{
     workers: ReadUserDto[];
     policies: PolicyReadDto[];
-    postsWithoutParentId: PostReadDto[];
+    posts: PostReadDto[];
     organizations: OrganizationReadDto[];
     maxDivisionNumber: number;
   }> {
     const user = await this.userService.findOne(userId, ['account']);
-    const [policies, workers, postsWithoutParentId, organizations, maxDivisionNumber] = await Promise.all([
+    const [policies, workers, posts, organizations, maxDivisionNumber] = await Promise.all([
       await this.policyService.findAllActiveForAccount(user.account),
       await this.userService.findAllForAccount(user.account),
       await this.postService.findAllForAccount(user.account),
@@ -342,7 +322,7 @@ export class PostController {
     return {
       workers: workers,
       policies: policies,
-      postsWithoutParentId: postsWithoutParentId,
+      posts: posts,
       organizations: organizations,
       maxDivisionNumber: maxDivisionNumber
     };
@@ -363,42 +343,29 @@ export class PostController {
         purpose: 'Предназначение поста',
         createdAt: '2024-09-20T15:09:14.997Z',
         updatedAt: '2024-09-20T15:09:14.997Z',
-      },
-      parentPost: {
-        id: '87af2eb9-a17d-4e78-b847-9d512cb9a0c9',
-        postName: 'Дуболом',
-        divisionName: 'Отдел дубней',
-        parentId: null,
-        product: 'Шмат',
-        purpose: 'Дуболомить',
-        createdAt: '2024-09-26T15:24:09.066Z',
-        updatedAt: '2024-09-26T15:24:09.066Z',
         user: {
-          id: '3b809c42-2824-46c1-9686-dd666403402a',
-          firstName: 'Maxik',
-          lastName: 'Koval',
-          telegramId: 453120600,
-          telephoneNumber: null,
+          id: "702dc852-4806-47b7-8b03-1214ef428efd",
+          firstName: "Валерий",
+          lastName: "Лысенко",
+          middleName: null,
+          telegramId: 803348257,
+          telephoneNumber: "+79787512027",
           avatar_url: null,
           vk_id: null,
-          createdAt: '2024-09-16T14:03:31.000Z',
-          updatedAt: '2024-09-16T14:03:31.000Z',
+          createdAt: "2024-09-30T14:10:48.302Z",
+          updatedAt: "2024-10-09T09:27:30.811Z"
         },
         policy: null,
+        organization: {
+          id: "1f1cca9a-2633-489c-8f16-cddd411ff2d0",
+          organizationName: "OOO BOBRIK",
+          parentOrganizationId: "865a8a3f-8197-41ee-b4cf-ba432d7fd51f",
+          reportDay: 2,
+          createdAt: "2024-09-16T15:09:48.995Z",
+          updatedAt: "2024-11-14T12:45:56.249Z"
+        }
       },
-      workers: [
-        {
-          id: '3b809c42-2824-46c1-9686-dd666403402a',
-          firstName: 'Maxik',
-          lastName: 'Koval',
-          telegramId: 453120600,
-          telephoneNumber: null,
-          avatar_url: null,
-          vk_id: null,
-          createdAt: '2024-09-16T14:03:31.000Z',
-          updatedAt: '2024-09-16T14:03:31.000Z',
-        },
-      ],
+
       posts: [
         {
           id: '2420fabb-3e37-445f-87e6-652bfd5a050c',
@@ -419,14 +386,56 @@ export class PostController {
             vk_id: null,
             createdAt: '2024-09-16T14:03:31.000Z',
             updatedAt: '2024-09-16T14:03:31.000Z',
-          },
-          organization: {
-            id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-            organizationName: 'soplya firma',
-            parentOrganizationId: null,
-            createdAt: '2024-09-16T14:24:33.841Z',
-            updatedAt: '2024-09-16T14:24:33.841Z',
-          },
+          }
+        },
+      ],
+
+      parentPost: {
+        id: "b576af55-5cda-4656-88ca-a10be96ff36a",
+        postName: "Подразделение №37",
+        divisionName: "Подразделения",
+        divisionNumber: 37,
+        parentId: null,
+        product: "Подразделение №37",
+        purpose: "Подразделение №37",
+        createdAt: "2024-11-21T13:53:12.942Z",
+        updatedAt: "2024-11-21T13:53:12.942Z",
+        user: null
+      },
+      workers: [
+        {
+          id: '3b809c42-2824-46c1-9686-dd666403402a',
+          firstName: 'Maxik',
+          lastName: 'Koval',
+          telegramId: 453120600,
+          telephoneNumber: null,
+          avatar_url: null,
+          vk_id: null,
+          createdAt: '2024-09-16T14:03:31.000Z',
+          updatedAt: '2024-09-16T14:03:31.000Z',
+        },
+      ],
+      organizations: [
+        {
+          id: "b1294a99-ec8d-4e62-8345-45da2d89b6b9",
+          organizationName: "Светлоярский и Ко",
+          parentOrganizationId: null,
+          reportDay: 3,
+          createdAt: "2024-10-11T13:22:01.835Z",
+          updatedAt: "2024-11-14T09:14:12.465Z"
+        },
+      ],
+      policiesActive: [
+        {
+          id: "b86e3c85-c2ce-4918-be74-850e5ae3e2c2",
+          policyName: "Политика",
+          policyNumber: 112,
+          state: "Активный",
+          type: "Директива",
+          dateActive: "2024-11-20T11:35:38.352Z",
+          content: "HTML контент (любая строка пройдет)",
+          createdAt: "2024-11-20T09:33:48.863Z",
+          updatedAt: "2024-11-20T12:34:57.928Z"
         },
       ],
     },
@@ -448,31 +457,28 @@ export class PostController {
     @Ip() ip: string,
   ): Promise<{
     currentPost: PostReadDto;
+    posts: PostReadDto[];
     parentPost: PostReadDto;
     workers: ReadUserDto[];
     organizations: OrganizationReadDto[];
     policiesActive: PolicyReadDto[];
   }> {
     const user = await this.userService.findOne(userId, ['account']);
-    const post = await this.postService.findOneById(postId, ['policy', 'user', 'organization']);
-    const parentPost =
-      post.parentId !== null
-        ? await this.postService.findOneById(post.parentId, [
-          'policy',
-          'user',
-          'organization',
-        ])
-        : null;
-    const [workers, organizations, policiesActive] = await Promise.all([
+    const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization']);
+    const [posts, workers, organizations, policiesActive] = await Promise.all([
+      await this.postService.findAllForAccount(user.account, ['user']),
       await this.userService.findAllForAccount(user.account),
       await this.organizationService.findAllForAccount(user.account),
       await this.policyService.findAllActiveForAccount(user.account),
     ])
+    const parentPost = posts.find((post) => post.id === currentPost.parentId)
+    console.log(parentPost)
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`,
+      `${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(currentPost)} - Получить пост по ID!`,
     );
     return {
-      currentPost: post,
+      currentPost: currentPost,
+      posts: posts,
       parentPost: parentPost,
       workers: workers,
       organizations: organizations,
@@ -529,7 +535,7 @@ export class PostController {
         }),
       );
     }
-    
+
     if (postCreateDto.responsibleUserId) {
       promises.push(
         this.userService.findOne(postCreateDto.responsibleUserId).then(user => {
@@ -537,7 +543,7 @@ export class PostController {
         }),
       );
     }
-    
+
     if (postCreateDto.organizationId) {
       promises.push(
         this.organizationService.findOneById(postCreateDto.organizationId).then(
@@ -547,7 +553,7 @@ export class PostController {
         ),
       );
     }
-    
+
     // Выполняем все запросы параллельно
     await Promise.all(promises);
 
