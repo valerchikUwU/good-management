@@ -169,6 +169,39 @@ describe('ObjectiveService', () => {
                 relations: ['strategy'],
             });
           });
+
+
+          it('returns the found objective by strategyId', async () => {
+            const strategyId = faker.string.uuid();
+      
+            const existingObjective: ObjectiveReadDto = {
+                id: objectiveId,
+                situation: faker.helpers.multiple(() => faker.animal.cat(), {
+                    count: 3,
+                  }),
+                content: faker.helpers.multiple(() => faker.animal.cat(), {
+                    count: 3,
+                  }),
+                rootCause: faker.helpers.multiple(() => faker.animal.cat(), {
+                    count: 3,
+                  }),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                strategy: {} as any,
+                account: {} as any,
+            };
+      
+            const objectiveRepositoryFindOneSpy = jest
+              .spyOn(objectiveRepository, 'findOne')
+              .mockResolvedValue(existingObjective);
+      
+            const result = await objectiveService.findOneById(objectiveId);
+            expect(result).toMatchObject(existingObjective);
+            expect(objectiveRepositoryFindOneSpy).toHaveBeenCalledWith({
+                where: { id: objectiveId },
+                relations: ['strategy'],
+            });
+          });
       
     });
 });

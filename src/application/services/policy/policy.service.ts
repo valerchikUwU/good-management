@@ -39,7 +39,7 @@ export class PolicyService {
         content: policy.content,
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
-        post: policy.post,
+        posts: policy.posts,
         organization: policy.organization,
         user: policy.user,
         account: policy.account,
@@ -55,17 +55,15 @@ export class PolicyService {
     }
   }
 
-  async findAllActiveWithoutPost(
+  async findAllActive(
     account: AccountReadDto,
   ): Promise<PolicyReadDto[]> {
     try {
       const policies = await this.policyRepository.find({
         where: {
           account: { id: account.id },
-          state: State.ACTIVE,
-          post: { id: IsNull() },
-        },
-        relations: ['post'],
+          state: State.ACTIVE
+        }
       });
 
       return policies.map((policy) => ({
@@ -78,7 +76,7 @@ export class PolicyService {
         content: policy.content,
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
-        post: policy.post,
+        posts: policy.posts,
         organization: policy.organization,
         user: policy.user,
         account: policy.account,
@@ -115,7 +113,7 @@ export class PolicyService {
         content: policy.content,
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
-        post: policy.post,
+        posts: policy.posts,
         organization: policy.organization,
         user: policy.user,
         account: policy.account,

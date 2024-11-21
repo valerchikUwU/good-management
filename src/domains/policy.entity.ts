@@ -68,8 +68,8 @@ export class Policy {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @OneToOne(() => Post, (post) => post.policy)
-  post: Post;
+  @OneToMany(() => Post, (post) => post.policy)
+  posts: Post[];
 
 
   @OneToMany(

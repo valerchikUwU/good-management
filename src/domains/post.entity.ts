@@ -52,8 +52,7 @@ export class Post {
   @Index() // Добавляем индекс для поля user
   user: User;
 
-  @OneToOne(() => Policy, (policy) => policy.post, { nullable: true })
-  @JoinColumn()
+  @ManyToOne(() => Policy, (policy) => policy.posts, { nullable: true })
   @Index() // Добавляем индекс для поля policy
   policy: Policy;
 
