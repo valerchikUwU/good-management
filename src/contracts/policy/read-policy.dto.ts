@@ -66,10 +66,10 @@ export class PolicyReadDto {
 
   @ApiProperty({
     description: 'Связанный пост политики',
-    example: 'bb1897ad-1e87-4747-a6bb-749e4bf49bf6',
+    example: ['bb1897ad-1e87-4747-a6bb-749e4bf49bf6'],
     nullable: true,
   })
-  post: Post;
+  posts: Post[];
 
   @ApiProperty({ description: 'Связанная организация с политикой' })
   organization: Organization;
