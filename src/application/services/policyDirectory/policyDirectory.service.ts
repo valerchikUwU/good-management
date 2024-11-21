@@ -64,7 +64,7 @@ export class PolicyDirectoryService {
       return policyDirectoryReadDto;
     } catch (err) {
       this.logger.error(err);
-      
+
       if (err instanceof NotFoundException) {
         throw err; // Пробрасываем исключение дальше
       }

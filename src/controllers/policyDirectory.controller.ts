@@ -39,6 +39,7 @@ export class PolicyDirectoryController {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
+
   @Get()
   @ApiOperation({ summary: 'Все папки' })
   @ApiParam({
@@ -56,7 +57,10 @@ export class PolicyDirectoryController {
     return policyDirectories;
   }
 
-  @Get(':policyDirectory')
+
+  
+  
+  @Get(':policyDirectoryId')
   @ApiOperation({ summary: 'Получить папку по ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -138,6 +142,8 @@ export class PolicyDirectoryController {
     const instructions = policiesActive.filter((policy) => policy.type === Type.INSTRUCTION);
     return {policyDirectory: policyDirectory, instructions: instructions, directives: directives};
   }
+
+
 
   @Post('new')
   @ApiOperation({ summary: 'Создать папку для политик' })
