@@ -451,7 +451,7 @@ export class PostController {
     parentPost: PostReadDto;
     workers: ReadUserDto[];
     organizations: OrganizationReadDto[];
-    policiesWithoutPost: PolicyReadDto[];
+    policiesActive: PolicyReadDto[];
   }> {
     const user = await this.userService.findOne(userId, ['account']);
     const post = await this.postService.findOneById(postId, ['policy', 'user', 'organization']);
@@ -463,10 +463,10 @@ export class PostController {
           'organization',
         ])
         : null;
-    const [workers, organizations, policiesWithoutPost] = await Promise.all([
+    const [workers, organizations, policiesActive] = await Promise.all([
       await this.userService.findAllForAccount(user.account),
       await this.organizationService.findAllForAccount(user.account),
-      await this.policyService.findAllActive(user.account)
+      await this.policyService.findAllActive(user.account),
     ])
     this.logger.info(
       `${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(post)} - Получить пост по ID!`,
@@ -476,7 +476,7 @@ export class PostController {
       parentPost: parentPost,
       workers: workers,
       organizations: organizations,
-      policiesWithoutPost: policiesWithoutPost,
+      policiesActive: policiesActive,
     };
   }
 
