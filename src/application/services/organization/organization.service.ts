@@ -22,10 +22,7 @@ export class OrganizationService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(
-    account: AccountReadDto,
-    relations?: string[],
-  ): Promise<OrganizationReadDto[]> {
+  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<OrganizationReadDto[]> {
     try {
       const organizations = await this.organizationRepository.find({
         where: { account: { id: account.id } },

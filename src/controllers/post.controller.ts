@@ -314,7 +314,7 @@ export class PostController {
     const [policies, workers, posts, organizations, maxDivisionNumber] = await Promise.all([
       await this.policyService.findAllActiveForAccount(user.account),
       await this.userService.findAllForAccount(user.account),
-      await this.postService.findAllForAccount(user.account),
+      await this.postService.findAllForAccount(user.account, ['organization']),
       await this.organizationService.findAllForAccount(user.account),
       await this.postService.findMaxDivisionNumber()
     ])
