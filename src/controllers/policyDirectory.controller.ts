@@ -42,6 +42,59 @@ export class PolicyDirectoryController {
 
   @Get()
   @ApiOperation({ summary: 'Все папки' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: [
+      {
+        id: "678fb7ad-1fdc-4cb1-b37a-63e4c9c7c3bb",
+        directoryName: "iluxa",
+        policyToPolicyDirectories: [
+          {
+            id: "55bb6043-7abf-4a7d-a3b3-257d87554d7f",
+            createdAt: "2024-11-22T10:12:36.237Z",
+            updatedAt: "2024-11-22T10:12:36.237Z",
+            policy: {
+              id: "b86e3c85-c2ce-4918-be74-850e5ae3e2c2",
+              policyName: "Политика",
+              policyNumber: 112,
+              state: "Активный",
+              type: "Директива",
+              dateActive: "2024-11-20T11:35:38.352Z",
+              content: "HTML контент (любая строка пройдет)",
+              createdAt: "2024-11-20T09:33:48.863Z",
+              updatedAt: "2024-11-20T12:34:57.928Z"
+            }
+          },
+          {
+            id: "2538fe4d-8a8a-44ca-8ea8-629ebeba4108",
+            createdAt: "2024-11-22T10:12:36.503Z",
+            updatedAt: "2024-11-22T10:12:36.503Z",
+            policy: {
+              id: "6565c6df-a2eb-4f4f-9e7a-4f7aba3331a5",
+              policyName: "Инструкция 1",
+              policyNumber: 127,
+              state: "Активный",
+              type: "Инструкция",
+              dateActive: "2024-11-21T12:37:44.611Z",
+              content: "<p>Инструкция 1</p>\n",
+              createdAt: "2024-11-21T12:37:44.860Z",
+              updatedAt: "2024-11-21T12:37:44.860Z"
+            }
+          }
+        ]
+      },
+      {
+        id: "db0559ac-b28b-4cd7-a3d8-3f2887547277",
+        directoryName: "Папка №1",
+        policyToPolicyDirectories: []
+      }
+    ]
+  })  
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
   @ApiParam({
     name: 'userId',
     required: true,
