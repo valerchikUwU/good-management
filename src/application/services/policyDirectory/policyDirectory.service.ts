@@ -14,6 +14,7 @@ import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { PolicyDirectoryReadDto } from 'src/contracts/policyDirectory/read-policyDirectory.dto';
 import { PolicyDirectoryCreateDto } from 'src/contracts/policyDirectory/create-policyDirectory.dto';
 import { PolicyDirectoryUpdateDto } from 'src/contracts/policyDirectory/update-policyDirectory.dto';
+import { State } from 'src/domains/policy.entity';
 
 @Injectable()
 export class PolicyDirectoryService {
@@ -24,15 +25,13 @@ export class PolicyDirectoryService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(
-    account: AccountReadDto,
-    relations?: string[],
-  ): Promise<PolicyDirectoryReadDto[]> {
+  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PolicyDirectoryReadDto[]> {
     try {
-      const policyDirectories = await this.policyDirectoryRepository.find({
-        where: { account: { id: account.id } },
-        relations: relations !== undefined ? relations : [],
-      });
+      const policyDirectories = await this.policyDirectoryRepository.createQueryBuilder('policyDirectory')
+      .leftJoinAndSelect('policyDirectory.policyToPolicyDirectories', 'policyToPolicyDirectories')
+      .leftJoinAndSelect('policyToPolicyDirectories.policy', 'policy')
+      .where('policy.state = :state', {state: State.ACTIVE})
+      .getMany()
 
       return policyDirectories.map((policyDirectory) => ({
         id: policyDirectory.id,
@@ -50,10 +49,13 @@ export class PolicyDirectoryService {
 
   async findOneById(id: string, relations?: string[]): Promise<PolicyDirectoryReadDto> {
     try {
-      const policyDirectory = await this.policyDirectoryRepository.findOne({
-        where: {id: id},
-        relations: relations !== undefined ? relations : [],
-      });
+      const policyDirectory = await this.policyDirectoryRepository.createQueryBuilder('policyDirectory')
+      .leftJoinAndSelect('policyDirectory.policyToPolicyDirectories', 'policyToPolicyDirectories')
+      .leftJoinAndSelect('policyToPolicyDirectories.policy', 'policy')
+      .where('policy.state = :state', {state: State.ACTIVE})
+      .getOne()
+      
+
       if (!policyDirectory) throw new NotFoundException(`Папка с ID: ${id} не найдена`);
 
       const policyDirectoryReadDto: PolicyDirectoryReadDto = {
