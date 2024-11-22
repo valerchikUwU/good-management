@@ -27,16 +27,14 @@ export class PolicyDirectoryService {
 
   async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PolicyDirectoryReadDto[]> {
     try {
-      const policyDirectories = await this.policyDirectoryRepository.createQueryBuilder('policyDirectory')
-      .leftJoinAndSelect('policyDirectory.policyToPolicyDirectories', 'policyToPolicyDirectories')
-      .leftJoinAndSelect('policyToPolicyDirectories.policy', 'policy')
-      .where('policy.state = :state', {state: State.ACTIVE})
-      .getMany()
-
+      const policyDirectories = await this.policyDirectoryRepository.find({
+        where: { account: { id: account.id } },
+        relations: relations !== undefined ? relations : [],
+      });
       return policyDirectories.map((policyDirectory) => ({
         id: policyDirectory.id,
         directoryName: policyDirectory.directoryName,
-        policyToPolicyDirectories: policyDirectory.policyToPolicyDirectories,
+        policyToPolicyDirectories: policyDirectory.policyToPolicyDirectories.filter((policyToPolicyDirectory) => policyToPolicyDirectory.policy.state === State.ACTIVE),
       }));
     } catch (err) {
       this.logger.error(err);
@@ -49,11 +47,10 @@ export class PolicyDirectoryService {
 
   async findOneById(id: string, relations?: string[]): Promise<PolicyDirectoryReadDto> {
     try {
-      const policyDirectory = await this.policyDirectoryRepository.createQueryBuilder('policyDirectory')
-      .leftJoinAndSelect('policyDirectory.policyToPolicyDirectories', 'policyToPolicyDirectories')
-      .leftJoinAndSelect('policyToPolicyDirectories.policy', 'policy')
-      .where('policy.state = :state', {state: State.ACTIVE})
-      .getOne()
+      const policyDirectory = await this.policyDirectoryRepository.findOne({
+        where: {id: id },
+        relations: relations !== undefined ? relations : [],
+      });
       
 
       if (!policyDirectory) throw new NotFoundException(`Папка с ID: ${id} не найдена`);
@@ -61,7 +58,7 @@ export class PolicyDirectoryService {
       const policyDirectoryReadDto: PolicyDirectoryReadDto = {
         id: policyDirectory.id,
         directoryName: policyDirectory.directoryName,
-        policyToPolicyDirectories: policyDirectory.policyToPolicyDirectories,
+        policyToPolicyDirectories: policyDirectory.policyToPolicyDirectories.filter((policyToPolicyDirectory) => policyToPolicyDirectory.policy.state === State.ACTIVE),
       }
       return policyDirectoryReadDto;
     } catch (err) {

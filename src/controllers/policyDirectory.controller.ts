@@ -50,14 +50,14 @@ export class PolicyDirectoryController {
   })
   async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<PolicyDirectoryReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
-    const policyDirectories = await this.policyDirectoryService.findAllForAccount(user.account);
+    const policyDirectories = await this.policyDirectoryService.findAllForAccount(user.account, ['policyToPolicyDirectories.policy']);
     return policyDirectories;
   }
 
 
   
   
-  @Get(':policyDirectoryId')
+  @Get(':policyDirectoryId') // для мобилки
   @ApiOperation({ summary: 'Получить папку по ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -132,7 +132,7 @@ export class PolicyDirectoryController {
   async findOne(@Param('userId') userId: string, @Param('policyDirectoryId') policyDirectoryId: string, @Ip() ip: string): Promise<{policyDirectory: PolicyDirectoryReadDto, directives: PolicyReadDto[], instructions: PolicyReadDto[]}> {
     const user = await this.userService.findOne(userId, ['account']);
     const [policyDirectory, policiesActive] = await Promise.all([
-      this.policyDirectoryService.findOneById(policyDirectoryId),
+      this.policyDirectoryService.findOneById(policyDirectoryId, ['policyToPolicyDirectories.policy']),
       this.policyService.findAllActiveForAccount(user.account)
     ]) 
     const directives = policiesActive.filter((policy) => policy.type === Type.DIRECTIVE);
