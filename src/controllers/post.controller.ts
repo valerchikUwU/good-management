@@ -466,7 +466,7 @@ export class PostController {
     const user = await this.userService.findOne(userId, ['account']);
     const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization']);
     const [posts, workers, organizations, policiesActive] = await Promise.all([
-      await this.postService.findAllForAccount(user.account, ['user']),
+      await this.postService.findAllForAccount(user.account, ['user', 'organization']),
       await this.userService.findAllForAccount(user.account),
       await this.organizationService.findAllForAccount(user.account),
       await this.policyService.findAllActiveForAccount(user.account),
