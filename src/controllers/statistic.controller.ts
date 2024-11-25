@@ -267,7 +267,7 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05',
+    example: 'Статистики успешно обновлены.',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
