@@ -23,7 +23,7 @@ export class PolicyDirectoryService {
     private readonly policyDirectoryRepository: PolicyDirectoryRepository,
     private readonly policyToPolicyDirectoryService: PolicyToPolicyDirectoryService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PolicyDirectoryReadDto[]> {
     try {
@@ -48,10 +48,10 @@ export class PolicyDirectoryService {
   async findOneById(id: string, relations?: string[]): Promise<PolicyDirectoryReadDto> {
     try {
       const policyDirectory = await this.policyDirectoryRepository.findOne({
-        where: {id: id },
+        where: { id: id },
         relations: relations !== undefined ? relations : [],
       });
-      
+
 
       if (!policyDirectory) throw new NotFoundException(`Папка с ID: ${id} не найдена`);
 
@@ -77,21 +77,11 @@ export class PolicyDirectoryService {
     policyDirectoryCreateDto: PolicyDirectoryCreateDto,
   ): Promise<PolicyDirectory> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!policyDirectoryCreateDto.directoryName) {
-        throw new BadRequestException('У папки обязательно наличие названия!');
-      }
-      if (!policyDirectoryCreateDto.policyToPolicyDirectories) {
-        throw new BadRequestException(
-          'Выберите хотя бы одну политику для папки!',
-        );
-      }
 
       const policyDirectory = new PolicyDirectory();
       policyDirectory.directoryName = policyDirectoryCreateDto.directoryName;
       policyDirectory.account = policyDirectoryCreateDto.account;
-      const createdPolicyDirectory =
-        await this.policyDirectoryRepository.save(policyDirectory);
+      const createdPolicyDirectory = await this.policyDirectoryRepository.save(policyDirectory);
       await this.policyToPolicyDirectoryService.createSeveral(
         createdPolicyDirectory,
         policyDirectoryCreateDto.policyToPolicyDirectories,
@@ -100,10 +90,7 @@ export class PolicyDirectoryService {
       return createdPolicyDirectory;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
+
       throw new InternalServerErrorException(
         'Ошибка при создании папки с политиками',
       );
@@ -133,7 +120,7 @@ export class PolicyDirectoryService {
         );
       }
 
-      return this.policyDirectoryRepository.save(policyDirectory);
+      return await this.policyDirectoryRepository.save(policyDirectory);
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений

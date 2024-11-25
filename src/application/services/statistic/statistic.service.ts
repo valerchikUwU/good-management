@@ -23,13 +23,11 @@ export class StatisticService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(
-    account: AccountReadDto,
-  ): Promise<StatisticReadDto[]> {
+  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<StatisticReadDto[]> {
     try {
       const statistics = await this.statisticRepository.find({
         where: { account: { id: account.id } },
-        relations: ['statisticDatas', 'post.organization'],
+        relations: relations !== undefined ? relations : [],
       });
 
       return statistics.map((statistic) => ({

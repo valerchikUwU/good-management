@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PolicyToPolicyDirectory } from 'src/domains/policyToPolicyDirectories.entity';
 import { PolicyToPolicyDirectoryService } from '../services/policyToPolicyDirectories/policyToPolicyDirectory.service';
