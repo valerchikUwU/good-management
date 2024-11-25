@@ -473,12 +473,13 @@ export class PostController {
       await this.policyService.findAllActiveForAccount(user.account),
     ])
     const parentPost = posts.find((post) => post.id === currentPost.parentId);
-    const isHasChildPost = posts.some((post) => post.parentId === currentPost.id)
+    const isHasChildPost = posts.some((post) => post.parentId === currentPost.id);
+    const _currentPost = {...currentPost, isHasChildPost};
     this.logger.info(
       `${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(currentPost)} - Получить пост по ID!`,
     );
     return {
-      currentPost: currentPost,
+      currentPost: _currentPost,
       posts: posts,
       parentPost: parentPost,
       workers: workers,
