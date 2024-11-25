@@ -295,7 +295,7 @@ export class PostService {
       if (updatePostDto.user) post.user = updatePostDto.user;
       if (updatePostDto.organization)
         post.organization = updatePostDto.organization;
-      if (updatePostDto.policy !== null) {
+      if (updatePostDto.policyId !== null) {
         post.policy = updatePostDto.policy;
       } else {
         post.policy = null;
