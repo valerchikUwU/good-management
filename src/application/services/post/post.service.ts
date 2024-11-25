@@ -289,10 +289,20 @@ export class PostService {
       if (updatePostDto.postName) post.postName = updatePostDto.postName;
       if (updatePostDto.divisionName)
         post.divisionName = updatePostDto.divisionName;
-      if (updatePostDto.parentId) post.parentId = updatePostDto.parentId;
+      if (updatePostDto.parentId !== null) {
+        post.parentId = updatePostDto.parentId;
+      }
+      else {
+        post.parentId = null;
+      }
       if (updatePostDto.product) post.product = updatePostDto.product;
       if (updatePostDto.purpose) post.purpose = updatePostDto.purpose;
-      if (updatePostDto.user) post.user = updatePostDto.user;
+      if (updatePostDto.responsibleUserId !== null) {
+        post.user = updatePostDto.user
+      }
+      else {
+        post.user = null;
+      }
       if (updatePostDto.organization)
         post.organization = updatePostDto.organization;
       if (updatePostDto.policyId !== null) {

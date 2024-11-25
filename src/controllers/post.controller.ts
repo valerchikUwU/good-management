@@ -158,7 +158,7 @@ export class PostController {
       );
     }
 
-    if (postUpdateDto.responsibleUserId) {
+    if (postUpdateDto.responsibleUserId !== null) {
       promises.push(
         this.userService.findOne(postUpdateDto.responsibleUserId).then(user => {
           postUpdateDto.user = user;
