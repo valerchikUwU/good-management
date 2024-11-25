@@ -462,6 +462,7 @@ export class PostController {
     workers: ReadUserDto[];
     organizations: OrganizationReadDto[];
     policiesActive: PolicyReadDto[];
+    isHasChildPost: boolean;
   }> {
     const user = await this.userService.findOne(userId, ['account']);
     const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization']);
@@ -471,8 +472,8 @@ export class PostController {
       await this.organizationService.findAllForAccount(user.account),
       await this.policyService.findAllActiveForAccount(user.account),
     ])
-    const parentPost = posts.find((post) => post.id === currentPost.parentId)
-    console.log(parentPost)
+    const parentPost = posts.find((post) => post.id === currentPost.parentId);
+    const isHasChildPost = posts.some((post) => post.parentId === currentPost.id)
     this.logger.info(
       `${yellow('OK!')} - ${red(ip)} - CURRENT POST: ${JSON.stringify(currentPost)} - Получить пост по ID!`,
     );
@@ -483,6 +484,7 @@ export class PostController {
       workers: workers,
       organizations: organizations,
       policiesActive: policiesActive,
+      isHasChildPost: isHasChildPost
     };
   }
 
