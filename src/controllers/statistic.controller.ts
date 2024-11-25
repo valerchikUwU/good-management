@@ -49,7 +49,7 @@ export class StatisticController {
     private readonly postService: PostService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Все статистики' })
@@ -97,7 +97,7 @@ export class StatisticController {
   async findAll(@Param('userId') userId: string, @Query('statisticData') statisticData: boolean): Promise<StatisticReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
     let relations: string[]
-    if(statisticData){
+    if (statisticData) {
       relations = ['statisticDatas', 'post.organization']
     }
     return await this.statisticService.findAllForAccount(user.account, relations);
@@ -157,51 +157,51 @@ export class StatisticController {
     const statistic = await this.statisticService.findOneById(updatedStatisticId);
     if (statisticUpdateDto.statisticDataUpdateDtos !== undefined) {
       const updateStatisticDataPromises = statisticUpdateDto.statisticDataUpdateDtos.map(
-          async (statisticDataUpdateDto) => {
-            const updatedStatisticDataId = await this.statisticDataService.update(statisticDataUpdateDto);
-            const statisticDataUpdateEventDto: StatisticDataUpdateEventDto = {
-              id: updatedStatisticDataId,
-              value:
-                statisticDataUpdateDto.value !== undefined
-                  ? statisticDataUpdateDto.value
-                  : null,
-              valueDate:
-                statisticDataUpdateDto.valueDate !== undefined
-                  ? statisticDataUpdateDto.valueDate
-                  : null,
-              isCorrelation:
-                statisticDataUpdateDto.isCorrelation !== undefined
-                  ? statisticDataUpdateDto.isCorrelation
-                  : null,
-              updatedAt: new Date(),
-              statisticId: statistic.id,
-              accountId: user.account.id,
-            };
-            statisticDataUpdateEventDtos.push(statisticDataUpdateEventDto);
-            return updatedStatisticDataId;
-          },
-        );
+        async (statisticDataUpdateDto) => {
+          const updatedStatisticDataId = await this.statisticDataService.update(statisticDataUpdateDto);
+          const statisticDataUpdateEventDto: StatisticDataUpdateEventDto = {
+            id: updatedStatisticDataId,
+            value:
+              statisticDataUpdateDto.value !== undefined
+                ? statisticDataUpdateDto.value
+                : null,
+            valueDate:
+              statisticDataUpdateDto.valueDate !== undefined
+                ? statisticDataUpdateDto.valueDate
+                : null,
+            isCorrelation:
+              statisticDataUpdateDto.isCorrelation !== undefined
+                ? statisticDataUpdateDto.isCorrelation
+                : null,
+            updatedAt: new Date(),
+            statisticId: statistic.id,
+            accountId: user.account.id,
+          };
+          statisticDataUpdateEventDtos.push(statisticDataUpdateEventDto);
+          return updatedStatisticDataId;
+        },
+      );
       await Promise.all(updateStatisticDataPromises);
     }
 
     if (statisticUpdateDto.statisticDataCreateDtos !== undefined) {
       const createStatisticDataPromises = statisticUpdateDto.statisticDataCreateDtos.map(
-          async (statisticDataCreateDto) => {
-            statisticDataCreateDto.statistic = statistic;
-            const createdStatisticDataId = await this.statisticDataService.create(statisticDataCreateDto);
-            const statisticDataCreateEventDto: StatisticDataCreateEventDto = {
-              id: createdStatisticDataId,
-              value: statisticDataCreateDto.value,
-              valueDate: statisticDataCreateDto.valueDate,
-              isCorrelation: statisticDataCreateDto.isCorrelation,
-              createdAt: new Date(),
-              statisticId: statistic.id,
-              accountId: user.account.id,
-            };
-            statisticDataCreateEventDtos.push(statisticDataCreateEventDto);
-            return createdStatisticDataId;
-          },
-        );
+        async (statisticDataCreateDto) => {
+          statisticDataCreateDto.statistic = statistic;
+          const createdStatisticDataId = await this.statisticDataService.create(statisticDataCreateDto);
+          const statisticDataCreateEventDto: StatisticDataCreateEventDto = {
+            id: createdStatisticDataId,
+            value: statisticDataCreateDto.value,
+            valueDate: statisticDataCreateDto.valueDate,
+            isCorrelation: statisticDataCreateDto.isCorrelation,
+            createdAt: new Date(),
+            statisticId: statistic.id,
+            accountId: user.account.id,
+          };
+          statisticDataCreateEventDtos.push(statisticDataCreateEventDto);
+          return createdStatisticDataId;
+        },
+      );
       await Promise.all(createStatisticDataPromises);
     }
 
@@ -257,45 +257,59 @@ export class StatisticController {
     return { id: updatedStatisticId };
   }
 
-  // @Patch(':postId/updateBulk')
-  // @ApiOperation({ summary: 'Обновить статистикам postId' })
-  // @ApiBody({
-  //   description: 'ДТО для обновления статистики',
-  //   type: StatisticUpdateDto,
-  //   required: true,
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'ОК!',
-  //   example: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05',
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.NOT_FOUND,
-  //   description: 'Ресурс не найден!',
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.INTERNAL_SERVER_ERROR,
-  //   description: 'Ошибка сервера!',
-  // })
-  // @ApiParam({
-  //   name: 'userId',
-  //   required: true,
-  //   description: 'Id пользователя',
-  //   example: '3b809c42-2824-46c1-9686-dd666403402a',
-  // })  
-  // @ApiParam({
-  //   name: 'postId',
-  //   required: true,
-  //   description: 'Id поста',
-  // })
-  // async updateBulk(
-  //   @Param('userId') userId: string,
-  //   @Param('postId') postId: string,
-  //   @Body() statisticUpdateBulkDto: StatisticUpdateBulkDto,
-  //   @Ip() ip: string,
-  // ): Promise<void> {
-  //   return await 
-  // }
+  @Patch(':postId/updateBulk')
+  @ApiOperation({ summary: 'Обновить статистикам postId' })
+  @ApiBody({
+    description: 'ДТО для обновления статистики',
+    type: StatisticUpdateBulkDto,
+    required: true,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Ресурс не найден!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({
+    name: 'userId',
+    required: true,
+    description: 'Id пользователя',
+    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  })
+  @ApiParam({
+    name: 'postId',
+    required: true,
+    description: 'Id поста',
+    example: '2420fabb-3e37-445f-87e6-652bfd5a050c',
+  })
+  async updateBulk(
+    @Param('postId') postId: string,
+    @Body() statisticUpdateBulkDto: StatisticUpdateBulkDto,
+    @Ip() ip: string,
+  ): Promise<{ message: string }> {
+    const post = await this.postService.findOneById(postId)
+    const updateStatisticPromises = statisticUpdateBulkDto.ids.map(
+      async (id) => {
+        const statisticUpdateDto: StatisticUpdateDto = {
+          _id: id,
+          postId: postId,
+          post: post
+        };
+        const updatedStatisticId = await this.statisticService.update(statisticUpdateDto._id, statisticUpdateDto);
+
+        return updatedStatisticId;
+      },
+    );
+    await Promise.all(updateStatisticPromises);
+    return { message: 'Статистики успешно обновлены.' };
+  }
 
   @Get('new')
   @ApiOperation({ summary: 'Получить данные для создания новой статистики' })
