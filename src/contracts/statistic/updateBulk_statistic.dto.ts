@@ -2,6 +2,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsNotEmpty,
+  IsUUID,
 } from 'class-validator';
 
 export class StatisticUpdateBulkDto {
