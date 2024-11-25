@@ -78,9 +78,6 @@ export class ObjectiveController {
       user.account,
       ['strategy'],
     );
-    this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - OBJECTIVES: ${JSON.stringify(objectives)} - ВСЕ КРАТКОСРОЧНЫЕ ЦЕЛИ!`,
-    );
     return objectives;
   }
 
