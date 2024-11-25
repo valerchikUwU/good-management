@@ -293,8 +293,8 @@ export class StatisticController {
   //   @Param('postId') postId: string,
   //   @Body() statisticUpdateBulkDto: StatisticUpdateBulkDto,
   //   @Ip() ip: string,
-  // ): Promise<> {
-  //   const 
+  // ): Promise<void> {
+  //   return await 
   // }
 
   @Get('new')
