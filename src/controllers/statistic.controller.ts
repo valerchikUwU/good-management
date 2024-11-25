@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 
 import {
@@ -15,6 +16,7 @@ import {
   ApiHeader,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -35,6 +37,7 @@ import { StatisticCreateEventDto } from 'src/contracts/statistic/createEvent-sta
 import { StatisticDataUpdateEventDto } from 'src/contracts/statisticData/updateEvent-statisticData.dto';
 import { StatisticUpdateEventDto } from 'src/contracts/statistic/updateEvent-statistic.dto';
 import { TimeoutError } from 'rxjs';
+import { StatisticUpdateBulkDto } from 'src/contracts/statistic/updateBulk_statistic.dto';
 
 @ApiTags('Statistic')
 @Controller(':userId/statistics')
@@ -85,9 +88,19 @@ export class StatisticController {
     description: 'Id пользователя',
     example: '3b809c42-2824-46c1-9686-dd666403402a',
   })
-  async findAll(@Param('userId') userId: string): Promise<StatisticReadDto[]> {
+  @ApiQuery({
+    name: 'statisticData',
+    required: true,
+    description: 'Флаг для отправки доп данных',
+    example: true,
+  })
+  async findAll(@Param('userId') userId: string, @Query('statisticData') statisticData: boolean): Promise<StatisticReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
-    return await this.statisticService.findAllForAccount(user.account);
+    let relations: string[]
+    if(statisticData){
+      relations = ['statisticDatas', 'post.organization']
+    }
+    return await this.statisticService.findAllForAccount(user.account, relations);
   }
 
   @Patch(':statisticId/update')
@@ -141,14 +154,11 @@ export class StatisticController {
       statisticId,
       statisticUpdateDto,
     );
-    const statistic =
-      await this.statisticService.findOneById(updatedStatisticId);
+    const statistic = await this.statisticService.findOneById(updatedStatisticId);
     if (statisticUpdateDto.statisticDataUpdateDtos !== undefined) {
-      const updateStatisticDataPromises =
-        statisticUpdateDto.statisticDataUpdateDtos.map(
+      const updateStatisticDataPromises = statisticUpdateDto.statisticDataUpdateDtos.map(
           async (statisticDataUpdateDto) => {
-            const updatedStatisticDataId =
-              await this.statisticDataService.update(statisticDataUpdateDto);
+            const updatedStatisticDataId = await this.statisticDataService.update(statisticDataUpdateDto);
             const statisticDataUpdateEventDto: StatisticDataUpdateEventDto = {
               id: updatedStatisticDataId,
               value:
@@ -175,12 +185,10 @@ export class StatisticController {
     }
 
     if (statisticUpdateDto.statisticDataCreateDtos !== undefined) {
-      const createStatisticDataPromises =
-        statisticUpdateDto.statisticDataCreateDtos.map(
+      const createStatisticDataPromises = statisticUpdateDto.statisticDataCreateDtos.map(
           async (statisticDataCreateDto) => {
             statisticDataCreateDto.statistic = statistic;
-            const createdStatisticDataId =
-              await this.statisticDataService.create(statisticDataCreateDto);
+            const createdStatisticDataId = await this.statisticDataService.create(statisticDataCreateDto);
             const statisticDataCreateEventDto: StatisticDataCreateEventDto = {
               id: createdStatisticDataId,
               value: statisticDataCreateDto.value,
@@ -248,6 +256,46 @@ export class StatisticController {
     );
     return { id: updatedStatisticId };
   }
+
+  // @Patch(':postId/updateBulk')
+  // @ApiOperation({ summary: 'Обновить статистикам postId' })
+  // @ApiBody({
+  //   description: 'ДТО для обновления статистики',
+  //   type: StatisticUpdateDto,
+  //   required: true,
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.OK,
+  //   description: 'ОК!',
+  //   example: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.NOT_FOUND,
+  //   description: 'Ресурс не найден!',
+  // })
+  // @ApiResponse({
+  //   status: HttpStatus.INTERNAL_SERVER_ERROR,
+  //   description: 'Ошибка сервера!',
+  // })
+  // @ApiParam({
+  //   name: 'userId',
+  //   required: true,
+  //   description: 'Id пользователя',
+  //   example: '3b809c42-2824-46c1-9686-dd666403402a',
+  // })  
+  // @ApiParam({
+  //   name: 'postId',
+  //   required: true,
+  //   description: 'Id поста',
+  // })
+  // async updateBulk(
+  //   @Param('userId') userId: string,
+  //   @Param('postId') postId: string,
+  //   @Body() statisticUpdateBulkDto: StatisticUpdateBulkDto,
+  //   @Ip() ip: string,
+  // ): Promise<> {
+  //   const 
+  // }
 
   @Get('new')
   @ApiOperation({ summary: 'Получить данные для создания новой статистики' })
