@@ -44,8 +44,7 @@ export class PostUpdateDto {
   })
   @IsOptional()
   @IsUUID()
-  @IsNotEmpty({ message: 'ID родительского поста не может быть пустым!' })
-  parentId?: string;
+  parentId?: string | null;
 
   @ApiProperty({
     description: 'Продукт поста',
@@ -74,8 +73,7 @@ export class PostUpdateDto {
   })
   @IsOptional()
   @IsUUID()
-  @IsNotEmpty({ message: 'ID ответственного лица не может быть пустым!' })
-  responsibleUserId?: string;
+  responsibleUserId?: string | null;
 
   @ApiProperty({
     description: 'ID организации, с которой связать пост',
