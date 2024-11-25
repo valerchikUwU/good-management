@@ -465,7 +465,7 @@ export class PostController {
     isHasChildPost: boolean;
   }> {
     const user = await this.userService.findOne(userId, ['account']);
-    const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization']);
+    const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization', 'statistics']);
     const [posts, workers, organizations, policiesActive] = await Promise.all([
       await this.postService.findAllForAccount(user.account, ['user', 'organization']),
       await this.userService.findAllForAccount(user.account),
