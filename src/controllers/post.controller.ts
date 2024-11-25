@@ -462,7 +462,6 @@ export class PostController {
     workers: ReadUserDto[];
     organizations: OrganizationReadDto[];
     policiesActive: PolicyReadDto[];
-    isHasChildPost: boolean;
   }> {
     const user = await this.userService.findOne(userId, ['account']);
     const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization', 'statistics']);
@@ -472,6 +471,7 @@ export class PostController {
       await this.organizationService.findAllForAccount(user.account),
       await this.policyService.findAllActiveForAccount(user.account),
     ])
+    const _posts = posts.filter((post) => post.id !== currentPost.id)
     const parentPost = posts.find((post) => post.id === currentPost.parentId);
     const isHasChildPost = posts.some((post) => post.parentId === currentPost.id);
     const _currentPost = {...currentPost, isHasChildPost};
@@ -480,12 +480,11 @@ export class PostController {
     );
     return {
       currentPost: _currentPost,
-      posts: posts,
+      posts: _posts,
       parentPost: parentPost,
       workers: workers,
       organizations: organizations,
-      policiesActive: policiesActive,
-      isHasChildPost: isHasChildPost
+      policiesActive: policiesActive
     };
   }
 
