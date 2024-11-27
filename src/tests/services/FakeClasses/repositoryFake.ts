@@ -12,4 +12,10 @@ export class RepositoryFake {
   public async findOne(): Promise<void> {}
   public async find(): Promise<void> {}
   public async update(): Promise<void> {}
+  public createQueryBuilder(): any {
+    return {
+      orderBy: jest.fn().mockReturnThis(),
+      getOne: jest.fn().mockResolvedValue(undefined), // По умолчанию возвращаем `undefined`
+    };
+  }
 }

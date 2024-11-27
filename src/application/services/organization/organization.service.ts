@@ -8,7 +8,7 @@ import {
 import { OrganizationRepository } from './repository/organization.repository';
 import { OrganizationReadDto } from 'src/contracts/organization/read-organization.dto';
 import { OrganizationCreateDto } from 'src/contracts/organization/create-organization.dto';
-import { Organization } from 'src/domains/organization.entity';
+import { Organization, ReportDay } from 'src/domains/organization.entity';
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { OrganizationUpdateDto } from 'src/contracts/organization/update-organization.dto';
 import { Logger } from 'winston';
@@ -260,9 +260,8 @@ export class OrganizationService {
       if (updateOrganizationDto.organizationName)
         organization.organizationName = updateOrganizationDto.organizationName;
       if (updateOrganizationDto.parentOrganizationId)
-        organization.parentOrganizationId =
-          updateOrganizationDto.parentOrganizationId;
-      if (updateOrganizationDto.reportDay)
+        organization.parentOrganizationId = updateOrganizationDto.parentOrganizationId;
+      if (updateOrganizationDto.reportDay !== undefined)
         organization.reportDay = updateOrganizationDto.reportDay;
       await this.organizationRepository.update(_id, {
         organizationName: organization.organizationName,

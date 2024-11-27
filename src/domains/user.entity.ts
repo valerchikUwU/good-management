@@ -25,6 +25,7 @@ import { Convert } from './convert.entity';
 import { ConvertToUser } from './convertToUser.entity';
 import { Message } from './message.entity';
 import { GroupToUser } from './groupToUser.entity';
+import { HistoryUsersToPost } from './historyUsersToPost.entity';
 
 @Entity()
 export class User {
@@ -90,6 +91,9 @@ export class User {
 
   @OneToMany(() => GroupToUser, (groupToUser) => groupToUser.user)
   groupToUsers: GroupToUser[];
+
+  @OneToMany(() => HistoryUsersToPost, (historyUsersToPost) => historyUsersToPost.user)
+  historiesUsersToPost: HistoryUsersToPost[];
 
   @ManyToOne(() => Organization, (organization) => organization.users, {
     nullable: true,

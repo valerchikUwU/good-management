@@ -24,30 +24,8 @@ export class PostService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async findAll(): Promise<PostReadDto[]> {
-    const posts = await this.postRepository.find();
 
-    return posts.map((post) => ({
-      id: post.id,
-      postName: post.postName,
-      divisionName: post.divisionName,
-      divisionNumber: post.divisionNumber,
-      parentId: post.parentId,
-      product: post.product,
-      purpose: post.purpose,
-      createdAt: post.createdAt,
-      updatedAt: post.updatedAt,
-      user: post.user,
-      policy: post.policy,
-      statistics: post.statistics,
-      organization: post.organization,
-      account: post.account,
-    }));
-  }
-
-  async findAllForOrganization(
-    organization: OrganizationReadDto,
-  ): Promise<PostReadDto[]> {
+  async findAllForOrganization(organization: OrganizationReadDto): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: { organization: { id: organization.id } },
@@ -68,6 +46,7 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
+        historiesUsersToPost: post.historiesUsersToPost
       }));
     } catch (err) {
       this.logger.error(err);
@@ -78,10 +57,7 @@ export class PostService {
     }
   }
 
-  async findAllForAccount(
-    account: AccountReadDto,
-    relations?: string[],
-  ): Promise<PostReadDto[]> {
+  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: { account: { id: account.id } },
@@ -103,6 +79,7 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
+        historiesUsersToPost: post.historiesUsersToPost
       }));
     } catch (err) {
       this.logger.error(err);
@@ -113,9 +90,7 @@ export class PostService {
     }
   }
 
-  async findAllWithoutParentId(
-    account: AccountReadDto,
-  ): Promise<PostReadDto[]> {
+  async findAllWithoutParentId(account: AccountReadDto): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: { account: { id: account.id }, parentId: IsNull() },
@@ -137,6 +112,7 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
+        historiesUsersToPost: post.historiesUsersToPost
       }));
     } catch (err) {
       this.logger.error(err);
@@ -147,10 +123,7 @@ export class PostService {
     }
   }
 
-  async findOneById(
-    id: string,
-    relations?: string[],
-  ): Promise<PostReadDto> {
+  async findOneById(id: string, relations?: string[]): Promise<PostReadDto> {
     try {
       const post = await this.postRepository.findOne({
         where: { id: id },
@@ -173,6 +146,7 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
+        historiesUsersToPost: post.historiesUsersToPost
       };
 
       return postReadDto;
@@ -211,6 +185,7 @@ export class PostService {
         statistics: postWithMaxDivisionNumber.statistics,
         organization: postWithMaxDivisionNumber.organization,
         account: postWithMaxDivisionNumber.account,
+        historiesUsersToPost: postWithMaxDivisionNumber.historiesUsersToPost
       };
 
       return postReadDto.divisionNumber;
@@ -246,16 +221,6 @@ export class PostService {
 
   async create(postCreateDto: PostCreateDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!postCreateDto.postName) {
-        throw new BadRequestException('У поста обязательно наличие названия!');
-      }
-      if (!postCreateDto.product) {
-        throw new BadRequestException('Выберите продукт поста!');
-      }
-      if (!postCreateDto.purpose) {
-        throw new BadRequestException('Выберите предназначение поста!');
-      }
 
       const post = new Post();
       post.postName = postCreateDto.postName;

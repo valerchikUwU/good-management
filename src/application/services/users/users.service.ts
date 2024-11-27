@@ -51,6 +51,7 @@ export class UsersService {
       convertToUsers: user.convertToUsers,
       messages: user.messages,
       groupToUsers: user.groupToUsers,
+      historiesUsersToPost: user.historiesUsersToPost
 
       // Добавьте любые другие поля, которые должны быть включены в ответ
     }));
@@ -90,6 +91,7 @@ export class UsersService {
         convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
+        historiesUsersToPost: user.historiesUsersToPost
 
         // Добавьте любые другие поля, которые должны быть включены в ответ
       }));
@@ -135,6 +137,7 @@ export class UsersService {
         convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
+        historiesUsersToPost: user.historiesUsersToPost
 
         // Добавьте любые другие поля, которые должны быть включены в ответ
       }));
@@ -179,6 +182,7 @@ export class UsersService {
         convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
+        historiesUsersToPost: user.historiesUsersToPost
       };
 
       return readUserDto;
@@ -233,6 +237,7 @@ export class UsersService {
         convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
+        historiesUsersToPost: user.historiesUsersToPost
       };
 
       return readUserDto;
@@ -285,6 +290,7 @@ export class UsersService {
         convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
+        historiesUsersToPost: user.historiesUsersToPost
       };
 
       return readUserDto;
@@ -334,6 +340,7 @@ export class UsersService {
         convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
+        historiesUsersToPost: user.historiesUsersToPost
       };
 
       return readUserDto;
