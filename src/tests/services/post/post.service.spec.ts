@@ -12,6 +12,7 @@ import { Post } from 'src/domains/post.entity';
 import { Account } from 'src/domains/account.entity';
 import { IsNull } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
+import { PostCreateDto } from 'src/contracts/post/create-post.dto';
 
 describe('PostService', () => {
     let postService: PostService;
@@ -487,105 +488,114 @@ describe('PostService', () => {
 
         it('calls the repository with correct paramaters', async () => {
 
-            postName: string;
-            divisionName?: string;
-            parentId?: string;
-          
-            @ApiProperty({ description: 'Продукт поста', example: 'Продукт' })
-            @IsString()
-            @IsNotEmpty({ message: 'Продукт поста не может быть пустым!' })
-            product: string;
-          
-            @ApiProperty({
-              description: 'Назначение поста',
-              example: 'Предназначение поста',
-            })
-            @IsString()
-            @IsNotEmpty({ message: 'Предназначение поста не может быть пустым!' })
-            purpose: string;
-          
-            @Exclude({ toPlainOnly: true }) // nullable
-            user: User;
-          
-            @Exclude({ toPlainOnly: true }) // nullable
-            organization: Organization;
-          
-            @Exclude({ toPlainOnly: true })
-            policy: Policy;
-          
-            @Exclude({ toPlainOnly: true })
-            account: Account;
-          
-            @ApiProperty({
-              description: 'ID ответственного, с которым связать пост',
-              required: false,
-              example: '3b809c42-2824-46c1-9686-dd666403402a',
-            })
-            @IsOptional()
-            @IsUUID()
-            @IsNotEmpty()
-            responsibleUserId?: string;
-          
-            @ApiProperty({
-              description: 'ID организации, с которой связать пост',
-              required: true,
-              example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-            })
-            @IsUUID()
-            @IsNotEmpty({message: 'Выберите организацию для поста!'})
-            organizationId: string;
+            const postName = faker.person.jobTitle(); 
+            const divisionName = faker.commerce.department();
+            const parentId = faker.string.uuid();
+            const product = faker.commerce.product();
+            const purpose = faker.person.jobDescriptor();
+            const responsibleUserId = faker.string.uuid();
+            const organizationId = faker.string.uuid();
 
-          const organization: Organization = {
-            id: organizationId,
-            organizationName: faker.company.name(),
-            parentOrganizationId: null,
-            reportDay: ReportDay.FRIDAY,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            goal: null,
-            users: null,
-            posts: null,
-            policies: null,
-            projects: null,
-            strategies: null,
-            account: null,
-          };
+            const user = {
+                id: responsibleUserId,
+                firstName: faker.person.firstName(),
+                lastName: faker.person.lastName(),
+                middleName: faker.person.middleName(),
+                telegramId: faker.number.int(),
+                telephoneNumber: faker.phone.number(),
+                avatar_url: faker.internet.url(),
+                vk_id: faker.number.int(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                posts: {} as any,
+                refreshSessions: {} as any,
+                goals: {} as any,
+                policies: {} as any,
+                strategies: {} as any,
+                targetHolders: {} as any,
+                projects: {} as any,
+                organization: {} as any,
+                account: {} as any,
+                role: {} as any,
+                convert: {} as any,
+                convertToUsers: {} as any,
+                messages: {} as any,
+                groupToUsers: {} as any,
+                historiesUsersToPost: {} as any,
+            }
+            const organization: Organization = {
+                id: organizationId,
+                organizationName: faker.company.name(),
+                parentOrganizationId: null,
+                reportDay: ReportDay.FRIDAY,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                goal: null,
+                users: null,
+                posts: null,
+                policies: null,
+                projects: null,
+                strategies: null,
+                account: null,
+            };
 
-          const goalCreateDto: GoalCreateDto = {
-            content: content,
+
+          const postCreateDto: PostCreateDto = {
+            postName: postName,
+            divisionName: divisionName,
+            parentId: parentId,
+            product: product,
+            purpose: purpose,
+            responsibleUserId: responsibleUserId,
             organizationId: organizationId,
-            user: null,
-            account: null,
+            user: user,
+            account: {} as any,
             organization: organization,
-          };
+            policy: {} as any
+          }
 
-          const savedGoal: Goal = {
+          const savedPost: Post = {
             id: faker.string.uuid(),
-            content: content,
+            postName: postName,
+            divisionName: divisionName,
+            divisionNumber: faker.number.int(),
+            parentId: parentId,
+            product: product,
+            purpose: purpose,
             createdAt: new Date(),
             updatedAt: new Date(),
-            user: null,
-            account: null,
+            user: user,
+            account: {} as any,
             organization: organization,
+            policy: {} as any,
+            statistics: {} as any,
+            historiesUsersToPost: {} as any
           };
 
-          const goalRepositoryInsertSpy = jest
-            .spyOn(goalRepository, 'insert')
+          const postRepositoryInsertSpy = jest
+            .spyOn(postRepository, 'insert')
             .mockResolvedValue({
-              identifiers: [{ id: savedGoal.id }],
+              identifiers: [{ id: savedPost.id }],
               generatedMaps: [],
               raw: [],
             });
 
-          const result = await goalService.create(goalCreateDto);
+          const result = await postService.create(postCreateDto);
 
-          expect(goalRepositoryInsertSpy).toHaveBeenCalledWith(
+          expect(postRepositoryInsertSpy).toHaveBeenCalledWith(
             expect.objectContaining({
-              content: goalCreateDto.content,
-              organization: goalCreateDto.organization,
+                postName: postName,
+                divisionName: divisionName,
+                parentId: parentId,
+                product: product,
+                purpose: purpose,
+                user: user,
+                account: {} as any,
+                organization: organization,
+                policy: {} as any
             }),
           );
-          expect(result).toEqual(savedGoal.id);
+          expect(result).toEqual(savedPost.id);
         });
       });
 
