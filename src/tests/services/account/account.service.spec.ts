@@ -154,6 +154,7 @@ describe('AccountService', () => {
             organization: null,
             account: null,
             role: null,
+            historiesUsersToPost: null
           },
         ],
         organizations: [

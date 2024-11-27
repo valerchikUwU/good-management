@@ -24,7 +24,7 @@ export enum ReportDay {
   THURSDAY = 4,
   FRIDAY = 5,
   SUNDAY = 6,
-  SATURDAY = 0,
+  SATURDAY = 0
 }
 
 @Entity()

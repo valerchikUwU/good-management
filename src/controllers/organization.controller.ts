@@ -3,6 +3,8 @@ import {
   Controller,
   Get,
   HttpStatus,
+  Inject,
+  Ip,
   Param,
   Patch,
   Post,
@@ -21,6 +23,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { OrganizationUpdateDto } from 'src/contracts/organization/update-organization.dto';
+import { Logger } from 'winston';
+import { red, yellow } from 'colorette';
 
 @ApiTags('Organization')
 @Controller(':userId/organizations')
@@ -28,6 +32,7 @@ export class OrganizationController {
   constructor(
     private readonly organizationService: OrganizationService,
     private readonly userService: UsersService,
+    @Inject('winston') private readonly logger: Logger,
   ) {}
 
   @Get()
@@ -88,12 +93,13 @@ export class OrganizationController {
     @Param('userId') userId: string,
     @Param('organizationId') organizationId: string,
     @Body() organizationUpdateDto: OrganizationUpdateDto,
+    @Ip() ip: string
   ): Promise<{ id: string }> {
-    organizationId = await this.organizationService.update(
-      organizationId,
-      organizationUpdateDto,
+    const updatedOrganizationId = await this.organizationService.update(organizationId, organizationUpdateDto);
+    this.logger.info(
+      `${yellow('OK!')} - ${red(ip)} - UPDATED ORGANIZATION: ${JSON.stringify(organizationUpdateDto)} - Организация успешно обновлена!`,
     );
-    return { id: organizationId };
+    return { id: updatedOrganizationId };
   }
 
   @Post('new')

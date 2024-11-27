@@ -9,6 +9,7 @@ import { PolicyModule } from './policy.module';
 import { OrganizationModule } from './organization.module';
 import { QueueModule } from './queue.module';
 import { GroupModule } from './group.module';
+import { HistoryUsersToPostModule } from './historyUsersToPost.module';
 
 @Module({
   imports: [
@@ -18,9 +19,10 @@ import { GroupModule } from './group.module';
     OrganizationModule,
     forwardRef(() => QueueModule),
     GroupModule,
+    HistoryUsersToPostModule
   ],
   controllers: [PostController],
   providers: [PostService, PostRepository],
-  exports: [PostService],
+  exports: [PostService]
 })
 export class PostModule {}

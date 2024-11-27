@@ -38,6 +38,8 @@ import { PostUpdateEventDto } from 'src/contracts/post/updateEvent-post.dto';
 import { TimeoutError } from 'rxjs';
 import { GroupService } from 'src/application/services/group/group.service';
 import { GroupUpdateDto } from 'src/contracts/group/update-group.dto';
+import { HistoryUsersToPostService } from 'src/application/services/historyUsersToPost/historyUsersToPost.service';
+import { HistoryUsersToPostCreateDto } from 'src/contracts/historyUsersToPost/create-historyUsersToPost.dto';
 
 @ApiTags('Posts')
 @Controller(':userId/posts')
@@ -49,6 +51,7 @@ export class PostController {
     private readonly organizationService: OrganizationService,
     private readonly producerService: ProducerService,
     private readonly groupService: GroupService,
+    private readonly historyUsersToPostService: HistoryUsersToPostService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -180,6 +183,19 @@ export class PostController {
     await Promise.all(promises);
 
     const updatedPostId = await this.postService.update(postId, postUpdateDto);
+    if (postUpdateDto.responsibleUserId) {
+      const updatedPost = await this.postService.findOneById(updatedPostId);
+      const historyUsersToPostCreateDto: HistoryUsersToPostCreateDto = {
+        user: postUpdateDto.user,
+        post: updatedPost
+      }
+      this.historyUsersToPostService.create(historyUsersToPostCreateDto)
+      .catch((error) => {
+        this.logger.error(
+          `Failed to create historyUsersToPost: ${error.message}`,
+        );
+      });;
+    }
     const updatedEventPostDto: PostUpdateEventDto = {
       eventType: 'POST_UPDATED',
       id: updatedPostId,
@@ -561,6 +577,21 @@ export class PostController {
 
     postCreateDto.account = user.account;
     const createdPostId = await this.postService.create(postCreateDto);
+    if (postCreateDto.responsibleUserId) {
+      const createdPost = await this.postService.findOneById(createdPostId);
+      const historyUsersToPostCreateDto: HistoryUsersToPostCreateDto = {
+        user: postCreateDto.user,
+        post: createdPost
+      }
+      this.historyUsersToPostService.create(historyUsersToPostCreateDto)
+      .catch((error) => {
+        this.logger.error(
+          `Failed to create historyUsersToPost: ${error.message}`,
+        );
+      });;
+    }
+
+
 
     // if (postCreateDto.divisionName && postCreateDto.responsibleUserId) {
     //   const groups = await this.groupService.findAllByDivisionName(postCreateDto.divisionName); ЕСЛИ В ОТДЕЛЕ ОТДЕЛ, ТО КАК ЕГО ОБНОВЛЯТЬ

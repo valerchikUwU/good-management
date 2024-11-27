@@ -17,6 +17,7 @@ import { Organization } from './organization.entity';
 import { Policy } from './policy.entity';
 import { Statistic } from './statistic.entity';
 import { Account } from './account.entity';
+import { HistoryUsersToPost } from './historyUsersToPost.entity';
 
 @Entity()
 export class Post {
@@ -56,9 +57,6 @@ export class Post {
   @Index() // Добавляем индекс для поля policy
   policy: Policy;
 
-  @OneToMany(() => Statistic, (statistic) => statistic.post)
-  statistics: Statistic[];
-
   @ManyToOne(() => Organization, (organization) => organization.posts, {
     nullable: true,
   })
@@ -67,4 +65,10 @@ export class Post {
 
   @ManyToOne(() => Account, (account) => account.posts, { nullable: false })
   account: Account;
+
+  @OneToMany(() => Statistic, (statistic) => statistic.post)
+  statistics: Statistic[];
+
+  @OneToMany(() => HistoryUsersToPost, (historyUsersToPost) => historyUsersToPost.post)
+  historiesUsersToPost: HistoryUsersToPost[];
 }
