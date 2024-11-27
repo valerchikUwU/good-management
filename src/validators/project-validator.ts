@@ -5,7 +5,7 @@ import {
 } from 'class-validator';
 import { TargetCreateDto } from 'src/contracts/target/create-target.dto';
 import { Type as TypeProject } from 'src/domains/project.entity';
-import { Type } from 'src/domains/target.entity';
+import { State, Type } from 'src/domains/target.entity';
 
 export function HasProductAndRegularTasksForProject(
   validationOptions?: ValidationOptions,
@@ -99,6 +99,40 @@ export function HasStrategyForProgram(validationOptions?: ValidationOptions) {
         },
         defaultMessage(args: ValidationArguments) {
           return 'Для программы обязательно нужно выбрать стратегию!';
+        },
+      },
+    });
+  };
+}
+
+export function HasCommonActiveOrFinished(
+  validationOptions?: ValidationOptions,
+) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'HasCommonActiveOrFinished',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: TargetCreateDto[], args: ValidationArguments) {
+          // Получаем объект DTO и проверяем тип
+          const dto = args.object as any;
+          if (dto.type !== TypeProject.PROJECT) {
+            return true; // Пропускаем валидацию, если тип не PROGRAM
+          }
+
+          // Проверка, что в targetCreateDtos есть задача типа "Продукт"
+          const hasProductTask =
+            Array.isArray(dto.targetUpdateDtos) &&
+            dto.targetUpdateDtos.some((task) => task.type === Type.COMMON && (task.targetState === State.ACTIVE || task.targetState === State.FINISHED));
+
+
+
+          return hasProductTask;
+        },
+        defaultMessage(args: ValidationArguments) {
+          return 'Должна быть хотя бы одна задача с типом Обычная и статусом Активная или Завершена!';
         },
       },
     });
