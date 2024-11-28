@@ -79,7 +79,7 @@ export class AppController implements OnModuleInit {
   }
 
   onModuleInit() {
-    if (process.env.NODE_ENV === 'dev') {
+    if (false) {
       this.telegramBotService.startBot();
     }
   }
