@@ -13,6 +13,7 @@ import { Account } from 'src/domains/account.entity';
 import { IsNull } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { PostCreateDto } from 'src/contracts/post/create-post.dto';
+import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
 
 describe('PostService', () => {
     let postService: PostService;
@@ -362,48 +363,6 @@ describe('PostService', () => {
             });
         });
 
-        it('returns the max divisionNumber', async () => {
-
-            const postWithMaxDivisionNumber: Post =
-            {
-                id: faker.string.uuid(),
-                postName: faker.person.jobType(),
-                divisionName: faker.person.jobDescriptor(),
-                divisionNumber: 20,
-                parentId: null,
-                product: faker.commerce.product(),
-                purpose: faker.commerce.productDescription(),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                user: {} as any,
-                policy: {} as any,
-                statistics: {} as any,
-                organization: {} as any,
-                account: {} as any,
-                historiesUsersToPost: {} as any
-            }
-            const orderBySpy = jest.fn().mockReturnThis(); // `orderBy` возвращает `this`
-            const getOneSpy = jest.fn().mockResolvedValue(postWithMaxDivisionNumber);
-
-
-            // Мокируем createQueryBuilder
-            jest.spyOn(postRepository, 'createQueryBuilder').mockReturnValue({
-                orderBy: orderBySpy,
-                getOne: getOneSpy,
-            } as any);
-
-            // Вызываем тестируемый метод
-            const result = await postService.findMaxDivisionNumber();
-
-            // Проверяем результат
-            expect(result).toEqual(postWithMaxDivisionNumber.divisionNumber);
-
-            // Проверяем вызовы
-            expect(orderBySpy).toHaveBeenCalledWith('post.divisionNumber', 'DESC');
-            expect(getOneSpy).toHaveBeenCalledTimes(1); // Убедимся, что `getOne` вызвался
-
-        });
-
         it('returns the postsIds due to their hierarchy from below to top', async () => {
 
             const postId_1 = faker.string.uuid();
@@ -484,11 +443,79 @@ describe('PostService', () => {
 
     });
 
-      describe('creating a post', () => {
+    describe('returning a maxDivisionNumber', () => {
+        it('returns 1', async () => {
+            const orderBySpy = jest.fn().mockReturnThis(); // `orderBy` возвращает `this`
+            const getOneSpy = jest.fn().mockResolvedValue(null);
+
+
+            // Мокируем createQueryBuilder
+            jest.spyOn(postRepository, 'createQueryBuilder').mockReturnValue({
+                orderBy: orderBySpy,
+                getOne: getOneSpy,
+            } as any);
+
+            // Вызываем тестируемый метод
+            const result = await postService.findMaxDivisionNumber();
+
+            // Проверяем результат
+            expect(result).toEqual(1);
+
+            // Проверяем вызовы
+            expect(orderBySpy).toHaveBeenCalledWith('post.divisionNumber', 'DESC');
+            expect(getOneSpy).toHaveBeenCalledTimes(1); // Убедимся, что `getOne` вызвался
+
+        })
+        
+        it('returns the max divisionNumber', async () => {
+
+            const postWithMaxDivisionNumber: Post =
+            {
+                id: faker.string.uuid(),
+                postName: faker.person.jobType(),
+                divisionName: faker.person.jobDescriptor(),
+                divisionNumber: 20,
+                parentId: null,
+                product: faker.commerce.product(),
+                purpose: faker.commerce.productDescription(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                user: {} as any,
+                policy: {} as any,
+                statistics: {} as any,
+                organization: {} as any,
+                account: {} as any,
+                historiesUsersToPost: {} as any
+            }
+            const orderBySpy = jest.fn().mockReturnThis(); // `orderBy` возвращает `this`
+            const getOneSpy = jest.fn().mockResolvedValue(postWithMaxDivisionNumber);
+
+
+            // Мокируем createQueryBuilder
+            jest.spyOn(postRepository, 'createQueryBuilder').mockReturnValue({
+                orderBy: orderBySpy,
+                getOne: getOneSpy,
+            } as any);
+
+            // Вызываем тестируемый метод
+            const result = await postService.findMaxDivisionNumber();
+
+            // Проверяем результат
+            expect(result).toEqual(postWithMaxDivisionNumber.divisionNumber);
+
+            // Проверяем вызовы
+            expect(orderBySpy).toHaveBeenCalledWith('post.divisionNumber', 'DESC');
+            expect(getOneSpy).toHaveBeenCalledTimes(1); // Убедимся, что `getOne` вызвался
+
+        });
+
+    })
+
+    describe('creating a post', () => {
 
         it('calls the repository with correct paramaters', async () => {
 
-            const postName = faker.person.jobTitle(); 
+            const postName = faker.person.jobTitle();
             const divisionName = faker.commerce.department();
             const parentId = faker.string.uuid();
             const product = faker.commerce.product();
@@ -540,203 +567,160 @@ describe('PostService', () => {
             };
 
 
-          const postCreateDto: PostCreateDto = {
-            postName: postName,
-            divisionName: divisionName,
-            parentId: parentId,
-            product: product,
-            purpose: purpose,
-            responsibleUserId: responsibleUserId,
-            organizationId: organizationId,
-            user: user,
-            account: {} as any,
-            organization: organization,
-            policy: {} as any
-          }
-
-          const savedPost: Post = {
-            id: faker.string.uuid(),
-            postName: postName,
-            divisionName: divisionName,
-            divisionNumber: faker.number.int(),
-            parentId: parentId,
-            product: product,
-            purpose: purpose,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            user: user,
-            account: {} as any,
-            organization: organization,
-            policy: {} as any,
-            statistics: {} as any,
-            historiesUsersToPost: {} as any
-          };
-
-          const postRepositoryInsertSpy = jest
-            .spyOn(postRepository, 'insert')
-            .mockResolvedValue({
-              identifiers: [{ id: savedPost.id }],
-              generatedMaps: [],
-              raw: [],
-            });
-
-          const result = await postService.create(postCreateDto);
-
-          expect(postRepositoryInsertSpy).toHaveBeenCalledWith(
-            expect.objectContaining({
+            const postCreateDto: PostCreateDto = {
                 postName: postName,
                 divisionName: divisionName,
                 parentId: parentId,
                 product: product,
                 purpose: purpose,
+                responsibleUserId: responsibleUserId,
+                organizationId: organizationId,
                 user: user,
                 account: {} as any,
                 organization: organization,
                 policy: {} as any
-            }),
-          );
-          expect(result).toEqual(savedPost.id);
+            }
+
+            const savedPost: Post = {
+                id: faker.string.uuid(),
+                postName: postName,
+                divisionName: divisionName,
+                divisionNumber: faker.number.int(),
+                parentId: parentId,
+                product: product,
+                purpose: purpose,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                user: user,
+                account: {} as any,
+                organization: organization,
+                policy: {} as any,
+                statistics: {} as any,
+                historiesUsersToPost: {} as any
+            };
+
+            const postRepositoryInsertSpy = jest
+                .spyOn(postRepository, 'insert')
+                .mockResolvedValue({
+                    identifiers: [{ id: savedPost.id }],
+                    generatedMaps: [],
+                    raw: [],
+                });
+
+            const result = await postService.create(postCreateDto);
+
+            expect(postRepositoryInsertSpy).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    postName: postName,
+                    divisionName: divisionName,
+                    parentId: parentId,
+                    product: product,
+                    purpose: purpose,
+                    user: user,
+                    account: {} as any,
+                    organization: organization,
+                    policy: {} as any
+                }),
+            );
+            expect(result).toEqual(savedPost.id);
         });
-      });
-
-    //   describe('finding a goal', () => {
-    //     it('throws an error when a goal doesnt exist', async () => {
-    //       const goalId = faker.string.uuid();
-
-    //       const goalRepositoryFindOneSpy = jest
-    //         .spyOn(goalRepository, 'findOne')
-    //         .mockResolvedValue(null);
-
-    //       expect.assertions(3);
-
-    //       try {
-    //         await goalService.findOneById(goalId, ['organization']);
-    //       } catch (e) {
-    //         expect(e).toBeInstanceOf(NotFoundException);
-    //         expect(e.message).toBe(`Цель с ID: ${goalId} не найдена!`);
-    //       }
-
-    //       expect(goalRepositoryFindOneSpy).toHaveBeenCalledWith({
-    //         where: { id: goalId },
-    //         relations: ['organization'],
-    //       });
-    //     });
-
-    //     it('returns the found goal', async () => {
-    //       const goalId = faker.string.uuid();
-
-    //       const existingGoal: GoalReadDto = {
-    //         id: goalId,
-    //         content: faker.helpers.multiple(() => faker.animal.cat(), {
-    //           count: 3,
-    //         }),
-    //         createdAt: new Date(),
-    //         updatedAt: new Date(),
-    //         organization: {
-    //           id: faker.string.uuid(),
-    //           organizationName: faker.company.name(),
-    //           parentOrganizationId: null,
-    //           reportDay: ReportDay.FRIDAY,
-    //           createdAt: new Date(),
-    //           updatedAt: new Date(),
-    //           goal: null,
-    //           users: null,
-    //           posts: null,
-    //           policies: null,
-    //           projects: null,
-    //           strategies: null,
-    //           account: null,
-    //         },
-    //       };
-
-    //       const goalRepositoryFindOneSpy = jest
-    //         .spyOn(goalRepository, 'findOne')
-    //         .mockResolvedValue(existingGoal as Goal);
-
-    //       const result = await goalService.findOneById(goalId, ['organization']);
-    //       expect(result).toMatchObject<GoalReadDto>(existingGoal);
-    //       expect(goalRepositoryFindOneSpy).toHaveBeenCalledWith({
-    //         where: { id: goalId },
-    //         relations: ['organization'],
-    //       });
-    //     });
-    //   });
+    });
 
 
+    describe('updating a post', () => {
+        it('throws an error when a post doesnt exist', async () => {
 
+            const postId = faker.string.uuid()
+            const updatePostDto: PostUpdateDto = {
+                _id: postId,
+                postName: faker.person.jobTitle(),
+                user: {} as any,
+                organization: {} as any,
+                policy: {} as any
+            }
 
-    //   describe('updating a goal', () => {
-    //     it('throws an error when a goal doesnt exist', async () => {
+            const postRepositoryFindOneSpy = jest
+                .spyOn(postRepository, 'findOne')
+                .mockResolvedValue(null);
 
-    //       const goalId = faker.string.uuid()
-    //       const updateGoalDto: GoalUpdateDto = {
-    //         _id: goalId,
-    //         content: faker.helpers.multiple(() => faker.animal.cat(), {
-    //           count: 3,
-    //         }),
-    //       }
+            expect.assertions(3);
 
-    //       const goalRepositoryFindOneSpy = jest
-    //         .spyOn(goalRepository, 'findOne')
-    //         .mockResolvedValue(null);
+            try {
+                await postService.update(postId, updatePostDto);
+            } catch (e) {
+                expect(e).toBeInstanceOf(NotFoundException);
+                expect(e.message).toBe(`Пост с ID ${postId} не найден`);
+            }
+            expect(postRepositoryFindOneSpy).toHaveBeenCalledWith({
+                where: { id: postId }
+            });
+        });
 
-    //       expect.assertions(3);
+        it('returns the updated postId', async () => {
+            const postId = faker.string.uuid();
 
-    //       try {
-    //         await goalService.update(goalId, updateGoalDto);
-    //       } catch (e) {
-    //         expect(e).toBeInstanceOf(NotFoundException);
-    //         expect(e.message).toBe(`Цель с ID ${goalId} не найдена`);
-    //       }
-    //       expect(goalRepositoryFindOneSpy).toHaveBeenCalledWith({
-    //         where: { id: goalId }
-    //       });
-    //     });
+            const updatePostDto: PostUpdateDto = {
+                _id: postId,
+                postName: faker.person.jobTitle(),
+                divisionName: faker.company.name(),
+                parentId: faker.string.uuid(),
+                product: faker.commerce.product(),
+                purpose: faker.commerce.productAdjective(),
+                responsibleUserId: faker.string.uuid(),
+                organizationId: faker.string.uuid(),
+                policyId: faker.string.uuid(),
+                user: {} as any,
+                organization: {} as any,
+                policy: {} as any
+            }
 
-    //     it('returns the updated goalId', async () => {
-    //       const goalId = faker.string.uuid();
+            const existingPost: PostReadDto = {
+                id: postId,
+                postName: faker.person.jobType(),
+                divisionName: faker.person.jobDescriptor(),
+                divisionNumber: faker.number.int(),
+                parentId: faker.string.uuid(),
+                product: faker.commerce.product(),
+                purpose: faker.commerce.productDescription(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                user: {} as any,
+                policy: {} as any,
+                statistics: {} as any,
+                organization: {} as any,
+                account: {} as any,
+                historiesUsersToPost: {} as any
+            };
 
-    //       const updateGoalDto: GoalUpdateDto = {
-    //         _id: goalId,
-    //         content: faker.helpers.multiple(() => faker.animal.cat(), {
-    //           count: 3,
-    //         }),
-    //       }
+            const postRepositoryFindOneSpy = jest
+                .spyOn(postRepository, 'findOne')
+                .mockResolvedValue(existingPost);
 
-    //       const existingGoal: GoalReadDto = {
-    //         id: goalId,
-    //         content: faker.helpers.multiple(() => faker.animal.cat(), {
-    //           count: 3,
-    //         }),
-    //         createdAt: new Date(),
-    //         updatedAt: new Date(),
-    //         organization: {} as any,
-    //         user: {} as any,
-    //         account: {} as any
-    //       };
+            const postRepositoryUpdateSpy = jest
+                .spyOn(postRepository, 'update')
+                .mockResolvedValue({
+                    generatedMaps: [],
+                    raw: [],
+                    affected: 1
+                });
 
-    //       const goalRepositoryFindOneSpy = jest
-    //         .spyOn(goalRepository, 'findOne')
-    //         .mockResolvedValue(existingGoal as Goal);
-
-    //       const goalRepositoryUpdateSpy = jest
-    //         .spyOn(goalRepository, 'update')
-    //         .mockResolvedValue({
-    //           generatedMaps: [],
-    //           raw: [],
-    //           affected: 1
-    //         });
-
-    //       const result = await goalService.update(goalId, updateGoalDto);
-    //       expect(result).toMatch(existingGoal.id);
-    //       expect(goalRepositoryFindOneSpy).toHaveBeenCalledWith({
-    //         where: { id: goalId }
-    //       });
-    //       expect(goalRepositoryUpdateSpy).toHaveBeenCalledWith(
-    //         goalId,
-    //         expect.objectContaining({
-    //         content: updateGoalDto.content
-    //       }));
-    //     });
-    //   });
+            const result = await postService.update(postId, updatePostDto);
+            expect(result).toMatch(existingPost.id);
+            expect(postRepositoryFindOneSpy).toHaveBeenCalledWith({
+                where: { id: postId }
+            });
+            expect(postRepositoryUpdateSpy).toHaveBeenCalledWith(
+                postId,
+                expect.objectContaining({
+                    postName: updatePostDto.postName,
+                    divisionName: updatePostDto.divisionName,
+                    parentId: updatePostDto.parentId,
+                    product: updatePostDto.product,
+                    purpose: updatePostDto.purpose,
+                    user: updatePostDto.user,
+                    organization: updatePostDto.organization,
+                    policy: updatePostDto.policy,
+                }));
+        });
+    });
 });

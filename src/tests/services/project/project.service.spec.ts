@@ -20,6 +20,7 @@ import { Organization, ReportDay } from 'src/domains/organization.entity';
 import { ProjectReadDto } from 'src/contracts/project/read-project.dto';
 import { Account } from 'src/domains/account.entity';
 import { IsNull } from 'typeorm';
+import { ProjectUpdateDto } from 'src/contracts/project/update-project.dto';
 
 describe('ProjectService', () => {
   let projectService: ProjectService;
@@ -221,7 +222,7 @@ describe('ProjectService', () => {
       expect(result).toEqual(existingPrograms);
       expect(projectRepositoryFindAllSpy).toHaveBeenCalledWith({
         where: { type: Type.PROGRAM, account: { id: account.id } },
-        relations: ['organization', 'targets'],
+        relations: ['organization', 'targets', 'strategy'],
       });
     });
   });
@@ -326,28 +327,37 @@ describe('ProjectService', () => {
     });
   });
 
-  // describe('finding a project by id', () => {
-  //     it('throws an error when a goal doesnt exist', async () => {
-  //         const projectId = faker.string.uuid();
+  describe('finding a project by id', () => {
+    it('throws an error when a project doesnt exist', async () => {
+      const id = faker.string.uuid();
 
-  //         const projectRepositoryFindOneSpy = jest
-  //             .spyOn(projectRepository, 'createQueryBuilder')
-  //             .mockResolvedValue(null);
+      const leftJoinAndSelectSpy = jest.fn().mockReturnThis();
+      const whereSpy = jest.fn().mockReturnThis();
+      const getOneSpy = jest.fn().mockResolvedValue(null);
 
-  //         expect.assertions(3);
+      jest.spyOn(projectRepository, 'createQueryBuilder').mockReturnValue({
+        leftJoinAndSelect: leftJoinAndSelectSpy,
+        where: whereSpy,
+        getOne: getOneSpy,
+      } as any);
 
-  //         try {
-  //             await goalService.findOneById(goalId, ['organization']);
-  //         } catch (e) {
-  //             expect(e).toBeInstanceOf(NotFoundException);
-  //             expect(e.message).toBe(`Цель с ID: ${goalId} не найдена!`);
-  //         }
+      expect.assertions(7);
 
-  //         expect(goalRepositoryFindOneSpy).toHaveBeenCalledWith({
-  //             where: { id: goalId },
-  //             relations: ['organization'],
-  //         });
-  //     });
+      try {
+        await projectService.findOneById(id);
+      } catch (e) {
+        expect(e).toBeInstanceOf(NotFoundException);
+        expect(e.message).toBe(`Проект с ID: ${id} не найден`);
+      }
+      // Теперь можно проверять вызовы методов
+      expect(projectRepository.createQueryBuilder).toHaveBeenCalled();
+      expect(leftJoinAndSelectSpy).toHaveBeenCalledWith('project.strategy', 'strategy');
+      expect(leftJoinAndSelectSpy).toHaveBeenCalledWith('project.targets', 'targets');
+      // и так далее для остальных вызовов
+      expect(whereSpy).toHaveBeenCalledWith('project.id = :id', { id });
+      expect(getOneSpy).toHaveBeenCalled();
+    });
+  });
 
   describe('finding a program by id', () => {
     it('throws an error when a program doesnt exist', async () => {
@@ -718,7 +728,8 @@ describe('ProjectService', () => {
         targetHolders: null,
       }));
 
-      const projectCreateDto: ProjectCreateDto = {
+      const projectUpdateDto: ProjectUpdateDto = {
+        _id: _id,
         projectName: projectName,
         programId: programId,
         content: content,
@@ -726,13 +737,11 @@ describe('ProjectService', () => {
         organizationId: organizationId,
         strategyId: strategyId,
         targetCreateDtos: targetCreateDtos,
-        user: null,
         strategy: strategy,
-        account: null,
         organization: organization,
       };
-      const savedProject: Project = {
-        id: faker.string.uuid(),
+      const existedProject: Project = {
+        id: _id,
         projectNumber: faker.number.int(),
         projectName: projectName,
         programId: programId,
@@ -746,29 +755,38 @@ describe('ProjectService', () => {
         account: null,
         user: null,
       };
-      const projectRepositoryInsertSpy = jest
-        .spyOn(projectRepository, 'insert')
+
+      const projectRepositoryFindOneSpy = jest
+        .spyOn(projectRepository, 'findOne')
+        .mockResolvedValue(existedProject);
+
+      const projectRepositoryUpdateSpy = jest
+        .spyOn(projectRepository, 'update')
         .mockResolvedValue({
-          identifiers: [{ id: savedProject.id }],
           generatedMaps: [],
           raw: [],
+          affected: 1
         });
 
-      const result = await projectService.create(projectCreateDto);
+      const result = await projectService.update(_id, projectUpdateDto);
 
-      expect(projectRepositoryInsertSpy).toHaveBeenCalledWith(
+
+      expect(result).toMatch(existedProject.id);
+      expect(projectRepositoryFindOneSpy).toHaveBeenCalledWith({
+        where: { id: _id },
+        relations: ['strategy'],
+      });
+      expect(projectRepositoryUpdateSpy).toHaveBeenCalledWith(
+        _id,
         expect.objectContaining({
           projectName: projectName,
           programId: programId,
           content: content,
           type: type,
-          user: null,
           strategy: strategy,
-          account: null,
           organization: organization,
         }),
       );
-      expect(result).toEqual(savedProject.id);
     });
   });
 });

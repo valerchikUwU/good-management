@@ -40,17 +40,4 @@ export class StrategyUpdateDto {
   @IsString()
   @IsNotEmpty({ message: 'Содержание стратегии не может быть пустым!' })
   content?: string;
-
-  @ApiProperty({
-    description: 'ID организаций, с которыми связать стратегию',
-    required: false,
-    example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-  })
-  @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'Выберите хотя бы одну организацию!' })
-  organizationId?: string;
-
-  @Exclude({ toPlainOnly: true })
-  organization: Organization;
 }

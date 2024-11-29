@@ -62,13 +62,11 @@ export class ProjectService {
     }
   }
 
-  async findAllProgramsForAccount(
-    account: AccountReadDto,
-  ): Promise<ProjectReadDto[]> {
+  async findAllProgramsForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
     try {
       const programs = await this.projectRepository.find({
         where: { type: Type.PROGRAM, account: { id: account.id } },
-        relations: ['organization', 'targets'],
+        relations: ['organization', 'targets', 'strategy'],
       });
 
       return programs.map((program) => ({
@@ -100,9 +98,7 @@ export class ProjectService {
     }
   }
 
-  async findAllProjectsWithoutProgramForAccount(
-    account: AccountReadDto,
-  ): Promise<ProjectReadDto[]> {
+  async findAllProjectsWithoutProgramForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
         where: {
@@ -153,6 +149,9 @@ export class ProjectService {
         .leftJoinAndSelect('project.organization', 'organization')
         .where('project.id = :id', { id })
         .getOne();
+
+      if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
+
       let program: ProjectReadDto;
       if (project.programId !== null) {
         program = await this.projectRepository.findOne({
@@ -161,7 +160,6 @@ export class ProjectService {
       } else {
         program = null;
       }
-      if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
       // Проверка просроченности для каждого объекта target
       const targetsWithIsExpired = project.targets.map((target) => ({
         ...target,
@@ -324,10 +322,7 @@ export class ProjectService {
     }
   }
 
-  async update(
-    _id: string,
-    updateProjectDto: ProjectUpdateDto,
-  ): Promise<string> {
+  async update(_id: string, updateProjectDto: ProjectUpdateDto): Promise<string> {
     try {
       const project = await this.projectRepository.findOne({
         where: { id: _id },

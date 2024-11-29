@@ -54,51 +54,11 @@ export class TargetService {
     }
   }
 
-  async findeOneById(id: string): Promise<TargetReadDto | null> {
-    try {
-      const target = await this.targetRepository.findOneBy({ id });
-
-      if (!target)
-        throw new NotFoundException(`Задача с ID: ${id} не найдена!`);
-      const targetReadDto: TargetReadDto = {
-        id: target.id,
-        type: target.type,
-        orderNumber: target.orderNumber,
-        content: target.content,
-        holderUserId: target.holderUserId,
-        targetState: target.targetState,
-        dateStart: target.dateStart,
-        deadline: target.deadline,
-        dateComplete: target.dateComplete,
-        createdAt: target.createdAt,
-        updatedAt: target.updatedAt,
-        targetHolders: target.targetHolders,
-        project: target.project,
-      };
-
-      return targetReadDto;
-    } catch (err) {
-      this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
-      }
-
-      // Обработка других ошибок
-      throw new InternalServerErrorException('Ошибка при получении задачи');
-    }
-  }
 
   async create(targetCreateDto: TargetCreateDto): Promise<Target> {
     try {
       // Проверка на наличие обязательных данных
 
-      if (!targetCreateDto.content) {
-        throw new BadRequestException('Задача не может быть пустой!');
-      }
-      if (!targetCreateDto.holderUserId) {
-        throw new BadRequestException('Выберите ответственного за задачу!');
-      }
       const target = new Target();
       target.type = targetCreateDto.type;
       target.orderNumber = targetCreateDto.orderNumber;
