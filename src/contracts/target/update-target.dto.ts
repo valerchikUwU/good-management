@@ -10,7 +10,7 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
-import { State } from 'src/domains/target.entity';
+import { State, Type as TargetType } from 'src/domains/target.entity';
 import { User } from 'src/domains/user.entity';
 
 @ApiExtraModels()
@@ -63,6 +63,9 @@ export class TargetUpdateDto {
   @IsOptional()
   @IsEnum(State)
   targetState?: State;
+
+  @IsEnum(TargetType)
+  type: TargetType;
 
   @ApiProperty({
     description: 'Дата начала выполнения (default: new Date())',

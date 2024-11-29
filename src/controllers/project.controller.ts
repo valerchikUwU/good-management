@@ -196,10 +196,7 @@ export class ProjectController {
       user.account,
       ['organization'],
     );
-    const projects =
-      await this.projectService.findAllProjectsWithoutProgramForAccount(
-        user.account,
-      );
+    const projects = await this.projectService.findAllProjectsWithoutProgramForAccount(user.account);
     const organizations = await this.organizationService.findAllForAccount(
       user.account,
     );
@@ -300,16 +297,9 @@ export class ProjectController {
   }> {
     const user = await this.userService.findOne(userId, ['account']);
     const workers = await this.userService.findAllForAccount(user.account);
-    const strategies = await this.strategyService.findAllActiveForAccount(
-      user.account,
-      ['organization'],
-    );
-    const programs = await this.projectService.findAllProgramsForAccount(
-      user.account,
-    );
-    const organizations = await this.organizationService.findAllForAccount(
-      user.account,
-    );
+    const strategies = await this.strategyService.findAllActiveForAccount(user.account, ['organization']);
+    const programs = await this.projectService.findAllProgramsForAccount(user.account);
+    const organizations = await this.organizationService.findAllForAccount(user.account);
     return {
       workers: workers,
       strategies: strategies,

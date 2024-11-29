@@ -118,18 +118,16 @@ export function HasCommonActiveOrFinished(
         validate(value: TargetCreateDto[], args: ValidationArguments) {
           // Получаем объект DTO и проверяем тип
           const dto = args.object as any;
-          if (dto.type !== TypeProject.PROJECT) {
-            return true; // Пропускаем валидацию, если тип не PROGRAM
-          }
 
           // Проверка, что в targetCreateDtos есть задача типа "Продукт"
-          const hasProductTask =
+          const hasCommonInCreateDtos = Array.isArray(dto.targetCreateDtos) && dto.targetCreateDtos.some((task) => task.type === Type.COMMON)
+          if (hasCommonInCreateDtos) return true
+          const hasCommonInUpdateDtos =
             Array.isArray(dto.targetUpdateDtos) &&
             dto.targetUpdateDtos.some((task) => task.type === Type.COMMON && (task.targetState === State.ACTIVE || task.targetState === State.FINISHED));
 
 
-
-          return hasProductTask;
+          return hasCommonInUpdateDtos;
         },
         defaultMessage(args: ValidationArguments) {
           return 'Должна быть хотя бы одна задача с типом Обычная и статусом Активная или Завершена!';

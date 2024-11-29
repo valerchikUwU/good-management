@@ -52,9 +52,7 @@ export class StrategyService {
     }
   }
 
-  async findAllActiveOrDraftWithoutObjectiveForAccount(
-    account: AccountReadDto,
-  ): Promise<StrategyReadDto[]> {
+  async findAllActiveOrDraftWithoutObjectiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: {
@@ -88,10 +86,7 @@ export class StrategyService {
     }
   }
 
-  async findAllActiveForAccount(
-    account: AccountReadDto,
-    relations?: string[],
-  ): Promise<StrategyReadDto[]> {
+  async findAllActiveForAccount(account: AccountReadDto, relations?: string[]): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: {
@@ -160,10 +155,7 @@ export class StrategyService {
     }
   }
 
-  async findOneById(
-    id: string,
-    relations?: string[],
-  ): Promise<StrategyReadDto | null> {
+  async findOneById(id: string, relations?: string[]): Promise<StrategyReadDto> {
     try {
       const strategy = await this.strategyRepository.findOne({
         where: { id: id },
@@ -238,10 +230,7 @@ export class StrategyService {
     }
   }
 
-  async update(
-    _id: string,
-    updateStrategyDto: StrategyUpdateDto,
-  ): Promise<string> {
+  async update(_id: string, updateStrategyDto: StrategyUpdateDto): Promise<string> {
     try {
       const strategy = await this.strategyRepository.findOne({
         where: { id: _id },
@@ -253,8 +242,6 @@ export class StrategyService {
       // Обновить свойства, если они указаны в DTO
       if (updateStrategyDto.content)
         strategy.content = updateStrategyDto.content;
-      if (updateStrategyDto.organization)
-        strategy.organization = updateStrategyDto.organization;
       if (updateStrategyDto.state) {
         if (updateStrategyDto.state === State.DRAFT) {
           const existingDraftStrategy = await this.strategyRepository.findOne({
@@ -288,7 +275,6 @@ export class StrategyService {
       await this.strategyRepository.update(strategy.id, {
         content: strategy.content,
         state: strategy.state,
-        organization: strategy.organization,
       });
       return strategy.id;
     } catch (err) {

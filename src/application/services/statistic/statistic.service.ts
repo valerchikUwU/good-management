@@ -50,10 +50,7 @@ export class StatisticService {
     }
   }
 
-  async findOneById(
-    id: string,
-    relations?: string[],
-  ): Promise<StatisticReadDto> {
+  async findOneById(id: string, relations?: string[]): Promise<StatisticReadDto> {
     try {
       const statistic = await this.statisticRepository.findOne({
         where: { id: id },
@@ -89,13 +86,6 @@ export class StatisticService {
 
   async create(statisticCreateDto: StatisticCreateDto): Promise<Statistic> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!statisticCreateDto.name) {
-        throw new BadRequestException(
-          'У статистики обязательно наличие названия!',
-        );
-      }
-
       const statistic = new Statistic();
       statistic.type = statisticCreateDto.type;
       statistic.name = statisticCreateDto.name;
@@ -114,10 +104,7 @@ export class StatisticService {
     }
   }
 
-  async update(
-    _id: string,
-    statisticUpdateDto: StatisticUpdateDto,
-  ): Promise<string> {
+  async update(_id: string, statisticUpdateDto: StatisticUpdateDto): Promise<string> {
     try {
       const statistic = await this.statisticRepository.findOne({
         where: { id: _id },
