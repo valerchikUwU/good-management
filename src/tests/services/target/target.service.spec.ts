@@ -223,7 +223,7 @@ describe('GoalService', () => {
             const targetId = faker.string.uuid();
 
 
-            const updateStrategyDto: StrategyUpdateDto = {
+            const updateStrategyDto: TargetUpdateDto = {
                 _id: targetId,
                 content: faker.finance.transactionDescription(),
                 orderNumber: faker.number.int(),

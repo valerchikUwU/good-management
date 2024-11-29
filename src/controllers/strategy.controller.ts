@@ -75,12 +75,7 @@ export class StrategyController {
     @Body() strategyUpdateDto: StrategyUpdateDto,
     @Ip() ip: string,
   ): Promise<{ id: string }> {
-    if (strategyUpdateDto.organizationId) {
-      const organization = await this.organizationService.findOneById(
-        strategyUpdateDto.organizationId,
-      );
-      strategyUpdateDto.organization = organization;
-    }
+
     const updatedStrategyId = await this.strategyService.update(
       strategyId,
       strategyUpdateDto,
@@ -95,10 +90,6 @@ export class StrategyController {
       content:
         strategyUpdateDto.content !== undefined
           ? strategyUpdateDto.content
-          : null,
-      organizationId:
-        strategyUpdateDto.organizationId !== undefined
-          ? strategyUpdateDto.organizationId
           : null,
     };
     try {

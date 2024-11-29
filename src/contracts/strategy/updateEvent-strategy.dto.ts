@@ -3,5 +3,4 @@ export class StrategyUpdateEventDto {
   id: string;
   state: string | null;
   content: string | null;
-  organizationId: string | null;
 }
