@@ -42,12 +42,45 @@ export function HasProductAndRegularTasksForProject(
   };
 }
 
-export function HasProductTaskAndProjectIdsForProgram(
+export function HasProjectIdsForProgram(
   validationOptions?: ValidationOptions,
 ) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
-      name: 'HasProductTaskAndProjectIdsForProgram',
+      name: 'HasProjectIdsForProgram',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      validator: {
+        validate(value: TargetCreateDto[], args: ValidationArguments) {
+          // Получаем объект DTO и проверяем тип
+          const dto = args.object as any;
+          if (dto.type !== TypeProject.PROGRAM) {
+            return true; // Пропускаем валидацию, если тип не PROGRAM
+          }
+
+
+
+          // Проверка, что projectIds содержит хотя бы один элемент
+          const hasProjectIds =
+            Array.isArray(dto.projectIds) && dto.projectIds.length > 0;
+
+          return hasProjectIds;
+        },
+        defaultMessage(args: ValidationArguments) {
+          return 'Выберите хотя бы один проект для программы!';
+        },
+      },
+    });
+  };
+}
+
+export function HasProductTaskForProgram(
+  validationOptions?: ValidationOptions,
+) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: 'HasProductTaskForProgram',
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
@@ -64,19 +97,18 @@ export function HasProductTaskAndProjectIdsForProgram(
             Array.isArray(dto.targetCreateDtos) &&
             dto.targetCreateDtos.some((task) => task.type === Type.PRODUCT);
 
-          // Проверка, что projectIds содержит хотя бы один элемент
-          const hasProjectIds =
-            Array.isArray(dto.projectIds) && dto.projectIds.length > 0;
 
-          return hasProductTask && hasProjectIds;
+
+          return hasProductTask;
         },
         defaultMessage(args: ValidationArguments) {
-          return 'Для программы список задач должен содержать хотя бы одну задачу с типом "Продукт", также выберите хотя бы один проект для программы!';
+          return 'Для программы список задач должен содержать хотя бы одну задачу с типом "Продукт"!';
         },
       },
     });
   };
 }
+
 
 export function HasStrategyForProgram(validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
@@ -118,7 +150,9 @@ export function HasCommonActiveOrFinished(
         validate(value: TargetCreateDto[], args: ValidationArguments) {
           // Получаем объект DTO и проверяем тип
           const dto = args.object as any;
-
+          if (dto.type !== TypeProject.PROGRAM) {
+            return true;
+          }
           // Проверка, что в targetCreateDtos есть задача типа "Продукт"
           const hasCommonInCreateDtos = Array.isArray(dto.targetCreateDtos) && dto.targetCreateDtos.some((task) => task.type === Type.COMMON)
           if (hasCommonInCreateDtos) return true
@@ -130,7 +164,7 @@ export function HasCommonActiveOrFinished(
           return hasCommonInUpdateDtos;
         },
         defaultMessage(args: ValidationArguments) {
-          return 'Должна быть хотя бы одна задача с типом Обычная и статусом Активная или Завершена!';
+          return 'Должна быть хотя бы одна задача с типом "Обычная" и статусом "Активная" или "Завершена!"';
         },
       },
     });

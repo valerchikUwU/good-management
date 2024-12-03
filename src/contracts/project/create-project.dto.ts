@@ -18,7 +18,8 @@ import {
 import { Organization } from 'src/domains/organization.entity';
 import {
   HasProductAndRegularTasksForProject,
-  HasProductTaskAndProjectIdsForProgram,
+  HasProductTaskForProgram,
+  HasProjectIdsForProgram,
   HasStrategyForProgram,
 } from 'src/validators/project-validator';
 
@@ -143,6 +144,9 @@ export class ProjectCreateDto {
   @IsArray({ message: 'Должен быть массив!' })
   @ValidateNested()
   @Type(() => TargetCreateDto)
+  @HasProductTaskForProgram({
+    message: 'Для программы список задач должен содержать хотя бы одну задачу с типом "Продукт"!'
+  })
   @HasProductAndRegularTasksForProject({
     message:
       'Список задач должен содержать хотя бы одну задачу с типом "Продукт" и одну с типом "Обычная".',
@@ -155,9 +159,9 @@ export class ProjectCreateDto {
   })
   @IsOptional()
   @IsArray()
-  @HasProductTaskAndProjectIdsForProgram({
+  @HasProjectIdsForProgram({
     message:
-      'Для программы список задач должен содержать хотя бы одну задачу с типом "Продукт", также выберите хотя бы один проект для программы!',
+      'Выберите хотя бы один проект для программы!',
   })
   projectIds?: string[];
 }
