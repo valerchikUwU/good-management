@@ -8,7 +8,7 @@ export class RepositoryFake {
       raw: [],
     };
   }
-  public async remove(): Promise<void> {}
+  public async delete(): Promise<void> {}
   public async findOne(): Promise<void> {}
   public async find(): Promise<void> {}
   public async update(): Promise<void> {}

@@ -13,7 +13,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger } from 'winston';
 
-@WebSocketGateway({ namespace: 'auth', cors: '*:*' })
+@WebSocketGateway({ namespace: 'auth', cors: '*:*'})
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @Inject('winston') private readonly logger: Logger, // инъекция логгера

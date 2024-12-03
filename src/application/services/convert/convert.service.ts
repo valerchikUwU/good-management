@@ -109,10 +109,7 @@ export class ConvertService {
     }
   }
 
-  async update(
-    _id: string,
-    convertUpdateDto: ConvertUpdateDto,
-  ): Promise<string> {
+  async update(_id: string, convertUpdateDto: ConvertUpdateDto): Promise<string> {
     try {
       const convert = await this.convertRepository.findOne({
         where: { id: _id },

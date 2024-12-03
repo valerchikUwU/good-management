@@ -10,7 +10,7 @@ export class TargetHolderService {
   constructor(
     @InjectRepository(TargetHolder)
     private readonly targetHolderRepository: TargetHolderRepository,
-  ) {}
+  ) { }
 
   async findAll(): Promise<TargetHolderReadDto[]> {
     const targetHolders = await this.targetHolderRepository.find({
@@ -24,18 +24,6 @@ export class TargetHolderService {
     }));
   }
 
-  async findeOneById(id: string): Promise<TargetHolderReadDto | null> {
-    const targetHolder = await this.targetHolderRepository.findOneBy({ id });
-
-    if (!targetHolder) return null;
-    const targetHolderReadDto: TargetHolderReadDto = {
-      id: targetHolder.id,
-      target: targetHolder.target,
-      user: targetHolder.user,
-    };
-
-    return targetHolderReadDto;
-  }
 
   async create(targetHolderCreateDto: TargetHolderCreateDto): Promise<string> {
     try {
@@ -43,8 +31,7 @@ export class TargetHolderService {
       targetHolder.target = targetHolderCreateDto.target;
       targetHolder.user = targetHolderCreateDto.user;
 
-      const createdTargetHolderId =
-        await this.targetHolderRepository.insert(targetHolder);
+      const createdTargetHolderId = await this.targetHolderRepository.insert(targetHolder);
       return createdTargetHolderId.identifiers[0].id;
     } catch (err) {
       throw new InternalServerErrorException(

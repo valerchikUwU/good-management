@@ -11,7 +11,6 @@ import { TargetRepository } from './repository/target.repository';
 import { TargetReadDto } from 'src/contracts/target/read-target.dto';
 import { TargetCreateDto } from 'src/contracts/target/create-target.dto';
 import { TargetHolderService } from '../targetHolder/targetHolder.service';
-import { UsersService } from '../users/users.service';
 import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
 import { TargetUpdateDto } from 'src/contracts/target/update-target.dto';
 import { Logger } from 'winston';
@@ -22,7 +21,6 @@ export class TargetService {
     @InjectRepository(Target)
     private readonly targetRepository: TargetRepository,
     private readonly targetHolderService: TargetHolderService,
-    private readonly userService: UsersService,
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
