@@ -228,14 +228,19 @@ export class ProjectService {
     }
   }
 
-  async findAllProjectsByProgramId(
+  async findAllNotRejectedProjectsByProgramId(
     programId: string,
   ): Promise<ProjectReadDto[]> {
     try {
-      const projects = await this.projectRepository.find({
-        where: { programId: programId },
-        relations: ['targets.targetHolders.user'],
-      });
+      const projects = await this.projectRepository
+      .createQueryBuilder('project')
+      .leftJoinAndSelect('project.targets', 'target')
+      .leftJoinAndSelect('target.targetHolders', 'targetHolder')
+      .leftJoinAndSelect('targetHolder.user', 'user')
+      .where('project.programId = :programId', { programId })
+      .andWhere('target.type = :targetType', { targetType: TypeTarget.PRODUCT })
+      .andWhere('target.targetState != :rejectedState', { rejectedState: State.REJECTED })
+      .getMany();
       return projects.map((project) => ({
         id: project.id,
         projectNumber: project.projectNumber,
@@ -317,6 +322,7 @@ export class ProjectService {
         where: { id: _id },
         relations: ['strategy'],
       });
+      console.log(`projecIDS: ${updateProjectDto.projectIds}`)
       if (!project) {
         throw new NotFoundException(`Проект с ID ${_id} не найден`);
       }
@@ -356,6 +362,7 @@ export class ProjectService {
             return `EXISTS (${subQuery})`;
           })
           .getMany();
+          console.log(projectsWithCurrentProgram)
         let activeProjectsWithCurrentProgramIds = projectsWithCurrentProgram
           .filter((project) =>
             project.targets.some(
@@ -366,7 +373,7 @@ export class ProjectService {
             ),
           )
           .map((project) => project.id);
-
+          console.log(`activeProjectsWithCurrentProgramIds: ${activeProjectsWithCurrentProgramIds}`)
         let expiredProjectsWithCurrentProgramIds = projectsWithCurrentProgram
           .filter((project) =>
             project.targets.some(
@@ -377,7 +384,7 @@ export class ProjectService {
             ),
           )
           .map((project) => project.id);
-
+          console.log(`expiredProjectsWithCurrentProgramIds: ${expiredProjectsWithCurrentProgramIds}`)
         if (activeProjectsWithCurrentProgramIds === undefined)
           activeProjectsWithCurrentProgramIds = [];
         if (expiredProjectsWithCurrentProgramIds === undefined)
@@ -390,13 +397,15 @@ export class ProjectService {
         );
         const projectIdsToUpdate = updateProjectDto.projectIds.filter(
           (id) =>
-            activeProjectsWithCurrentProgramIds.includes(id) &&
-            !expiredProjectsWithCurrentProgramIds.includes(id),
+            activeProjectsWithCurrentProgramIds.includes(id)
         );
-        const projectIdsToDelete = activeProjectsWithCurrentProgramIds.filter(
+        const commonArray = activeProjectsWithCurrentProgramIds.concat(expiredProjectsWithCurrentProgramIds);
+        const projectIdsToDelete = commonArray.filter(
           (id) => !updateProjectDto.projectIds.includes(id),
         );
-
+        console.log(`projectIdsToAdd: ${projectIdsToAdd}`)
+        console.log(`projectIdsToUpdate: ${projectIdsToUpdate}`)
+        console.log(`projectIdsToDelete: ${projectIdsToDelete}`)
         if (projectIdsToAdd.length > 0) {
           await this.projectRepository.update(
             { id: In(projectIdsToAdd) },
