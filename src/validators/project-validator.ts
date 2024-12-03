@@ -150,7 +150,7 @@ export function HasCommonActiveOrFinished(
         validate(value: TargetCreateDto[], args: ValidationArguments) {
           // Получаем объект DTO и проверяем тип
           const dto = args.object as any;
-          if (dto.type !== TypeProject.PROGRAM) {
+          if (dto.type !== TypeProject.PROJECT) {
             return true;
           }
           // Проверка, что в targetCreateDtos есть задача типа "Продукт"
