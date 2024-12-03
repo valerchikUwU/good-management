@@ -5,13 +5,6 @@ import { winstonConfig } from 'src/utils/winston-logger';
 import { RepositoryFake } from '../FakeClasses/repositoryFake';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { faker } from '@faker-js/faker/.';
-import { StrategyService } from 'src/application/services/strategy/strategy.service';
-import { Strategy } from 'src/domains/strategy.entity';
-import { StrategyReadDto } from 'src/contracts/strategy/read-strategy.dto';
-import { FindOptionsWhere, In, IsNull, Not } from 'typeorm';
-import { Organization, ReportDay } from 'src/domains/organization.entity';
-import { StrategyCreateDto } from 'src/contracts/strategy/create-strategy.dto';
-import { StrategyUpdateDto } from 'src/contracts/strategy/update-strategy.dto';
 import { Target, Type, State } from 'src/domains/target.entity';
 import { TargetService } from 'src/application/services/target/target.service';
 import { TargetRepository } from 'src/application/services/target/repository/target.repository';
@@ -19,23 +12,35 @@ import { TargetReadDto } from 'src/contracts/target/read-target.dto';
 import { Project, Type as ProjectType } from 'src/domains/project.entity';
 import { TargetCreateDto } from 'src/contracts/target/create-target.dto';
 import { TargetUpdateDto } from 'src/contracts/target/update-target.dto';
+import { TargetHolderService } from 'src/application/services/targetHolder/targetHolder.service';
+import { TargetHolder } from 'src/domains/targetHolder.entity';
+import { TargetHolderRepository } from 'src/application/services/targetHolder/repository/targetHolder.repository';
 
 describe('GoalService', () => {
     let targetService: TargetService;
     let targetRepository: TargetRepository;
+    let targetHolderService: TargetHolderService;
+    let targetHolderRepository: TargetHolderRepository;
     beforeEach(async () => {
         const module: TestingModule = await Test.createTestingModule({
             imports: [WinstonModule.forRoot(winstonConfig)],
             providers: [
-                StrategyService,
+                TargetService,
+                TargetHolderService, // Реальный сервис
                 {
                     provide: getRepositoryToken(Target),
                     useClass: RepositoryFake,
+                },
+                {
+                    provide: getRepositoryToken(TargetHolder),
+                    useClass: RepositoryFake, // Если TargetHolderService зависит от репозитория TargetHolder
                 },
             ],
         }).compile();
         targetService = module.get(TargetService);
         targetRepository = module.get(getRepositoryToken(Target));
+        targetHolderService = module.get(TargetHolderService);
+        targetHolderRepository = module.get(getRepositoryToken(TargetHolder));
     });
 
 
@@ -102,13 +107,14 @@ describe('GoalService', () => {
             expect(result).toMatchObject(existingTargets);
             expect(targetRepositoryFindAllSpy).toHaveBeenCalled()
         });
+    })
 
 
     describe('creating a target', () => {
 
         it('calls the repository with correct paramaters', async () => {
 
-            const project: Project =         {
+            const project: Project = {
                 id: faker.string.uuid(),
                 projectNumber: faker.number.int(),
                 projectName: faker.book.title(),
@@ -122,16 +128,16 @@ describe('GoalService', () => {
                 strategy: {} as any,
                 account: {} as any,
                 user: {} as any,
-              },
+            }
 
-   
-              const type = Type.COMMON;
-              const orderNumber = faker.number.int();
-              const content = faker.finance.transactionDescription();
-              const holderUserId = faker.string.uuid();
-              const targetState = State.ACTIVE;
-              const dateStart = faker.date.anytime();
-              const deadline = faker.date.anytime();
+
+            const type = Type.COMMON;
+            const orderNumber = faker.number.int();
+            const content = faker.finance.transactionDescription();
+            const holderUserId = faker.string.uuid();
+            const targetState = State.ACTIVE;
+            const dateStart = new Date('2024-11-29T12:48:06.239Z');
+            const deadline = new Date('2025-11-29T12:45:06.239Z');
 
             const savedTarget: Target = {
                 id: faker.string.uuid(),
@@ -154,12 +160,14 @@ describe('GoalService', () => {
                 orderNumber: orderNumber,
                 content: content,
                 holderUserId: holderUserId,
-                dateStart: dateStart,
                 deadline: deadline,
                 project: project,
                 holderUser: {} as any
             }
 
+            const targetRepositoryFindOneSpy = jest
+                .spyOn(targetRepository, 'findOne')
+                .mockResolvedValue(savedTarget);
 
             const targetRepositoryInsertSpy = jest
                 .spyOn(targetRepository, 'insert')
@@ -170,18 +178,20 @@ describe('GoalService', () => {
                 });
 
             const result = await targetService.create(targetCreateDto);
-
             expect(targetRepositoryInsertSpy).toHaveBeenCalledWith(
                 expect.objectContaining({
                     type: type,
                     orderNumber: orderNumber,
-                    content: faker.finance.transactionDescription(),
-                    dateStart: dateStart,
+                    content: content,
                     deadline: deadline,
                     project: project,
-                    holderUser: {} as any
-                }),);
-            expect(result).toMatch(savedTarget.id);
+                    holderUserId: holderUserId
+                }));
+
+            expect(targetRepositoryFindOneSpy).toHaveBeenCalledWith({
+                where: { id: savedTarget.id }
+            });
+            expect(result).toEqual(savedTarget);
         });
     });
 
@@ -191,15 +201,15 @@ describe('GoalService', () => {
 
             const targetId = faker.string.uuid()
             const updateTargetDto: TargetUpdateDto = {
-                  _id: targetId,
-                  content: faker.finance.transactionDescription(),
-                  orderNumber: faker.number.int(),
-                  holderUserId: faker.string.uuid(),
-                  targetState: State.ACTIVE,
-                  type: Type.COMMON,
-                  dateStart: faker.date.anytime(),
-                  deadline: faker.date.anytime(),
-                  holderUser: {} as any
+                _id: targetId,
+                content: faker.finance.transactionDescription(),
+                orderNumber: faker.number.int(),
+                holderUserId: faker.string.uuid(),
+                targetState: State.ACTIVE,
+                type: Type.COMMON,
+                dateStart: faker.date.anytime(),
+                deadline: faker.date.anytime(),
+                holderUser: {} as any
             }
 
             const targetRepositoryFindOneSpy = jest
@@ -223,7 +233,7 @@ describe('GoalService', () => {
             const targetId = faker.string.uuid();
 
 
-            const updateStrategyDto: TargetUpdateDto = {
+            const updateTargetDto: TargetUpdateDto = {
                 _id: targetId,
                 content: faker.finance.transactionDescription(),
                 orderNumber: faker.number.int(),
@@ -235,63 +245,44 @@ describe('GoalService', () => {
                 holderUser: {} as any
             }
 
-            const existingStrategy: StrategyReadDto = {
-                id: strategyId,
-                strategyNumber: faker.number.int(),
-                dateActive: null,
-                content: faker.finance.accountName(),
-                state: State.DRAFT,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                user: {} as any,
-                account: {} as any,
-                organization: organization,
-                objective: {} as any,
-                projects: {} as any,
+            const existingTarget: TargetReadDto = {
+                id: targetId,
+                type: Type.COMMON,
+                orderNumber: faker.number.int(),
+                content: faker.finance.transactionDescription(),
+                holderUserId: faker.string.uuid(),
+                targetState: State.ACTIVE,
+                dateStart: faker.date.anytime(),
+                deadline: faker.date.anytime(),
+                dateComplete: null,
+                createdAt: faker.date.anytime(),
+                updatedAt: faker.date.anytime(),
+                targetHolders: {} as any,
+                project: {} as any,
             };
 
-            const strategyRepositoryFindOneMock = jest.spyOn(strategyRepository, 'findOne').mockImplementation(({ where }) => {
-                const whereObj = where as FindOptionsWhere<Strategy>; // Приводим к объекту
-              
-                if (
-                  typeof whereObj.organization === 'object' && 
-                  'id' in whereObj.organization &&
-                  whereObj.organization.id === organization.id
-                ) {
-                  return Promise.resolve(null); // Стратегия со статусом ACTIVE не найдена
-                }
-              
-                if (whereObj.id === strategyId) {
-                  return Promise.resolve(existingStrategy); // Возвращаем стратегию по ID
-                }
-              
-                return Promise.resolve(null); // По умолчанию
-              });
-            const strategyRepositoryUpdateSpy = jest
-                .spyOn(strategyRepository, 'update')
+            const targetRepositoryFindOneMock = jest.spyOn(targetRepository, 'findOne').mockResolvedValue(existingTarget)
+            const targetRepositoryUpdateSpy = jest
+                .spyOn(targetRepository, 'update')
                 .mockResolvedValue({
                     generatedMaps: [],
                     raw: [],
                     affected: 1
                 });
 
-            const result = await strategyService.update(strategyId, updateStrategyDto);
-            expect(result).toMatch(existingStrategy.id);
-            expect(strategyRepositoryFindOneMock).toHaveBeenCalledWith({
-                where: { id: strategyId },
-                relations: ['organization'],
+            const result = await targetService.update(updateTargetDto);
+            expect(result).toMatch(existingTarget.id);
+            expect(targetRepositoryFindOneMock).toHaveBeenCalledWith({
+                where: { id: targetId },
             });
-            expect(strategyRepositoryFindOneMock).toHaveBeenCalledWith({
-                where: {
-                    state: State.ACTIVE,
-                    organization: { id: organization.id },
-                },
-            });
-            expect(strategyRepositoryUpdateSpy).toHaveBeenCalledWith(
-                strategyId,
+            expect(targetRepositoryUpdateSpy).toHaveBeenCalledWith(
+                targetId,
                 expect.objectContaining({
-                    state: updateStrategyDto.state,
-                    content: updateStrategyDto.content,
+                    content: updateTargetDto.content,
+                    holderUserId: updateTargetDto.holderUserId,
+                    targetState: updateTargetDto.targetState,
+                    dateStart: updateTargetDto.dateStart,
+                    deadline: updateTargetDto.deadline,
                 }));
         });
     });

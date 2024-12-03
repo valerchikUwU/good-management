@@ -45,17 +45,17 @@ describe('ProjectService', () => {
       const organization: Organization = {
         id: faker.string.uuid(),
         organizationName: faker.company.name(),
-        parentOrganizationId: null,
+        parentOrganizationId: {} as any,
         reportDay: ReportDay.FRIDAY,
         createdAt: new Date(),
         updatedAt: new Date(),
-        goal: null,
-        users: null,
-        posts: null,
-        policies: null,
-        projects: null,
-        strategies: null,
-        account: null,
+        goal: {} as any,
+        users: {} as any,
+        posts: {} as any,
+        policies: {} as any,
+        projects: {} as any,
+        strategies: {} as any,
+        account: {} as any,
       };
 
       const baseTask = {
@@ -64,8 +64,8 @@ describe('ProjectService', () => {
         holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
         dateStart: new Date('2024-09-18T14:59:47.010Z'),
         deadline: new Date('2024-09-18T14:59:47.010Z'),
-        holderUser: null,
-        project: null,
+        holderUser: {} as any,
+        project: {} as any,
       };
       const targets: Target[] = [
         TypeTarget.PRODUCT,
@@ -140,19 +140,19 @@ describe('ProjectService', () => {
         tenantId: faker.string.uuid(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        users: null,
-        organizations: null,
-        goals: null,
-        objectives: null,
-        policies: null,
-        projects: null,
-        strategies: null,
-        posts: null,
-        statistics: null,
-        roleSettings: null,
-        policyDirectories: null,
-        converts: null,
-        groups: null,
+        users: {} as any,
+        organizations: {} as any,
+        goals: {} as any,
+        objectives: {} as any,
+        policies: {} as any,
+        projects: {} as any,
+        strategies: {} as any,
+        posts: {} as any,
+        statistics: {} as any,
+        roleSettings: {} as any,
+        policyDirectories: {} as any,
+        converts: {} as any,
+        groups: {} as any,
       };
 
       const baseTask = {
@@ -195,7 +195,7 @@ describe('ProjectService', () => {
           targets: targets,
           strategy: null,
           account: account,
-          user: null,
+          user: {} as any,
         },
         {
           id: faker.string.uuid(),
@@ -210,7 +210,7 @@ describe('ProjectService', () => {
           targets: targets,
           strategy: null,
           account: account,
-          user: null,
+          user: {} as any,
         },
       ];
 
@@ -228,26 +228,26 @@ describe('ProjectService', () => {
   });
 
   describe('finding all project without program by account', () => {
-    it('returns all project without program by account', async () => {
+    it('returns all projects without program by account', async () => {
       const account: Account = {
         id: faker.string.uuid(),
         accountName: faker.company.name(),
         tenantId: faker.string.uuid(),
         createdAt: new Date(),
         updatedAt: new Date(),
-        users: null,
-        organizations: null,
-        goals: null,
-        objectives: null,
-        policies: null,
-        projects: null,
-        strategies: null,
-        posts: null,
-        statistics: null,
-        roleSettings: null,
-        policyDirectories: null,
-        converts: null,
-        groups: null,
+        users: {} as any,
+        organizations: {} as any,
+        goals: {} as any,
+        objectives: {} as any,
+        policies: {} as any,
+        projects: {} as any,
+        strategies: {} as any,
+        posts: {} as any,
+        statistics: {} as any,
+        roleSettings: {} as any,
+        policyDirectories: {} as any,
+        converts: {} as any,
+        groups: {} as any,
       };
 
       const baseTask = {
@@ -281,7 +281,7 @@ describe('ProjectService', () => {
           id: faker.string.uuid(),
           projectNumber: faker.number.int(),
           projectName: faker.book.title(),
-          programId: null,
+          programId: {} as any,
           content: faker.string.sample(),
           type: Type.PROJECT,
           createdAt: new Date(),
@@ -290,13 +290,13 @@ describe('ProjectService', () => {
           targets: targets,
           strategy: null,
           account: account,
-          user: null,
+          user: {} as any,
         },
         {
           id: faker.string.uuid(),
           projectNumber: faker.number.int(),
           projectName: faker.book.title(),
-          programId: null,
+          programId: {} as any,
           content: faker.string.sample(),
           type: Type.PROGRAM,
           createdAt: new Date(),
@@ -305,7 +305,7 @@ describe('ProjectService', () => {
           targets: targets,
           strategy: null,
           account: account,
-          user: null,
+          user: {} as any,
         },
       ];
 
@@ -323,6 +323,82 @@ describe('ProjectService', () => {
           account: { id: account.id },
         },
         relations: ['organization', 'targets'],
+      });
+    });
+  });
+
+  describe('finding all projects by programId', () => {
+    it('returns all projects by programId', async () => {
+
+      const programId = faker.string.uuid()
+      const baseTask = {
+        orderNumber: 1,
+        content: 'Контент задачи',
+        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        dateStart: new Date('2024-09-18T14:59:47.010Z'),
+        deadline: new Date('2024-09-18T14:59:47.010Z'),
+        holderUser: null,
+        project: null,
+      };
+      const targets: Target[] = [
+        TypeTarget.PRODUCT,
+        TypeTarget.COMMON,
+        TypeTarget.RULE,
+        TypeTarget.STATISTIC,
+        TypeTarget.EVENT,
+      ].map((type) => ({
+        ...baseTask,
+        type,
+        id: faker.string.uuid(),
+        targetState: TargetState.ACTIVE,
+        dateComplete: new Date('2024-09-18T14:59:47.010Z'),
+        createdAt: new Date('2024-09-18T14:59:47.010Z'),
+        updatedAt: new Date('2024-09-18T14:59:47.010Z'),
+        targetHolders: null,
+        isExpired: true,
+      }));
+      const existingProjects: ProjectReadDto[] = [
+        {
+          id: faker.string.uuid(),
+          projectNumber: faker.number.int(),
+          projectName: faker.book.title(),
+          programId: programId,
+          content: faker.string.sample(),
+          type: Type.PROJECT,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          organization: {} as any,
+          targets: targets,
+          strategy: {} as any,
+          account: {} as any,
+          user: {} as any,
+        },
+        {
+          id: faker.string.uuid(),
+          projectNumber: faker.number.int(),
+          projectName: faker.book.title(),
+          programId: programId,
+          content: faker.string.sample(),
+          type: Type.PROGRAM,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          organization: {} as any,
+          targets: targets,
+          strategy: {} as any,
+          account: {} as any,
+          user: {} as any,
+        },
+      ];
+
+      const projectRepositoryFindAllSpy = jest
+        .spyOn(projectRepository, 'find')
+        .mockResolvedValue(existingProjects);
+
+      const result = await projectService.findAllProjectsByProgramId(programId);
+      expect(result).toEqual(existingProjects);
+      expect(projectRepositoryFindAllSpy).toHaveBeenCalledWith({
+        where: { programId: programId },
+        relations: ['targets.targetHolders.user'],
       });
     });
   });
@@ -357,6 +433,105 @@ describe('ProjectService', () => {
       expect(whereSpy).toHaveBeenCalledWith('project.id = :id', { id });
       expect(getOneSpy).toHaveBeenCalled();
     });
+
+    it('returns the project', async () => {
+      const id = faker.string.uuid();
+      const programId = faker.string.uuid();
+
+
+      const baseTask = {
+        orderNumber: 1,
+        content: 'Контент задачи',
+        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        dateStart: new Date('2024-09-18T14:59:47.010Z'),
+        deadline: new Date('2024-09-18T14:59:47.010Z'),
+        holderUser: null,
+        project: null,
+      };
+      const targets: Target[] = [
+        TypeTarget.PRODUCT,
+        TypeTarget.COMMON,
+        TypeTarget.RULE,
+        TypeTarget.STATISTIC,
+        TypeTarget.EVENT,
+      ].map((type) => ({
+        ...baseTask,
+        type,
+        id: faker.string.uuid(),
+        targetState: TargetState.ACTIVE,
+        dateComplete: new Date('2024-09-18T14:59:47.010Z'),
+        createdAt: new Date('2024-09-18T14:59:47.010Z'),
+        updatedAt: new Date('2024-09-18T14:59:47.010Z'),
+        targetHolders: null,
+        isExpired: true,
+      }));
+
+      const existingProgram: ProjectReadDto =
+      {
+        id: programId,
+        projectNumber: faker.number.int(),
+        projectName: faker.book.title(),
+        programId: faker.string.uuid(),
+        content: faker.string.sample(),
+        type: Type.PROGRAM,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        organization: {} as any,
+        targets: targets,
+        strategy: {} as any,
+        account: {} as any,
+        user: {} as any,
+      }
+      const existingProject: ProjectReadDto =
+      {
+        id: id,
+        projectNumber: faker.number.int(),
+        projectName: faker.book.title(),
+        programId: programId,
+        programNumber: existingProgram.projectNumber,
+        content: faker.string.sample(),
+        type: Type.PROJECT,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        organization: {} as any,
+        targets: targets,
+        strategy: {} as any,
+        account: {} as any,
+        user: {} as any,
+      }
+
+      const leftJoinAndSelectSpy = jest.fn().mockReturnThis();
+      const whereSpy = jest.fn().mockReturnThis();
+      const getOneSpy = jest.fn().mockResolvedValue(existingProject);
+      const projectRepositoryFindOneSpy = jest
+        .spyOn(projectRepository, 'findOne')
+        .mockResolvedValue(existingProgram);
+
+      jest.spyOn(projectRepository, 'createQueryBuilder').mockReturnValue({
+        leftJoinAndSelect: leftJoinAndSelectSpy,
+        where: whereSpy,
+        getOne: getOneSpy,
+      } as any);
+
+      const result = await projectService.findOneById(id);
+      expect(result).toEqual(existingProject)
+
+      // Теперь можно проверять вызовы методов
+      expect(projectRepository.createQueryBuilder).toHaveBeenCalled();
+      expect(leftJoinAndSelectSpy).toHaveBeenCalledWith('project.strategy', 'strategy');
+      expect(leftJoinAndSelectSpy).toHaveBeenCalledWith('project.targets', 'targets');
+      expect(leftJoinAndSelectSpy).toHaveBeenCalledWith('targets.targetHolders', 'targetHolders');
+      expect(leftJoinAndSelectSpy).toHaveBeenCalledWith('targetHolders.user', 'user');
+      expect(leftJoinAndSelectSpy).toHaveBeenCalledWith('project.organization', 'organization');
+      // и так далее для остальных вызовов
+      expect(whereSpy).toHaveBeenCalledWith('project.id = :id', { id });
+      expect(getOneSpy).toHaveBeenCalled();
+
+      expect(projectRepositoryFindOneSpy).toHaveBeenCalledWith({
+        where: { id: programId },
+      });
+    });
+
   });
 
   describe('finding a program by id', () => {
@@ -391,8 +566,8 @@ describe('ProjectService', () => {
         holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
         dateStart: new Date('2024-09-18T14:59:47.010Z'),
         deadline: new Date('2024-09-18T14:59:47.010Z'),
-        holderUser: null,
-        project: null,
+        holderUser: {} as any,
+        project: {} as any,
       };
       const targets: Target[] = [
         TypeTarget.PRODUCT,
@@ -408,7 +583,7 @@ describe('ProjectService', () => {
         dateComplete: new Date('2024-09-18T14:59:47.010Z'),
         createdAt: new Date('2024-09-18T14:59:47.010Z'),
         updatedAt: new Date('2024-09-18T14:59:47.010Z'),
-        targetHolders: null,
+        targetHolders: {} as any,
       }));
 
       const existingProgram: ProjectReadDto = {
@@ -420,16 +595,16 @@ describe('ProjectService', () => {
         type: Type.PROGRAM,
         createdAt: new Date(),
         updatedAt: new Date(),
-        organization: null,
+        organization: {} as any,
         targets: targets.map((target) => ({
           ...target,
           isExpired: target.deadline
             ? new Date(target.deadline) < new Date()
             : false,
         })),
-        strategy: null,
-        account: null,
-        user: null,
+        strategy: {} as any,
+        account: {} as any,
+        user: {} as any,
       };
 
       const projectRepositoryFindOneSpy = jest
@@ -455,8 +630,8 @@ describe('ProjectService', () => {
         holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
         dateStart: new Date('2024-09-18T14:59:47.010Z'),
         deadline: new Date('2024-09-18T14:59:47.010Z'),
-        holderUser: null,
-        project: null,
+        holderUser: {} as any,
+        project: {} as any,
       };
       const targets: Target[] = [
         TypeTarget.PRODUCT,
@@ -485,11 +660,11 @@ describe('ProjectService', () => {
           type: Type.PROJECT,
           createdAt: new Date(),
           updatedAt: new Date(),
-          organization: null,
+          organization: {} as any,
           targets: targets,
-          strategy: null,
-          account: null,
-          user: null,
+          strategy: {} as any,
+          account: {} as any,
+          user: {} as any,
         },
         {
           id: faker.string.uuid(),
@@ -500,11 +675,11 @@ describe('ProjectService', () => {
           type: Type.PROJECT,
           createdAt: new Date(),
           updatedAt: new Date(),
-          organization: null,
+          organization: {} as any,
           targets: targets,
-          strategy: null,
-          account: null,
-          user: null,
+          strategy: {} as any,
+          account: {} as any,
+          user: {} as any,
         },
       ];
 
@@ -533,17 +708,17 @@ describe('ProjectService', () => {
       const organization: Organization = {
         id: organizationId,
         organizationName: faker.company.name(),
-        parentOrganizationId: null,
+        parentOrganizationId: {} as any,
         reportDay: ReportDay.FRIDAY,
         createdAt: new Date(),
         updatedAt: new Date(),
-        goal: null,
-        users: null,
-        posts: null,
-        policies: null,
-        projects: null,
-        strategies: null,
-        account: null,
+        goal: {} as any,
+        users: {} as any,
+        posts: {} as any,
+        policies: {} as any,
+        projects: {} as any,
+        strategies: {} as any,
+        account: {} as any,
       };
 
       const strategy: Strategy = {
@@ -554,11 +729,11 @@ describe('ProjectService', () => {
         state: State.ACTIVE,
         createdAt: new Date(),
         updatedAt: new Date(),
-        user: null,
-        account: null,
+        user: {} as any,
+        account: {} as any,
         organization: organization,
-        objective: null,
-        projects: null,
+        objective: {} as any,
+        projects: {} as any,
       };
 
       const baseTask = {
@@ -567,8 +742,8 @@ describe('ProjectService', () => {
         holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
         dateStart: new Date('2024-09-18T14:59:47.010Z'),
         deadline: new Date('2024-09-18T14:59:47.010Z'),
-        holderUser: null,
-        project: null,
+        holderUser: {} as any,
+        project: {} as any,
       };
 
       const targetCreateDtos: TargetCreateDto[] = [
@@ -593,7 +768,7 @@ describe('ProjectService', () => {
         dateComplete: new Date('2024-09-18T14:59:47.010Z'),
         createdAt: new Date('2024-09-18T14:59:47.010Z'),
         updatedAt: new Date('2024-09-18T14:59:47.010Z'),
-        targetHolders: null,
+        targetHolders: {} as any,
       }));
 
       const projectCreateDto: ProjectCreateDto = {
@@ -604,9 +779,9 @@ describe('ProjectService', () => {
         organizationId: organizationId,
         strategyId: strategyId,
         targetCreateDtos: targetCreateDtos,
-        user: null,
+        user: {} as any,
         strategy: strategy,
-        account: null,
+        account: {} as any,
         organization: organization,
       };
       const savedProject: Project = {
@@ -621,8 +796,8 @@ describe('ProjectService', () => {
         organization: organization,
         targets: targets,
         strategy: strategy,
-        account: null,
-        user: null,
+        account: {} as any,
+        user: {} as any,
       };
       const projectRepositoryInsertSpy = jest
         .spyOn(projectRepository, 'insert')
@@ -640,9 +815,9 @@ describe('ProjectService', () => {
           programId: programId,
           content: content,
           type: type,
-          user: null,
+          user: {} as any,
           strategy: strategy,
-          account: null,
+          account: {} as any,
           organization: organization,
         }),
       );
@@ -665,17 +840,17 @@ describe('ProjectService', () => {
       const organization: Organization = {
         id: organizationId,
         organizationName: faker.company.name(),
-        parentOrganizationId: null,
+        parentOrganizationId: {} as any,
         reportDay: ReportDay.FRIDAY,
         createdAt: new Date(),
         updatedAt: new Date(),
-        goal: null,
-        users: null,
-        posts: null,
-        policies: null,
-        projects: null,
-        strategies: null,
-        account: null,
+        goal: {} as any,
+        users: {} as any,
+        posts: {} as any,
+        policies: {} as any,
+        projects: {} as any,
+        strategies: {} as any,
+        account: {} as any,
       };
 
       const strategy: Strategy = {
@@ -686,11 +861,11 @@ describe('ProjectService', () => {
         state: State.ACTIVE,
         createdAt: new Date(),
         updatedAt: new Date(),
-        user: null,
-        account: null,
+        user: {} as any,
+        account: {} as any,
         organization: organization,
-        objective: null,
-        projects: null,
+        objective: {} as any,
+        projects: {} as any,
       };
 
       const baseTask = {
@@ -699,8 +874,8 @@ describe('ProjectService', () => {
         holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
         dateStart: new Date('2024-09-18T14:59:47.010Z'),
         deadline: new Date('2024-09-18T14:59:47.010Z'),
-        holderUser: null,
-        project: null,
+        holderUser: {} as any,
+        project: {} as any,
       };
 
       const targetCreateDtos: TargetCreateDto[] = [
@@ -725,7 +900,7 @@ describe('ProjectService', () => {
         dateComplete: new Date('2024-09-18T14:59:47.010Z'),
         createdAt: new Date('2024-09-18T14:59:47.010Z'),
         updatedAt: new Date('2024-09-18T14:59:47.010Z'),
-        targetHolders: null,
+        targetHolders: {} as any,
       }));
 
       const projectUpdateDto: ProjectUpdateDto = {
@@ -752,8 +927,8 @@ describe('ProjectService', () => {
         organization: organization,
         targets: targets,
         strategy: strategy,
-        account: null,
-        user: null,
+        account: {} as any,
+        user: {} as any,
       };
 
       const projectRepositoryFindOneSpy = jest

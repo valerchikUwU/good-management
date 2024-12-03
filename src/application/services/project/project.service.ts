@@ -22,7 +22,7 @@ export class ProjectService {
     @InjectRepository(Project)
     private readonly projectRepository: ProjectRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForOrganization(
     organizationId: string,
@@ -45,9 +45,7 @@ export class ProjectService {
         organization: project.organization,
         targets: project.targets.map((target) => ({
           ...target,
-          isExpired: target.deadline
-            ? new Date(target.deadline) < new Date()
-            : false,
+          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
         })),
         strategy: project.strategy,
         account: project.account,
@@ -81,9 +79,7 @@ export class ProjectService {
         organization: program.organization,
         targets: program.targets.map((target) => ({
           ...target,
-          isExpired: target.deadline
-            ? new Date(target.deadline) < new Date()
-            : false,
+          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
         })),
         strategy: program.strategy,
         account: program.account,
@@ -121,9 +117,7 @@ export class ProjectService {
         organization: project.organization,
         targets: project.targets.map((target) => ({
           ...target,
-          isExpired: target.deadline
-            ? new Date(target.deadline) < new Date()
-            : false,
+          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
         })),
         strategy: project.strategy,
         account: project.account,
@@ -163,9 +157,7 @@ export class ProjectService {
       // Проверка просроченности для каждого объекта target
       const targetsWithIsExpired = project.targets.map((target) => ({
         ...target,
-        isExpired: target.deadline
-          ? new Date(target.deadline) < new Date()
-          : false,
+        isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
       }));
       const projectReadDto: ProjectReadDto = {
         id: project.id,
@@ -185,6 +177,7 @@ export class ProjectService {
       };
       return projectReadDto;
     } catch (err) {
+      console.log(err)
       this.logger.error(err);
       // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
@@ -215,9 +208,7 @@ export class ProjectService {
         organization: program.organization,
         targets: program.targets.map((target) => ({
           ...target,
-          isExpired: target.deadline
-            ? new Date(target.deadline) < new Date()
-            : false,
+          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
         })),
         strategy: program.strategy,
         account: program.account,
@@ -257,9 +248,7 @@ export class ProjectService {
         organization: project.organization,
         targets: project.targets.map((target) => ({
           ...target,
-          isExpired: target.deadline
-            ? new Date(target.deadline) < new Date()
-            : false,
+          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
         })),
         strategy: project.strategy,
         account: project.account,
