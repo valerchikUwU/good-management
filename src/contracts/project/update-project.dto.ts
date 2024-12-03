@@ -16,7 +16,7 @@ import { TargetUpdateDto } from '../target/update-target.dto';
 import { Exclude, Type } from 'class-transformer';
 import { Organization } from 'src/domains/organization.entity';
 import { Strategy } from 'src/domains/strategy.entity';
-import { HasCommonActiveOrFinished } from 'src/validators/project-validator';
+import { HasCommonActiveOrFinished, HasProjectIdsForProgram } from 'src/validators/project-validator';
 
 export class ProjectUpdateDto {
   @ApiProperty({
@@ -155,6 +155,10 @@ export class ProjectUpdateDto {
   })
   @IsOptional()
   @IsArray()
+  @HasProjectIdsForProgram({
+    message:
+      'Выберите хотя бы один проект для программы!',
+  })
   projectIds?: string[];
 }
 

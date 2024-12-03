@@ -209,7 +209,7 @@ export class AuthService {
       );
       if (!session) {
         throw new UnauthorizedException(
-          'Войти в свой аккаунт для дальнейшей работы!',
+          'Войдите в свой аккаунт для дальнейшей работы!',
         );
       }
       const currentTime = Math.floor(Date.now() / 1000);
