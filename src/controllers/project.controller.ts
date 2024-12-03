@@ -665,8 +665,7 @@ export class ProjectController {
     @Param('programId') programId: string,
   ): Promise<{ program: ProjectReadDto; projects: ProjectReadDto[] }> {
     const program = await this.projectService.findOneProgramById(programId);
-    const projectsByProgramId =
-      await this.projectService.findAllProjectsByProgramId(programId);
+    const projectsByProgramId = await this.projectService.findAllNotRejectedProjectsByProgramId(programId);
     return { program: program, projects: projectsByProgramId };
   }
 
