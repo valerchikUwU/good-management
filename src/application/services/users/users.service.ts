@@ -260,9 +260,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOneBy({ telegramId });
       if (!user)
-        throw new NotFoundException(
-          `Пользователь с telegramID: ${telegramId} не найден!`,
-        );
+        return null;
 
       // Преобразование объекта User в ReadUserDto
       const readUserDto: ReadUserDto = {

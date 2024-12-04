@@ -36,6 +36,9 @@ import { GroupModule } from './application/modules/group.module';
 import { GroupToUserModule } from './application/modules/groupToUser.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 
 @Module({
   imports: [
@@ -54,8 +57,8 @@ import { join } from 'path';
     ...(process.env.NODE_ENV === 'prod'
       ? [
           ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '../../gm_front_build/GM'),
-            serveRoot: '/mobile', // Фронтенд будет доступен по корню
+            rootPath: join(__dirname, '../../../gm_front_build/GM'),
+            serveRoot: '/gm/mobile', // Фронтенд будет доступен по корню
           }),
         ]
       : []),
