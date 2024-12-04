@@ -235,7 +235,8 @@ export class AuthController {
         authTg.telephoneNumber,
       );
       let updateUser = user;
-      if (!user.telegramId) {
+      console.log(user.telegramId)
+      if (user.telegramId === null) {
         updateUser = await this.userService.updateTgAuth(
           user,
           updateTgAuthUserDto,
