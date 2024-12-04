@@ -142,7 +142,7 @@ export class ConsumerService implements OnModuleInit {
     }
     catch (err) {
       this.logger.error(err);
-      throw err;
+      
     }
 
   }
@@ -212,7 +212,7 @@ export class ConsumerService implements OnModuleInit {
     }
     catch (err) {
       this.logger.error(err);
-      throw err;
+      
     }
   }
 
@@ -251,7 +251,7 @@ export class ConsumerService implements OnModuleInit {
     }
     catch (err) {
       this.logger.error(err);
-      throw err;
+      
     }
   }
 
@@ -278,7 +278,7 @@ export class ConsumerService implements OnModuleInit {
     }
     catch (err) {
       this.logger.error(err);
-      throw err;
+      
     }
   }
 
@@ -320,7 +320,7 @@ export class ConsumerService implements OnModuleInit {
     }
     catch (err) {
       this.logger.error(err);
-      throw err;
+      
     }
   }
 
@@ -343,7 +343,7 @@ export class ConsumerService implements OnModuleInit {
     }
     catch (err) {
       this.logger.error(err);
-      throw err;
+      
     }
   }
 }
