@@ -29,67 +29,70 @@ export class TelegramService {
     // Telegraf will use `telegraf-session-local` configured above middleware
 
     this.bot.start(async (ctx) => {
-      // Проверяем, начинается ли сообщение с /start
-      if (ctx.message.text.startsWith('/start')) {
-        const chatId = ctx.update.message?.chat.id || '';
-        // Извлекаем параметр после /start
-        const match = ctx.message.text.match(/^\/start ([\w-]+)$/);
-        if (match) {
-          // Удаляем /start из начала строки
-          const command = match[1].replace('/start', '');
-          const dashIndex = command.indexOf('-'); // Находим индекс первого дефиса
-          // Разделяем строку на части по дефису
-          const parts = [
-            command.slice(0, dashIndex),
-            command.slice(dashIndex + 1),
-          ];
-          const token = parts[0]; // Первая часть - токен
-          const clientId = parts[1]; // Вторая часть - clientId
-          if (token) {
-            const telegramId = ctx.message.from.id;
-            console.log(telegramId);
-            const user =
-              await this.usersService.findOneByTelegramId(telegramId);
-            if (user !== null) {
-              const authFlag = await this.authRequest(
-                user.telephoneNumber,
-                telegramId,
-                token,
-                clientId,
-                ctx,
-              );
-              if (authFlag) {
-                ctx.reply('Вход успешен!');
-              }
-              this.chatStorageService.clearChatById(chatId);
-            } else {
-              this.chatStorageService.setChatInfo(chatId, {
-                token: token,
-                clientId: clientId,
-              });
-              ctx.reply(
-                'Добро пожаловать в бота, чтобы войти поделитесь контактом, нажав на кнопку ниже:',
-                {
-                  reply_markup: {
-                    keyboard: [
-                      [{ text: 'Поделиться контактом', request_contact: true }],
-                    ],
-                    resize_keyboard: true,
-                    one_time_keyboard: true,
+      try {
+        // Проверяем, начинается ли сообщение с /start
+        if (ctx.message.text.startsWith('/start')) {
+          const chatId = ctx.update.message?.chat.id || '';
+          // Извлекаем параметр после /start
+          const match = ctx.message.text.match(/^\/start ([\w-]+)$/);
+          if (match) {
+            // Удаляем /start из начала строки
+            const command = match[1].replace('/start', '');
+            const dashIndex = command.indexOf('-'); // Находим индекс первого дефиса
+            // Разделяем строку на части по дефису
+            const parts = [
+              command.slice(0, dashIndex),
+              command.slice(dashIndex + 1),
+            ];
+            const token = parts[0]; // Первая часть - токен
+            const clientId = parts[1]; // Вторая часть - clientId
+            if (token) {
+              const telegramId = ctx.message.from.id;
+              const user = await this.usersService.findOneByTelegramId(telegramId);
+              if (user !== null) {
+                const authFlag = await this.authRequest(
+                  user.telephoneNumber,
+                  telegramId,
+                  token,
+                  clientId,
+                  ctx,
+                );
+                if (authFlag) {
+                  ctx.reply('Вход успешен!');
+                }
+                this.chatStorageService.clearChatById(chatId);
+              } else {
+                this.chatStorageService.setChatInfo(chatId, {
+                  token: token,
+                  clientId: clientId,
+                });
+                ctx.reply(
+                  'Добро пожаловать в бота, чтобы войти поделитесь контактом, нажав на кнопку ниже:',
+                  {
+                    reply_markup: {
+                      keyboard: [
+                        [{ text: 'Поделиться контактом', request_contact: true }],
+                      ],
+                      resize_keyboard: true,
+                      one_time_keyboard: true,
+                    },
                   },
-                },
+                );
+              }
+            } else {
+              ctx.reply(
+                'Пожалуйста, используйте QR - код или ссылку из приложения!',
               );
             }
           } else {
             ctx.reply(
-              'Пожалуйста, используйте QR - код или ссылку из приложения!',
+              'Команда /start не соответствует ожидаемому формату, пожалуйста, используйте QR - код или ссылку из приложения!',
             );
           }
-        } else {
-          ctx.reply(
-            'Команда /start не соответствует ожидаемому формату, пожалуйста, используйте QR - код или ссылку из приложения!',
-          );
         }
+      }
+      catch (err) {
+        this.logger.error(err)
       }
     });
 
@@ -134,9 +137,7 @@ export class TelegramService {
         this.chatStorageService.clearChatById(chatId);
       } catch (err) {
         this.logger.error(err);
-        throw new InternalServerErrorException(
-          'Ой, что - то пошло не так при входе через ТГ!',
-        );
+
       }
     });
 
