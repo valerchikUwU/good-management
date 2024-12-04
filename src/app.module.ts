@@ -55,7 +55,7 @@ import { join } from 'path';
       ? [
           ServeStaticModule.forRoot({
             rootPath: join(__dirname, '../../gm_front_build/GM', 'mobile-build'),
-            serveRoot: '/', // Фронтенд будет доступен по корню
+            serveRoot: '/mobile', // Фронтенд будет доступен по корню
           }),
         ]
       : []),
