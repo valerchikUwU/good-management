@@ -432,8 +432,8 @@ export class UsersService {
   ): Promise<ReadUserDto | null> {
     try {
       user.telegramId = updateTgAuthUserDto.telegramId;
-
-      return user;
+      const updatedUser = await this.usersRepository.save(user)
+      return updatedUser;
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
