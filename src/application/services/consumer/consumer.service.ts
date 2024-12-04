@@ -118,143 +118,168 @@ export class ConsumerService implements OnModuleInit {
 
   // Обработка события TenantCreatedEvent
   private async handleTenantCreatedEvent(event: any) {
-    const payload = event.payload;
-    this.logger.log(`Handling TenantCreatedEvent: ${JSON.stringify(payload)}`);
-    const accountCreateDto: AccountCreateDto = {
-      id: payload.company.id,
-      accountName: payload.company.name,
-      tenantId: payload.company.tenantId,
-    };
-    const createdAccount = await this.accountService.create(accountCreateDto);
-    const ownerRole = await this.roleService.findOneByName(Roles.OWNER);
-    const userCreateDto: CreateUserDto = {
-      id: payload.id,
-      firstName: payload.firstName,
-      lastName: payload.lastName,
-      middleName: payload.middleName,
-      telephoneNumber: payload.phone,
-      role: ownerRole,
-      account: createdAccount,
-    };
-    await this.userService.create(userCreateDto);
-    // Здесь можно реализовать сохранение данных или другую логику
+    try {
+      const payload = event.payload;
+      this.logger.log(`Handling TenantCreatedEvent: ${JSON.stringify(payload)}`);
+      const accountCreateDto: AccountCreateDto = {
+        id: payload.company.id,
+        accountName: payload.company.name,
+        tenantId: payload.company.tenantId,
+      };
+      const createdAccount = await this.accountService.create(accountCreateDto);
+      const ownerRole = await this.roleService.findOneByName(Roles.OWNER);
+      const userCreateDto: CreateUserDto = {
+        id: payload.id,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        middleName: payload.middleName,
+        telephoneNumber: payload.phone,
+        role: ownerRole,
+        account: createdAccount,
+      };
+      await this.userService.create(userCreateDto);
+      // Здесь можно реализовать сохранение данных или другую логику
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw err;
+    }
+
   }
 
   // Обработка события OrganizationCreatedEvent
   private async handleOrganizationCreatedEvent(event: any) {
-    const payload = event.payload;
-    this.logger.log(
-      `Handling OrganizationCreatedEvent: ${JSON.stringify(payload)}`,
-    );
-    const account = await this.accountService.findOneById(event.accountId);
-    const organizationCreateDto: OrganizationCreateDto = {
-      id: payload.id,
-      organizationName: payload.name,
-      parentOrganizationId: payload.parentId,
-      account: account,
-    };
-    const createdOrganizationId = await this.organizationService.create(
-      organizationCreateDto,
-    );
-    const createdOrganization = await this.organizationService.findOneById(
-      createdOrganizationId,
-    );
-    const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
-
-    const createEmployeesPromises = payload.users.map(async (user: any) => {
-      const userCreateDto: CreateUserDto = {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        middleName: user.middleName,
-        telephoneNumber: user.phone,
-        role: employeeRole,
+    try {
+      const payload = event.payload;
+      this.logger.log(
+        `Handling OrganizationCreatedEvent: ${JSON.stringify(payload)}`,
+      );
+      const account = await this.accountService.findOneById(event.accountId);
+      const organizationCreateDto: OrganizationCreateDto = {
+        id: payload.id,
+        organizationName: payload.name,
+        parentOrganizationId: payload.parentId,
         account: account,
       };
-      return await this.userService.create(userCreateDto);
-    });
-    await Promise.all(createEmployeesPromises);
+      const createdOrganizationId = await this.organizationService.create(
+        organizationCreateDto,
+      );
+      const createdOrganization = await this.organizationService.findOneById(
+        createdOrganizationId,
+      );
+      const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
 
-    const createPostsPromises = payload.posts.map(async (post: any) => {
-      const responsibleUser =
-        post.userId !== null
-          ? await this.userService.findOne(post.userId)
-          : null;
-      const policy =
-        post.policyId !== null
-          ? await this.policyService.findOneById(post.policyId)
-          : null;
-      const postCreateDto: PostCreateDto = {
-        id: post.id,
-        postName: post.name,
-        divisionName: post.divisionName,
-        parentId: post.parentId,
-        product: post.valuableEndProduct,
-        purpose: post.perfectPicture,
-        user: responsibleUser,
-        organizationId: createdOrganization.id,
-        organization: createdOrganization,
-        policy: policy,
-        account: account,
-      };
-      return await this.postService.create(postCreateDto);
-    });
-    await Promise.all(createPostsPromises);
-    // Здесь можно реализовать сохранение данных или другую логику
+      const createEmployeesPromises = payload.users.map(async (user: any) => {
+        const userCreateDto: CreateUserDto = {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          middleName: user.middleName,
+          telephoneNumber: user.phone,
+          role: employeeRole,
+          account: account,
+        };
+        return await this.userService.create(userCreateDto);
+      });
+      await Promise.all(createEmployeesPromises);
+
+      const createPostsPromises = payload.posts.map(async (post: any) => {
+        const responsibleUser =
+          post.userId !== null
+            ? await this.userService.findOne(post.userId)
+            : null;
+        const policy =
+          post.policyId !== null
+            ? await this.policyService.findOneById(post.policyId)
+            : null;
+        const postCreateDto: PostCreateDto = {
+          id: post.id,
+          postName: post.name,
+          divisionName: post.divisionName,
+          parentId: post.parentId,
+          product: post.valuableEndProduct,
+          purpose: post.perfectPicture,
+          user: responsibleUser,
+          organizationId: createdOrganization.id,
+          organization: createdOrganization,
+          policy: policy,
+          account: account,
+        };
+        return await this.postService.create(postCreateDto);
+      });
+      await Promise.all(createPostsPromises);
+      // Здесь можно реализовать сохранение данных или другую логику
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw err;
+    }
   }
 
   // Обработка события PostCreatedEvent
   private async handlePostCreatedEvent(event: any) {
-    const payload = event.payload;
-    this.logger.log(`Handling PostCreatedEvent: ${JSON.stringify(payload)}`);
+    try {
+      const payload = event.payload;
+      this.logger.log(`Handling PostCreatedEvent: ${JSON.stringify(payload)}`);
 
-    const account = await this.accountService.findOneById(event.accountId);
-    const responsibleUser =
-      payload.userId !== null
-        ? await this.userService.findOne(payload.userId)
-        : null;
-    const policy =
-      payload.policyId !== null
-        ? await this.policyService.findOneById(payload.policyId)
-        : null;
-    const organization = await this.organizationService.findOneById(
-      payload.organizationId,
-    );
-    const postCreateDto: PostCreateDto = {
-      id: payload.id,
-      postName: payload.name,
-      divisionName: payload.divisionName,
-      parentId: payload.parentId,
-      product: payload.valuableEndProduct,
-      purpose: payload.perfectPicture,
-      user: responsibleUser,
-      organizationId: organization.id,
-      organization: organization,
-      policy: policy,
-      account: account,
-    };
-    return await this.postService.create(postCreateDto);
+      const account = await this.accountService.findOneById(event.accountId);
+      const responsibleUser =
+        payload.userId !== null
+          ? await this.userService.findOne(payload.userId)
+          : null;
+      const policy =
+        payload.policyId !== null
+          ? await this.policyService.findOneById(payload.policyId)
+          : null;
+      const organization = await this.organizationService.findOneById(
+        payload.organizationId,
+      );
+      const postCreateDto: PostCreateDto = {
+        id: payload.id,
+        postName: payload.name,
+        divisionName: payload.divisionName,
+        parentId: payload.parentId,
+        product: payload.valuableEndProduct,
+        purpose: payload.perfectPicture,
+        user: responsibleUser,
+        organizationId: organization.id,
+        organization: organization,
+        policy: policy,
+        account: account,
+      };
+      return await this.postService.create(postCreateDto);
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw err;
+    }
   }
 
   // Обработка события StatisticsCreatedEvent
   private async handleStatisticsCreatedEvent(event: any) {
-    const payload = event.payload;
-    this.logger.log(
-      `Handling StatisticsCreatedEvent: ${JSON.stringify(payload)}`,
-    );
+    try {
+      const payload = event.payload;
+      this.logger.log(
+        `Handling StatisticsCreatedEvent: ${JSON.stringify(payload)}`,
+      );
 
-    const account = await this.accountService.findOneById(event.accountId);
-    const post = await this.postService.findOneById(payload.responsiblePostId);
-    const statisticCreateDto: StatisticCreateDto = {
-      id: payload.id,
-      name: payload.name,
-      type: payload.type as Type,
-      description: payload.description,
-      postId: payload.responsiblePostId,
-      post: post,
-      account: account,
-    };
-    return await this.statisticService.create(statisticCreateDto);
+      const account = await this.accountService.findOneById(event.accountId);
+      const post = await this.postService.findOneById(payload.responsiblePostId);
+      const statisticCreateDto: StatisticCreateDto = {
+        id: payload.id,
+        name: payload.name,
+        type: payload.type as Type,
+        description: payload.description,
+        postId: payload.responsiblePostId,
+        post: post,
+        account: account,
+      };
+      return await this.statisticService.create(statisticCreateDto);
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw err;
+    }
   }
 
   // private async handleStatisticsDataUpdatedEvent(event: any) {
@@ -273,40 +298,52 @@ export class ConsumerService implements OnModuleInit {
   // }
 
   private async handleEmployeeCreatedEvent(event: any) {
-    const payload = event.payload;
-    this.logger.log(
-      `Handling EmployeeCreatedEvent: ${JSON.stringify(payload)}`,
-    );
-    const account = await this.accountService.findOneById(event.accountId);
+    try {
+      const payload = event.payload;
+      this.logger.log(
+        `Handling EmployeeCreatedEvent: ${JSON.stringify(payload)}`,
+      );
+      const account = await this.accountService.findOneById(event.accountId);
 
-    const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
+      const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
 
-    const userCreateDto: CreateUserDto = {
-      id: payload.id,
-      firstName: payload.firstName,
-      lastName: payload.lastName,
-      middleName: payload.middleName,
-      telephoneNumber: payload.phone,
-      role: employeeRole,
-      account: account,
-    };
-    return await this.userService.create(userCreateDto);
+      const userCreateDto: CreateUserDto = {
+        id: payload.id,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        middleName: payload.middleName,
+        telephoneNumber: payload.phone,
+        role: employeeRole,
+        account: account,
+      };
+      return await this.userService.create(userCreateDto);
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw err;
+    }
   }
 
   private async handleEmployeeUpdatedEvent(event: any) {
-    const payload = event.payload;
-    this.logger.log(
-      `Handling EmployeeUpdatedEvent: ${JSON.stringify(payload)}`,
-    );
-    const account = await this.accountService.findOneById(event.accountId);
+    try {
+      const payload = event.payload;
+      this.logger.log(
+        `Handling EmployeeUpdatedEvent: ${JSON.stringify(payload)}`,
+      );
+      const account = await this.accountService.findOneById(event.accountId);
 
-    const userUpdateDto: UpdateUserDto = {
-      id: payload.id,
-      firstName: payload.firstName,
-      lastName: payload.lastName,
-      middleName: payload.middleName,
-      telephoneNumber: payload.phone,
-    };
-    return await this.userService.update(userUpdateDto.id, userUpdateDto);
+      const userUpdateDto: UpdateUserDto = {
+        id: payload.id,
+        firstName: payload.firstName,
+        lastName: payload.lastName,
+        middleName: payload.middleName,
+        telephoneNumber: payload.phone,
+      };
+      return await this.userService.update(userUpdateDto.id, userUpdateDto);
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw err;
+    }
   }
 }
