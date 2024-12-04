@@ -45,7 +45,7 @@ export class ProjectUpdateDto {
   })
   @IsOptional()
   @IsUUID()
-  programId?: string;
+  programId?: string | null;
 
   @ApiProperty({
     description: 'Содержание проекта',

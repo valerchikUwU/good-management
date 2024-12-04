@@ -233,14 +233,14 @@ export class ProjectService {
   ): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository
-      .createQueryBuilder('project')
-      .leftJoinAndSelect('project.targets', 'target')
-      .leftJoinAndSelect('target.targetHolders', 'targetHolder')
-      .leftJoinAndSelect('targetHolder.user', 'user')
-      .where('project.programId = :programId', { programId })
-      .andWhere('target.type = :targetType', { targetType: TypeTarget.PRODUCT })
-      .andWhere('target.targetState != :rejectedState', { rejectedState: State.REJECTED })
-      .getMany();
+        .createQueryBuilder('project')
+        .leftJoinAndSelect('project.targets', 'target')
+        .leftJoinAndSelect('target.targetHolders', 'targetHolder')
+        .leftJoinAndSelect('targetHolder.user', 'user')
+        .where('project.programId = :programId', { programId })
+        .andWhere('target.type = :targetType', { targetType: TypeTarget.PRODUCT })
+        .andWhere('target.targetState != :rejectedState', { rejectedState: State.REJECTED })
+        .getMany();
       return projects.map((project) => ({
         id: project.id,
         projectNumber: project.projectNumber,
@@ -329,7 +329,7 @@ export class ProjectService {
       // Обновить свойства, если они указаны в DTO
       if (updateProjectDto.projectName)
         project.projectName = updateProjectDto.projectName;
-      if (updateProjectDto.programId)
+      if (updateProjectDto.programId !== undefined)
         project.programId = updateProjectDto.programId;
       if (updateProjectDto.content) project.content = updateProjectDto.content;
       if (updateProjectDto.type) project.type = updateProjectDto.type;
@@ -362,7 +362,7 @@ export class ProjectService {
             return `EXISTS (${subQuery})`;
           })
           .getMany();
-          console.log(projectsWithCurrentProgram)
+        console.log(projectsWithCurrentProgram)
         let activeProjectsWithCurrentProgramIds = projectsWithCurrentProgram
           .filter((project) =>
             project.targets.some(
@@ -373,7 +373,7 @@ export class ProjectService {
             ),
           )
           .map((project) => project.id);
-          console.log(`activeProjectsWithCurrentProgramIds: ${activeProjectsWithCurrentProgramIds}`)
+        console.log(`activeProjectsWithCurrentProgramIds: ${activeProjectsWithCurrentProgramIds}`)
         let expiredProjectsWithCurrentProgramIds = projectsWithCurrentProgram
           .filter((project) =>
             project.targets.some(
@@ -384,7 +384,7 @@ export class ProjectService {
             ),
           )
           .map((project) => project.id);
-          console.log(`expiredProjectsWithCurrentProgramIds: ${expiredProjectsWithCurrentProgramIds}`)
+        console.log(`expiredProjectsWithCurrentProgramIds: ${expiredProjectsWithCurrentProgramIds}`)
         if (activeProjectsWithCurrentProgramIds === undefined)
           activeProjectsWithCurrentProgramIds = [];
         if (expiredProjectsWithCurrentProgramIds === undefined)
