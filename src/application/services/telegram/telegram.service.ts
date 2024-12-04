@@ -162,7 +162,7 @@ export class TelegramService {
     try {
       const response = await lastValueFrom(
         this.httpService.post(
-          `${process.env.API_HOST}${process.env.PORT}/auth/login/tg`,
+          `${process.env.API_HOST}/auth/login/tg`,
           {
             telephoneNumber: phoneNumber,
             telegramId: telegramId,
