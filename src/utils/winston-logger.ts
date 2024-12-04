@@ -70,9 +70,9 @@ export const winstonConfig = {
         ),
       ),
     }),
-    // combinedFileRotateTransport,
-    // errorFileRotateTransport,
-    // infoFileRotateTransport,
+    combinedFileRotateTransport,
+    errorFileRotateTransport,
+    infoFileRotateTransport,
   ],
   // exceptionHandlers: [
   //   new transports.File({ filename: "logs/exception.log" }),
