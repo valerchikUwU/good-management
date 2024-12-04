@@ -51,6 +51,14 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
     }),
+    ...(process.env.NODE_ENV === 'prod'
+      ? [
+          ServeStaticModule.forRoot({
+            rootPath: join(__dirname, '../../gm_front_build/GM', 'mobile-build'),
+            serveRoot: '/', // Фронтенд будет доступен по корню
+          }),
+        ]
+      : []),
     WinstonModule.forRoot(winstonConfig),
     UsersModule,
     AuthModule,
