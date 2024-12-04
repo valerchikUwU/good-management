@@ -54,7 +54,7 @@ import { join } from 'path';
     ...(process.env.NODE_ENV === 'prod'
       ? [
           ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '../../gm_front_build/GM', 'mobile-build'),
+            rootPath: join(__dirname, '../../gm_front_build/GM'),
             serveRoot: '/mobile', // Фронтенд будет доступен по корню
           }),
         ]
