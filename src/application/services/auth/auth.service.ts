@@ -283,4 +283,18 @@ export class AuthService {
       throw new InternalServerErrorException('Ошибка при входе черет ТГ!');
     }
   }
+
+
+  async isSessionExpired(ip: string, fingerprint: string): Promise<{isExpired: boolean, userId: string}>{
+    const session = await this.refreshService.findOneByIpAndFingerprint(
+      String(ip),
+      String(fingerprint),
+    );
+    if (session === null) {
+      return {isExpired: false, userId: null};
+    }
+    const currentTime = Math.floor(Date.now() / 1000);
+    const isExpired = currentTime > session.expiresIn;
+    return {isExpired: isExpired, userId: session.user.id};
+  }
 }

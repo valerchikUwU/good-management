@@ -160,6 +160,44 @@ export class RefreshService {
     }
   }
 
+  async findOneByIpAndFingerprint(
+    ip: string,
+    fingerprint: string,
+  ): Promise<ReadRefreshSessionDto | null> {
+    try {
+      const session = await this.sessionsRepository.findOneByIpAndFingerprint(
+        ip,
+        fingerprint,
+      );
+      if (!session)
+        null
+
+      // Преобразование объекта User в ReadUserDto
+      const readRefreshSessionDto: ReadRefreshSessionDto = {
+        id: session.id,
+        user_agent: session.user_agent,
+        fingerprint: session.fingerprint,
+        ip: session.ip,
+        expiresIn: session.expiresIn,
+        refreshToken: session.refreshToken,
+        createdAt: session.createdAt,
+        updatedAt: session.updatedAt,
+        user: session.user,
+      };
+
+      return readRefreshSessionDto;
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при получении сессии');
+    }
+  }
+
   async remove(id: string): Promise<void> {
     await this.sessionsRepository.delete(id);
   }
