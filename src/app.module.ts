@@ -56,11 +56,19 @@ dotenv.config();
     }),
     ...(process.env.NODE_ENV === 'prod'
       ? [
-          ServeStaticModule.forRoot({
-            rootPath: join(__dirname, '../../../gm_front_build/GM'),
-            serveRoot: '/gm/mobile', // Фронтенд будет доступен по корню
-          }),
-        ]
+        ServeStaticModule.forRoot({
+          rootPath: join(__dirname, '../../../gm_front_build/GM'),
+          serveRoot: '/gm/mobile', // Фронтенд будет доступен по корню
+        }),
+      ]
+      : []),
+    ...(process.env.NODE_ENV === 'prod'
+      ? [
+        ServeStaticModule.forRoot({
+          rootPath: join(__dirname, '../../../gm_front_build/GMDesktop'),
+          serveRoot: '/gm/desktop', // Фронтенд будет доступен по корню
+        }),
+      ]
       : []),
     WinstonModule.forRoot(winstonConfig),
     UsersModule,
