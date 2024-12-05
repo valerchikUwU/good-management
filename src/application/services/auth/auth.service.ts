@@ -285,16 +285,16 @@ export class AuthService {
   }
 
 
-  async isSessionExpired(ip: string, fingerprint: string): Promise<boolean>{
-    const session = await this.refreshService.findOneByIdAndFingerprint(
+  async isSessionExpired(ip: string, fingerprint: string): Promise<{isExpired: boolean, userId: string}>{
+    const session = await this.refreshService.findOneByIpAndFingerprint(
       String(ip),
       String(fingerprint),
     );
     if (session === null) {
-      return false
+      return {isExpired: false, userId: null};
     }
     const currentTime = Math.floor(Date.now() / 1000);
     const isExpired = currentTime > session.expiresIn;
-    return isExpired;
+    return {isExpired: isExpired, userId: session.user.id};
   }
 }

@@ -59,9 +59,11 @@ export class AppController implements OnModuleInit {
     @Query('ip') ip?: string
   ): Promise<object> {
     let isLogged = false;
+    let userId = null;
     if(ip && fingerprint){
-      const isExpired = await this.authService.isSessionExpired(ip, fingerprint)
-      isLogged = isExpired ? false : true
+      const isLoggedResult = await this.authService.isSessionExpired(ip, fingerprint)
+      isLogged = isLoggedResult.isExpired ? false : true
+      userId = isLogged ? isLoggedResult.userId : null;
     }
     // Генерация code_verifier
     const codeVerifier = this.generateCodeVerifier(128); // длина от 43 до 128 символов
@@ -80,7 +82,8 @@ export class AppController implements OnModuleInit {
       codeVerifier,
       code_challenge: codeChallenge,
       state,
-      isLogged
+      isLogged,
+      userId
     };
   }
 
