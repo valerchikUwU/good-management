@@ -170,7 +170,7 @@ export class RefreshService {
         fingerprint,
       );
       if (!session)
-        null
+        return null;
 
       // Преобразование объекта User в ReadUserDto
       const readRefreshSessionDto: ReadRefreshSessionDto = {
