@@ -16,6 +16,7 @@ import {
   ApiBody,
   ApiHeader,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -53,6 +54,18 @@ export class AppController implements OnModuleInit {
     required: true,
     description: 'Информация о браузере клиента',
   })
+  @ApiQuery({
+    name: 'fingerprint',
+    required: false,
+    description: 'Отпечаток браузера',
+    example: '123rewt235r3wefe',
+  })  
+  @ApiQuery({
+    name: 'ip',
+    required: false,
+    description: 'IP клиента',
+    example: '1.1.1.1',
+  })
   async getToken(
     @Headers('User-Agent') user_agent: string,
     @Query('fingerprint') fingerprint?: string,
@@ -88,7 +101,7 @@ export class AppController implements OnModuleInit {
   }
 
   onModuleInit() {
-    if (process.env.NODE_ENV === 'prod') {
+    if (process.env.NODE_ENV === 'dev') {
       this.telegramBotService.startBot();
     }
   }
