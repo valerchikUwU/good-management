@@ -291,7 +291,7 @@ export class AuthService {
       String(fingerprint),
     );
     if (session === null) {
-      return {isExpired: false, userId: null};
+      return {isExpired: true, userId: null};
     }
     const currentTime = Math.floor(Date.now() / 1000);
     const isExpired = currentTime > session.expiresIn;
