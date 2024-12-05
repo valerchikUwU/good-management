@@ -37,5 +37,15 @@ export class RefreshSessionRepository extends Repository<RefreshSession> {
     return session;
   }
 
+  async findOneByIpAndFingerprint(
+    ip: string,
+    fingerprint: string,
+  ): Promise<RefreshSession | null> {
+    const session = await this.findOne({
+      where: { fingerprint: fingerprint, ip: ip },
+    });
+    return session;
+  }
+
   // ...
 }

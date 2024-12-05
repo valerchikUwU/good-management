@@ -7,6 +7,7 @@ import {
   OnModuleInit,
   HttpStatus,
   Inject,
+  Query,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import * as crypto from 'crypto';
@@ -18,16 +19,14 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { ClientProxy } from '@nestjs/microservices';
-import { ProducerService } from './application/services/producer/producer.service';
+import { AuthService } from './application/services/auth/auth.service';
 
 @ApiTags('Homepage')
 @Controller()
 export class AppController implements OnModuleInit {
   constructor(
-    private readonly appService: AppService,
+    private readonly authService: AuthService,
     private readonly telegramBotService: TelegramService,
-    private producerService: ProducerService,
   ) {}
 
   @Get()
@@ -42,6 +41,7 @@ export class AppController implements OnModuleInit {
       tokenForTG: '7b96732ad3e8c42f69e3',
       code_challenge: 'yUTIHPqrEeWTVoHmYJkL5x9WAQGb3umfTrT3TxFPtSg',
       state: 'c0def372ed9f958837bf45cb10dbbd26',
+      isLogged: false
     },
   })
   @ApiResponse({
@@ -55,8 +55,14 @@ export class AppController implements OnModuleInit {
   })
   async getToken(
     @Headers('User-Agent') user_agent: string,
-    @Ip() ip: string,
+    @Query('fingerprint') fingerprint?: string,
+    @Query('ip') ip?: string
   ): Promise<object> {
+    let isLogged = false;
+    if(ip && fingerprint){
+      const isExpired = await this.authService.isSessionExpired(ip, fingerprint)
+      isLogged = isExpired ? false : true
+    }
     // Генерация code_verifier
     const codeVerifier = this.generateCodeVerifier(128); // длина от 43 до 128 символов
 
@@ -70,11 +76,11 @@ export class AppController implements OnModuleInit {
 
     return {
       user_agent,
-      ip,
       tokenForTG,
       codeVerifier,
       code_challenge: codeChallenge,
       state,
+      isLogged
     };
   }
 
