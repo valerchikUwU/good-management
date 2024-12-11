@@ -333,12 +333,12 @@ export class StrategyController {
     const createdStrategy =
       await this.strategyService.findOneById(createdStrategyId);
     const objectiveCreateDto: ObjectiveCreateDto = {
+      content: ['', ''],
       strategyId: createdStrategyId,
       strategy: createdStrategy,
       account: user.account,
     };
-    const createdObjectiveId =
-      await this.objectiveService.create(objectiveCreateDto);
+    const createdObjectiveId = await this.objectiveService.create(objectiveCreateDto);
     const createdStrategyEventDto: StrategyCreateEventDto = {
       eventType: 'STRATEGY_CREATED',
       id: createdStrategyId,
