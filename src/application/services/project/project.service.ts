@@ -322,7 +322,6 @@ export class ProjectService {
         where: { id: _id },
         relations: ['strategy'],
       });
-      console.log(`projecIDS: ${updateProjectDto.projectIds}`)
       if (!project) {
         throw new NotFoundException(`Проект с ID ${_id} не найден`);
       }
@@ -335,8 +334,12 @@ export class ProjectService {
       if (updateProjectDto.type) project.type = updateProjectDto.type;
       if (updateProjectDto.organization)
         project.organization = updateProjectDto.organization;
-      if (updateProjectDto.strategy)
+      if (updateProjectDto.strategyId !== null) {
         project.strategy = updateProjectDto.strategy;
+      }
+      else {
+        project.strategy = null 
+      }
 
       await this.projectRepository.update(project.id, {
         projectName: project.projectName,

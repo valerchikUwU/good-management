@@ -478,19 +478,30 @@ export class ProjectController {
     @Ip() ip: string,
   ): Promise<{ id: string }> {
     const user = await this.userService.findOne(userId, ['account']);
+    const promises: Promise<void>[] = [];    // Условно добавляем запросы в массив промисов
+
+    if (projectUpdateDto.strategyId !== null) {
+      promises.push(
+        this.strategyService.findOneById(projectUpdateDto.strategyId).then(strategy => {
+          projectUpdateDto.strategy = strategy;
+        }),
+      );
+    }
+
     if (projectUpdateDto.organizationId) {
-      const organization = await this.organizationService.findOneById(
-        projectUpdateDto.organizationId,
+      promises.push(
+        this.organizationService.findOneById(projectUpdateDto.organizationId).then(
+          organization => {
+            projectUpdateDto.organization = organization;
+          },
+        ),
       );
-      projectUpdateDto.organization = organization;
     }
-    if (projectUpdateDto.strategyId) {
-      const strategy = await this.strategyService.findOneById(
-        projectUpdateDto.strategyId,
-        ['organization'],
-      );
-      projectUpdateDto.strategy = strategy;
-    }
+
+    // Выполняем все запросы параллельно
+    await Promise.all(promises);
+
+
     const updatedProjectId = await this.projectService.update(
       projectId,
       projectUpdateDto,

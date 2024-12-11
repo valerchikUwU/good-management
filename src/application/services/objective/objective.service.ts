@@ -136,8 +136,7 @@ export class ObjectiveService {
       objective.rootCause = objectiveCreateDto.rootCause;
       objective.strategy = objectiveCreateDto.strategy;
       objective.account = objectiveCreateDto.account;
-      const createdObjectiveId =
-        await this.objectiveRepository.insert(objective);
+      const createdObjectiveId = await this.objectiveRepository.insert(objective);
       return createdObjectiveId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);

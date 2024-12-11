@@ -35,7 +35,10 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
-  app.enableCors({ origin: true });
+  app.enableCors({ 
+    origin: true, // Замените на домен клиента
+    credentials: true,
+  });
 
   if (process.env.NODE_ENV === 'prod') {
     app.setGlobalPrefix('gm');

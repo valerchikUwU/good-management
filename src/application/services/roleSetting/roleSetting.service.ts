@@ -136,12 +136,8 @@ export class RoleSettingService {
     }
   }
 
-  async createAllForAccount(
-    account: AccountReadDto,
-    roles: RoleReadDto[],
-  ): Promise<RoleSetting[]> {
+  async createAllForAccount(account: AccountReadDto, roles: RoleReadDto[]): Promise<string[]> {
     try {
-      console.log(JSON.stringify(roles));
       const modules: Modules[] = [
         Modules.POLICY,
         Modules.GOLE,
@@ -167,7 +163,10 @@ export class RoleSettingService {
         }
       }
 
-      return await this.roleSettingRepository.save(roleSettings);
+      const createdSettingResult = await this.roleSettingRepository.insert(roleSettings);
+      const createdSettingIds: string[] = [];
+      createdSettingResult.identifiers.forEach((identifier) => { createdSettingIds.push(identifier.id)})
+      return createdSettingIds;
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException(
@@ -209,3 +208,4 @@ export class RoleSettingService {
     }
   }
 }
+

@@ -84,8 +84,7 @@ export class ProjectUpdateDto {
   })
   @IsOptional()
   @IsUUID()
-  @IsNotEmpty({ message: 'Выберите стратегию!' })
-  strategyId?: string;
+  strategyId?: string | null;
 
   @Exclude({ toPlainOnly: true })
   organization: Organization;

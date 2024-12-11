@@ -55,7 +55,7 @@ export class AuthController {
     private readonly userService: UsersService,
     private readonly eventsGateway: EventsGateway,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Post('/login/vk')
   @ApiOperation({ summary: 'Войти через ВК' })
@@ -115,6 +115,7 @@ export class AuthController {
       );
       res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, {
         httpOnly: true,
+        maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
       });
       return authenticateResult._user;
     } else {
@@ -186,7 +187,7 @@ export class AuthController {
     );
     res.cookie('refresh-tokenId', data.newRefreshTokenId, {
       httpOnly: true,
-      maxAge: 5184000000,
+      maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
     });
     return { newAccessToken: data.newAccessToken };
   }
@@ -264,4 +265,16 @@ export class AuthController {
       throw new UnauthorizedException('Неуспешный вход!');
     }
   }
+
+  @Post('set-cookie')
+  setCookie(@Body('refreshTokenId') refreshTokenId: string, @Res({ passthrough: true }) res: ExpressResponse) {
+    console.log(refreshTokenId)
+    res.cookie('refreshToken', refreshTokenId, {
+      httpOnly: true,
+      maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
+    });
+    // Завершите обработку запроса
+    return { message: 'Cookie set successfully' };
+  }
+
 }
