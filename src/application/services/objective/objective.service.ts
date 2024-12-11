@@ -93,7 +93,7 @@ export class ObjectiveService {
 
       if (!objective)
         throw new NotFoundException(
-          `Краткосрочная цель с ID: ${strategyId} не найдена`,
+          `Краткосрочная цель по ID стратегии: ${strategyId} не найдена`,
         );
       const objectiveReadDto: ObjectiveReadDto = {
         id: objective.id,

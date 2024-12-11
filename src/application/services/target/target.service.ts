@@ -99,6 +99,7 @@ export class TargetService {
       }
       // Обновить свойства, если они указаны в DTO
       if (updateTargetDto.content) target.content = updateTargetDto.content;
+      if (updateTargetDto.orderNumber) target.orderNumber = updateTargetDto.orderNumber;
       if (updateTargetDto.holderUser) {
         const targetHolderCreateDto: TargetHolderCreateDto = {
           target: target,
@@ -116,6 +117,7 @@ export class TargetService {
       if (updateTargetDto.deadline) target.deadline = updateTargetDto.deadline;
       await this.targetRepository.update(target.id, {
         content: target.content,
+        orderNumber: target.orderNumber,
         holderUserId: target.holderUserId,
         targetState: target.targetState,
         dateStart: target.dateStart,
