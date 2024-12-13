@@ -334,10 +334,10 @@ export class ProjectService {
       if (updateProjectDto.type) project.type = updateProjectDto.type;
       if (updateProjectDto.organization)
         project.organization = updateProjectDto.organization;
-      if (updateProjectDto.strategyId !== null) {
+      if (updateProjectDto.strategyId != null) {
         project.strategy = updateProjectDto.strategy;
       }
-      else {
+      else if (updateProjectDto.strategyId === null){
         project.strategy = null 
       }
 
