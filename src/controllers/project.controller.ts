@@ -350,8 +350,7 @@ export class ProjectController {
     projectCreateDto.account = user.account;
     projectCreateDto.organization = organization;
     const createdProjectId = await this.projectService.create(projectCreateDto);
-    const createdProject =
-      await this.projectService.findOneById(createdProjectId);
+    const createdProject = await this.projectService.findOneById(createdProjectId);
 
     const targetCreateEventDtos: TargetCreateEventDto[] = [];
 
@@ -479,8 +478,8 @@ export class ProjectController {
   ): Promise<{ id: string }> {
     const user = await this.userService.findOne(userId, ['account']);
     const promises: Promise<void>[] = [];    // Условно добавляем запросы в массив промисов
-
-    if (projectUpdateDto.strategyId !== null) {
+    console.log(projectUpdateDto.strategyId)
+    if (projectUpdateDto.strategyId != null) {
       promises.push(
         this.strategyService.findOneById(projectUpdateDto.strategyId).then(strategy => {
           projectUpdateDto.strategy = strategy;
