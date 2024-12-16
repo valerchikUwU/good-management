@@ -269,7 +269,7 @@ export class AuthController {
   @Post('set-cookie')
   setCookie(@Body('refreshTokenId') refreshTokenId: string, @Res({ passthrough: true }) res: ExpressResponse) {
     console.log(refreshTokenId)
-    res.cookie('refreshToken', refreshTokenId, {
+    res.cookie('refresh-tokenId', refreshTokenId, {
       httpOnly: true,
       maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
     });
