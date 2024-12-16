@@ -148,7 +148,7 @@ export class AuthController {
     // }
   }
 
-  @UseGuards(RefreshTokenGuard)
+  // @UseGuards(RefreshTokenGuard)
   @Post('refresh-tokens')
   @ApiOperation({ summary: 'Обновить токены' })
   @ApiBody({
