@@ -374,7 +374,6 @@ export class PolicyController {
   }> {
     const policy = await this.policyService.findOneById(policyId, [
       'organization',
-      'files',
     ]);
     const user = await this.userService.findOne(userId, ['account']);
     const organizations = await this.organizationService.findAllForAccount(
