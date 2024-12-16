@@ -328,12 +328,12 @@ export class StrategyController {
     strategyCreateDto.user = user;
     strategyCreateDto.account = user.account;
     strategyCreateDto.organization = organization;
-    const createdStrategyId =
-      await this.strategyService.create(strategyCreateDto);
-    const createdStrategy =
-      await this.strategyService.findOneById(createdStrategyId);
+    const createdStrategyId = await this.strategyService.create(strategyCreateDto);
+    const createdStrategy = await this.strategyService.findOneById(createdStrategyId);
     const objectiveCreateDto: ObjectiveCreateDto = {
       content: ['', ''],
+      rootCause: [''],
+      situation: [''],
       strategyId: createdStrategyId,
       strategy: createdStrategy,
       account: user.account,
