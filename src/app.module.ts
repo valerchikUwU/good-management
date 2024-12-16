@@ -50,10 +50,18 @@ dotenv.config();
       useFactory: async (configService: ConfigService) =>
         configService.get('database'),
     }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: '/uploads',
-    }),
+    ...(process.env.NODE_ENV === 'prod'
+      ? [
+        ServeStaticModule.forRoot({
+          rootPath: join(__dirname, '..', 'uploads'),
+          serveRoot: 'gm/uploads',
+        })
+      ] : [
+        ServeStaticModule.forRoot({
+          rootPath: join(__dirname, '..', 'uploads'),
+          serveRoot: 'uploads',
+        })
+      ]),
     ...(process.env.NODE_ENV === 'prod'
       ? [
         ServeStaticModule.forRoot({
