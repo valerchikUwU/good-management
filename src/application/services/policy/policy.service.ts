@@ -43,7 +43,6 @@ export class PolicyService {
         organization: policy.organization,
         user: policy.user,
         account: policy.account,
-        files: policy.files,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
       }));
     } catch (err) {
@@ -80,7 +79,6 @@ export class PolicyService {
         organization: policy.organization,
         user: policy.user,
         account: policy.account,
-        files: policy.files,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
       }));
     } catch (err) {
@@ -117,7 +115,6 @@ export class PolicyService {
         organization: policy.organization,
         user: policy.user,
         account: policy.account,
-        files: policy.files,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
       };
 

@@ -57,18 +57,14 @@ export class FileUploadController {
     description: 'Id пользователя',
     example: '3b809c42-2824-46c1-9686-dd666403402a',
   })
-  @ApiQuery({ name: 'policyId', required: true, description: 'Id политики' })
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @Query('policyId') policyId: string,
   ) {
-    const policy = await this.policyService.findOneById(policyId);
     const fileCreateDto: FileCreateDto = {
       fileName: file.filename,
       path: file.path,
       size: file.size,
       mimetype: file.mimetype,
-      policy: policy,
     };
     await this.fileService.create(fileCreateDto);
     return this.fileUploadService.handleFileUpload(file);

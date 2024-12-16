@@ -78,9 +78,6 @@ export class Policy {
   )
   policyToPolicyDirectories: PolicyToPolicyDirectory[];
 
-  @OneToMany(() => File, (file) => file.policy)
-  files: File[];
-
   @ManyToOne(() => User, (user) => user.policies, { nullable: false })
   user: User;
 

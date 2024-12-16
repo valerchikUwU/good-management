@@ -20,28 +20,6 @@ export class FileService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForPolicy(policy: PolicyReadDto): Promise<FileReadDto[]> {
-    try {
-      const files = await this.fileRepository.find({
-        where: { policy: { id: policy.id } },
-      });
-      return files.map((file) => ({
-        id: file.id,
-        fileName: file.fileName,
-        path: file.path,
-        size: file.size,
-        mimetype: file.mimetype,
-        createdAt: file.createdAt,
-        updatedAt: file.updatedAt,
-      }));
-    } catch (err) {
-      this.logger.error(err);
-      // Обработка других ошибок
-      throw new InternalServerErrorException(
-        'Ошибка при получении всех файлов!',
-      );
-    }
-  }
 
   async create(fileCreateDto: FileCreateDto): Promise<File> {
     try {
@@ -65,7 +43,6 @@ export class FileService {
       file.path = fileCreateDto.path;
       file.size = fileCreateDto.size;
       file.mimetype = fileCreateDto.mimetype;
-      file.policy = fileCreateDto.policy;
 
       return await this.fileRepository.save(file);
     } catch (err) {
