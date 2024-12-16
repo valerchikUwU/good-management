@@ -5,5 +5,4 @@ export class FileCreateDto {
   path: string;
   size: number;
   mimetype: string;
-  policy: Policy;
 }

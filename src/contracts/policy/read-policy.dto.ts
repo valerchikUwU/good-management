@@ -80,7 +80,6 @@ export class PolicyReadDto {
   @ApiProperty({ description: 'Связанный аккаунт политики' })
   account: Account;
 
-  files: File[];
 
   @ApiProperty({ description: 'Связанные папки с политикой' })
   policyToPolicyDirectories: PolicyToPolicyDirectory[];

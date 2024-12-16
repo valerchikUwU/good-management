@@ -33,6 +33,4 @@ export class File {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @ManyToOne(() => Policy, (policy) => policy.files)
-  policy: Policy;
 }
