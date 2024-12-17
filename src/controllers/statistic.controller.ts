@@ -100,6 +100,9 @@ export class StatisticController {
     if (statisticData) {
       relations = ['statisticDatas', 'post.organization']
     }
+    else {
+      relations = ['post']
+    }
     return await this.statisticService.findAllForAccount(user.account, relations);
   }
 

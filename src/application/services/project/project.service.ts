@@ -24,9 +24,7 @@ export class ProjectService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async findAllForOrganization(
-    organizationId: string,
-  ): Promise<ProjectReadDto[]> {
+  async findAllForOrganization(organizationId: string): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
         where: { organization: { id: organizationId } },
