@@ -18,6 +18,7 @@ import { Type } from 'src/domains/statistic.entity';
 import { StatisticDataUpdateDto } from 'src/contracts/statisticData/update-statisticData.dto';
 import { StatisticDataService } from '../statisticData/statisticData.service';
 import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
+import { GoalCreateDto } from 'src/contracts/goal/create-goal.dto';
 
 @Injectable()
 export class ConsumerService implements OnModuleInit {
@@ -251,7 +252,6 @@ export class ConsumerService implements OnModuleInit {
     }
     catch (err) {
       this.logger.error(err);
-      
     }
   }
 

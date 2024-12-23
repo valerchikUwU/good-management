@@ -1,19 +1,14 @@
 import {
   Headers,
-  Body,
   Controller,
   Get,
-  Ip,
   OnModuleInit,
   HttpStatus,
-  Inject,
   Query,
 } from '@nestjs/common';
-import { AppService } from './app.service';
 import * as crypto from 'crypto';
 import { TelegramService } from './application/services/telegram/telegram.service';
 import {
-  ApiBody,
   ApiHeader,
   ApiOperation,
   ApiQuery,
@@ -94,7 +89,7 @@ export class AppController implements OnModuleInit {
   }
 
   onModuleInit() {
-    if (process.env.NODE_ENV === 'dev') {
+    if (process.env.NODE_ENV === 'prod') {
       this.telegramBotService.startBot();
     }
   }

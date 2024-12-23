@@ -2,7 +2,6 @@ import { Inject, Injectable, InternalServerErrorException, NotFoundException } f
 import { InjectRepository } from "@nestjs/typeorm";
 import { Logger } from "winston";
 import { PanelToStatisticRepository } from "./repository/panelToStatistic.repository";
-import { ControlPanelService } from "../controlPanel/controlPanel.service";
 import { ControlPanel } from "src/domains/controlPanel.entity";
 import { PanelToStatistic } from "src/domains/panelToStatistic.entity";
 import { StatisticService } from "../statistic/statistic.service";

@@ -46,14 +46,14 @@ export class GoalService {
     }
   }
 
-  async findOneByOrganizationId(organizationId: string, relations?: string[]): Promise<GoalReadDto> {
+  async findOneByOrganizationId(organizationId: string, relations?: string[]): Promise<GoalReadDto | null> {
     try {
       const goal = await this.goalRepository.findOne({
         where: {organization: { id: organizationId }},
         relations: relations !== undefined ? relations : [],
       });
 
-      if (!goal) throw new NotFoundException(`Цель для организации: ${goal.organization.organizationName} не найдена!`);
+      if (!goal) return null;
       const goalReadDto: GoalReadDto = {
         id: goal.id,
         content: goal.content,
@@ -64,12 +64,6 @@ export class GoalService {
       return goalReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
-      }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении цели');
     }
   }

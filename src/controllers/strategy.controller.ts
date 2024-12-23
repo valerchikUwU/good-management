@@ -56,7 +56,7 @@ export class StrategyController {
 
 
   @Get(':organizationId')
-  @ApiOperation({ summary: 'Получить стратегию по ID' })
+  @ApiOperation({ summary: 'Получить стратегию по организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
