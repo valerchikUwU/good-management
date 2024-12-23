@@ -87,7 +87,7 @@ export class RoleSettingController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async update(
     @Body() updateRoleSettingDtos: RoleSettingUpdateDto[],
@@ -118,7 +118,7 @@ export class RoleSettingController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async create(
     @Param('userId') userId: string,

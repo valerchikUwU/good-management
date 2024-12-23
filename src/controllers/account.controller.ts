@@ -44,7 +44,7 @@ export class AccountController {
       updatedAt: '2024-09-16T12:53:29.593Z',
       users: [
         {
-          id: '3b809c42-2824-46c1-9686-dd666403402a',
+          id: 'bc807845-08a8-423e-9976-4f60df183ae2',
           firstName: 'Maxik',
           lastName: 'Koval',
           telegramId: 453120600,

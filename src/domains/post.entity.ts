@@ -1,14 +1,11 @@
 import {
   Entity,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinColumn,
-  OneToOne,
   Index,
   Generated,
 } from 'typeorm';
@@ -19,56 +16,152 @@ import { Statistic } from './statistic.entity';
 import { Account } from './account.entity';
 import { HistoryUsersToPost } from './historyUsersToPost.entity';
 
+/**
+ * Сущность, представляющая должность (пост).
+ */
 @Entity()
 export class Post {
+
+  /**
+   * Уникальный идентификатор.
+   * 
+   * @remarks
+   * Поле автоматически генерируется в формате UUID v4.0.
+   */
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+
+  /**
+   * Название поста.
+   * 
+   * @remarks
+   * nullable: false.
+   */
   @Column({ nullable: false })
   postName: string;
 
+  /**
+   * Название отдела.
+   * 
+   * @remarks
+   * При наличии parentId устанавливается post.divisionName WHERE id = parentId (т.е. отдел родительского поста), default: "Подразделение", nullable: false.
+   */
   @Column({ nullable: false, default: 'Подразделение' })
   divisionName: string;
 
+  /**
+   * Порядковый номер отдела.
+   * 
+   * @remarks
+   * Инкремент в БД. Нужен для автогенерации названия отдела при отсутствии parentId, т.е. на клиенте будет, например, "Подразделение 2"
+   */
   @Column()
   @Generated('increment')
   divisionNumber: number;
 
+  /**
+   * Id родительского поста.
+   * 
+   * @remarks
+   * UUID v4.0, nullable: true
+   */
   @Column({ type: 'uuid', nullable: true })
   parentId: string;
 
+  /**
+   * Продукт поста.
+   * 
+   * @remarks
+   * nullable: false
+   */
   @Column({ type: 'text', nullable: false })
   product: string;
 
+  /**
+   * Цель поста.
+   * 
+   * @remarks
+   * nullable: false
+   */
   @Column({ type: 'text', nullable: false })
   purpose: string;
 
+  /**
+   * Дата создания записи.
+   * 
+   * @remarks
+   * Поле автоматически заполняется при создании записи.
+   * 
+   * @example
+   * '2024-06-01T12:34:56Z'
+   */
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
+
+  /**
+   * Дата последнего обновления записи.
+   * 
+   * @remarks
+   * Поле автоматически обновляется при изменении записи.
+   * 
+   * @example
+   * '2024-06-01T12:34:56Z'
+   */
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
+  /**
+   * Связь с сущностью М:1 User.
+   * 
+   * @remarks
+   * Установлен индекс, nullable: true (не назначили человека на пост).
+   */
   @ManyToOne(() => User, (user) => user.posts, { nullable: true })
   @Index() // Добавляем индекс для поля user
   user: User;
 
+  /**
+   * Связь с сущностью М:1 Policy.
+   * 
+   * @remarks
+   * Установлен индекс, nullable: true.
+   */
   @ManyToOne(() => Policy, (policy) => policy.posts, { nullable: true })
   @Index() // Добавляем индекс для поля policy
   policy: Policy;
 
+  /**
+   * Связь с сущностью М:1 Organization.
+   * 
+   * @remarks
+   * Установлен индекс, nullable: true (????????).
+   */
   @ManyToOne(() => Organization, (organization) => organization.posts, {
     nullable: true,
   })
   @Index() // Добавляем индекс для поля organization
   organization: Organization;
 
+  /**
+   * Связь с сущностью М:1 Account.
+   * 
+   * @remarks
+   * nullable: false.
+   */
   @ManyToOne(() => Account, (account) => account.posts, { nullable: false })
   account: Account;
 
+  /**
+   * Связь с сущностью 1:M Statistic.
+   */
   @OneToMany(() => Statistic, (statistic) => statistic.post)
   statistics: Statistic[];
 
+  /**
+   * Связь с сущностью 1:M HistoryUsersToPost.
+   */
   @OneToMany(() => HistoryUsersToPost, (historyUsersToPost) => historyUsersToPost.post)
   historiesUsersToPost: HistoryUsersToPost[];
 }

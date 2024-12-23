@@ -47,6 +47,32 @@ export class ObjectiveService {
     }
   }
 
+
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ObjectiveReadDto[]> {
+    try {
+      const objectives = await this.objectiveRepository.find({
+        where: { strategy: {organization: { id: organizationId } }}, relations: relations !== undefined ? relations : []
+      });
+
+      return objectives.map((objective) => ({
+        id: objective.id,
+        situation: objective.situation,
+        content: objective.content,
+        rootCause: objective.rootCause,
+        createdAt: objective.createdAt,
+        updatedAt: objective.updatedAt,
+        strategy: objective.strategy,
+        account: objective.account,
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех краткосрочных целей!',
+      );
+    }
+  }
+
   async findOneById(id: string): Promise<ObjectiveReadDto | null> {
     try {
       const objective = await this.objectiveRepository.findOne({
@@ -170,13 +196,10 @@ export class ObjectiveService {
         objective.content = updateObjectiveDto.content;
       if (updateObjectiveDto.rootCause)
         objective.rootCause = updateObjectiveDto.rootCause;
-      if (updateObjectiveDto.strategy)
-        objective.strategy = updateObjectiveDto.strategy;
       await this.objectiveRepository.update(objective.id, {
         situation: objective.situation,
         content: objective.content,
         rootCause: objective.rootCause,
-        strategy: objective.strategy,
       });
       return objective.id;
     } catch (err) {

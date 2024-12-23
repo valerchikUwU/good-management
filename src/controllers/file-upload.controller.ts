@@ -11,6 +11,7 @@ import {
   Query,
   Req,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { FileUploadService } from '../application/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -18,6 +19,7 @@ import { FileService } from 'src/application/services/file/file.service';
 import { PolicyService } from 'src/application/services/policy/policy.service';
 import { FileCreateDto } from 'src/contracts/file-upload/create-file.dto';
 import {
+  ApiBearerAuth,
   ApiConsumes,
   ApiOperation,
   ApiParam,
@@ -25,14 +27,16 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 
 @ApiTags('File')
-@Controller(':userId/file-upload')
+@ApiBearerAuth('access-token')
+@UseGuards(AccessTokenGuard)
+@Controller('file-upload')
 export class FileUploadController {
   constructor(
     private readonly fileUploadService: FileUploadService,
     private readonly fileService: FileService,
-    private readonly policyService: PolicyService,
   ) {}
 
   @Post('upload')
@@ -44,18 +48,16 @@ export class FileUploadController {
     example: {},
   })
   @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,

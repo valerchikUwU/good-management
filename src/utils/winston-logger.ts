@@ -60,12 +60,9 @@ export const winstonConfig = {
                     ? 200
                     : 500,
               ),
-            )} - ${info.url ? info.url : ''} - ${
-              info.method ? info.method : ''
-            } - ${info.response_time ? info.response_time : ''} - ${
-              info.ip ? red(info.ip) : ''
-            } - ${info.message} ---------------- \n ${
-              info.stack ? info.stack : 'no stack trace'
+            )} - ${info.url ? info.url : ''} - ${info.method ? info.method : ''
+            } - ${info.response_time ? info.response_time : ''} - ${info.message} ---------------- \n 
+            ${info.stack ? info.stack : 'no stack trace'
             } \n`,
         ),
       ),

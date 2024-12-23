@@ -12,7 +12,6 @@ import { QueueModule } from './queue.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Policy]),
-    UsersModule,
     OrganizationModule,
     RoleSettingModule,
     forwardRef(() => QueueModule),

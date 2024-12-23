@@ -24,11 +24,11 @@ export class ProjectService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async findAllForOrganization(organizationId: string): Promise<ProjectReadDto[]> {
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
         where: { organization: { id: organizationId } },
-        relations: ['targets'],
+        relations: relations !== undefined ? relations : [],
       });
 
       return projects.map((project) => ({
@@ -58,11 +58,11 @@ export class ProjectService {
     }
   }
 
-  async findAllProgramsForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
+  async findAllProgramsForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
     try {
       const programs = await this.projectRepository.find({
-        where: { type: Type.PROGRAM, account: { id: account.id } },
-        relations: ['organization', 'targets', 'strategy'],
+        where: { type: Type.PROGRAM, organization: { id: organizationId } },
+        relations: relations !== undefined ? relations : [],
       });
 
       return programs.map((program) => ({
@@ -92,15 +92,15 @@ export class ProjectService {
     }
   }
 
-  async findAllProjectsWithoutProgramForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
+  async findAllProjectsWithoutProgramForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
         where: {
           type: Type.PROJECT,
           programId: IsNull(),
-          account: { id: account.id },
+          organization: { id: organizationId },
         },
-        relations: ['organization', 'targets'],
+        relations: relations !== undefined ? relations : [],
       });
 
       return projects.map((project) => ({
@@ -330,8 +330,6 @@ export class ProjectService {
         project.programId = updateProjectDto.programId;
       if (updateProjectDto.content) project.content = updateProjectDto.content;
       if (updateProjectDto.type) project.type = updateProjectDto.type;
-      if (updateProjectDto.organization)
-        project.organization = updateProjectDto.organization;
       if (updateProjectDto.strategyId != null) {
         project.strategy = updateProjectDto.strategy;
       }

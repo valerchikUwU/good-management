@@ -37,7 +37,7 @@ export class TargetHolderController {
           updatedAt: '2024-09-20T14:44:44.980Z',
         },
         user: {
-          id: '3b809c42-2824-46c1-9686-dd666403402a',
+          id: 'bc807845-08a8-423e-9976-4f60df183ae2',
           firstName: 'Maxik',
           lastName: 'Koval',
           telegramId: 453120600,
@@ -58,7 +58,7 @@ export class TargetHolderController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async findAll(@Param() userId: string): Promise<TargetHolderReadDto[]> {
     return await this.targetHolderService.findAll();

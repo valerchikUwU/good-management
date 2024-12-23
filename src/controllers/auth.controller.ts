@@ -33,6 +33,7 @@ import { EventsGateway } from 'src/gateways/events.gateway';
 import { JwtService } from '@nestjs/jwt';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -169,7 +170,9 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {},
+    example: {
+      "newAccessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJjODA3ODQ1LTA4YTgtNDIzZS05OTc2LTRmNjBkZjE4M2FlMiIsImlhdCI6MTczNDY5ODQxMSwiZXhwIjoxNzM0NzAwMjExfQ.uD91NZRU5gd4wpxaMeQPGq56268DIbM_1MEzJJaxK1Q"
+    }
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -187,6 +190,8 @@ export class AuthController {
     );
     res.cookie('refresh-tokenId', data.newRefreshTokenId, {
       httpOnly: true,
+      path: '/auth',
+      // secure: true, ДОБАВИТЬ В ПРОДЕ
       maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
     });
     return { newAccessToken: data.newAccessToken };
@@ -220,31 +225,20 @@ export class AuthController {
 
   @Post('login/tg')
   @ApiOperation({ summary: 'НЕ ЧИПАТЬ!' })
-  async tg(@Body() authTg: AuthTG, @Ip() ip: string): Promise<void> {
+  async tg(@Body() authTg: AuthTG): Promise<void> {
     // Запрашиваем у клиента необходимую информацию
     const requiredInfo = ['fingerprint', 'userAgent', 'ip', 'token'];
-    const clientInfo = await this.eventsGateway.requestInfoFromClient(
-      authTg.clientId,
-      requiredInfo,
-    );
+    const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo);
     console.log(clientInfo.token);
     if (clientInfo.token === authTg.token) {
-      const updateTgAuthUserDto: UpdateTgAuthUserDto = {
-        telegramId: authTg.telegramId,
-      };
-      const user = await this.userService.findOneByTelephoneNumber(
-        authTg.telephoneNumber,
-      );
-      let updateUser = user;
+      const user = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
       console.log(user.telegramId)
       if (user.telegramId === null) {
-        updateUser = await this.userService.updateTgAuth(
-          user,
-          updateTgAuthUserDto,
-        );
+        const updateTgAuthUserDto: UpdateTgAuthUserDto = { telegramId: authTg.telegramId };
+        await this.userService.updateTgAuth(user, updateTgAuthUserDto);
       }
       const authenticateResult = await this.authService.authenticateTG(
-        updateUser,
+        user.id,
         clientInfo.ip,
         clientInfo.userAgent,
         clientInfo.fingerprint,
@@ -266,15 +260,33 @@ export class AuthController {
     }
   }
 
+  @UseGuards(AccessTokenGuard)
+  @ApiOperation({ summary: 'Установка куки' })
+  @ApiBearerAuth('access-token')
+  @ApiBody({
+    description: 'Данные для выхода',
+    type: String,
+    schema: {
+      type: 'object',
+      properties: {
+        fingerprint: {
+          type: 'string',
+          description: 'Уникальный идентификатор устройства',
+        },
+      },
+      required: ['fingerprint'],
+    },
+    required: true,
+  })
   @Post('set-cookie')
   setCookie(@Body('refreshTokenId') refreshTokenId: string, @Res({ passthrough: true }) res: ExpressResponse) {
-    console.log(refreshTokenId)
     res.cookie('refresh-tokenId', refreshTokenId, {
       httpOnly: true,
+      // secure: true, ДОБАВИТЬ В ПРОДЕ
+      path: '/auth',
       maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
     });
-    // Завершите обработку запроса
-    return { message: 'Cookie set successfully' };
+    return { message: 'Куки успешно установлены' };
   }
 
 }

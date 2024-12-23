@@ -149,7 +149,7 @@ export class UsersService {
     }
   }
 
-  async findOne(id: string, relations?: string[]): Promise<ReadUserDto | null> {
+  async findOne(id: string, relations?: string[]): Promise<ReadUserDto> {
     try {
       const user = await this.usersRepository.findOne({
         where: { id },
@@ -429,16 +429,12 @@ export class UsersService {
   async updateTgAuth(
     user: User,
     updateTgAuthUserDto: UpdateTgAuthUserDto,
-  ): Promise<ReadUserDto | null> {
+  ): Promise<string> {
     try {
-      user.telegramId = updateTgAuthUserDto.telegramId;
-      const updatedUser = await this.usersRepository.save(user)
-      return updatedUser;
+      const updatedUserResult = await this.usersRepository.update(user.id, {telegramId: updateTgAuthUserDto.telegramId})
+      return user.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении юзера');
     }
   }

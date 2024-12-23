@@ -2,19 +2,19 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class AuthTG {
-  @ApiProperty({ description: 'Уникальный код от ВК' })
+  @ApiProperty({ description: 'Номер телефона' })
   @IsString()
   telephoneNumber: string;
 
-  @ApiProperty({ description: 'Фингерпринт браузера клиента' })
+  @ApiProperty({ description: 'Телеграм id' })
   @IsNumber()
   telegramId: number;
 
-  @ApiProperty({ description: 'Уникальный код от ВК' })
+  @ApiProperty({ description: 'Id сокета клиента' })
   @IsString()
   clientId: string;
 
-  @ApiProperty({ description: 'Фингерпринт браузера клиента' })
+  @ApiProperty({ description: 'Токен логина' })
   @IsString()
   token: string;
 

@@ -46,25 +46,8 @@ export class RefreshService {
 
   async create(
     createSessionDto: CreateRefreshSessionDto,
-  ): Promise<RefreshSession> {
+  ): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
-
-      if (!createSessionDto.user_agent) {
-        throw new BadRequestException('User_Agent не может быть пустым!');
-      }
-      if (!createSessionDto.fingerprint) {
-        throw new BadRequestException('Fingerprint не может быть пустым!');
-      }
-      if (!createSessionDto.ip) {
-        throw new BadRequestException('IP не может быть пустым!');
-      }
-      if (!createSessionDto.expiresIn) {
-        throw new BadRequestException('expiresIn не может быть пустым!');
-      }
-      if (!createSessionDto.refreshToken) {
-        throw new BadRequestException('refreshToken не может быть пустым!');
-      }
       const session = new RefreshSession();
       session.user_agent = createSessionDto.user_agent;
       session.fingerprint = createSessionDto.fingerprint;
@@ -72,14 +55,10 @@ export class RefreshService {
       session.expiresIn = createSessionDto.expiresIn;
       session.refreshToken = createSessionDto.refreshToken;
       session.user = createSessionDto.user;
-      // Присваиваем значения из DTO объекту пользователя
-      return await this.sessionsRepository.save(session);
+      const refreshSessionId = await this.sessionsRepository.insert(session);
+      return refreshSessionId.identifiers[0].id
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException('Ошибка при создании сессии!');
     }
   }
@@ -88,12 +67,10 @@ export class RefreshService {
     fingerprint: string,
   ): Promise<ReadRefreshSessionDto | null> {
     try {
-      const session =
-        await this.sessionsRepository.findOneByFingerprint(fingerprint);
+      const session = await this.sessionsRepository.findOneByFingerprint(fingerprint);
       if (!session)
-        throw new NotFoundException(
-          `Сессия с fingerprint: ${fingerprint} не найдена`,
-        );
+        return null;
+
       // Преобразование объекта User в ReadUserDto
       const readRefreshSessionDto: ReadRefreshSessionDto = {
         id: session.id,
@@ -110,10 +87,6 @@ export class RefreshService {
       return readRefreshSessionDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
-      }
 
       // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении сессии');
@@ -127,46 +100,6 @@ export class RefreshService {
     try {
       const session = await this.sessionsRepository.findOneByIdAndFingerprint(
         id,
-        fingerprint,
-      );
-      if (!session)
-        throw new NotFoundException(
-          `Сессия с fingerprint: ${fingerprint} и ID: ${id} не найдена`,
-        );
-
-      // Преобразование объекта User в ReadUserDto
-      const readRefreshSessionDto: ReadRefreshSessionDto = {
-        id: session.id,
-        user_agent: session.user_agent,
-        fingerprint: session.fingerprint,
-        ip: session.ip,
-        expiresIn: session.expiresIn,
-        refreshToken: session.refreshToken,
-        createdAt: session.createdAt,
-        updatedAt: session.updatedAt,
-        user: session.user,
-      };
-
-      return readRefreshSessionDto;
-    } catch (err) {
-      this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
-      }
-
-      // Обработка других ошибок
-      throw new InternalServerErrorException('Ошибка при получении сессии');
-    }
-  }
-
-  async findOneByIpAndFingerprint(
-    ip: string,
-    fingerprint: string,
-  ): Promise<ReadRefreshSessionDto | null> {
-    try {
-      const session = await this.sessionsRepository.findOneByIpAndFingerprint(
-        ip,
         fingerprint,
       );
       if (!session)
@@ -197,6 +130,8 @@ export class RefreshService {
       throw new InternalServerErrorException('Ошибка при получении сессии');
     }
   }
+
+
 
   async remove(id: string): Promise<void> {
     await this.sessionsRepository.delete(id);

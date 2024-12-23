@@ -8,9 +8,12 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiHeader,
   ApiOperation,
@@ -41,9 +44,13 @@ import { ProducerService } from 'src/application/services/producer/producer.serv
 import { TargetUpdateEventDto } from 'src/contracts/target/updateEvent-target.dto';
 import { ProjectUpdateEventDto } from 'src/contracts/project/updateEvent-project.dto';
 import { TimeoutError } from 'rxjs';
+import { Request as ExpressRequest } from 'express';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 
 @ApiTags('Project')
-@Controller(':userId/projects')
+@ApiBearerAuth('access-token')
+@UseGuards(AccessTokenGuard)
+@Controller('projects')
 export class ProjectController {
   constructor(
     private readonly projectService: ProjectService,
@@ -56,46 +63,36 @@ export class ProjectController {
   ) {}
 
   @Get(':organizationId/projects')
-  @ApiOperation({ summary: 'Все проекты по Id организации' })
+  @ApiOperation({ summary: 'Все проекты в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
     example: [
       {
-        id: 'f2c217bc-367b-4d72-99c3-37d725306786',
-        projectNumber: 3,
-        programId: null,
-        content: 'Контент политики',
-        type: 'Проект',
-        createdAt: '2024-09-20T14:44:43.910Z',
-        updatedAt: '2024-09-20T14:44:43.910Z',
-      },
-      {
-        id: '41ed9165-9106-4fc8-94aa-cc7292bb1741',
-        projectNumber: 4,
-        programId: null,
-        content: 'Контент проекта',
-        type: 'Проект',
-        createdAt: '2024-09-20T14:45:33.741Z',
-        updatedAt: '2024-09-20T14:45:33.741Z',
-      },
-    ],
+        "id": "26cc6162-8c3d-440f-8464-67561172bc32",
+        "projectNumber": 280,
+        "projectName": "НОвый",
+        "programId": null,
+        "content": "Контент проекта",
+        "type": "Проект",
+        "createdAt": "2024-12-20T12:21:09.823Z",
+        "updatedAt": "2024-12-20T12:21:09.823Z",
+      }
+    ]
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
-  @ApiParam({
     name: 'organizationId',
     required: true,
     description: 'Id организации',
-    example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   async findAll(
     @Param('organizationId') organizationId: string,
@@ -103,208 +100,164 @@ export class ProjectController {
     return await this.projectService.findAllForOrganization(organizationId);
   }
 
-  @Get('program/new')
-  @ApiOperation({ summary: 'Получить данные для создания новой програмы' })
+  @Get(':organizationId/program/new')
+  @ApiOperation({ summary: 'Получить данные для создания новой программы' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
     example: {
-      workers: [
+      "workers": [
         {
-          id: 'a76caf62-bc78-44e9-ba64-6e8e4c5b3248',
-          firstName: 'Илюха',
-          lastName: 'Белописькин',
-          middleName: null,
-          telegramId: 0,
-          telephoneNumber: null,
-          avatar_url: null,
-          vk_id: null,
-          createdAt: '2024-10-03T12:53:00.698Z',
-          updatedAt: '2024-10-09T09:36:58.656Z',
-        },
+          "id": "bc807845-08a8-423e-9976-4f60df183ae2",
+          "firstName": "Максим",
+          "lastName": "Ковальская",
+          "middleName": "Тимофеевич",
+          "telegramId": 453120600,
+          "telephoneNumber": "+79787513901",
+          "avatar_url": null,
+          "vk_id": null,
+          "createdAt": "2024-12-04T13:16:56.785Z",
+          "updatedAt": "2024-12-04T15:37:36.501Z"
+        }
       ],
-      strategies: [
+      "strategies": [
         {
-          id: 'a21ce28a-72ab-472e-a53d-cbd1f69d619a',
-          strategyNumber: 100,
-          dateActive: null,
-          content: '<p>1111</p>\n',
-          state: 'Черновик',
-          createdAt: '2024-10-31T08:44:57.466Z',
-          updatedAt: '2024-10-31T08:44:57.466Z',
-          organization: {
-            id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-            organizationName: 'soplya firma',
-            parentOrganizationId: null,
-            createdAt: '2024-09-16T14:24:33.841Z',
-            updatedAt: '2024-09-16T14:24:33.841Z',
-          },
-        },
+          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
+          "strategyNumber": 194,
+          "dateActive": null,
+          "content": "HTML текст",
+          "state": "Черновик",
+          "createdAt": "2024-12-20T12:15:04.395Z",
+          "updatedAt": "2024-12-20T12:15:04.395Z"
+        }
       ],
-      projects: [
+      "projects": [
         {
-          id: 'a07df38f-4f40-403d-9d1b-d26e9786eab3',
-          projectNumber: 98,
-          projectName: 'Название проекта',
-          programId: null,
-          content: 'Контент проекта',
-          type: 'Проект',
-          createdAt: '2024-10-29T14:49:38.686Z',
-          updatedAt: '2024-10-29T14:49:38.686Z',
-          organization: {
-            id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-            organizationName: 'soplya firma',
-            parentOrganizationId: null,
-            createdAt: '2024-09-16T14:24:33.841Z',
-            updatedAt: '2024-09-16T14:24:33.841Z',
-          },
-        },
-      ],
-      organizations: [
-        {
-          id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          organizationName: 'soplya firma',
-          parentOrganizationId: null,
-          createdAt: '2024-09-16T14:24:33.841Z',
-          updatedAt: '2024-09-16T14:24:33.841Z',
-        },
-      ],
-    },
+          "id": "26cc6162-8c3d-440f-8464-67561172bc32",
+          "projectNumber": 280,
+          "projectName": "НОвый",
+          "programId": null,
+          "content": "Контент проекта",
+          "type": "Проект",
+          "createdAt": "2024-12-20T12:21:09.823Z",
+          "updatedAt": "2024-12-20T12:21:09.823Z",
+        }
+      ]
+    }
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'organizationId',
     required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   async beforeCreateProgram(
-    @Param('userId') userId: string,
-    @Ip() ip: string,
+    @Param('organizationId') organizationId: string,
   ): Promise<{
     workers: ReadUserDto[];
     strategies: StrategyReadDto[];
     projects: ProjectReadDto[];
-    organizations: OrganizationReadDto[];
   }> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const workers = await this.userService.findAllForAccount(user.account);
-    const strategies = await this.strategyService.findAllActiveForAccount(
-      user.account,
-      ['organization'],
-    );
-    const projects = await this.projectService.findAllProjectsWithoutProgramForAccount(user.account);
-    const organizations = await this.organizationService.findAllForAccount(
-      user.account,
-    );
+    const workers = await this.userService.findAllForOrganization(organizationId);
+    const strategies = await this.strategyService.findAllActiveForOrganization(organizationId);
+    const projects = await this.projectService.findAllProjectsWithoutProgramForOrganization(organizationId);
     return {
       workers: workers,
       strategies: strategies,
       projects: projects,
-      organizations: organizations,
     };
   }
 
-  @Get('new')
+  @Get(':organizationId/new')
   @ApiOperation({ summary: 'Получить данные для создания нового проекта' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
     example: {
-      workers: [
+      "workers": [
         {
-          id: 'a76caf62-bc78-44e9-ba64-6e8e4c5b3248',
-          firstName: 'Илюха',
-          lastName: 'Белописькин',
-          middleName: null,
-          telegramId: 0,
-          telephoneNumber: null,
-          avatar_url: null,
-          vk_id: null,
-          createdAt: '2024-10-03T12:53:00.698Z',
-          updatedAt: '2024-10-09T09:36:58.656Z',
-        },
+          "id": "bc807845-08a8-423e-9976-4f60df183ae2",
+          "firstName": "Максим",
+          "lastName": "Ковальская",
+          "middleName": "Тимофеевич",
+          "telegramId": 453120600,
+          "telephoneNumber": "+79787513901",
+          "avatar_url": null,
+          "vk_id": null,
+          "createdAt": "2024-12-04T13:16:56.785Z",
+          "updatedAt": "2024-12-04T15:37:36.501Z"
+        }
       ],
-      strategies: [
+      "strategies": [
         {
-          id: 'a21ce28a-72ab-472e-a53d-cbd1f69d619a',
-          strategyNumber: 100,
-          dateActive: null,
-          content: '<p>1111</p>\n',
-          state: 'Черновик',
-          createdAt: '2024-10-31T08:44:57.466Z',
-          updatedAt: '2024-10-31T08:44:57.466Z',
-          organization: {
-            id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-            organizationName: 'soplya firma',
-            parentOrganizationId: null,
-            createdAt: '2024-09-16T14:24:33.841Z',
-            updatedAt: '2024-09-16T14:24:33.841Z',
-          },
-        },
+          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
+          "strategyNumber": 194,
+          "dateActive": null,
+          "content": "HTML текст",
+          "state": "Черновик",
+          "createdAt": "2024-12-20T12:15:04.395Z",
+          "updatedAt": "2024-12-20T12:15:04.395Z"
+        }
       ],
-      programs: [
+      "programs": [
         {
-          id: 'b7f4064f-cddf-4faa-b0fb-4601c6c77418',
-          projectNumber: 100,
-          projectName: 'Название проекта',
-          programId: null,
-          content: null,
-          type: 'Программа',
-          createdAt: '2024-10-29T15:16:25.171Z',
-          updatedAt: '2024-10-29T15:16:25.171Z',
-          organization: {
-            id: '1f1cca9a-2633-489c-8f16-cddd411ff2d0',
-            organizationName: 'OOO BOBRIK',
-            parentOrganizationId: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-            createdAt: '2024-09-16T15:09:48.995Z',
-            updatedAt: '2024-09-16T15:09:48.995Z',
-          },
-        },
-      ],
-      organizations: [
-        {
-          id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          organizationName: 'soplya firma',
-          parentOrganizationId: null,
-          createdAt: '2024-09-16T14:24:33.841Z',
-          updatedAt: '2024-09-16T14:24:33.841Z',
-        },
-      ],
-    },
+          "id": "3b6e9455-7435-4f6b-bef4-950d40aca37d",
+          "projectNumber": 281,
+          "projectName": "Программа",
+          "programId": null,
+          "content": "Контент проекта",
+          "type": "Программа",
+          "createdAt": "2024-12-20T12:25:21.715Z",
+          "updatedAt": "2024-12-20T12:25:21.715Z",
+          "strategy": {
+            "id": "c970f786-b785-49da-894c-b9c975ec0e26",
+            "strategyNumber": 194,
+            "dateActive": null,
+            "content": "HTML текст",
+            "state": "Черновик",
+            "createdAt": "2024-12-20T12:15:04.395Z",
+            "updatedAt": "2024-12-20T12:15:04.395Z"
+          }
+        }
+      ]
+    }
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'organizationId',
     required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   async beforeCreate(
-    @Param('userId') userId: string,
-    @Ip() ip: string,
+    @Param('organizationId') organizationId: string,
   ): Promise<{
     workers: ReadUserDto[];
     strategies: StrategyReadDto[];
     programs: ProjectReadDto[];
-    organizations: OrganizationReadDto[];
   }> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const workers = await this.userService.findAllForAccount(user.account);
-    const strategies = await this.strategyService.findAllActiveForAccount(user.account, ['organization']);
-    const programs = await this.projectService.findAllProgramsForAccount(user.account);
-    const organizations = await this.organizationService.findAllForAccount(user.account);
+    const workers = await this.userService.findAllForOrganization(organizationId);
+    const strategies = await this.strategyService.findAllActiveForOrganization(organizationId);
+    const programs = await this.projectService.findAllProgramsForOrganization(organizationId, ['strategy']);
     return {
       workers: workers,
       strategies: strategies,
       programs: programs,
-      organizations: organizations,
     };
   }
 
@@ -318,32 +271,28 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'ОК!',
-    example: 'ff6c48ae-8493-48cc-9c5d-cdd1393858e6',
+    example: {"id": "ff6c48ae-8493-48cc-9c5d-cdd1393858e6"},
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
   async create(
-    @Param('userId') userId: string,
+    @Req() req: ExpressRequest,
     @Body() projectCreateDto: ProjectCreateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const [user, organization] = await Promise.all([
-      this.userService.findOne(userId, ['account']),
-      this.organizationService.findOneById(projectCreateDto.organizationId),
-    ]);
+    const user = req.user as ReadUserDto;
+    const organization = await this.organizationService.findOneById(projectCreateDto.organizationId);
     if (projectCreateDto.strategyId) {
-      const strategy = await this.strategyService.findOneById(
-        projectCreateDto.strategyId,
-        ['organization'],
-      );
+      const strategy = await this.strategyService.findOneById(projectCreateDto.strategyId);
       projectCreateDto.strategy = strategy;
     }
     projectCreateDto.user = user;
@@ -436,7 +385,7 @@ export class ProjectController {
       }
     }
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - projectCreateDto: ${JSON.stringify(projectCreateDto)} - Создан новый проект!`,
+      `${yellow('OK!')} - projectCreateDto: ${JSON.stringify(projectCreateDto)} - Создан новый проект!`,
     );
     return { id: createdProjectId };
   }
@@ -456,27 +405,28 @@ export class ProjectController {
     },
   })
   @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: `Проект не найден!`,
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
   async update(
-    @Param('userId') userId: string,
+    @Req() req: ExpressRequest,
     @Param('projectId') projectId: string,
     @Body() projectUpdateDto: ProjectUpdateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId, ['account']);
+    const user = req.user as ReadUserDto;
     const promises: Promise<void>[] = [];    // Условно добавляем запросы в массив промисов
     console.log(projectUpdateDto.strategyId)
     if (projectUpdateDto.strategyId != null) {
@@ -484,16 +434,6 @@ export class ProjectController {
         this.strategyService.findOneById(projectUpdateDto.strategyId).then(strategy => {
           projectUpdateDto.strategy = strategy;
         }),
-      );
-    }
-
-    if (projectUpdateDto.organizationId) {
-      promises.push(
-        this.organizationService.findOneById(projectUpdateDto.organizationId).then(
-          organization => {
-            projectUpdateDto.organization = organization;
-          },
-        ),
       );
     }
 
@@ -615,10 +555,6 @@ export class ProjectController {
         projectUpdateDto.type !== undefined
           ? (projectUpdateDto.type as string)
           : null,
-      organizationId:
-        projectUpdateDto.organizationId !== undefined
-          ? projectUpdateDto.organizationId
-          : null,
       updatedAt: new Date(),
       strategyId:
         projectUpdateDto.strategyId !== undefined
@@ -647,7 +583,7 @@ export class ProjectController {
       }
     }
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`,
+      `${yellow('OK!')} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`,
     );
     return { id: updatedProjectId };
   }
@@ -657,21 +593,136 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {},
+    example: {
+      "program": {
+        "id": "3b6e9455-7435-4f6b-bef4-950d40aca37d",
+        "projectNumber": 281,
+        "projectName": "Программа",
+        "programId": null,
+        "content": "Контент проекта",
+        "type": "Программа",
+        "createdAt": "2024-12-20T12:25:21.715Z",
+        "updatedAt": "2024-12-20T12:25:21.715Z",
+        "organization": {
+          "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167",
+          "organizationName": "Калоеды",
+          "parentOrganizationId": null,
+          "reportDay": 2,
+          "createdAt": "2024-12-04T13:14:47.767Z",
+          "updatedAt": "2024-12-06T07:09:10.117Z"
+        },
+        "targets": [
+          {
+            "id": "b5b8527e-a753-4ca0-90cc-3bc6ad4375c7",
+            "type": "Продукт",
+            "orderNumber": 1,
+            "content": "Контент задачи",
+            "holderUserId": "bc807845-08a8-423e-9976-4f60df183ae2",
+            "targetState": "Активная",
+            "dateStart": "2024-12-20T12:25:21.576Z",
+            "deadline": "2024-09-18T14:59:47.010Z",
+            "dateComplete": null,
+            "createdAt": "2024-12-20T12:25:21.960Z",
+            "updatedAt": "2024-12-20T12:25:21.960Z",
+            "targetHolders": [
+              {
+                "id": "cc57610d-d428-43f2-a2d2-f102676fda2b",
+                "createdAt": "2024-12-20T12:25:22.059Z",
+                "updatedAt": "2024-12-20T12:25:22.059Z",
+                "user": {
+                  "id": "bc807845-08a8-423e-9976-4f60df183ae2",
+                  "firstName": "Максим",
+                  "lastName": "Ковальская",
+                  "middleName": "Тимофеевич",
+                  "telegramId": 453120600,
+                  "telephoneNumber": "+79787513901",
+                  "avatar_url": null,
+                  "vk_id": null,
+                  "createdAt": "2024-12-04T13:16:56.785Z",
+                  "updatedAt": "2024-12-04T15:37:36.501Z"
+                }
+              }
+            ],
+            "isExpired": true
+          }
+        ],
+        "strategy": {
+          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
+          "strategyNumber": 194,
+          "dateActive": null,
+          "content": "HTML текст",
+          "state": "Черновик",
+          "createdAt": "2024-12-20T12:15:04.395Z",
+          "updatedAt": "2024-12-20T12:15:04.395Z"
+        }
+      },
+      "projects": [
+        {
+          "id": "26cc6162-8c3d-440f-8464-67561172bc32",
+          "projectNumber": 280,
+          "projectName": "НОвый",
+          "programId": "3b6e9455-7435-4f6b-bef4-950d40aca37d",
+          "content": "Контент проекта",
+          "type": "Проект",
+          "createdAt": "2024-12-20T12:21:09.823Z",
+          "updatedAt": "2024-12-20T12:25:21.811Z",
+          "targets": [
+            {
+              "id": "723b97dd-a8bc-45b5-be03-5c307adf852c",
+              "type": "Продукт",
+              "orderNumber": 1,
+              "content": "Контент задачи",
+              "holderUserId": "bc807845-08a8-423e-9976-4f60df183ae2",
+              "targetState": "Активная",
+              "dateStart": "2024-12-20T12:21:09.602Z",
+              "deadline": "2024-09-18T14:59:47.010Z",
+              "dateComplete": null,
+              "createdAt": "2024-12-20T12:21:09.980Z",
+              "updatedAt": "2024-12-20T12:21:09.980Z",
+              "targetHolders": [
+                {
+                  "id": "76760b9f-f548-48d7-a674-f4cd61212b43",
+                  "createdAt": "2024-12-20T12:21:10.077Z",
+                  "updatedAt": "2024-12-20T12:21:10.077Z",
+                  "user": {
+                    "id": "bc807845-08a8-423e-9976-4f60df183ae2",
+                    "firstName": "Максим",
+                    "lastName": "Ковальская",
+                    "middleName": "Тимофеевич",
+                    "telegramId": 453120600,
+                    "telephoneNumber": "+79787513901",
+                    "avatar_url": null,
+                    "vk_id": null,
+                    "createdAt": "2024-12-04T13:16:56.785Z",
+                    "updatedAt": "2024-12-04T15:37:36.501Z"
+                  }
+                }
+              ],
+              "isExpired": true
+            }
+          ]
+        }
+      ]
+    }
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Программа не найдена!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiParam({ 
+    name: 'programId', 
+    required: true, 
+    description: 'Id программы' 
   })
-  @ApiParam({ name: 'programId', required: true, description: 'Id программы' })
   async findOneProgram(
-    @Param('userId') userId: string,
     @Param('programId') programId: string,
   ): Promise<{ program: ProjectReadDto; projects: ProjectReadDto[] }> {
     const program = await this.projectService.findOneProgramById(programId);
@@ -685,87 +736,104 @@ export class ProjectController {
     status: HttpStatus.OK,
     description: 'ОК!',
     example: {
-      id: '31a2c203-17bf-41be-a8db-92f747700a4c',
-      projectNumber: 97,
-      programId: null,
-      programNumber: null,
-      content: 'Контент проекта',
-      type: 'Проект',
-      createdAt: '2024-10-28T12:30:37.771Z',
-      updatedAt: '2024-10-28T12:30:37.771Z',
-      organization: {
-        id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-        organizationName: 'soplya firma',
-        parentOrganizationId: null,
-        createdAt: '2024-09-16T14:24:33.841Z',
-        updatedAt: '2024-09-16T14:24:33.841Z',
-      },
-      targets: [
-        {
-          id: '3e01eb60-b4d8-4ad7-adb7-473a82df44bc',
-          type: 'Обычная',
-          orderNumber: 3,
-          content: 'Контент задачи',
-          holderUserId: '702dc852-4806-47b7-8b03-1214ef428efd',
-          dateStart: '2024-10-28T12:30:37.699Z',
-          deadline: '2024-09-18T14:59:47.010Z',
-          dateComplete: null,
-          createdAt: '2024-10-28T12:30:37.997Z',
-          updatedAt: '2024-10-28T12:30:37.997Z',
-          targetHolders: [
-            {
-              id: '382343fd-c5b2-4be8-9fa6-d30ae0540a3f',
-              createdAt: '2024-10-28T12:30:38.093Z',
-              updatedAt: '2024-10-28T12:30:38.093Z',
-              user: {
-                id: '702dc852-4806-47b7-8b03-1214ef428efd',
-                firstName: 'Валерий',
-                lastName: 'Лысенко',
-                middleName: null,
-                telegramId: 803348257,
-                telephoneNumber: '+79787512027',
-                avatar_url: null,
-                vk_id: null,
-                createdAt: '2024-09-30T14:10:48.302Z',
-                updatedAt: '2024-10-09T09:27:30.811Z',
-              },
-            },
-          ],
+      "project": {
+        "id": "26cc6162-8c3d-440f-8464-67561172bc32",
+        "projectNumber": 280,
+        "projectName": "НОвый",
+        "programId": "3b6e9455-7435-4f6b-bef4-950d40aca37d",
+        "programNumber": 281,
+        "content": "Контент проекта",
+        "type": "Проект",
+        "createdAt": "2024-12-20T12:21:09.823Z",
+        "updatedAt": "2024-12-20T12:25:21.811Z",
+        "organization": {
+          "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167",
+          "organizationName": "Калоеды",
+          "parentOrganizationId": null,
+          "reportDay": 2,
+          "createdAt": "2024-12-04T13:14:47.767Z",
+          "updatedAt": "2024-12-06T07:09:10.117Z"
         },
-      ],
-      strategy: {
-        id: 'fbc2871c-37b3-435f-8b9a-d30235e59e33',
-        strategyNumber: 71,
-        dateActive: null,
-        content: 'HTML текст',
-        state: 'Черновик',
-        createdAt: '2024-10-28T12:09:02.936Z',
-        updatedAt: '2024-10-28T12:09:02.936Z',
+        "targets": [
+          {
+            "id": "723b97dd-a8bc-45b5-be03-5c307adf852c",
+            "type": "Продукт",
+            "orderNumber": 1,
+            "content": "Контент задачи",
+            "holderUserId": "bc807845-08a8-423e-9976-4f60df183ae2",
+            "targetState": "Активная",
+            "dateStart": "2024-12-20T12:21:09.602Z",
+            "deadline": "2024-09-18T14:59:47.010Z",
+            "dateComplete": null,
+            "createdAt": "2024-12-20T12:21:09.980Z",
+            "updatedAt": "2024-12-20T12:21:09.980Z",
+            "targetHolders": [
+              {
+                "id": "76760b9f-f548-48d7-a674-f4cd61212b43",
+                "createdAt": "2024-12-20T12:21:10.077Z",
+                "updatedAt": "2024-12-20T12:21:10.077Z",
+                "user": {
+                  "id": "bc807845-08a8-423e-9976-4f60df183ae2",
+                  "firstName": "Максим",
+                  "lastName": "Ковальская",
+                  "middleName": "Тимофеевич",
+                  "telegramId": 453120600,
+                  "telephoneNumber": "+79787513901",
+                  "avatar_url": null,
+                  "vk_id": null,
+                  "createdAt": "2024-12-04T13:16:56.785Z",
+                  "updatedAt": "2024-12-04T15:37:36.501Z"
+                }
+              }
+            ],
+            "isExpired": true
+          }
+        ],
+        "strategy": {
+          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
+          "strategyNumber": 194,
+          "dateActive": null,
+          "content": "HTML текст",
+          "state": "Черновик",
+          "createdAt": "2024-12-20T12:15:04.395Z",
+          "updatedAt": "2024-12-20T12:15:04.395Z"
+        }
       },
-    },
+      "strategies": [
+        {
+          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
+          "strategyNumber": 194,
+          "dateActive": null,
+          "content": "HTML текст",
+          "state": "Черновик",
+          "createdAt": "2024-12-20T12:15:04.395Z",
+          "updatedAt": "2024-12-20T12:15:04.395Z"
+        }
+      ]
+    }
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: `Проект не найден!`,
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiParam({ 
+    name: 'projectId', 
+    required: true, 
+    description: 'Id проекта' 
   })
-  @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
   async findOne(
-    @Param('userId') userId: string,
     @Param('projectId') projectId: string,
   ): Promise<{ project: ProjectReadDto; strategies: StrategyReadDto[] }> {
-    const [user, project] = await Promise.all([
-      this.userService.findOne(userId, ['account']),
-      this.projectService.findOneById(projectId),
-    ]);
-    const strategies = await this.strategyService.findAllForAccount(
-      user.account,
-    );
+    const project = await this.projectService.findOneById(projectId);
+    const strategies = await this.strategyService.findAllActiveForOrganization(project.organization.id);
     return { project: project, strategies: strategies };
   }
 }

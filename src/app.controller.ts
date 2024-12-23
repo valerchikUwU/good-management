@@ -59,22 +59,15 @@ export class AppController implements OnModuleInit {
     required: false,
     description: 'Отпечаток браузера',
     example: '123rewt235r3wefe',
-  })  
-  @ApiQuery({
-    name: 'ip',
-    required: false,
-    description: 'IP клиента',
-    example: '1.1.1.1',
   })
   async getToken(
     @Headers('User-Agent') user_agent: string,
     @Query('fingerprint') fingerprint?: string,
-    @Query('ip') ip?: string
   ): Promise<object> {
     let isLogged = false;
     let userId = null;
-    if(ip && fingerprint){
-      const isLoggedResult = await this.authService.isSessionExpired(ip, fingerprint)
+    if(fingerprint){
+      const isLoggedResult = await this.authService.isSessionExpired(fingerprint)
       isLogged = isLoggedResult.isExpired ? false : true
       userId = isLogged ? isLoggedResult.userId : null;
     }
@@ -101,7 +94,7 @@ export class AppController implements OnModuleInit {
   }
 
   onModuleInit() {
-    if (process.env.NODE_ENV === 'prod') {
+    if (process.env.NODE_ENV === 'dev') {
       this.telegramBotService.startBot();
     }
   }

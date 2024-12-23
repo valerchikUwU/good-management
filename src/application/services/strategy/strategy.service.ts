@@ -52,11 +52,11 @@ export class StrategyService {
     }
   }
 
-  async findAllActiveOrDraftWithoutObjectiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+  async findAllActiveOrDraftWithoutObjectiveForOrganization(organizationId: string): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: {
-          account: { id: account.id },
+          organization: { id: organizationId },
           state: In([State.ACTIVE, State.DRAFT]),
           objective: { id: IsNull() },
         },
@@ -86,11 +86,11 @@ export class StrategyService {
     }
   }
 
-  async findAllActiveForAccount(account: AccountReadDto, relations?: string[]): Promise<StrategyReadDto[]> {
+  async findAllActiveForOrganization(organizationId: string, relations?: string[]): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: {
-          account: { id: account.id },
+          organization: { id: organizationId },
           state: In([State.ACTIVE, State.DRAFT]), // Используем In для OR условия
         },
         relations: relations !== undefined ? relations : [],

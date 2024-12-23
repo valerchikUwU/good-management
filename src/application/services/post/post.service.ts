@@ -25,10 +25,13 @@ export class PostService {
   ) { }
 
 
-  async findAllForOrganization(organization: OrganizationReadDto): Promise<PostReadDto[]> {
+  
+
+  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { organization: { id: organization.id } },
+        where: { account: { id: account.id } },
+        relations: relations !== undefined ? relations : [],
       });
 
       return posts.map((post) => ({
@@ -57,10 +60,10 @@ export class PostService {
     }
   }
 
-  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PostReadDto[]> {
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { account: { id: account.id } },
+        where: { organization: { id: organizationId } },
         relations: relations !== undefined ? relations : [],
       });
 
@@ -268,8 +271,6 @@ export class PostService {
       else {
         post.user = null;
       }
-      if (updatePostDto.organization)
-        post.organization = updatePostDto.organization;
       if (updatePostDto.policyId !== null) {
         post.policy = updatePostDto.policy;
       } else {

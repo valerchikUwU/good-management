@@ -54,13 +54,45 @@ export class PolicyService {
     }
   }
 
-  async findAllActiveForAccount(
-    account: AccountReadDto,
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PolicyReadDto[]> {
+    try {
+      const policies = await this.policyRepository.find({
+        where: { organization: { id: organizationId } },
+        relations: relations !== undefined ? relations : [],
+      });
+
+      return policies.map((policy) => ({
+        id: policy.id,
+        policyName: policy.policyName,
+        policyNumber: policy.policyNumber,
+        state: policy.state,
+        type: policy.type,
+        dateActive: policy.dateActive,
+        content: policy.content,
+        createdAt: policy.createdAt,
+        updatedAt: policy.updatedAt,
+        posts: policy.posts,
+        organization: policy.organization,
+        user: policy.user,
+        account: policy.account,
+        policyToPolicyDirectories: policy.policyToPolicyDirectories,
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех политик!',
+      );
+    }
+  }
+
+  async findAllActiveForOrganization(
+    organizationId: string,
   ): Promise<PolicyReadDto[]> {
     try {
       const policies = await this.policyRepository.find({
         where: {
-          account: { id: account.id },
+          organization: { id: organizationId },
           state: State.ACTIVE
         }
       });
@@ -200,17 +232,12 @@ export class PolicyService {
       if (updatePolicyDto.content) policy.content = updatePolicyDto.content;
       if (updatePolicyDto.state === State.ACTIVE)
         policy.dateActive = new Date();
-
-      if (updatePolicyDto.organization !== null) {
-        policy.organization = updatePolicyDto.organization;
-      }
       await this.policyRepository.update(policy.id, {
         policyName: policy.policyName,
         state: policy.state,
         type: policy.type,
         content: policy.content,
         dateActive: policy.dateActive,
-        organization: policy.organization
       });
       return policy.id;
     } catch (err) {

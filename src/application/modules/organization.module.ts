@@ -7,7 +7,7 @@ import { OrganizationController } from 'src/controllers/organization.controller'
 import { UsersModule } from './users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Organization]), UsersModule],
+  imports: [TypeOrmModule.forFeature([Organization])],
   controllers: [OrganizationController],
   providers: [OrganizationService, OrganizationRepository],
   exports: [OrganizationService],

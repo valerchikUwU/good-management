@@ -1,18 +1,19 @@
 import {
   Entity,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
   Index,
 } from 'typeorm';
 import { TargetHolder } from './targetHolder.entity';
 import { Project } from './project.entity';
 
+/**
+ * Перечисление типов задач.
+ */
 export enum Type {
   COMMON = 'Обычная',
   STATISTIC = 'Статистика',
@@ -21,16 +22,36 @@ export enum Type {
   EVENT = 'Организационные мероприятия',
 }
 
+/**
+ * Перечисление состояний задач.
+ */
 export enum State {
   ACTIVE = 'Активная',
   REJECTED = 'Отменена',
   FINISHED = 'Завершена',
 }
+
+/**
+ * Сущность, представляющая Задачу.
+ */
 @Entity()
 export class Target {
+
+  /**
+   * Уникальный идентификатор.
+   * 
+   * @remarks
+   * Поле автоматически генерируется в формате UUID v4.0.
+   */
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  /**
+   * Тип задачи.
+   * 
+   * @remarks
+   * Используется перечисление `Type`. По умолчанию установлено значение обычная(COMMON). nullable: false
+   */
   @Column({
     type: 'enum',
     enum: Type,
@@ -39,15 +60,39 @@ export class Target {
   })
   type: Type;
 
+  /**
+   * Порядковый номер задачи в проекте.
+   * 
+   * @remarks
+   * nullable: false.
+   */
   @Column({ nullable: false })
   orderNumber: number;
 
+  /**
+   * Содержание задачи.
+   * 
+   * @remarks
+   * nullable: false.
+   */
   @Column({ type: 'text', nullable: false })
   content: string;
 
+  /**
+   * Id текущего ответственного за задачу.
+   * 
+   * @remarks
+   * UUID v4.0, nullable: false.
+   */
   @Column({ type: 'uuid', nullable: false })
   holderUserId: string;
-
+  
+  /**
+   * Состояние задачи.
+   * 
+   * @remarks
+   * Используется перечисление `State`. По умолчанию установлено значение активная(ACTIVE). nullable: false
+   */
   @Column({
     type: 'enum',
     enum: State,
@@ -56,28 +101,73 @@ export class Target {
   })
   targetState: State;
 
+  /**
+   * Дата старта задачи.
+   * 
+   * @remarks
+   * default: CURRENT_TIMESTAMP, nullable: false
+   */
   @Column({
     type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
     nullable: false,
   })
   dateStart: Date;
-
+  
+  /**
+   * Дедлайн задачи.
+   * 
+   * @remarks
+   * nullable: true
+   */
   @Column({ type: 'timestamp', nullable: true })
   deadline: Date;
-
+  
+  /**
+   * Дата окончания задачи.
+   * 
+   * @remarks
+   * nullable: true
+   */
   @Column({ type: 'timestamp', nullable: true })
   dateComplete: Date;
-
+  
+  /**
+   * Дата создания записи.
+   * 
+   * @remarks
+   * Поле автоматически заполняется при создании записи.
+   * 
+   * @example
+   * '2024-06-01T12:34:56Z'
+   */
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
+  /**
+   * Дата последнего обновления записи.
+   * 
+   * @remarks
+   * Поле автоматически обновляется при изменении записи.
+   * 
+   * @example
+   * '2024-06-01T12:34:56Z'
+   */
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
+  /**
+   * Связь с сущностью 1:M TargetHolder.
+   */
   @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.target)
   targetHolders: TargetHolder[];
-
+  
+  /**
+   * Связь с сущностью M:1 Project.
+   * 
+   * @remarks
+   * Установлен индекс, nullable: true (???????)
+   */
   @ManyToOne(() => Project, (project) => project.targets, { nullable: true }) //хуй знает
   @Index() // Добавляем индекс для поля project
   project: Project;

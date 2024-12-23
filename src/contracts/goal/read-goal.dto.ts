@@ -23,5 +23,5 @@ export class GoalReadDto {
   account?: Account;
 
   @ApiProperty({ description: 'ID организации, принадлежащей цели' })
-  organization: Organization;
+  organization?: Organization;
 }

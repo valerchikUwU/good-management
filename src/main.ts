@@ -36,7 +36,7 @@ async function bootstrap() {
   );
   app.use(cookieParser());
   app.enableCors({ 
-    origin: true, // Замените на домен клиента
+    origin: process.env.NODE_ENV === 'dev' ? true : false,
     credentials: true,
   });
 
@@ -50,6 +50,14 @@ async function bootstrap() {
       'The GM API description.\n\n[Export JSON](http://localhost:5000/swagger-json)',
     )
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT', // Указывает формат токена (опционально)
+      },
+      'access-token', // Название схемы (используется в декораторе @ApiBearerAuth)
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerApi);

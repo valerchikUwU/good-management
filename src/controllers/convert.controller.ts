@@ -61,7 +61,7 @@ export class ConvertController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async findAll(@Param('userId') userId: string): Promise<ConvertReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
@@ -129,7 +129,7 @@ export class ConvertController {
           createdAt: '2024-11-05T12:23:25.461Z',
           updatedAt: '2024-11-05T12:23:25.461Z',
           user: {
-            id: '3b809c42-2824-46c1-9686-dd666403402a',
+            id: 'bc807845-08a8-423e-9976-4f60df183ae2',
             firstName: 'Maxik',
             lastName: 'Koval',
             middleName: null,
@@ -164,7 +164,7 @@ export class ConvertController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async findOne(
     @Param('convertId') convertId: string,
@@ -204,7 +204,7 @@ export class ConvertController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async create(
     @Param('userId') userId: string,

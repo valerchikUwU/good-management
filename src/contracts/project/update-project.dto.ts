@@ -68,16 +68,6 @@ export class ProjectUpdateDto {
   type?: TypeProject;
 
   @ApiProperty({
-    description: 'ID организации, с которой связать проект',
-    required: false,
-    example: '1f1cca9a-2633-489c-8f16-cddd411ff2d0',
-  })
-  @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'Выберите организацию!' })
-  organizationId?: string;
-
-  @ApiProperty({
     description: 'ID стратегии, которую связать с проектом',
     required: false,
     example: '221cca9a-2633-489c-8f16-cddd411ff2d0',
@@ -85,9 +75,6 @@ export class ProjectUpdateDto {
   @IsOptional()
   @IsUUID()
   strategyId?: string | null;
-
-  @Exclude({ toPlainOnly: true })
-  organization: Organization;
 
   @Exclude({ toPlainOnly: true })
   strategy: Strategy;

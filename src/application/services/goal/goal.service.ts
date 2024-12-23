@@ -46,14 +46,14 @@ export class GoalService {
     }
   }
 
-  async findOneById(id: string, relations?: string[]): Promise<GoalReadDto> {
+  async findOneByOrganizationId(organizationId: string, relations?: string[]): Promise<GoalReadDto> {
     try {
       const goal = await this.goalRepository.findOne({
-        where: { id: id },
+        where: {organization: { id: organizationId }},
         relations: relations !== undefined ? relations : [],
       });
 
-      if (!goal) throw new NotFoundException(`Цель с ID: ${id} не найдена!`);
+      if (!goal) throw new NotFoundException(`Цель для организации: ${goal.organization.organizationName} не найдена!`);
       const goalReadDto: GoalReadDto = {
         id: goal.id,
         content: goal.content,

@@ -6,7 +6,6 @@ import { TargetCreateDto } from '../target/create-target.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
-  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsNotEmpty,
@@ -67,7 +66,7 @@ export class ProjectCreateDto {
 
   @ApiProperty({
     description: 'ID организации, которую связать с проектом',
-    example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   @IsUUID()
   @IsNotEmpty({ message: 'Выберите организацию!' })
@@ -103,7 +102,7 @@ export class ProjectCreateDto {
         type: 'Продукт',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderUserId: 'bc807845-08a8-423e-9976-4f60df183ae2',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -111,7 +110,7 @@ export class ProjectCreateDto {
         type: 'Обычная',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderUserId: 'bc807845-08a8-423e-9976-4f60df183ae2',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -119,7 +118,7 @@ export class ProjectCreateDto {
         type: 'Правила',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderUserId: 'bc807845-08a8-423e-9976-4f60df183ae2',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -127,7 +126,7 @@ export class ProjectCreateDto {
         type: 'Статистика',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderUserId: 'bc807845-08a8-423e-9976-4f60df183ae2',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -135,7 +134,7 @@ export class ProjectCreateDto {
         type: 'Организационные мероприятия',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderUserId: 'bc807845-08a8-423e-9976-4f60df183ae2',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },

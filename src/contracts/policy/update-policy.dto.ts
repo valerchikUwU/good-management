@@ -61,18 +61,4 @@ export class PolicyUpdateDto {
   @IsString()
   @IsNotEmpty({ message: 'Содержание политики не может быть пустым!' })
   content?: string;
-
-  @ApiProperty({
-    description: 'IDs организаций, к которым привязать политику',
-    required: false,
-    example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'],
-  })
-  @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'ID организации не может быть пустым!' })
-  organizationId?: string;
-
-
-  @Exclude({ toPlainOnly: true })
-  organization: Organization;
 }

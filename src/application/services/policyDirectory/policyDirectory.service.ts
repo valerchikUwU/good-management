@@ -25,15 +25,17 @@ export class PolicyDirectoryService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PolicyDirectoryReadDto[]> {
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PolicyDirectoryReadDto[]> {
     try {
       const policyDirectories = await this.policyDirectoryRepository.find({
-        where: { account: { id: account.id } },
+        where: { policyToPolicyDirectories: { policy: {organization: {id: organizationId} } } },
         relations: relations !== undefined ? relations : [],
       });
       return policyDirectories.map((policyDirectory) => ({
         id: policyDirectory.id,
         directoryName: policyDirectory.directoryName,
+        createdAt: policyDirectory.createdAt,
+        updatedAt: policyDirectory.updatedAt,
         policyToPolicyDirectories: policyDirectory.policyToPolicyDirectories.filter((policyToPolicyDirectory) => policyToPolicyDirectory.policy.state === State.ACTIVE),
       }));
     } catch (err) {
@@ -58,6 +60,8 @@ export class PolicyDirectoryService {
       const policyDirectoryReadDto: PolicyDirectoryReadDto = {
         id: policyDirectory.id,
         directoryName: policyDirectory.directoryName,
+        createdAt: policyDirectory.createdAt,
+        updatedAt: policyDirectory.updatedAt,
         policyToPolicyDirectories: policyDirectory.policyToPolicyDirectories.filter((policyToPolicyDirectory) => policyToPolicyDirectory.policy.state === State.ACTIVE),
       }
       return policyDirectoryReadDto;

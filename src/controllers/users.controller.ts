@@ -68,7 +68,7 @@ export class UsersController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async findAll(@Param('userId') userId: string): Promise<ReadUserDto[]> {
     const user = await this.usersService.findOne(userId, ['account']);
@@ -101,7 +101,7 @@ export class UsersController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async beforeCreate(): Promise<RoleReadDto[]> {
     return await this.roleService.findAll();
@@ -133,7 +133,7 @@ export class UsersController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async findOne(@Param('id') id: string): Promise<ReadUserDto> {
     return this.usersService.findOne(id);
@@ -150,7 +150,7 @@ export class UsersController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async create(
     @Param('userId') userId: string,

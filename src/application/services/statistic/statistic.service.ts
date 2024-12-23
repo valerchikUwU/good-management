@@ -40,6 +40,35 @@ export class StatisticService {
         statisticDatas: statistic.statisticDatas,
         post: statistic.post,
         account: statistic.account,
+        panelToStatistics: statistic.panelToStatistics
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех статистик!',
+      );
+    }
+  }
+
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<StatisticReadDto[]> {
+    try {
+      const statistics = await this.statisticRepository.find({
+        where: { post: { organization: {id: organizationId} } },
+        relations: relations !== undefined ? relations : [],
+      });
+
+      return statistics.map((statistic) => ({
+        id: statistic.id,
+        type: statistic.type,
+        name: statistic.name,
+        description: statistic.description,
+        createdAt: statistic.createdAt,
+        updatedAt: statistic.updatedAt,
+        statisticDatas: statistic.statisticDatas,
+        post: statistic.post,
+        account: statistic.account,
+        panelToStatistics: statistic.panelToStatistics
       }));
     } catch (err) {
       this.logger.error(err);
@@ -69,6 +98,7 @@ export class StatisticService {
         statisticDatas: statistic.statisticDatas,
         post: statistic.post,
         account: statistic.account,
+        panelToStatistics: statistic.panelToStatistics
       };
 
       return statisticReadDto;

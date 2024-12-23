@@ -12,7 +12,6 @@ import { ObjectiveModule } from './objective.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Strategy]),
-    UsersModule,
     OrganizationModule,
     forwardRef(() => ObjectiveModule),
     forwardRef(() => QueueModule),

@@ -4,19 +4,18 @@ import {
   Get,
   HttpStatus,
   Inject,
-  Ip,
   Param,
   Patch,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
-import { UsersService } from 'src/application/services/users/users.service';
 import { OrganizationCreateDto } from 'src/contracts/organization/create-organization.dto';
 import { OrganizationReadDto } from 'src/contracts/organization/read-organization.dto';
 
 import {
-  ApiBody,
-  ApiHeader,
+  ApiBearerAuth,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -25,46 +24,72 @@ import {
 import { OrganizationUpdateDto } from 'src/contracts/organization/update-organization.dto';
 import { Logger } from 'winston';
 import { red, yellow } from 'colorette';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { Request as ExpressRequest } from 'express';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 
+@UseGuards(AccessTokenGuard)
 @ApiTags('Organization')
-@Controller(':userId/organizations')
+@ApiBearerAuth('access-token') // Указывает использовать схему Bearer
+@Controller('organizations')
 export class OrganizationController {
   constructor(
     private readonly organizationService: OrganizationService,
-    private readonly userService: UsersService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get()
-  @ApiOperation({ summary: 'Все организации' })
+  @ApiOperation({ summary: 'Все организации в аккаунте' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
     example: [
       {
-        id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-        organizationName: 'soplya firma',
-        parentOrganizationId: null,
-        createdAt: '2024-09-16T14:24:33.841Z',
-        updatedAt: '2024-09-16T14:24:33.841Z',
+        "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167",
+        "organizationName": "Калоеды",
+        "parentOrganizationId": null,
+        "reportDay": 2,
+        "createdAt": "2024-12-04T13:14:47.767Z",
+        "updatedAt": "2024-12-06T07:09:10.117Z",
+        "users": [
+          {
+            "id": "bc807845-08a8-423e-9976-4f60df183ae2",
+            "firstName": "Максим",
+            "lastName": "Ковальская",
+            "middleName": "Тимофеевич",
+            "telegramId": 453120600,
+            "telephoneNumber": "+79787513901",
+            "avatar_url": null,
+            "vk_id": null,
+            "createdAt": "2024-12-04T13:16:56.785Z",
+            "updatedAt": "2024-12-04T15:37:36.501Z"
+          }
+        ]
       },
-    ],
+      {
+        "id": "392ce79a-c35f-4e00-9c3b-8b7b667c8465",
+        "organizationName": "Академия",
+        "parentOrganizationId": null,
+        "reportDay": 5,
+        "createdAt": "2024-12-04T13:28:42.823Z",
+        "updatedAt": "2024-12-04T13:28:42.823Z",
+        "users": []
+      }
+    ]
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
-  async findOrganization(
-    @Param('userId') userId: string,
+  async findAll(
+    @Req() req: ExpressRequest
   ): Promise<OrganizationReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
-    return await this.organizationService.findAllForAccount(user.account);
+    const user = req.user as ReadUserDto; // Здесь доступен пользователь из AccessJwtStrategy
+    return await this.organizationService.findAllForAccount(user.account, ['users']);
   }
 
   @Patch(':organizationId/update')
@@ -72,54 +97,51 @@ export class OrganizationController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {},
+    example: {"id": "2d1cea4c-7cea-4811-8cd5-078da7f20167"},
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
   })
   @ApiParam({
     name: 'organizationId',
     required: true,
     description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
   })
   async update(
-    @Param('userId') userId: string,
     @Param('organizationId') organizationId: string,
     @Body() organizationUpdateDto: OrganizationUpdateDto,
-    @Ip() ip: string
   ): Promise<{ id: string }> {
     const updatedOrganizationId = await this.organizationService.update(organizationId, organizationUpdateDto);
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - UPDATED ORGANIZATION: ${JSON.stringify(organizationUpdateDto)} - Организация успешно обновлена!`,
+      `${yellow('OK!')} - UPDATED ORGANIZATION: ${JSON.stringify(organizationUpdateDto)} - Организация успешно обновлена!`,
     );
     return { id: updatedOrganizationId };
   }
 
   @Post('new')
-  @ApiOperation({ summary: 'Добавить организацию' })
+  @ApiOperation({ summary: 'Добавить организацию в аккаунт' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      organizationName: 'soplya firma',
-      parentOrganizationId: null,
-      account: {
-        id: 'a1118813-8985-465b-848e-9a78b1627f11',
-        accountName: 'OOO PIPKA',
-        createdAt: '2024-09-16T12:53:29.593Z',
-        updatedAt: '2024-09-16T12:53:29.593Z',
-      },
-      id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-      createdAt: '2024-09-16T14:24:33.841Z',
-      updatedAt: '2024-09-16T14:24:33.841Z',
-    },
+    example: {"id": "2d1cea4c-7cea-4811-8cd5-078da7f20167"},
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -129,17 +151,15 @@ export class OrganizationController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async create(
-    @Param('userId') userId: string,
+    @Req() req: ExpressRequest,
     @Body() organizationCreateDto: OrganizationCreateDto,
   ): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId, ['account']);
+    const user = req.user as ReadUserDto;
     organizationCreateDto.account = user.account;
-    const createdOrganizationId = await this.organizationService.create(
-      organizationCreateDto,
-    );
+    const createdOrganizationId = await this.organizationService.create(organizationCreateDto);
     return { id: createdOrganizationId };
   }
 }

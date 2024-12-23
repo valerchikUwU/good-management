@@ -11,11 +11,13 @@ import {
   NotFoundException,
   Patch,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { PolicyService } from 'src/application/services/policy/policy.service';
 import { UsersService } from 'src/application/services/users/users.service';
 import { PolicyReadDto } from 'src/contracts/policy/read-policy.dto';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiHeader,
   ApiOperation,
@@ -39,172 +41,84 @@ import { ProducerService } from 'src/application/services/producer/producer.serv
 import { State, Type } from 'src/domains/policy.entity';
 import { PolicyUpdateEventDto } from 'src/contracts/policy/updateEvent-policy.dto';
 import { TimeoutError } from 'rxjs';
+import { Request as ExpressRequest } from 'express';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 
 @ApiTags('Policy')
-// @UseGuards(AccessTokenGuard)
-@Controller(':userId/policies')
+@ApiBearerAuth('access-token')
+@UseGuards(AccessTokenGuard)
+@Controller('policies')
 export class PolicyController {
   constructor(
     private readonly policyService: PolicyService,
-    private readonly userService: UsersService,
     private readonly organizationService: OrganizationService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  @Get()
-  @ApiOperation({ summary: 'Все политики' })
+  @Get(':organizationId')
+  @ApiOperation({ summary: 'Все политики в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: [
-      {
-        id: 'bb1897ad-1e87-4747-a6bb-749e4bf49bf6',
-        policyName: 'asdasd',
-        policyNumber: 1,
-        state: 'Черновик',
-        type: 'Директива',
-        dateActive: null,
-        content: 'string',
-        createdAt: '2024-09-18T14:59:47.010Z',
-        updatedAt: '2024-09-18T14:59:47.010Z',
-      },
-      {
-        id: 'f6e3ac1f-afd9-42c1-a9f3-d189961c325c',
-        policyName: 'Пипка',
-        policyNumber: 2,
-        state: 'Черновик',
-        type: 'Директива',
-        dateActive: null,
-        content: 'попа',
-        createdAt: '2024-09-18T15:06:52.222Z',
-        updatedAt: '2024-09-18T15:06:52.222Z',
-      },
-    ],
+    example: {
+      "directives": [
+        {
+          "id": "7e1de0a5-b736-416f-82ab-7968db43115e",
+          "policyName": "Папка",
+          "policyNumber": 156,
+          "state": "Черновик",
+          "type": "Директива",
+          "dateActive": "2024-12-12T16:41:56.829Z",
+          "content": "Папка",
+          "createdAt": "2024-12-12T16:41:57.005Z",
+          "updatedAt": "2024-12-12T17:21:17.051Z"
+        }
+      ],
+      "instructions": [
+        {
+          "id": "15d5f40c-9b02-473f-8ce7-48efc0be14ac",
+          "policyName": "Сейчас",
+          "policyNumber": 153,
+          "state": "Черновик",
+          "type": "Инструкция",
+          "dateActive": null,
+          "content": "Привет",
+          "createdAt": "2024-12-12T13:43:51.479Z",
+          "updatedAt": "2024-12-13T12:55:38.152Z"
+        }
+      ]
+    }
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'organizationId',
     required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
   })
   async findAll(
-    @Param('userId') userId: string,
-    @Ip() ip: string,
+    @Param('organizationId') organizationId: string
   ): Promise<{
-    policies: PolicyReadDto[];
     directives: PolicyReadDto[];
     instructions: PolicyReadDto[];
   }> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const policies = await this.policyService.findAllForAccount(user.account);
+    const policies = await this.policyService.findAllForOrganization(organizationId);
     const directives = policies.filter((policy) => policy.type === Type.DIRECTIVE);
     const instructions = policies.filter((policy) => policy.type === Type.INSTRUCTION);
     return {
-      policies: policies,
       directives: directives,
       instructions: instructions,
     };
   }
 
-  @Get('new')
-  @ApiOperation({ summary: 'Получить данные для создания новой политики' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
-    example: {
-      directives: [
-        {
-          id: 'bb1897ad-1e87-4747-a6bb-749e4bf49bf6',
-          policyName: 'asdasd',
-          policyNumber: 1,
-          state: 'Черновик',
-          type: 'Директива',
-          dateActive: null,
-          content: 'string',
-          createdAt: '2024-09-18T14:59:47.010Z',
-          updatedAt: '2024-09-18T14:59:47.010Z',
-        },
-      ],
-      instructions: [],
-      policies: [
-        {
-          id: 'bb1897ad-1e87-4747-a6bb-749e4bf49bf6',
-          policyName: 'asdasd',
-          policyNumber: 1,
-          state: 'Черновик',
-          type: 'Директива',
-          dateActive: null,
-          content: 'string',
-          createdAt: '2024-09-18T14:59:47.010Z',
-          updatedAt: '2024-09-18T14:59:47.010Z',
-          account: {
-            id: 'a1118813-8985-465b-848e-9a78b1627f11',
-            accountName: 'OOO PIPKA',
-            createdAt: '2024-09-16T12:53:29.593Z',
-            updatedAt: '2024-09-16T12:53:29.593Z',
-          },
-        },
-      ],
-      organizations: [
-        {
-          id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          organizationName: 'soplya firma',
-          parentOrganizationId: null,
-          createdAt: '2024-09-16T14:24:33.841Z',
-          updatedAt: '2024-09-16T14:24:33.841Z',
-        },
-        {
-          id: '1f1cca9a-2633-489c-8f16-cddd411ff2d0',
-          organizationName: 'OOO BOBRIK',
-          parentOrganizationId: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          createdAt: '2024-09-16T15:09:48.995Z',
-          updatedAt: '2024-09-16T15:09:48.995Z',
-        },
-      ],
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
-  async beforeCreate(
-    @Param('userId') userId: string,
-    @Ip() ip: string,
-  ): Promise<{
-    directives: PolicyReadDto[];
-    instructions: PolicyReadDto[];
-    policies: PolicyReadDto[];
-    organizations: OrganizationReadDto[];
-  }> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const policies = await this.policyService.findAllForAccount(user.account);
-    const directives = policies.filter(
-      (policy) => policy.type === Type.DIRECTIVE,
-    );
-    const instructions = policies.filter(
-      (policy) => policy.type === Type.INSTRUCTION,
-    );
-    const organizations = await this.organizationService.findAllForAccount(
-      user.account,
-    );
-    return {
-      directives: directives,
-      instructions: instructions,
-      policies: policies,
-      organizations: organizations,
-    };
-  }
 
   @Patch(':policyId/update')
   @ApiOperation({ summary: 'Обновить политику по Id' })
@@ -216,42 +130,32 @@ export class PolicyController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: '3bfe46ff-a10b-4f55-a865-5ed478f4347d',
+    example: {"id": "71ba1ba2-9e53-4238-9bb2-14a475460689"},
   })
   @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: `Политика не найдена!`,
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
   async update(
-    @Param('userId') userId: string,
+    @Req() req: ExpressRequest,
     @Param('policyId') policyId: string,
     @Body() policyUpdateDto: PolicyUpdateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const [user, organization] = await Promise.all([
-      await this.userService.findOne(userId, ['account']),
-      policyUpdateDto.organizationId !== undefined
-      ? this.organizationService.findOneById(policyUpdateDto.organizationId)
-      : Promise.resolve(null) // возвращаем "пустое" значение, если условие не выполняется
-    ])
-    if(organization !== null){
-      policyUpdateDto.organization = organization
-    }
-    const updatedPolicyId = await this.policyService.update(
-      policyId,
-      policyUpdateDto,
-    );
+    const user = req.user as ReadUserDto;
+    const updatedPolicyId = await this.policyService.update(policyId, policyUpdateDto);
     const updatedEventPolicyDto: PolicyUpdateEventDto = {
       eventType: 'POLICY_UPDATED',
       id: updatedPolicyId,
@@ -270,10 +174,6 @@ export class PolicyController {
       content:
         policyUpdateDto.content !== undefined ? policyUpdateDto.content : null,
       updatedAt: new Date(),
-      organizationId:
-        policyUpdateDto.organizationId !== undefined
-          ? policyUpdateDto.organizationId
-          : null,
       accountId: user.account.id,
     };
     try {
@@ -293,12 +193,12 @@ export class PolicyController {
       }
     }
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - UPDATED POLICY: ${JSON.stringify(policyUpdateDto)} - Политика успешно обновлена!`,
+      `${yellow('OK!')} - UPDATED POLICY: ${JSON.stringify(policyUpdateDto)} - Политика успешно обновлена!`,
     );
     return { id: updatedPolicyId };
   }
 
-  @Get(':policyId')
+  @Get(':policyId/policy')
   // @UseGuards(PermissionsGuard)
   // @ModuleAccess(Modules.POLICY)
   // @ActionAccess(Actions.READ)
@@ -307,82 +207,39 @@ export class PolicyController {
     status: HttpStatus.OK,
     description: 'ОК!',
     example: {
-      currentPolicy: {
-        id: 'bb1897ad-1e87-4747-a6bb-749e4bf49bf6',
-        policyName: 'asdasd',
-        policyNumber: 1,
-        state: 'Черновик',
-        type: 'Директива',
-        dateActive: null,
-        content: 'string',
-        createdAt: '2024-09-18T14:59:47.010Z',
-        updatedAt: '2024-09-18T14:59:47.010Z',
-        organization:
-        {
-          id: 'ea83fa12-2153-4851-ad0a-cc5fc29450ab',
-          createdAt: '2024-09-18T14:59:47.577Z',
-          updatedAt: '2024-09-18T14:59:47.577Z',
-          organization: {
-            id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-            organizationName: 'soplya firma',
-            parentOrganizationId: null,
-            createdAt: '2024-09-16T14:24:33.841Z',
-            updatedAt: '2024-09-16T14:24:33.841Z',
-          },
-        },
-      },
-      organizations: [
-        {
-          id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          organizationName: 'soplya firma',
-          parentOrganizationId: null,
-          createdAt: '2024-09-16T14:24:33.841Z',
-          updatedAt: '2024-09-16T14:24:33.841Z',
-        },
-        {
-          id: '1f1cca9a-2633-489c-8f16-cddd411ff2d0',
-          organizationName: 'OOO BOBRIK',
-          parentOrganizationId: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          createdAt: '2024-09-16T15:09:48.995Z',
-          updatedAt: '2024-09-16T15:09:48.995Z',
-        },
-      ],
-    },
+      "id": "15d5f40c-9b02-473f-8ce7-48efc0be14ac",
+      "policyName": "Сейчас",
+      "policyNumber": 153,
+      "state": "Черновик",
+      "type": "Инструкция",
+      "dateActive": null,
+      "content": "Привет",
+      "createdAt": "2024-12-12T13:43:51.479Z",
+      "updatedAt": "2024-12-13T12:55:38.152Z"
+    }
   })
   @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: `Политика не найдена!`,
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
   async findOne(
-    @Param('userId') userId: string,
-    @Param('policyId') policyId: string,
-    @Ip() ip: string,
-  ): Promise<{
-    currentPolicy: PolicyReadDto;
-    organizations: OrganizationReadDto[];
-  }> {
-    const policy = await this.policyService.findOneById(policyId, [
-      'organization',
-    ]);
-    const user = await this.userService.findOne(userId, ['account']);
-    const organizations = await this.organizationService.findAllForAccount(
-      user.account,
-    );
-    this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - CURRENT POLICY: ${JSON.stringify(policy)} - Получить политику по ID!`,
-    );
-    return { currentPolicy: policy, organizations: organizations };
+    @Param('policyId') policyId: string
+  ): Promise<PolicyReadDto> {
+    const policy = await this.policyService.findOneById(policyId);
+    return policy;
   }
 
   @Post('new')
@@ -395,31 +252,26 @@ export class PolicyController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'ОК!',
-    example: '71ba1ba2-9e53-4238-9bb2-14a475460689',
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
+    example: {"id": "71ba1ba2-9e53-4238-9bb2-14a475460689"},
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   async create(
-    @Param('userId') userId: string,
+    @Req() req: ExpressRequest,
     @Body() policyCreateDto: PolicyCreateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const [user, organization] = await Promise.all([
-      await this.userService.findOne(userId, ['account']),
-      await this.organizationService.findOneById(policyCreateDto.organizationId)
-    ])
+    const user = req.user as ReadUserDto;
+    const organization = await this.organizationService.findOneById(policyCreateDto.organizationId)
     policyCreateDto.organization = organization;
     policyCreateDto.user = user;
     policyCreateDto.account = user.account;
@@ -459,7 +311,7 @@ export class PolicyController {
       }
     }
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - policyCreateDto: ${JSON.stringify(policyCreateDto)} - Создана новая политика!`,
+      `${yellow('OK!')} - policyCreateDto: ${JSON.stringify(policyCreateDto)} - Создана новая политика!`,
     );
     return { id: createdPolicyId };
   }

@@ -9,9 +9,12 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiHeader,
   ApiOperation,
@@ -38,72 +41,121 @@ import { StatisticDataUpdateEventDto } from 'src/contracts/statisticData/updateE
 import { StatisticUpdateEventDto } from 'src/contracts/statistic/updateEvent-statistic.dto';
 import { TimeoutError } from 'rxjs';
 import { StatisticUpdateBulkDto } from 'src/contracts/statistic/updateBulk_statistic.dto';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { Request as ExpressRequest } from 'express';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 
+@UseGuards(AccessTokenGuard)
 @ApiTags('Statistic')
-@Controller(':userId/statistics')
+@ApiBearerAuth('access-token')
+@Controller('statistics')
 export class StatisticController {
   constructor(
     private readonly statisticService: StatisticService,
-    private readonly userService: UsersService,
     private readonly statisticDataService: StatisticDataService,
     private readonly postService: PostService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  @Get()
-  @ApiOperation({ summary: 'Все статистики' })
+  @Get(':organizationId')
+  @ApiOperation({ summary: 'Все статистики в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
     example: [
       {
-        id: 'f35dc993-1c7e-4f55-9ddd-45d8841d4396',
-        type: 'Прямая',
-        name: 'Название',
-        description: 'Описание',
-        createdAt: '2024-09-26T12:28:01.476Z',
-        updatedAt: '2024-09-26T12:28:01.476Z',
-        statisticDatas: [],
-        post: {
-          id: '2420fabb-3e37-445f-87e6-652bfd5a050c',
-          postName: 'Директор',
-          divisionName: 'Отдел продаж',
-          parentId: null,
-          product: 'Продукт',
-          purpose: 'Предназначение поста',
-          createdAt: '2024-09-20T15:09:14.997Z',
-          updatedAt: '2024-09-20T15:09:14.997Z',
-        },
+        "id": "625b007f-2215-48b8-94aa-194e74d94eb4",
+        "type": "Прямая",
+        "name": "Статистика",
+        "description": "fdgdfgdf",
+        "createdAt": "2024-12-05T20:45:13.931Z",
+        "updatedAt": "2024-12-17T14:42:01.999Z",
+        "statisticDatas": [
+          {
+            "id": "edbc1605-e809-45ec-b3dc-7edaba26e789",
+            "value": 200,
+            "valueDate": "2024-12-13T00:00:00.000Z",
+            "isCorrelation": false,
+            "createdAt": "2024-12-05T20:45:14.070Z",
+            "updatedAt": "2024-12-05T20:45:14.070Z"
+          }
+        ],
+        "post": {
+          "id": "c92895e6-9496-4cb5-aa7b-e3c72c18934a",
+          "postName": "Post",
+          "divisionName": "Подразделение №69",
+          "divisionNumber": 69,
+          "parentId": "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
+          "product": "fasf",
+          "purpose": "sfsf",
+          "createdAt": "2024-12-05T20:28:06.763Z",
+          "updatedAt": "2024-12-05T20:28:06.763Z"
+        }
       },
-    ],
+      {
+        "id": "1aa4399e-671c-44ee-bad3-2f01554c7f0a",
+        "type": "Прямая",
+        "name": "Статистика2",
+        "description": "gg",
+        "createdAt": "2024-12-05T20:47:26.358Z",
+        "updatedAt": "2024-12-17T15:48:12.579Z",
+        "statisticDatas": [
+          {
+            "id": "5487fa08-7e6f-44b8-a5ca-9d7dcdbbb022",
+            "value": 200,
+            "valueDate": "2024-12-06T00:00:00.000Z",
+            "isCorrelation": false,
+            "createdAt": "2024-12-05T20:47:26.475Z",
+            "updatedAt": "2024-12-05T20:47:26.475Z"
+          }
+        ],
+        "post": {
+          "id": "993b64bc-1703-415a-89a9-6e191b3d46bb",
+          "postName": "asdsads",
+          "divisionName": "Подразделение №65",
+          "divisionNumber": 65,
+          "parentId": null,
+          "product": "asd",
+          "purpose": "sadsad",
+          "createdAt": "2024-12-04T15:12:11.525Z",
+          "updatedAt": "2024-12-05T19:54:57.861Z"
+        }
+      },
+    ]
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'organizationId',
     required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
   })
   @ApiQuery({
     name: 'statisticData',
     required: true,
-    description: 'Флаг для отправки доп данных',
+    description: 'Флаг для отправки доп. данных (точек)',
     example: true,
   })
-  async findAll(@Param('userId') userId: string, @Query('statisticData') statisticData: boolean): Promise<StatisticReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
+  async findAll(
+    @Query('statisticData') statisticData: boolean,
+    @Param('organizationId') organizationId: string
+  ): Promise<StatisticReadDto[]> {
     let relations: string[]
     if (statisticData) {
-      relations = ['statisticDatas', 'post.organization']
+      relations = ['statisticDatas', 'post']
     }
     else {
       relations = ['post']
     }
-    return await this.statisticService.findAllForAccount(user.account, relations);
+    return await this.statisticService.findAllForOrganization(organizationId, relations);
   }
 
   @Patch(':statisticId/update')
@@ -116,7 +168,15 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05',
+    example: {"id": "ed2dfe55-b678-4f7e-a82e-ccf395afae05"},
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -127,23 +187,16 @@ export class StatisticController {
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
-  @ApiParam({
     name: 'statisticId',
     required: true,
     description: 'Id статистики',
   })
   async update(
+    @Req() req: ExpressRequest,
     @Param('statisticId') statisticId: string,
-    @Param('userId') userId: string,
     @Body() statisticUpdateDto: StatisticUpdateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId, ['account']);
+    const user = req.user as ReadUserDto;
     const statisticDataCreateEventDtos: StatisticDataCreateEventDto[] = [];
     const statisticDataUpdateEventDtos: StatisticDataUpdateEventDto[] = [];
     const post =
@@ -255,7 +308,7 @@ export class StatisticController {
       }
     }
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - UPDATED STATISTIC: ${JSON.stringify(statisticUpdateDto)} - Статистика успешно обновлена!`,
+      `${yellow('OK!')} - UPDATED STATISTIC: ${JSON.stringify(statisticUpdateDto)} - Статистика успешно обновлена!`,
     );
     return { id: updatedStatisticId };
   }
@@ -273,6 +326,14 @@ export class StatisticController {
     example: 'Статистики успешно обновлены.',
   })
   @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Ресурс не найден!',
   })
@@ -284,7 +345,7 @@ export class StatisticController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   @ApiParam({
     name: 'postId',
@@ -295,7 +356,6 @@ export class StatisticController {
   async updateBulk(
     @Param('postId') postId: string,
     @Body() statisticUpdateBulkDto: StatisticUpdateBulkDto,
-    @Ip() ip: string,
   ): Promise<{ message: string }> {
     const post = await this.postService.findOneById(postId)
     const updateStatisticPromises = statisticUpdateBulkDto.ids.map(
@@ -314,61 +374,43 @@ export class StatisticController {
     return { message: 'Статистики успешно обновлены.' };
   }
 
-  @Get('new')
+  @Get(':organizationId/new')
   @ApiOperation({ summary: 'Получить данные для создания новой статистики' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
     example: [
       {
-        id: '2420fabb-3e37-445f-87e6-652bfd5a050c',
-        postName: 'Директор',
-        divisionName: 'Отдел продаж',
-        parentId: null,
-        product: 'Продукт',
-        purpose: 'Предназначение поста',
-        createdAt: '2024-09-20T15:09:14.997Z',
-        updatedAt: '2024-09-20T15:09:14.997Z',
-        user: {
-          id: '3b809c42-2824-46c1-9686-dd666403402a',
-          firstName: 'Maxik',
-          lastName: 'Koval',
-          telegramId: 453120600,
-          telephoneNumber: null,
-          avatar_url: null,
-          vk_id: null,
-          createdAt: '2024-09-16T14:03:31.000Z',
-          updatedAt: '2024-09-16T14:03:31.000Z',
-        },
-        organization: {
-          id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          organizationName: 'soplya firma',
-          parentOrganizationId: null,
-          createdAt: '2024-09-16T14:24:33.841Z',
-          updatedAt: '2024-09-16T14:24:33.841Z',
-        },
-      },
-    ],
+        "id": "993b64bc-1703-415a-89a9-6e191b3d46bb",
+        "postName": "asdsads",
+        "divisionName": "Подразделение №65",
+        "divisionNumber": 65,
+        "parentId": null,
+        "product": "asd",
+        "purpose": "sadsad",
+        "createdAt": "2024-12-04T15:12:11.525Z",
+        "updatedAt": "2024-12-05T19:54:57.861Z"
+      }
+    ]
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'organizationId',
     required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
   })
   async beforeCreate(
-    @Param('userId') userId: string,
-    @Ip() ip: string,
+    @Param('organizationId') organizationId: string
   ): Promise<PostReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const posts = await this.postService.findAllForAccount(user.account, [
-      'user',
-      'organization',
-    ]);
+    const posts = await this.postService.findAllForOrganization(organizationId);
     return posts;
   }
 
@@ -382,34 +424,32 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'ОК!',
-    example: 'f35dc993-1c7e-4f55-9ddd-45d8841d4396',
+    example: {"id": "f35dc993-1c7e-4f55-9ddd-45d8841d4396"},
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
   async create(
-    @Param('userId') userId: string,
+    @Req() req: ExpressRequest,
     @Body() statisticCreateDto: StatisticCreateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
     const statisticDataCreateEventDtos: StatisticDataCreateEventDto[] = [];
-    const [user, post] = await Promise.all([
-      this.userService.findOne(userId, ['account']),
-      this.postService.findOneById(statisticCreateDto.postId),
-    ]);
+    const user = req.user as ReadUserDto;
+    const post = await this.postService.findOneById(statisticCreateDto.postId);
 
     statisticCreateDto.account = user.account;
     statisticCreateDto.post = post;
 
-    const createdStatistic =
-      await this.statisticService.create(statisticCreateDto);
+    const createdStatistic = await this.statisticService.create(statisticCreateDto);
 
     if (statisticCreateDto.statisticDataCreateDtos !== undefined) {
       const statisticDataCreatePromises =
@@ -475,72 +515,63 @@ export class StatisticController {
       }
     }
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - statisticCreateDto: ${JSON.stringify(statisticCreateDto)} - Создана новая статистика!`,
+      `${yellow('OK!')} - statisticCreateDto: ${JSON.stringify(statisticCreateDto)} - Создана новая статистика!`,
     );
     return { id: createdStatistic.id };
   }
 
-  @Get(':statisticId')
+  @Get(':statisticId/statistic')
   @ApiOperation({ summary: 'Получить статистику по ID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
     example: {
-      id: 'e954602d-9513-4998-bf3d-779b13a44cd8',
-      type: 'Прямая',
-      name: 'Название 7',
-      description: 'Описание',
-      createdAt: '2024-09-26T12:56:30.851Z',
-      updatedAt: '2024-09-26T12:56:30.851Z',
-      statisticDatas: [
+      "id": "625b007f-2215-48b8-94aa-194e74d94eb4",
+      "type": "Прямая",
+      "name": "Статистика",
+      "description": "fdgdfgdf",
+      "createdAt": "2024-12-05T20:45:13.931Z",
+      "updatedAt": "2024-12-17T14:42:01.999Z",
+      "statisticDatas": [
         {
-          id: 'ea993b7d-f98f-4c03-8f7a-d5894252782f',
-          createdAt: '2024-09-26T12:56:31.009Z',
-          updatedAt: '2024-09-26T12:56:31.009Z',
-          value: 44500,
-          valueDate: '2024-10-16T09:44:40.843Z',
-        },
-        {
-          id: '93a3c15a-1381-4a64-8ab1-8ad3679f8a02',
-          createdAt: '2024-09-26T12:56:31.156Z',
-          updatedAt: '2024-09-26T12:56:31.156Z',
-          value: 54000,
-          valueDate: '2024-10-16T09:44:40.843Z',
+          "id": "edbc1605-e809-45ec-b3dc-7edaba26e789",
+          "value": 200,
+          "valueDate": "2024-12-13T00:00:00.000Z",
+          "isCorrelation": false,
+          "createdAt": "2024-12-05T20:45:14.070Z",
+          "updatedAt": "2024-12-05T20:45:14.070Z"
         },
       ],
-      post: {
-        id: '2420fabb-3e37-445f-87e6-652bfd5a050c',
-        postName: 'Чурка',
-        divisionName: 'Отдел дубней',
-        parentId: '87af2eb9-a17d-4e78-b847-9d512cb9a0c9',
-        product: 'Продукт1234',
-        purpose: 'asdasd',
-        createdAt: '2024-09-20T15:09:14.997Z',
-        updatedAt: '2024-10-04T14:57:24.294Z',
-        organization: {
-          id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          organizationName: 'soplya firma',
-          parentOrganizationId: null,
-          reportDay: 5,
-          createdAt: '2024-09-16T14:24:33.841Z',
-          updatedAt: '2024-09-16T14:24:33.841Z',
-        },
-      },
-    },
+      "post": {
+        "id": "c92895e6-9496-4cb5-aa7b-e3c72c18934a",
+        "postName": "Post",
+        "divisionName": "Подразделение №69",
+        "divisionNumber": 69,
+        "parentId": "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
+        "product": "fasf",
+        "purpose": "sfsf",
+        "createdAt": "2024-12-05T20:28:06.763Z",
+        "updatedAt": "2024-12-05T20:28:06.763Z"
+      }
+    }
   })
   @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: `Статистика не найдена!`,
   })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
   @ApiParam({
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   @ApiParam({
     name: 'statisticId',
@@ -549,15 +580,11 @@ export class StatisticController {
   })
   async findOne(
     @Param('statisticId') statisticId: string,
-    @Ip() ip: string,
   ): Promise<StatisticReadDto> {
     const statistic = await this.statisticService.findOneById(statisticId, [
       'statisticDatas',
-      'post.organization',
+      'post',
     ]);
-    this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - CURRENT STATISTIC: ${JSON.stringify(statistic)} - Получить статистику по ID!`,
-    );
     return statistic;
   }
 }
