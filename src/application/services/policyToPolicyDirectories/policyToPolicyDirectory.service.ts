@@ -27,24 +27,17 @@ export class PolicyToPolicyDirectoryService {
   async createSeveral(
     policyDirectory: PolicyDirectory,
     policyIds: string[],
-  ): Promise<PolicyToPolicyDirectory[]> {
-    const createdRelations: PolicyToPolicyDirectory[] = [];
+  ): Promise<void> {
 
     for (const policyId of policyIds) {
       try {
         const policy = await this.policyService.findOneById(policyId);
-        if (!policy) {
-          throw new NotFoundException(`Policy not found with id ${policyId}`);
-        }
 
         const policyToPolicyDirectory = new PolicyToPolicyDirectory();
         policyToPolicyDirectory.policy = policy;
         policyToPolicyDirectory.policyDirectory = policyDirectory;
 
-        const savedRelation = await this.policyToPolicyDirectoryRepository.save(
-          policyToPolicyDirectory,
-        );
-        createdRelations.push(savedRelation);
+        await this.policyToPolicyDirectoryRepository.insert(policyToPolicyDirectory);
       } catch (err) {
         this.logger.error(err);
         if (err instanceof NotFoundException) {

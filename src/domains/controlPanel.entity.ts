@@ -2,18 +2,19 @@ import {
     Entity,
     PrimaryGeneratedColumn,
     Column,
-    ManyToOne,
     CreateDateColumn,
     UpdateDateColumn,
     OneToMany,
+    ManyToOne,
 } from 'typeorm';
 import { PanelToStatistic } from './panelToStatistic.entity';
+import { Organization } from './organization.entity';
 
 
 /**
  * Перечисление типов панели.
  */
-enum PanelType {
+export enum PanelType {
     GLOBAL = 'Глобальная',
     LOCAL = 'Личная'
 }
@@ -21,7 +22,7 @@ enum PanelType {
 /**
  * Перечисление типов панели.
  */
-enum GraphType {
+export enum GraphType {
     WEEK = '13 недель',
     MONTH = 'Месячные',
     DAY = 'Ежедневные'
@@ -110,9 +111,16 @@ export class ControlPanel {
     /**
      * Связь с сущностью 1:M PanelToStatistic.
      */
-    @OneToMany(
-        () => PanelToStatistic,
-        (panelToStatistic) => panelToStatistic.controlPanel,
-    )
+    @OneToMany(() => PanelToStatistic, (panelToStatistic) => panelToStatistic.controlPanel)
     panelToStatistics: PanelToStatistic[];
+
+
+      /**
+       * Связь с сущностью M:1 Organization.
+       */
+      @ManyToOne(
+        () => Organization,
+        (organization) => organization.policies,
+      )
+      organization: Organization;
 }

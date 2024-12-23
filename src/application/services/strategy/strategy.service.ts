@@ -23,10 +23,10 @@ export class StrategyService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+  async findAllForOrganization(organizationId: string): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
-        where: { account: { id: account.id } },
+        where: { organization: { id: organizationId } },
       });
 
       return strategies.map((strategy) => ({

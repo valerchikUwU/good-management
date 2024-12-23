@@ -15,6 +15,7 @@ import { Goal } from './goal.entity';
 import { Strategy } from './strategy.entity';
 import { Project } from './project.entity';
 import { Policy } from './policy.entity';
+import { ControlPanel } from './controlPanel.entity';
 
 /**
  * Перечисление дней недели для отчетов.
@@ -139,6 +140,12 @@ export class Organization {
    */
   @OneToMany(() => Strategy, (strategy) => strategy.organization)
   strategies: Strategy[];
+
+  /**
+ * Связь с сущностью 1:M ControlPanel.
+ */
+  @OneToMany(() => ControlPanel, (controlPanel) => controlPanel.organization)
+  controlPanels: ControlPanel[];
 
   /**
    * Связь с сущностью M:1 Account.

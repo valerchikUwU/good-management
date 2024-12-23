@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Account } from 'src/domains/account.entity';
+import { ControlPanel } from 'src/domains/controlPanel.entity';
 import { Goal } from 'src/domains/goal.entity';
 import { ReportDay } from 'src/domains/organization.entity';
 import { Policy } from 'src/domains/policy.entity';
@@ -59,6 +60,12 @@ export class OrganizationReadDto {
     isArray: true,
   })
   strategies: Strategy[];
+
+  @ApiProperty({
+    description: 'Список панелей управления, принадлежащих организации',
+    isArray: true,
+  })
+  controlPanels: ControlPanel[];
 
   @ApiProperty({ description: 'ID связанного аккаунта' })
   account: Account;

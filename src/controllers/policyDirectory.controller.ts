@@ -219,11 +219,11 @@ export class PolicyDirectoryController {
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
     policyDirectoryCreateDto.account = user.account;
-    const createdPolicyDirectory = await this.policyDirectoryService.create(policyDirectoryCreateDto);
+    const createdPolicyDirectoryId = await this.policyDirectoryService.create(policyDirectoryCreateDto);
     this.logger.info(
       `${yellow('OK!')} - policyDirectoryCreateDto: ${JSON.stringify(policyDirectoryCreateDto)} - Создана новая папка!`,
     );
-    return { id: createdPolicyDirectory.id };
+    return { id: createdPolicyDirectoryId };
   }
 
   @Patch(':policyDirectoryId/update')
@@ -264,14 +264,14 @@ export class PolicyDirectoryController {
     @Param('policyDirectoryId') policyDirectoryId: string,
     @Body() policyDirectoryUpdateDto: PolicyDirectoryUpdateDto,
   ): Promise<{ id: string }> {
-    const updatedPolicyDirectory = await this.policyDirectoryService.update(
+    const updatedPolicyDirectoryId = await this.policyDirectoryService.update(
       policyDirectoryId,
       policyDirectoryUpdateDto,
     );
     this.logger.info(
       `${yellow('OK!')} - UPDATED POLICYDIRECTORY: ${JSON.stringify(policyDirectoryUpdateDto)} - Папка успешно обновлена!`,
     );
-    return { id: updatedPolicyDirectory.id };
+    return { id: updatedPolicyDirectoryId };
   }
 
   @Delete(':policyDirectoryId/remove')

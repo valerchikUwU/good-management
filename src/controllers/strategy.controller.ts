@@ -52,7 +52,41 @@ export class StrategyController {
     private readonly producerService: ProducerService,
     private readonly objectiveService: ObjectiveService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
+
+
+  @Get(':organizationId')
+  @ApiOperation({ summary: 'Получить стратегию по ID' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: [
+      {
+        "id": "c970f786-b785-49da-894c-b9c975ec0e26",
+        "strategyNumber": 194,
+        "dateActive": null,
+        "content": "HTML текст",
+        "state": "Черновик",
+        "createdAt": "2024-12-20T12:15:04.395Z",
+        "updatedAt": "2024-12-20T12:15:04.395Z"
+      }
+    ]
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({ name: 'organizationId', required: true, description: 'Id организации' })
+  async findAll(
+    @Param('organizationId') organizationId: string,
+  ): Promise<StrategyReadDto[]> {
+    const strategies = await this.strategyService.findAllForOrganization(organizationId);
+    return strategies;
+  }
 
   @Patch(':strategyId/update')
   @ApiOperation({ summary: 'Обновить стратегию по Id' })
@@ -129,7 +163,7 @@ export class StrategyController {
   }
 
 
-  @Get(':strategyId')
+  @Get(':strategyId/strategy')
   @ApiOperation({ summary: 'Получить стратегию по ID' })
   @ApiResponse({
     status: HttpStatus.OK,

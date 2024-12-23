@@ -6,8 +6,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Policy } from './policy.entity';
-import { PolicyDirectory } from './policyDirectory.entity';
 import { ControlPanel } from './controlPanel.entity';
 import { Statistic } from './statistic.entity';
 

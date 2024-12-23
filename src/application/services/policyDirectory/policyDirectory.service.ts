@@ -77,7 +77,7 @@ export class PolicyDirectoryService {
     }
   }
 
-  async create(policyDirectoryCreateDto: PolicyDirectoryCreateDto): Promise<PolicyDirectory> {
+  async create(policyDirectoryCreateDto: PolicyDirectoryCreateDto): Promise<string> {
     try {
 
       const policyDirectory = new PolicyDirectory();
@@ -89,17 +89,16 @@ export class PolicyDirectoryService {
         policyDirectoryCreateDto.policyToPolicyDirectories,
       );
 
-      return createdPolicyDirectory;
+      return createdPolicyDirectory.id;
     } catch (err) {
       this.logger.error(err);
-      console.log(err)
       throw new InternalServerErrorException(
         'Ошибка при создании папки с политиками',
       );
     }
   }
 
-  async update(_id: string, updatePolicyDirectoryDto: PolicyDirectoryUpdateDto): Promise<PolicyDirectoryReadDto> {
+  async update(_id: string, updatePolicyDirectoryDto: PolicyDirectoryUpdateDto): Promise<string> {
     try {
       const policyDirectory = await this.policyDirectoryRepository.findOne({
         where: { id: _id },
@@ -118,8 +117,8 @@ export class PolicyDirectoryService {
           updatePolicyDirectoryDto.policyToPolicyDirectories,
         );
       }
-
-      return await this.policyDirectoryRepository.save(policyDirectory);
+      const policyDirectoryId = await this.policyDirectoryRepository.insert(policyDirectory);
+      return policyDirectoryId.identifiers[0].id
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
