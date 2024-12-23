@@ -22,36 +22,29 @@ export class PolicyToPolicyDirectoryService {
     private readonly policyToPolicyDirectoryRepository: PolicyToPolicyDirectoryRepository,
     private readonly policyService: PolicyService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async createSeveral(
     policyDirectory: PolicyDirectory,
     policyIds: string[],
   ): Promise<void> {
+    try {
 
-    for (const policyId of policyIds) {
-      try {
-        const policy = await this.policyService.findOneById(policyId);
+      const policies = await this.policyService.findBulk(policyIds);
 
+      // Создаём связи для всех найденных Policy
+      const policyToPolicyDirectories = policies.map(policy => {
         const policyToPolicyDirectory = new PolicyToPolicyDirectory();
         policyToPolicyDirectory.policy = policy;
         policyToPolicyDirectory.policyDirectory = policyDirectory;
-
-        await this.policyToPolicyDirectoryRepository.insert(policyToPolicyDirectory);
-      } catch (err) {
-        this.logger.error(err);
-        if (err instanceof NotFoundException) {
-          throw err;
-        }
-
-        throw new InternalServerErrorException(
-          'Ой, что - то пошло не так при добавлении политик в папку!',
-        );
-        // Здесь можно добавить логику для обработки ошибок, например, откат транзакции
-      }
+        return policyToPolicyDirectory;
+      });
+      await this.policyToPolicyDirectoryRepository.insert(policyToPolicyDirectories)
+    }
+    catch (err) {
+      this.logger.error(err);
     }
 
-    return createdRelations;
   }
 
   async remove(policyDirectory: PolicyDirectoryReadDto): Promise<void> {

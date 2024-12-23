@@ -14,6 +14,7 @@ import { StatisticReadDto } from 'src/contracts/statistic/read-statistic.dto';
 import { Logger } from 'winston';
 import { StatisticCreateDto } from 'src/contracts/statistic/create-statistic.dto';
 import { StatisticUpdateDto } from 'src/contracts/statistic/update-statistic.dto';
+import { In } from 'typeorm';
 
 @Injectable()
 export class StatisticService {
@@ -113,6 +114,45 @@ export class StatisticService {
       throw new InternalServerErrorException('Ошибка при получении статистики');
     }
   }
+
+
+  async findBulk(ids: string[]): Promise<StatisticReadDto[]> {
+    try {
+      const statistics = await this.statisticRepository.find({
+        where: { id: In(ids) },
+      });
+      const foundIds = statistics.map(policy => policy.id);
+      const missingIds = ids.filter(id => !foundIds.includes(id));
+      if (missingIds.length > 0) {
+        throw new NotFoundException(
+          `Не найдены статистики с IDs: ${missingIds.join(', ')}`,
+        );
+      }
+      return statistics.map((statistic) => ({
+        id: statistic.id,
+        type: statistic.type,
+        name: statistic.name,
+        description: statistic.description,
+        createdAt: statistic.createdAt,
+        updatedAt: statistic.updatedAt,
+        statisticDatas: statistic.statisticDatas,
+        post: statistic.post,
+        account: statistic.account,
+        panelToStatistics: statistic.panelToStatistics
+      }));
+
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при получении статистик');
+    }
+  }
+
 
   async create(statisticCreateDto: StatisticCreateDto): Promise<Statistic> {
     try {
