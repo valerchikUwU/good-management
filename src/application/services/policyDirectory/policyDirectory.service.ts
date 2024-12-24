@@ -28,7 +28,7 @@ export class PolicyDirectoryService {
   async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PolicyDirectoryReadDto[]> {
     try {
       const policyDirectories = await this.policyDirectoryRepository.find({
-        where: { policyToPolicyDirectories: { policy: {organization: {id: organizationId} } } },
+        where: { policyToPolicyDirectories: { policy: { organization: { id: organizationId } } } },
         relations: relations !== undefined ? relations : [],
       });
       return policyDirectories.map((policyDirectory) => ({
@@ -117,8 +117,8 @@ export class PolicyDirectoryService {
           updatePolicyDirectoryDto.policyToPolicyDirectories,
         );
       }
-      const policyDirectoryId = await this.policyDirectoryRepository.insert(policyDirectory);
-      return policyDirectoryId.identifiers[0].id
+      await this.policyDirectoryRepository.update(policyDirectory.id, {directoryName: policyDirectory.directoryName});
+      return policyDirectory.id
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
@@ -132,14 +132,27 @@ export class PolicyDirectoryService {
   }
 
   async remove(_id: string): Promise<void> {
-    const policyDirectory = await this.policyDirectoryRepository.findOne({
-      where: { id: _id },
-    });
-    if (!policyDirectory) {
-      throw new NotFoundException(`Папка с ID ${_id} не найдена`);
+    try {
+      const policyDirectory = await this.policyDirectoryRepository.findOne({
+        where: { id: _id },
+      });
+      if (!policyDirectory) {
+        throw new NotFoundException(`Папка с ID ${_id} не найдена`);
+      }
+
+      await this.policyToPolicyDirectoryService.remove(policyDirectory);
+      await this.policyDirectoryRepository.delete({ id: _id });
+    }
+    catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при удалении папки');
     }
 
-    await this.policyToPolicyDirectoryService.remove(policyDirectory);
-    await this.policyDirectoryRepository.delete({ id: _id });
   }
 }
