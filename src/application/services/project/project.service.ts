@@ -272,7 +272,6 @@ export class ProjectService {
       project.user = projectCreateDto.user;
       project.account = projectCreateDto.account;
       project.strategy = projectCreateDto.strategy;
-      console.log(project)
       const projectCreatedId = await this.projectRepository.insert(project);
       if (projectCreateDto.type === Type.PROGRAM) {
         const projectsForProgram = await this.projectRepository
