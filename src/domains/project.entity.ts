@@ -45,8 +45,7 @@ export class Project {
    * @remarks
    * Инркемент в БД.
    */
-  @Column()
-  @Generated('increment')
+  @Column({nullable: false})
   projectNumber: number;
 
   /**

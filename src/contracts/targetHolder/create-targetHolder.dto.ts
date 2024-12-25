@@ -1,11 +1,11 @@
 import { Exclude } from 'class-transformer';
+import { Post } from 'src/domains/post.entity';
 import { Target } from 'src/domains/target.entity';
-import { User } from 'src/domains/user.entity';
 
 export class TargetHolderCreateDto {
   @Exclude({ toPlainOnly: true })
   target: Target;
 
   @Exclude({ toPlainOnly: true })
-  user: User;
+  post: Post;
 }

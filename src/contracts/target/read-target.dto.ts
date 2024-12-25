@@ -7,7 +7,7 @@ export class TargetReadDto {
   type: Type;
   orderNumber: number;
   content: string;
-  holderUserId: string;
+  holderPostId: string;
   targetState: State;
   dateStart: Date;
   deadline: Date;

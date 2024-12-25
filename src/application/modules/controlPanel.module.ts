@@ -1,16 +1,21 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { AccountService } from '../services/account/account.service';
-import { AccountRepository } from '../services/account/repository/account.repository';
+import { Module } from '@nestjs/common';
+import { ControlPanelController } from 'src/controllers/controlPanel.controller';
+import { ControlPanelService } from '../services/controlPanel/controlPanel.service';
+import { ControlPanelRepository } from '../services/controlPanel/repository/controlPanel.repository';
+import { OrganizationModule } from './organization.module';
+import { PanelToStatisticModule } from './panelToStatistic.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Account } from 'src/domains/account.entity';
-import { AccountController } from 'src/controllers/account.controller';
+import { ControlPanel } from 'src/domains/controlPanel.entity';
 
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([ControlPanel]),
+    OrganizationModule,
+    PanelToStatisticModule
   ],
-  controllers: [AccountController],
-  providers: [AccountService, AccountRepository],
-  exports: [AccountService],
+  controllers: [ControlPanelController],
+  providers: [ControlPanelService, ControlPanelRepository],
+  exports: [ControlPanelService],
 })
-export class ControlPanelModule {}
+export class ControlPanelModule { }

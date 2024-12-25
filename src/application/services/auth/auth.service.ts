@@ -8,14 +8,13 @@ import {
 import { UsersService } from '../users/users.service';
 import { HttpService } from '@nestjs/axios';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { UserVkAuthDto } from 'src/contracts/user/user-vkauth-dto';
 import { JwtPayloadInterface } from 'src/utils/jwt-payload.interface';
 import { User } from 'src/domains/user.entity';
 import { CreateRefreshSessionDto } from 'src/contracts/refreshSession/create-refreshSession.dto';
 import { RefreshService } from '../refreshSession/refresh.service';
 import { InjectConfig, ConfigService } from 'nestjs-config';
-import { Session } from 'inspector';
 import { UserTgAuthDto } from 'src/contracts/user/user-tgauth-dto';
 import { Logger } from 'winston';
 import { AuthVK } from 'src/contracts/auth-vk.dto';

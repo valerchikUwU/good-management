@@ -24,16 +24,24 @@ export class TargetService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAll(): Promise<TargetReadDto[]> {
+  async findAllPersonal(userId: string): Promise<TargetReadDto[]> {
     try {
-      const targets = await this.targetRepository.find();
+      const targets = await this.targetRepository
+      .createQueryBuilder('target')
+      .leftJoin('target.project', 'project')
+      .leftJoin('target.targetHolders', 'targetHolders')
+      .leftJoin('targetHolders.post', 'post')
+      .leftJoin('post.user', 'user')
+      .where('project.id IS NULL')
+      .andWhere('post.user.id = :userId', {userId: userId})
+      .getMany()
 
       return targets.map((target) => ({
         id: target.id,
         type: target.type,
         orderNumber: target.orderNumber,
         content: target.content,
-        holderUserId: target.holderUserId,
+        holderPostId: target.holderPostId,
         targetState: target.targetState,
         dateStart: target.dateStart,
         deadline: target.deadline,
@@ -53,6 +61,44 @@ export class TargetService {
   }
 
 
+  async findAllFromProjects(userId: string): Promise<TargetReadDto[]> {
+    try {
+      const targets = await this.targetRepository
+      .createQueryBuilder('target')
+      .leftJoin('target.project', 'project')
+      .leftJoin('target.targetHolders', 'targetHolders')
+      .leftJoin('targetHolders.post', 'post')
+      .leftJoin('post.user', 'user')
+      .where('project.id IS NOT NULL')
+      .andWhere('post.user.id = :userId', {userId: userId})
+      .getMany()
+
+      return targets.map((target) => ({
+        id: target.id,
+        type: target.type,
+        orderNumber: target.orderNumber,
+        content: target.content,
+        holderPostId: target.holderPostId,
+        targetState: target.targetState,
+        dateStart: target.dateStart,
+        deadline: target.deadline,
+        dateComplete: target.dateComplete,
+        createdAt: target.createdAt,
+        updatedAt: target.updatedAt,
+        targetHolders: target.targetHolders,
+        project: target.project,
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех задач!',
+      );
+    }
+  }
+
+
+
   async create(targetCreateDto: TargetCreateDto): Promise<Target> {
     try {
       // Проверка на наличие обязательных данных
@@ -61,7 +107,7 @@ export class TargetService {
       target.type = targetCreateDto.type;
       target.orderNumber = targetCreateDto.orderNumber;
       target.content = targetCreateDto.content;
-      target.holderUserId = targetCreateDto.holderUserId;
+      target.holderPostId = targetCreateDto.holderPostId;
       target.dateStart = new Date();
       target.deadline = targetCreateDto.deadline;
       target.project = targetCreateDto.project;
@@ -71,7 +117,7 @@ export class TargetService {
       });
       const targetHolderCreateDto: TargetHolderCreateDto = {
         target: createdTarget,
-        user: targetCreateDto.holderUser,
+        post: targetCreateDto.holderPost,
       };
       await this.targetHolderService.create(targetHolderCreateDto);
       return createdTarget;
@@ -100,25 +146,22 @@ export class TargetService {
       // Обновить свойства, если они указаны в DTO
       if (updateTargetDto.content) target.content = updateTargetDto.content;
       if (updateTargetDto.orderNumber) target.orderNumber = updateTargetDto.orderNumber;
-      if (updateTargetDto.holderUser) {
+      if (updateTargetDto.holderPost) {
         const targetHolderCreateDto: TargetHolderCreateDto = {
           target: target,
-          user: updateTargetDto.holderUser,
+          post: updateTargetDto.holderPost,
         };
         await this.targetHolderService.create(targetHolderCreateDto);
-        target.holderUserId = updateTargetDto.holderUserId;
+        target.holderPostId = updateTargetDto.holderPostId;
       }
-      if (updateTargetDto.targetState)
-        target.targetState = updateTargetDto.targetState;
-      if (updateTargetDto.targetState === State.FINISHED)
-        target.dateComplete = new Date();
-      if (updateTargetDto.dateStart)
-        target.dateStart = updateTargetDto.dateStart;
+      if (updateTargetDto.targetState) target.targetState = updateTargetDto.targetState;
+      if (updateTargetDto.targetState === State.FINISHED) target.dateComplete = new Date();
+      if (updateTargetDto.dateStart) target.dateStart = updateTargetDto.dateStart;
       if (updateTargetDto.deadline) target.deadline = updateTargetDto.deadline;
       await this.targetRepository.update(target.id, {
         content: target.content,
         orderNumber: target.orderNumber,
-        holderUserId: target.holderUserId,
+        holderPostId: target.holderPostId,
         targetState: target.targetState,
         dateStart: target.dateStart,
         deadline: target.deadline,

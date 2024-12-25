@@ -2,11 +2,9 @@ import {
   Controller,
   Get,
   Post,
-  Delete,
   Param,
   Body,
   HttpStatus,
-  Inject,
 } from '@nestjs/common';
 import { AccountService } from 'src/application/services/account/account.service';
 import { AccountCreateDto } from 'src/contracts/account/create-account.dto';
@@ -14,7 +12,6 @@ import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import {
   ApiBody,
   ApiOperation,
-  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';

@@ -11,7 +11,6 @@ import { QueueModule } from './queue.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Goal]),
-    GeneratorModule,
     OrganizationModule,
     forwardRef(() => QueueModule),
   ],

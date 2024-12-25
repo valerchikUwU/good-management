@@ -4,7 +4,6 @@ import {
   Get,
   HttpStatus,
   Inject,
-  Ip,
   Param,
   Patch,
   Post,
@@ -15,7 +14,6 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiHeader,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -24,9 +22,7 @@ import {
 import { StrategyReadDto } from 'src/contracts/strategy/read-strategy.dto';
 import { StrategyService } from 'src/application/services/strategy/strategy.service';
 import { StrategyCreateDto } from 'src/contracts/strategy/create-strategy.dto';
-import { UsersService } from 'src/application/services/users/users.service';
 import { StrategyUpdateDto } from 'src/contracts/strategy/update-strategy.dto';
-import { OrganizationReadDto } from 'src/contracts/organization/read-organization.dto';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
@@ -80,7 +76,12 @@ export class StrategyController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({ name: 'organizationId', required: true, description: 'Id организации' })
+  @ApiParam({ 
+    name: 'organizationId', 
+    required: true, 
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
+  })
   async findAll(
     @Param('organizationId') organizationId: string,
   ): Promise<StrategyReadDto[]> {

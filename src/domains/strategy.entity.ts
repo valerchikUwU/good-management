@@ -46,8 +46,7 @@ export class Strategy {
    * @remarks
    * Инркемент в БД.
    */
-  @Column()
-  @Generated('increment')
+  @Column({nullable: false})
   strategyNumber: number;
 
   /**

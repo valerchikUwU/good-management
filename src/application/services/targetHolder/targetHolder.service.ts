@@ -14,13 +14,15 @@ export class TargetHolderService {
 
   async findAll(): Promise<TargetHolderReadDto[]> {
     const targetHolders = await this.targetHolderRepository.find({
-      relations: ['user', 'target'],
+      relations: ['post', 'target'],
     });
 
     return targetHolders.map((targetHolder) => ({
       id: targetHolder.id,
+      createdAt: targetHolder.createdAt,
+      updatedAt: targetHolder.updatedAt,
       target: targetHolder.target,
-      user: targetHolder.user,
+      post: targetHolder.post,
     }));
   }
 
@@ -29,7 +31,7 @@ export class TargetHolderService {
     try {
       const targetHolder = new TargetHolder();
       targetHolder.target = targetHolderCreateDto.target;
-      targetHolder.user = targetHolderCreateDto.user;
+      targetHolder.post = targetHolderCreateDto.post;
 
       const createdTargetHolderId = await this.targetHolderRepository.insert(targetHolder);
       return createdTargetHolderId.identifiers[0].id;

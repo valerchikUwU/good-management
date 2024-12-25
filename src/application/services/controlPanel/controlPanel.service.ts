@@ -47,7 +47,7 @@ export class ControlPanelService {
 
     async findOneById(id: string): Promise<ControlPanelReadDto> {
         try {
-            const controlPanel = await this.controlPanelRepository.findOne({ where: { id }, relations: ['panelToStatistic'] });
+            const controlPanel = await this.controlPanelRepository.findOne({ where: { id }, relations: ['panelToStatistic.statistic'] });
             if (!controlPanel) throw new NotFoundException(`Панель управления с ID: ${id} не найдена`);
             const controlPanelReadDto: ControlPanelReadDto = {
                 id: controlPanel.id,
@@ -132,4 +132,30 @@ export class ControlPanelService {
     //     }
 
     // }
+
+
+
+    async remove(_id: string): Promise<void> {
+        try {
+            const controlPanel = await this.controlPanelRepository.findOne({
+                where: { id: _id },
+            });
+            if (!controlPanel) {
+                throw new NotFoundException(`Панель с ID ${_id} не найдена`);
+            }
+
+            await this.panelToStatisticService.remove(controlPanel);
+            await this.controlPanelRepository.delete({ id: _id });
+        }
+        catch (err) {
+
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
+            throw new InternalServerErrorException('Ошибка при удалении панели управления')
+        }
+
+    }
 }

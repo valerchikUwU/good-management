@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Target } from './target.entity';
+import { Post } from './post.entity';
 
 /**
  * Сущность, представляющая ответственных за задачу.
@@ -62,12 +63,12 @@ export class TargetHolder {
   target: Target;
 
   /**
-   * Связь с сущностью М:1 User.
+   * Связь с сущностью М:1 Post.
    * 
    * @remarks
    * Установлен индекс, nullable: false
    */
   @Index() // Добавляем индекс для поля user
-  @ManyToOne(() => User, (user) => user.targetHolders, { nullable: false })
-  user: User;
+  @ManyToOne(() => Post, (post) => post.targetHolders, { nullable: false })
+  post: Post;
 }

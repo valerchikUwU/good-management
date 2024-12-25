@@ -20,7 +20,6 @@ import {
 } from '@nestjs/swagger';
 import { GoalService } from 'src/application/services/goal/goal.service';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
-import { UsersService } from 'src/application/services/users/users.service';
 import { GoalCreateDto } from 'src/contracts/goal/create-goal.dto';
 import { GoalReadDto } from 'src/contracts/goal/read-goal.dto';
 import { GoalUpdateDto } from 'src/contracts/goal/update-goal.dto';
@@ -78,58 +77,10 @@ export class GoalController {
     description: 'Id организации',
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async findAll(
-    @Param('organizationId') organizationId: string
-  ): Promise<GoalReadDto> {
+  async findAll(@Param('organizationId') organizationId: string): Promise<GoalReadDto> {
     const goal = await this.goalService.findOneByOrganizationId(organizationId)
     return goal;
   }
-
-  // @Get('new')
-  // @ApiOperation({ summary: 'Получить данные для создания новой цели' })
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'ОК!',
-  //   example: [
-  //     {
-  //       id: 'be720b9e-873b-4d4e-a866-b3c598878863',
-  //       organizationName: 'Ласка и Выдрочка',
-  //       parentOrganizationId: null,
-  //       createdAt: '2024-10-11T13:21:24.898Z',
-  //       updatedAt: '2024-10-11T13:21:24.898Z',
-  //       goal: null,
-  //     },
-  //     {
-  //       id: 'b1294a99-ec8d-4e62-8345-45da2d89b6b9',
-  //       organizationName: 'Светлоярский и Ко',
-  //       parentOrganizationId: null,
-  //       createdAt: '2024-10-11T13:22:01.835Z',
-  //       updatedAt: '2024-10-11T13:22:01.835Z',
-  //       goal: null,
-  //     },
-  //   ],
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.INTERNAL_SERVER_ERROR,
-  //   description: 'Ошибка сервера!',
-  // })
-  // @ApiParam({
-  //   name: 'userId',
-  //   required: true,
-  //   description: 'Id пользователя',
-  //   example: 'bc807845-08a8-423e-9976-4f60df183ae2',
-  // })
-  // async beforeCreate(
-  //   @Param('userId') userId: string,
-  //   @Ip() ip: string,
-  // ): Promise<OrganizationReadDto[]> {
-  //   const user = await this.userService.findOne(userId, ['account']);
-  //   const organizations =
-  //     await this.organizationService.findAllWithoutGoalsForAccount(
-  //       user.account,
-  //     );
-  //   return organizations;
-  // }
 
   @Patch(':goalId/update')
   @ApiOperation({ summary: 'Обновить цель по ID' })
@@ -197,75 +148,6 @@ export class GoalController {
     );
     return { id: updatedGoalId };
   }
-
-  // @Get(':goalId')
-  // @ApiOperation({ summary: 'Получить цель по ID' })
-  // @ApiResponse({
-  //   status: HttpStatus.OK,
-  //   description: 'ОК!',
-  //   example: {
-  //     currentGoal: {
-  //       id: '1997ef07-7b59-4496-b91d-be440468f9be',
-  //       content: ['Контент цели', 'one more content'],
-  //       createdAt: '2024-10-10T15:22:39.611Z',
-  //       updatedAt: '2024-10-10T15:22:39.611Z',
-  //       organization: {
-  //         id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-  //         organizationName: 'soplya firma',
-  //         parentOrganizationId: null,
-  //         createdAt: '2024-09-16T14:24:33.841Z',
-  //         updatedAt: '2024-09-16T14:24:33.841Z',
-  //       },
-  //     },
-  //     organizations: [
-  //       {
-  //         id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-  //         organizationName: 'soplya firma',
-  //         parentOrganizationId: null,
-  //         createdAt: '2024-09-16T14:24:33.841Z',
-  //         updatedAt: '2024-09-16T14:24:33.841Z',
-  //       },
-  //       {
-  //         id: '1f1cca9a-2633-489c-8f16-cddd411ff2d0',
-  //         organizationName: 'OOO BOBRIK',
-  //         parentOrganizationId: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-  //         createdAt: '2024-09-16T15:09:48.995Z',
-  //         updatedAt: '2024-09-16T15:09:48.995Z',
-  //       },
-  //     ],
-  //   },
-  // })
-  // @ApiResponse({
-  //   status: HttpStatus.INTERNAL_SERVER_ERROR,
-  //   description: 'Ошибка сервера!',
-  // })
-  // @ApiParam({
-  //   name: 'userId',
-  //   required: true,
-  //   description: 'Id пользователя',
-  //   example: 'bc807845-08a8-423e-9976-4f60df183ae2',
-  // })
-  // @ApiParam({ name: 'goalId', required: true, description: 'Id цели' })
-  // async findOne(
-  //   @Param('userId') userId: string,
-  //   @Param('goalId') goalId: string,
-  //   @Ip() ip: string,
-  // ): Promise<{
-  //   currentGoal: GoalReadDto;
-  //   organizations: OrganizationReadDto[];
-  // }> {
-  //   const user = await this.userService.findOne(userId, ['account']);
-  //   const goal = await this.goalService.findOneById(goalId, [
-  //     'user',
-  //     'organization',
-  //   ]);
-  //   const organizations =
-  //     await this.organizationService.findAllWithGoalsForAccount(user.account);
-  //   this.logger.info(
-  //     `${yellow('OK!')} - ${red(ip)} - CURRENT GOAL: ${JSON.stringify(goal)} - Получить цель по ID!`,
-  //   );
-  //   return { currentGoal: goal, organizations: organizations };
-  // }
 
   @Post('new')
   @ApiOperation({ summary: 'Создать цель' })

@@ -14,7 +14,7 @@ import { OrganizationReadDto } from 'src/contracts/organization/read-organizatio
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
 import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
-import { IsNull } from 'typeorm';
+import { IsNull, Not } from 'typeorm';
 
 @Injectable()
 export class PostService {
@@ -27,43 +27,10 @@ export class PostService {
 
   
 
-  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<PostReadDto[]> {
-    try {
-      const posts = await this.postRepository.find({
-        where: { account: { id: account.id } },
-        relations: relations !== undefined ? relations : [],
-      });
-
-      return posts.map((post) => ({
-        id: post.id,
-        postName: post.postName,
-        divisionName: post.divisionName,
-        divisionNumber: post.divisionNumber,
-        parentId: post.parentId,
-        product: post.product,
-        purpose: post.purpose,
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt,
-        user: post.user,
-        policy: post.policy,
-        statistics: post.statistics,
-        organization: post.organization,
-        account: post.account,
-        historiesUsersToPost: post.historiesUsersToPost
-      }));
-    } catch (err) {
-      this.logger.error(err);
-      // Обработка других ошибок
-      throw new InternalServerErrorException(
-        'Ошибка при получении всех постов!',
-      );
-    }
-  }
-
   async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { organization: { id: organizationId } },
+        where: { organization: { id: organizationId }},
         relations: relations !== undefined ? relations : [],
       });
 
@@ -82,7 +49,8 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
-        historiesUsersToPost: post.historiesUsersToPost
+        historiesUsersToPost: post.historiesUsersToPost,  
+        targetHolders: post.targetHolders
       }));
     } catch (err) {
       this.logger.error(err);
@@ -93,11 +61,11 @@ export class PostService {
     }
   }
 
-  async findAllWithoutParentId(account: AccountReadDto): Promise<PostReadDto[]> {
+  async findAllForUser(userId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { account: { id: account.id }, parentId: IsNull() },
-        relations: ['user', 'organization'],
+        where: { user: { id: userId }},
+        relations: relations !== undefined ? relations : [],
       });
 
       return posts.map((post) => ({
@@ -115,7 +83,8 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
-        historiesUsersToPost: post.historiesUsersToPost
+        historiesUsersToPost: post.historiesUsersToPost,  
+        targetHolders: post.targetHolders
       }));
     } catch (err) {
       this.logger.error(err);
@@ -125,6 +94,42 @@ export class PostService {
       );
     }
   }
+
+  async findAllWithUserForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
+    try {
+      const posts = await this.postRepository.find({
+        where: { organization: { id: organizationId }, user: {id: Not(IsNull())} },
+        relations: relations !== undefined ? relations : [],
+      });
+
+      return posts.map((post) => ({
+        id: post.id,
+        postName: post.postName,
+        divisionName: post.divisionName,
+        divisionNumber: post.divisionNumber,
+        parentId: post.parentId,
+        product: post.product,
+        purpose: post.purpose,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+        user: post.user,
+        policy: post.policy,
+        statistics: post.statistics,
+        organization: post.organization,
+        account: post.account,
+        historiesUsersToPost: post.historiesUsersToPost,  
+        targetHolders: post.targetHolders
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех постов!',
+      );
+    }
+  }
+
+
 
   async findOneById(id: string, relations?: string[]): Promise<PostReadDto> {
     try {
@@ -149,7 +154,8 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
-        historiesUsersToPost: post.historiesUsersToPost
+        historiesUsersToPost: post.historiesUsersToPost,  
+        targetHolders: post.targetHolders
       };
 
       return postReadDto;
@@ -188,7 +194,8 @@ export class PostService {
         statistics: postWithMaxDivisionNumber.statistics,
         organization: postWithMaxDivisionNumber.organization,
         account: postWithMaxDivisionNumber.account,
-        historiesUsersToPost: postWithMaxDivisionNumber.historiesUsersToPost
+        historiesUsersToPost: postWithMaxDivisionNumber.historiesUsersToPost,  
+        targetHolders: postWithMaxDivisionNumber.targetHolders
       };
 
       return postReadDto.divisionNumber;
@@ -255,14 +262,14 @@ export class PostService {
       }
       // Обновить свойства, если они указаны в DTO
       if (updatePostDto.postName) post.postName = updatePostDto.postName;
-      if (updatePostDto.divisionName)
-        post.divisionName = updatePostDto.divisionName;
+      if (updatePostDto.divisionName) post.divisionName = updatePostDto.divisionName;
       if (updatePostDto.parentId !== null) {
         post.parentId = updatePostDto.parentId;
       }
       else {
         post.parentId = null;
       }
+
       if (updatePostDto.product) post.product = updatePostDto.product;
       if (updatePostDto.purpose) post.purpose = updatePostDto.purpose;
       if (updatePostDto.responsibleUserId !== null) {
@@ -271,11 +278,13 @@ export class PostService {
       else {
         post.user = null;
       }
+
       if (updatePostDto.policyId !== null) {
         post.policy = updatePostDto.policy;
       } else {
         post.policy = null;
       }
+      
       await this.postRepository.update(post.id, {
         postName: post.postName,
         divisionName: post.divisionName,

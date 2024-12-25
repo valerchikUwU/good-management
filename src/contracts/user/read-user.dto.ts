@@ -32,7 +32,6 @@ export class ReadUserDto {
   goals: Goal[];
   policies: Policy[];
   strategies: Strategy[];
-  targetHolders: TargetHolder[];
   projects: Project[];
   organization: Organization;
   account: Account;

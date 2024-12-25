@@ -14,5 +14,7 @@ export class ControlPanelCreateDto {
 
     statisticIds: string[];
 
+    organizationId: string;
+
     organization: Organization;
 }

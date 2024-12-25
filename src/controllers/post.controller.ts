@@ -4,7 +4,6 @@ import {
   Get,
   HttpStatus,
   Inject,
-  Ip,
   Param,
   Patch,
   Post,
@@ -16,7 +15,6 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiHeader,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -34,13 +32,11 @@ import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
-import { OrganizationReadDto } from 'src/contracts/organization/read-organization.dto';
 import { ProducerService } from 'src/application/services/producer/producer.service';
 import { PostCreateEventDto } from 'src/contracts/post/createEvent-post.dto';
 import { PostUpdateEventDto } from 'src/contracts/post/updateEvent-post.dto';
 import { TimeoutError } from 'rxjs';
 import { GroupService } from 'src/application/services/group/group.service';
-import { GroupUpdateDto } from 'src/contracts/group/update-group.dto';
 import { HistoryUsersToPostService } from 'src/application/services/historyUsersToPost/historyUsersToPost.service';
 import { HistoryUsersToPostCreateDto } from 'src/contracts/historyUsersToPost/create-historyUsersToPost.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
@@ -164,7 +160,6 @@ export class PostController {
     @Param('postId') postId: string,
     @Body() postUpdateDto: PostUpdateDto,
   ): Promise<{ id: string }> {
-    console.log('asdasdasdasd')
     const user = req.user as ReadUserDto;
 
     const promises: Promise<void>[] = [];

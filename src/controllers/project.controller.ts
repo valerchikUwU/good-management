@@ -4,7 +4,6 @@ import {
   Get,
   HttpStatus,
   Inject,
-  Ip,
   Param,
   Patch,
   Post,
@@ -20,13 +19,11 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import { use } from 'passport';
 import { ProjectService } from 'src/application/services/project/project.service';
 import { StrategyService } from 'src/application/services/strategy/strategy.service';
 import { TargetService } from 'src/application/services/target/target.service';
-import { UsersService } from 'src/application/services/users/users.service';
 import { ProjectCreateDto } from 'src/contracts/project/create-project.dto';
 import { ProjectReadDto } from 'src/contracts/project/read-project.dto';
 import { Type as TypeProject } from 'src/domains/project.entity';
@@ -34,7 +31,6 @@ import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
-import { OrganizationReadDto } from 'src/contracts/organization/read-organization.dto';
 import { ProjectUpdateDto } from 'src/contracts/project/update-project.dto';
 import { StrategyReadDto } from 'src/contracts/strategy/read-strategy.dto';
 import { ProjectCreateEventDto } from 'src/contracts/project/createEvent-project.dto';
@@ -46,6 +42,8 @@ import { ProjectUpdateEventDto } from 'src/contracts/project/updateEvent-project
 import { TimeoutError } from 'rxjs';
 import { Request as ExpressRequest } from 'express';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { PostService } from 'src/application/services/post/post.service';
+import { PostReadDto } from 'src/contracts/post/read-post.dto';
 
 @ApiTags('Project')
 @ApiBearerAuth('access-token')
@@ -54,7 +52,7 @@ import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 export class ProjectController {
   constructor(
     private readonly projectService: ProjectService,
-    private readonly userService: UsersService,
+    private readonly postService: PostService,
     private readonly strategyService: StrategyService,
     private readonly targetService: TargetService,
     private readonly organizationService: OrganizationService,
@@ -162,15 +160,15 @@ export class ProjectController {
   async beforeCreateProgram(
     @Param('organizationId') organizationId: string,
   ): Promise<{
-    workers: ReadUserDto[];
+    posts: PostReadDto[];
     strategies: StrategyReadDto[];
     projects: ProjectReadDto[];
   }> {
-    const workers = await this.userService.findAllForOrganization(organizationId);
+    const posts = await this.postService.findAllWithUserForOrganization(organizationId, ['user']);
     const strategies = await this.strategyService.findAllActiveForOrganization(organizationId);
     const projects = await this.projectService.findAllProjectsWithoutProgramForOrganization(organizationId);
     return {
-      workers: workers,
+      posts: posts,
       strategies: strategies,
       projects: projects,
     };
@@ -247,15 +245,15 @@ export class ProjectController {
   async beforeCreate(
     @Param('organizationId') organizationId: string,
   ): Promise<{
-    workers: ReadUserDto[];
+    posts: PostReadDto[];
     strategies: StrategyReadDto[];
     programs: ProjectReadDto[];
   }> {
-    const workers = await this.userService.findAllForOrganization(organizationId);
+    const posts = await this.postService.findAllWithUserForOrganization(organizationId, ['user']);
     const strategies = await this.strategyService.findAllActiveForOrganization(organizationId);
     const programs = await this.projectService.findAllProgramsForOrganization(organizationId, ['strategy']);
     return {
-      workers: workers,
+      posts: posts,
       strategies: strategies,
       programs: programs,
     };
@@ -306,13 +304,10 @@ export class ProjectController {
     if (projectCreateDto.targetCreateDtos !== undefined) {
       const createTargetsPromises = projectCreateDto.targetCreateDtos.map(
         async (targetCreateDto) => {
-          const holderUser = await this.userService.findOne(
-            targetCreateDto.holderUserId,
-          );
+          const holderPost = await this.postService.findOneById(targetCreateDto.holderPostId);
           targetCreateDto.project = createdProject;
-          targetCreateDto.holderUser = holderUser;
-          const createdTarget =
-            await this.targetService.create(targetCreateDto);
+          targetCreateDto.holderPost = holderPost;
+          const createdTarget = await this.targetService.create(targetCreateDto);
           const targetCreateEventDto: TargetCreateEventDto = {
             id: createdTarget.id,
             type:
@@ -322,7 +317,7 @@ export class ProjectController {
             orderNumber: targetCreateDto.orderNumber,
             content: targetCreateDto.content,
             createdAt: new Date(),
-            holderUserId: targetCreateDto.holderUserId,
+            holderPostId: targetCreateDto.holderPostId,
             targetState: State.ACTIVE as string,
             dateStart:
               targetCreateDto.dateStart !== undefined
@@ -452,14 +447,11 @@ export class ProjectController {
     if (projectUpdateDto.targetUpdateDtos !== undefined) {
       const updateTargetsPromises = projectUpdateDto.targetUpdateDtos.map(
         async (targetUpdateDto) => {
-          if (targetUpdateDto.holderUserId) {
-            const holderUser = await this.userService.findOne(
-              targetUpdateDto.holderUserId,
-            );
-            targetUpdateDto.holderUser = holderUser;
+          if (targetUpdateDto.holderPostId) {
+            const holderPost = await this.postService.findOneById(targetUpdateDto.holderPostId);
+            targetUpdateDto.holderPost = holderPost;
           }
-          const updatedTargetId =
-            await this.targetService.update(targetUpdateDto);
+          const updatedTargetId = await this.targetService.update(targetUpdateDto);
           const targetUpdateEventDto: TargetUpdateEventDto = {
             id: updatedTargetId,
             orderNumber:
@@ -471,9 +463,9 @@ export class ProjectController {
                 ? targetUpdateDto.content
                 : null,
             updatedAt: new Date(),
-            holderUserId:
-              targetUpdateDto.holderUserId !== undefined
-                ? targetUpdateDto.holderUserId
+            holderPostId:
+              targetUpdateDto.holderPostId !== undefined
+                ? targetUpdateDto.holderPostId
                 : null,
             targetState:
               targetUpdateDto.targetState !== undefined
@@ -501,12 +493,9 @@ export class ProjectController {
       const createTargetsPromises = projectUpdateDto.targetCreateDtos.map(
         async (targetCreateDto) => {
           targetCreateDto.project = project; // Присваиваем обновленный проект
-          const holderUser = await this.userService.findOne(
-            targetCreateDto.holderUserId,
-          );
-          targetCreateDto.holderUser = holderUser;
-          const createdTarget =
-            await this.targetService.create(targetCreateDto);
+          const holderPost = await this.postService.findOneById(targetCreateDto.holderPostId);
+          targetCreateDto.holderPost = holderPost;
+          const createdTarget = await this.targetService.create(targetCreateDto);
           const targetCreateEventDto: TargetCreateEventDto = {
             id: createdTarget.id,
             type:
@@ -516,7 +505,7 @@ export class ProjectController {
             orderNumber: targetCreateDto.orderNumber,
             content: targetCreateDto.content,
             createdAt: new Date(),
-            holderUserId: targetCreateDto.holderUserId,
+            holderPostId: targetCreateDto.holderPostId,
             targetState: State.ACTIVE as string,
             dateStart:
               targetCreateDto.dateStart !== undefined
@@ -726,8 +715,8 @@ export class ProjectController {
     @Param('programId') programId: string,
   ): Promise<{ program: ProjectReadDto; projects: ProjectReadDto[] }> {
     const program = await this.projectService.findOneProgramById(programId);
-    const projectsByProgramId = await this.projectService.findAllNotRejectedProjectsByProgramId(programId);
-    return { program: program, projects: projectsByProgramId };
+    const projectsInProgram = await this.projectService.findAllNotRejectedProjectsByProgramIdForOrganization(programId, program.organization.id);
+    return { program: program, projects: projectsInProgram };
   }
 
   @Get(':projectId')
@@ -832,7 +821,7 @@ export class ProjectController {
   async findOne(
     @Param('projectId') projectId: string,
   ): Promise<{ project: ProjectReadDto; strategies: StrategyReadDto[] }> {
-    const project = await this.projectService.findOneById(projectId);
+    const project = await this.projectService.findOneById(projectId, ['strategy', 'targets.targetHolders.post', 'organization']);
     const strategies = await this.strategyService.findAllActiveForOrganization(project.organization.id);
     return { project: project, strategies: strategies };
   }

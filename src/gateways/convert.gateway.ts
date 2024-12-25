@@ -31,7 +31,6 @@ export class ConvertGateway
 {
   constructor(
     private readonly messageService: MessageService,
-    private readonly userService: UsersService,
     private readonly convertService: ConvertService,
     private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger, // инъекция логгера

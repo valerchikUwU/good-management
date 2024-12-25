@@ -37,6 +37,8 @@ import { GroupToUserModule } from './application/modules/groupToUser.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import * as dotenv from 'dotenv';
+import { ControlPanelModule } from './application/modules/controlPanel.module';
+import { PanelToStatisticModule } from './application/modules/panelToStatistic.module';
 dotenv.config();
 
 
@@ -106,6 +108,8 @@ dotenv.config();
     MessageModule,
     GroupModule,
     GroupToUserModule,
+    ControlPanelModule,
+    PanelToStatisticModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -160,12 +160,6 @@ export class User {
   strategies: Strategy[];
 
   /**
-   * Связь с сущностью 1:M TargetHolder.
-   */
-  @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.user)
-  targetHolders: TargetHolder[];
-
-  /**
    * Связь с сущностью 1:M Project.
    */
   @OneToMany(() => Project, (project) => project.user)

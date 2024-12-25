@@ -6,7 +6,6 @@ import { ConfigModule, ConfigService } from 'nestjs-config';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from 'src/controllers/auth.controller';
 import { UsersModule } from './users.module';
-import { GeneratorModule } from './generator.module';
 import { RefreshModule } from './refresh.module';
 import { AccessJwtStrategy } from 'src/config/access-jwt-strategy';
 import { RefreshTokenStrategy } from 'src/config/refresh-jwt-strategy';
@@ -15,7 +14,6 @@ import { EventsModule } from './events.module';
 @Module({
   imports: [
     RefreshModule,
-    GeneratorModule,
     HttpModule,
     ConfigModule,
     UsersModule,

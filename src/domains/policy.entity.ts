@@ -68,8 +68,7 @@ export class Policy {
    * @remarks
    * Инкремент в БД.
    */
-  @Column()
-  @Generated('increment')
+  @Column({nullable: false})
   policyNumber: number;
 
   /**

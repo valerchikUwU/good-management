@@ -6,13 +6,11 @@ import { PolicyDirectoryRepository } from '../services/policyDirectory/repositor
 import { PolicyDirectoryService } from '../services/policyDirectory/policyDirectory.service';
 import { PolicyDirectoryController } from 'src/controllers/policyDirectory.controller';
 import { PolicyModule } from './policy.module';
-import { OrganizationModule } from './organization.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([PolicyDirectory]),
     PolicyToPolicyDirectoryModule,
-    OrganizationModule,
     PolicyModule
   ],
   controllers: [PolicyDirectoryController],

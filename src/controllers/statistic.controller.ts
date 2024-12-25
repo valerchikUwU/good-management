@@ -4,7 +4,6 @@ import {
   Get,
   HttpStatus,
   Inject,
-  Ip,
   Param,
   Patch,
   Post,
@@ -16,21 +15,18 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiHeader,
   ApiOperation,
   ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UsersService } from 'src/application/services/users/users.service';
 import { StatisticService } from 'src/application/services/statistic/statistic.service';
 import { StatisticReadDto } from 'src/contracts/statistic/read-statistic.dto';
 import { StatisticCreateDto } from 'src/contracts/statistic/create-statistic.dto';
 import { Statistic, Type } from 'src/domains/statistic.entity';
 import { StatisticDataService } from 'src/application/services/statisticData/statisticData.service';
 import { PostService } from 'src/application/services/post/post.service';
-import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { StatisticUpdateDto } from 'src/contracts/statistic/update-statistic.dto';
@@ -374,45 +370,6 @@ export class StatisticController {
     return { message: 'Статистики успешно обновлены.' };
   }
 
-  @Get(':organizationId/new')
-  @ApiOperation({ summary: 'Получить данные для создания новой статистики' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
-    example: [
-      {
-        "id": "993b64bc-1703-415a-89a9-6e191b3d46bb",
-        "postName": "asdsads",
-        "divisionName": "Подразделение №65",
-        "divisionNumber": 65,
-        "parentId": null,
-        "product": "asd",
-        "purpose": "sadsad",
-        "createdAt": "2024-12-04T15:12:11.525Z",
-        "updatedAt": "2024-12-05T19:54:57.861Z"
-      }
-    ]
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  @ApiParam({
-    name: 'organizationId',
-    required: true,
-    description: 'Id организации',
-    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
-  })
-  async beforeCreate(
-    @Param('organizationId') organizationId: string
-  ): Promise<PostReadDto[]> {
-    const posts = await this.postService.findAllForOrganization(organizationId);
-    return posts;
-  }
 
   @Post('new')
   @ApiOperation({ summary: 'Создать статистику' })

@@ -1,29 +1,18 @@
 import {
   Controller,
-  Get,
   Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
   UseInterceptors,
   UploadedFile,
-  Query,
-  Req,
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
 import { FileUploadService } from '../application/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from 'src/application/services/file/file.service';
-import { PolicyService } from 'src/application/services/policy/policy.service';
 import { FileCreateDto } from 'src/contracts/file-upload/create-file.dto';
 import {
   ApiBearerAuth,
-  ApiConsumes,
   ApiOperation,
-  ApiParam,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';

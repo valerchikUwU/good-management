@@ -6,20 +6,15 @@ import {
   Body,
   Post,
   Inject,
-  Ip,
-  InternalServerErrorException,
-  NotFoundException,
   Patch,
   UseGuards,
   Req,
 } from '@nestjs/common';
 import { PolicyService } from 'src/application/services/policy/policy.service';
-import { UsersService } from 'src/application/services/users/users.service';
 import { PolicyReadDto } from 'src/contracts/policy/read-policy.dto';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiHeader,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -27,7 +22,6 @@ import {
 } from '@nestjs/swagger';
 import { PolicyCreateDto } from 'src/contracts/policy/create-policy.dto';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
-import { OrganizationReadDto } from 'src/contracts/organization/read-organization.dto';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { PolicyUpdateDto } from 'src/contracts/policy/update-policy.dto';

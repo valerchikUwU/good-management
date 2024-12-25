@@ -97,7 +97,7 @@ export class OrganizationController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {"id": "2d1cea4c-7cea-4811-8cd5-078da7f20167"},
+    example: { "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167" },
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -133,7 +133,7 @@ export class OrganizationController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {"id": "2d1cea4c-7cea-4811-8cd5-078da7f20167"},
+    example: { "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167" },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -161,5 +161,43 @@ export class OrganizationController {
     organizationCreateDto.account = user.account;
     const createdOrganizationId = await this.organizationService.create(organizationCreateDto);
     return { id: createdOrganizationId };
+  }
+
+  @Get(':organizationId')
+  @ApiOperation({ summary: 'Получить организацию по id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: {
+        "id": "392ce79a-c35f-4e00-9c3b-8b7b667c8465",
+        "organizationName": "Академия",
+        "parentOrganizationId": null,
+        "reportDay": 5,
+        "createdAt": "2024-12-04T13:28:42.823Z",
+        "updatedAt": "2024-12-04T13:28:42.823Z",
+      }
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Организация не найдена',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({
+    name: 'organizationId',
+    required: true,
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
+  })
+  async findOne(
+    @Param('organizationId') organizationId: string
+  ): Promise<OrganizationReadDto> {
+    return await this.organizationService.findOneById(organizationId);
   }
 }

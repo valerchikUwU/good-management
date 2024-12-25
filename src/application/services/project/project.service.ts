@@ -41,10 +41,7 @@ export class ProjectService {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         organization: project.organization,
-        targets: project.targets.map((target) => ({
-          ...target,
-          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
-        })),
+        targets: project.targets,
         strategy: project.strategy,
         account: project.account,
         user: project.user,
@@ -130,17 +127,12 @@ export class ProjectService {
     }
   }
 
-  async findOneById(id: string): Promise<ProjectReadDto> {
+  async findOneById(id: string, relations?: string[]): Promise<ProjectReadDto> {
     try {
-      const project = await this.projectRepository
-        .createQueryBuilder('project')
-        .leftJoinAndSelect('project.strategy', 'strategy')
-        .leftJoinAndSelect('project.targets', 'targets')
-        .leftJoinAndSelect('targets.targetHolders', 'targetHolders')
-        .leftJoinAndSelect('targetHolders.user', 'user')
-        .leftJoinAndSelect('project.organization', 'organization')
-        .where('project.id = :id', { id })
-        .getOne();
+      const project = await this.projectRepository.findOne({
+        where: {id: id},
+        relations: relations !== undefined ? relations : [] 
+      })
 
       if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
 
@@ -152,11 +144,7 @@ export class ProjectService {
       } else {
         program = null;
       }
-      // Проверка просроченности для каждого объекта target
-      const targetsWithIsExpired = project.targets.map((target) => ({
-        ...target,
-        isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
-      }));
+
       const projectReadDto: ProjectReadDto = {
         id: project.id,
         projectNumber: project.projectNumber,
@@ -168,7 +156,10 @@ export class ProjectService {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         organization: project.organization,
-        targets: targetsWithIsExpired,
+        targets: relations !== undefined ? project.targets.map((target) => ({
+          ...target,
+          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
+        })) : project.targets,
         strategy: project.strategy,
         account: project.account,
         user: project.user,
@@ -191,7 +182,7 @@ export class ProjectService {
     try {
       const program = await this.projectRepository.findOne({
         where: { id: id },
-        relations: ['targets.targetHolders.user', 'organization', 'strategy'],
+        relations: ['targets.targetHolders.post', 'strategy', 'organization'],
       });
       if (!program) throw new NotFoundException(`Проект с ID: ${id} не найден`);
       const programReadDto: ProjectReadDto = {
@@ -226,18 +217,17 @@ export class ProjectService {
     }
   }
 
-  async findAllNotRejectedProjectsByProgramId(
-    programId: string,
-  ): Promise<ProjectReadDto[]> {
+  async findAllNotRejectedProjectsByProgramIdForOrganization(programId: string, organizationId: string): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository
         .createQueryBuilder('project')
         .leftJoinAndSelect('project.targets', 'target')
         .leftJoinAndSelect('target.targetHolders', 'targetHolder')
-        .leftJoinAndSelect('targetHolder.user', 'user')
+        .leftJoinAndSelect('targetHolder.post', 'post')
         .where('project.programId = :programId', { programId })
         .andWhere('target.type = :targetType', { targetType: TypeTarget.PRODUCT })
         .andWhere('target.targetState != :rejectedState', { rejectedState: State.REJECTED })
+        .andWhere('project.organization.id = :organizationId', {organizationId: organizationId})
         .getMany();
       return projects.map((project) => ({
         id: project.id,
@@ -282,6 +272,7 @@ export class ProjectService {
       project.user = projectCreateDto.user;
       project.account = projectCreateDto.account;
       project.strategy = projectCreateDto.strategy;
+      console.log(project)
       const projectCreatedId = await this.projectRepository.insert(project);
       if (projectCreateDto.type === Type.PROGRAM) {
         const projectsForProgram = await this.projectRepository

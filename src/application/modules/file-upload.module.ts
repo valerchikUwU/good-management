@@ -5,7 +5,6 @@ import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import path from 'path';
 import { FileModule } from './file.module';
-import { PolicyModule } from './policy.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { PolicyModule } from './policy.module';
       }),
     }),
     FileModule,
-    PolicyModule,
   ],
   controllers: [FileUploadController],
   providers: [FileUploadService],

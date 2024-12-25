@@ -12,15 +12,16 @@ import {
   Min,
   min,
 } from 'class-validator';
+import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
 import { State, Type as TypeTarget } from 'src/domains/target.entity';
-import { User } from 'src/domains/user.entity';
 
 @ApiExtraModels()
 export class TargetCreateDto {
   @ApiProperty({
     description: 'Тип задачи',
     required: false,
+    default: 'Обычная',
     example: 'Обычная',
     examples: [
       'Обычная',
@@ -53,13 +54,13 @@ export class TargetCreateDto {
   content: string;
 
   @ApiProperty({
-    description: 'Id ответственного юзера',
+    description: 'Id ответственного поста',
     required: true,
     example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
   })
   @IsUUID()
-  @IsNotEmpty({ message: 'Id ответственного не может быть пустой' })
-  holderUserId: string;
+  @IsNotEmpty({ message: 'Id ответственного поста не может быть пустым' })
+  holderPostId: string;
 
   @ApiProperty({
     description: 'Дата начала выполнения (default: new Date())',
@@ -84,7 +85,7 @@ export class TargetCreateDto {
   deadline?: Date;
 
   @Exclude({ toPlainOnly: true })
-  holderUser: User;
+  holderPost: Post;
   @Exclude({ toPlainOnly: true })
   project: Project;
 }

@@ -1,53 +1,99 @@
-import { Controller, Get, HttpStatus, Param } from '@nestjs/common';
+import { 
+  Body, 
+  Controller, 
+  Get, 
+  HttpStatus, 
+  Inject, 
+  Post, 
+  Req, 
+  UseGuards 
+} from '@nestjs/common';
 
 import {
-  ApiHeader,
+  ApiBearerAuth,
+  ApiBody,
   ApiOperation,
-  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { TargetService } from 'src/application/services/target/target.service';
 import { TargetReadDto } from 'src/contracts/target/read-target.dto';
+import { Logger } from 'winston';
+import { Request as ExpressRequest } from 'express'
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { TargetCreateDto } from 'src/contracts/target/create-target.dto';
+import { PostService } from 'src/application/services/post/post.service';
+import { PostReadDto } from 'src/contracts/post/read-post.dto';
 
-@ApiTags('Target')
-@Controller(':userId/targets')
+@ApiBearerAuth('access-token')
+@UseGuards(AccessTokenGuard)
+@ApiTags('Targets')
+@Controller('targets')
 export class TargetController {
-  constructor(private readonly targetService: TargetService) {}
+  constructor(
+    private readonly targetService: TargetService,
+    private readonly postService: PostService,
+    @Inject('winston') private readonly logger: Logger,
+  ) { }
 
   @Get()
-  @ApiOperation({ summary: 'Все задачи' })
+  @ApiOperation({ summary: 'Личные задачи и задачи из проектов' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
     example: [
-      {
-        id: '7a269e8f-26ba-46da-9ef9-e1b17475b6d9',
-        type: 'Продукт',
-        commonNumber: null,
-        statisticNumber: null,
-        ruleNumber: null,
-        productNumber: 1,
-        content: 'Контент задачи',
-        dateStart: '2024-09-20T14:44:44.274Z',
-        deadline: '2024-09-27T14:59:47.010Z',
-        dateComplete: null,
-        createdAt: '2024-09-20T14:44:44.980Z',
-        updatedAt: '2024-09-20T14:44:44.980Z',
-      },
     ],
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
+  async findAll(
+    @Req() req: ExpressRequest
+  ): Promise<{
+    userPosts: PostReadDto[];
+    personalTargets: TargetReadDto[];
+    projectTargets: TargetReadDto[];
+  }> {
+    const user = req.user as ReadUserDto;
+    const userPosts = await this.postService.findAllForUser(user.id);
+    const personalTargets = await this.targetService.findAllPersonal(user.id);
+    const projectTargets = await this.targetService.findAllFromProjects(user.id);
+    return { userPosts: userPosts, personalTargets: personalTargets, projectTargets: projectTargets };
+  }
+
+
+
+  @Post('new')
+  @ApiOperation({ summary: 'Создать личную задачу' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: [
+    ],
   })
-  async findAll(@Param() userId: string): Promise<TargetReadDto[]> {
-    return await this.targetService.findAll();
+  @ApiBody({
+    description: 'ДТО для создания личной задачи',
+    type: TargetCreateDto,
+    required: true,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  async create(
+    @Body() targetCreateDto: TargetCreateDto
+  ): Promise<{ id: string }> {
+    const createdTarget = await this.targetService.create(targetCreateDto)
+    return { id: createdTarget.id };
   }
 }

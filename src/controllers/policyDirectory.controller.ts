@@ -21,11 +21,9 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PolicyDirectoryService } from 'src/application/services/policyDirectory/policyDirectory.service';
-import { UsersService } from 'src/application/services/users/users.service';
 import { PolicyDirectoryCreateDto } from 'src/contracts/policyDirectory/create-policyDirectory.dto';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
-import { PolicyDirectory } from 'src/domains/policyDirectory.entity';
 import { PolicyDirectoryReadDto } from 'src/contracts/policyDirectory/read-policyDirectory.dto';
 import { PolicyDirectoryUpdateDto } from 'src/contracts/policyDirectory/update-policyDirectory.dto';
 import { PolicyService } from 'src/application/services/policy/policy.service';
@@ -34,7 +32,6 @@ import { PolicyReadDto } from 'src/contracts/policy/read-policy.dto';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
-import { OrganizationService } from 'src/application/services/organization/organization.service';
 
 @ApiTags('PolicyDirectories')
 @ApiBearerAuth('access-token')
@@ -43,7 +40,6 @@ import { OrganizationService } from 'src/application/services/organization/organ
 export class PolicyDirectoryController {
   constructor(
     private readonly policyDirectoryService: PolicyDirectoryService,
-    private readonly organizationService: OrganizationService,
     private readonly policyService: PolicyService,
     @Inject('winston') private readonly logger: Logger,
   ) { }

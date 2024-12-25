@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
-import { PolicyToPolicyDirectory } from 'src/domains/policyToPolicyDirectories.entity';
 
 export class PolicyDirectoryCreateDto {
   @ApiProperty({

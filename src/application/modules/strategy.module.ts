@@ -13,7 +13,7 @@ import { ObjectiveModule } from './objective.module';
   imports: [
     TypeOrmModule.forFeature([Strategy]),
     OrganizationModule,
-    forwardRef(() => ObjectiveModule),
+    ObjectiveModule,
     forwardRef(() => QueueModule),
   ],
   controllers: [StrategyController],

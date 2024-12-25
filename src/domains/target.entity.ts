@@ -20,6 +20,7 @@ export enum Type {
   RULE = 'Правила',
   PRODUCT = 'Продукт',
   EVENT = 'Организационные мероприятия',
+  // ORDER = 'Приказ'
 }
 
 /**
@@ -79,13 +80,13 @@ export class Target {
   content: string;
 
   /**
-   * Id текущего ответственного за задачу.
+   * Id текущего ответственного поста за задачу.
    * 
    * @remarks
    * UUID v4.0, nullable: false.
    */
   @Column({ type: 'uuid', nullable: false })
-  holderUserId: string;
+  holderPostId: string;
   
   /**
    * Состояние задачи.
@@ -166,9 +167,9 @@ export class Target {
    * Связь с сущностью M:1 Project.
    * 
    * @remarks
-   * Установлен индекс, nullable: true (???????)
+   * Установлен индекс, nullable: true
    */
-  @ManyToOne(() => Project, (project) => project.targets, { nullable: true }) //хуй знает
+  @ManyToOne(() => Project, (project) => project.targets, { nullable: true })
   @Index() // Добавляем индекс для поля project
   project: Project;
 }

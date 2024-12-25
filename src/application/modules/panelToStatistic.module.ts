@@ -1,16 +1,17 @@
-import { forwardRef, Module } from '@nestjs/common';
-import { AccountService } from '../services/account/account.service';
-import { AccountRepository } from '../services/account/repository/account.repository';
+import { Module } from '@nestjs/common';
+import { PanelToStatisticService } from '../services/panelToStatistic/panelToStatistic.service';
+import { PanelToStatisticRepository } from '../services/panelToStatistic/repository/panelToStatistic.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Account } from 'src/domains/account.entity';
-import { AccountController } from 'src/controllers/account.controller';
+import { PanelToStatistic } from 'src/domains/panelToStatistic.entity';
+import { StatisticModule } from './statistic.module';
 
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([PanelToStatistic]),
+    StatisticModule
   ],
-  controllers: [AccountController],
-  providers: [AccountService, AccountRepository],
-  exports: [AccountService],
+  providers: [PanelToStatisticService, PanelToStatisticRepository],
+  exports: [PanelToStatisticService],
 })
-export class PanelToStatisticModule {}
+export class PanelToStatisticModule { }
