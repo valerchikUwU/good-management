@@ -10,7 +10,6 @@ import { Account } from 'src/domains/account.entity';
 import { Project } from 'src/domains/project.entity';
 import { Role } from 'src/domains/role.entity';
 import { Convert } from 'src/domains/convert.entity';
-import { ConvertToUser } from 'src/domains/convertToUser.entity';
 import { Message } from 'src/domains/message.entity';
 import { GroupToUser } from 'src/domains/groupToUser.entity';
 import { HistoryUsersToPost } from 'src/domains/historyUsersToPost.entity';
@@ -37,7 +36,6 @@ export class ReadUserDto {
   account: Account;
   role: Role;
   convert: Convert;
-  convertToUsers: ConvertToUser[];
   messages: Message[];
   groupToUsers: GroupToUser[];
   historiesUsersToPost: HistoryUsersToPost[]

@@ -1,4 +1,5 @@
 import { Account } from 'src/domains/account.entity';
+import { ConvertToPost } from 'src/domains/convertToPost.entity';
 import { HistoryUsersToPost } from 'src/domains/historyUsersToPost.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Policy } from 'src/domains/policy.entity';
@@ -23,4 +24,5 @@ export class PostReadDto {
   account: Account;
   historiesUsersToPost: HistoryUsersToPost[];
   targetHolders: TargetHolder[];
+  convertToPosts: ConvertToPost[];
 }

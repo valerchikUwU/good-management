@@ -8,8 +8,11 @@ import {
   Param,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -24,17 +27,21 @@ import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { PostService } from 'src/application/services/post/post.service';
 import { ConvertGateway } from 'src/gateways/convert.gateway';
-import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { TypeConvert } from 'src/domains/convert.entity';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { Request as ExpressRequest } from 'express'
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
+import { TargetService } from 'src/application/services/target/target.service';
 
 @ApiTags('Converts')
-@Controller(':userId/converts')
+@ApiBearerAuth('access-token')
+@UseGuards(AccessTokenGuard)
+@Controller('converts')
 export class ConvertController {
   constructor(
     private readonly convertService: ConvertService,
-    private readonly userService: UsersService,
     private readonly postService: PostService,
-    private readonly convertGateway: ConvertGateway,
+    private readonly targetService: TargetService,
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
@@ -47,7 +54,7 @@ export class ConvertController {
       {
         id: '222f1a02-d053-4885-99b6-f353eb277b6f',
         convertTheme: 'Тема',
-        expirationTime: 'хз как еще реализовать',
+        expirationTime: 172323233,
         dateFinish: '2024-09-26T13:03:19.759Z',
         createdAt: '2024-10-21T13:10:51.781Z',
       },
@@ -57,15 +64,9 @@ export class ConvertController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
-  })
-  async findAll(@Param('userId') userId: string): Promise<ConvertReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const converts = await this.convertService.findAll(user.account);
+  async findAll(@Req() req: ExpressRequest): Promise<ConvertReadDto[]> {
+    const user = req.user as ReadUserDto;
+    const converts = await this.convertService.findAllForUser(user.id);
     return converts;
   }
 
@@ -160,32 +161,21 @@ export class ConvertController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
-  })
   async findOne(
     @Param('convertId') convertId: string,
-    @Ip() ip: string,
   ): Promise<ConvertReadDto> {
     const convert = await this.convertService.findOneById(convertId, [
-      'convertToUsers.user',
+      'convertToPosts.post.user',
       'host',
       'messages.sender',
     ]);
-    const convertUserIds = convert.convertToUsers.map(
-      (convertToUser) => convertToUser.user.id,
-    );
-    console.log(convertUserIds);
     return convert;
   }
 
   @Post('new')
-  @ApiOperation({ summary: 'Создать чат' })
+  @ApiOperation({ summary: 'Создать конверт' })
   @ApiBody({
-    description: 'ДТО для создания чата',
+    description: 'ДТО для создания конверта',
     type: ConvertCreateDto,
     required: true,
   })
@@ -200,23 +190,16 @@ export class ConvertController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
-  })
   async create(
-    @Param('userId') userId: string,
-    @Query('userPostId') userPostId: string,
+    @Req() req: ExpressRequest,
+    @Query('senderPostId') senderPostId: string,
     @Query('reciverPostId') reciverPostId: string,
     @Body() convertCreateDto: ConvertCreateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const [user, postIdsFromSenderToTop, postIdsFromRecieverToTop] =
-      await Promise.all([
-        await this.userService.findOne(userId, ['account']),
-        await this.postService.getHierarchyToTop(userPostId),
+    const user = req.user as ReadUserDto;
+    const [postIdsFromSenderToTop, postIdsFromRecieverToTop] =
+      await Promise.all([ // условие на DIRECT поставить выше чтобы не выолнять лишние запросы к БД
+        await this.postService.getHierarchyToTop(senderPostId),
         await this.postService.getHierarchyToTop(reciverPostId),
       ]);
     const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
@@ -225,7 +208,7 @@ export class ConvertController {
     const postIdsFromSenderToReciver: string[] = [];
     console.log(isCommonDivision);
     if (convertCreateDto.convertType === TypeConvert.DIRECT) {
-      postIdsFromSenderToReciver.push(userPostId, reciverPostId);
+      postIdsFromSenderToReciver.push(senderPostId, reciverPostId);
     } else if (isCommonDivision) {
       postIdsFromSenderToReciver.push(
         ...createPathInOneDivision(
@@ -243,31 +226,17 @@ export class ConvertController {
     console.log(postIdsFromSenderToTop);
     console.log(postIdsFromRecieverToTop);
     console.log(postIdsFromSenderToReciver);
-    const firstPost = await this.postService.findOneById(
-      postIdsFromSenderToReciver[1],
-      ['user'],
-    );
     convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
     convertCreateDto.host = user;
     convertCreateDto.account = user.account;
-
-    const createdConvert = await this.convertService.create(convertCreateDto);
+    const [targetId, createdConvert] =
+    await Promise.all([ 
+      await this.targetService.create(convertCreateDto.targetCreateDto),
+      await this.convertService.create(convertCreateDto),
+    ]);
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый чат!`,
+      `${yellow('OK!')} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый конверт!`,
     );
-    const createdConvertWithUsers = await this.convertService.findOneById(
-      createdConvert.id,
-      ['convertToUsers.user'],
-    );
-    convertCreateDto.messageCreateDto.sender = user;
-    convertCreateDto.messageCreateDto.convert = createdConvert;
-    await this.convertGateway.handleSendingConvert(
-      convertCreateDto.messageCreateDto,
-      user,
-      createdConvertWithUsers,
-      firstPost.user.id,
-    );
-
     return { id: createdConvert.id };
   }
 }

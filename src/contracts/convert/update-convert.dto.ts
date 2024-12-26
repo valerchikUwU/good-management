@@ -6,11 +6,9 @@ export class ConvertUpdateDto {
   @IsUUID()
   _id: string;
   @IsArray()
-  userIds?: string[];
-  @IsArray()
-  pathOfPosts?: string[];
+  convertToPostIds?: string[];
   @IsUUID()
-  activeUserId?: string;
+  activePostId?: string;
 
   // @ApiProperty({
   //     description: 'IDs участников чата и их тип', example:

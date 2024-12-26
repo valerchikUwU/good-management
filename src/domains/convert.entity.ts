@@ -9,7 +9,7 @@ import {
 import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Message } from './message.entity';
-import { ConvertToUser } from './convertToUser.entity';
+import { ConvertToPost } from './convertToPost.entity';
 
 /**
  * Перечисление типов конвертов.
@@ -63,7 +63,7 @@ export class Convert {
    * '2024-06-30T23:59:59Z'
    */
   @Column({ nullable: false })
-  expirationTime: string;
+  expirationTime: number;
 
   /**
    * Список постов, через которые должен пройти конверт.
@@ -103,7 +103,7 @@ export class Convert {
    * '123e4567-e89b-12d3-a456-426614174000'
    */
   @Column({ type: 'uuid', nullable: true })
-  activeUserId: string;
+  activePostId: string;
 
   /**
    * Дата завершения конвертации.
@@ -138,8 +138,8 @@ export class Convert {
   /**
    * Связь с пользователями конвертации (1:M ConvertToUser).
    */
-  @OneToMany(() => ConvertToUser, (convertToUser) => convertToUser.convert)
-  convertToUsers: ConvertToUser[];
+  @OneToMany(() => ConvertToPost, (convertToPost) => convertToPost.convert)
+  convertToPosts: ConvertToPost[];
 
   /**
    * Связь с хостом конвертации (M:1 User).

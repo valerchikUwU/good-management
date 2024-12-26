@@ -50,7 +50,8 @@ export class PostService {
         organization: post.organization,
         account: post.account,
         historiesUsersToPost: post.historiesUsersToPost,  
-        targetHolders: post.targetHolders
+        targetHolders: post.targetHolders,
+        convertToPosts: post.convertToPosts
       }));
     } catch (err) {
       this.logger.error(err);
@@ -84,7 +85,8 @@ export class PostService {
         organization: post.organization,
         account: post.account,
         historiesUsersToPost: post.historiesUsersToPost,  
-        targetHolders: post.targetHolders
+        targetHolders: post.targetHolders,
+        convertToPosts: post.convertToPosts
       }));
     } catch (err) {
       this.logger.error(err);
@@ -118,7 +120,8 @@ export class PostService {
         organization: post.organization,
         account: post.account,
         historiesUsersToPost: post.historiesUsersToPost,  
-        targetHolders: post.targetHolders
+        targetHolders: post.targetHolders,
+        convertToPosts: post.convertToPosts
       }));
     } catch (err) {
       this.logger.error(err);
@@ -155,7 +158,8 @@ export class PostService {
         organization: post.organization,
         account: post.account,
         historiesUsersToPost: post.historiesUsersToPost,  
-        targetHolders: post.targetHolders
+        targetHolders: post.targetHolders,
+        convertToPosts: post.convertToPosts
       };
 
       return postReadDto;
@@ -173,32 +177,9 @@ export class PostService {
 
   async findMaxDivisionNumber(): Promise<number> {
     try {
-      const postWithMaxDivisionNumber = await this.postRepository
-        .createQueryBuilder('post')
-        .orderBy('post.divisionNumber', 'DESC')
-        .getOne();
-
-      if (!postWithMaxDivisionNumber) return 1;
-      const postReadDto: PostReadDto = {
-        id: postWithMaxDivisionNumber.id,
-        postName: postWithMaxDivisionNumber.postName,
-        divisionName: postWithMaxDivisionNumber.divisionName,
-        divisionNumber: postWithMaxDivisionNumber.divisionNumber,
-        parentId: postWithMaxDivisionNumber.parentId,
-        product: postWithMaxDivisionNumber.product,
-        purpose: postWithMaxDivisionNumber.purpose,
-        createdAt: postWithMaxDivisionNumber.createdAt,
-        updatedAt: postWithMaxDivisionNumber.updatedAt,
-        user: postWithMaxDivisionNumber.user,
-        policy: postWithMaxDivisionNumber.policy,
-        statistics: postWithMaxDivisionNumber.statistics,
-        organization: postWithMaxDivisionNumber.organization,
-        account: postWithMaxDivisionNumber.account,
-        historiesUsersToPost: postWithMaxDivisionNumber.historiesUsersToPost,  
-        targetHolders: postWithMaxDivisionNumber.targetHolders
-      };
-
-      return postReadDto.divisionNumber;
+      const maxDivisionNumber = await this.postRepository.maximum('divisionNumber')
+      if (!maxDivisionNumber) return 1;
+      return maxDivisionNumber;
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений

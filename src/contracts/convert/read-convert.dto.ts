@@ -1,6 +1,6 @@
 import { Account } from 'src/domains/account.entity';
 import { TypeConvert } from 'src/domains/convert.entity';
-import { ConvertToUser } from 'src/domains/convertToUser.entity';
+import { ConvertToPost } from 'src/domains/convertToPost.entity';
 import { Message } from 'src/domains/message.entity';
 import { User } from 'src/domains/user.entity';
 
@@ -8,13 +8,13 @@ export class ConvertReadDto {
   id: string;
   convertTheme: string;
   pathOfPosts: string[];
-  expirationTime: string;
+  expirationTime: number;
   convertType: TypeConvert;
-  activeUserId: string;
+  activePostId: string;
   dateFinish: Date;
   createdAt: Date;
   messages: Message[];
-  convertToUsers: ConvertToUser[];
+  convertToPosts: ConvertToPost[];
   host: User;
   account: Account;
 }

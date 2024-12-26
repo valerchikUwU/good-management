@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Convert } from './convert.entity';
+import { Post } from './post.entity';
 
 export enum UserType {
   WATCHER = 'Наблюдатель',
@@ -17,7 +18,7 @@ export enum UserType {
 }
 
 @Entity()
-export class ConvertToUser {
+export class ConvertToPost {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -34,11 +35,11 @@ export class ConvertToUser {
   // })
   // userType: UserType;
 
-  @ManyToOne(() => User, (user) => user.convertToUsers)
+  @ManyToOne(() => Post, (post) => post.convertToPosts)
   @Index() // Добавляем индекс для поля policy
-  user: User;
+  post: Post;
 
-  @ManyToOne(() => Convert, (convert) => convert.convertToUsers)
+  @ManyToOne(() => Convert, (convert) => convert.convertToPosts)
   @Index() // Добавляем индекс для поля organization
   convert: Convert;
 }

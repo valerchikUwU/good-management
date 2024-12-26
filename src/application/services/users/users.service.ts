@@ -47,7 +47,6 @@ export class UsersService {
       account: user.account,
       role: user.role,
       convert: user.convert,
-      convertToUsers: user.convertToUsers,
       messages: user.messages,
       groupToUsers: user.groupToUsers,
       historiesUsersToPost: user.historiesUsersToPost
@@ -86,7 +85,6 @@ export class UsersService {
         account: user.account,
         role: user.role,
         convert: user.convert,
-        convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
@@ -131,7 +129,6 @@ export class UsersService {
         account: user.account,
         role: user.role,
         convert: user.convert,
-        convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
@@ -175,7 +172,6 @@ export class UsersService {
         account: user.account,
         role: user.role,
         convert: user.convert,
-        convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
@@ -229,7 +225,6 @@ export class UsersService {
         account: user.account,
         role: user.role,
         convert: user.convert,
-        convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
@@ -279,7 +274,6 @@ export class UsersService {
         account: user.account,
         role: user.role,
         convert: user.convert,
-        convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
@@ -328,7 +322,6 @@ export class UsersService {
         account: user.account,
         role: user.role,
         convert: user.convert,
-        convertToUsers: user.convertToUsers,
         messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost

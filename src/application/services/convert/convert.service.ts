@@ -12,7 +12,7 @@ import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { Logger } from 'winston';
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
-import { ConvertToUserService } from '../convertToUser/convertToUser.service';
+import { ConvertToPostService } from '../convertToPost/convertToPost.service';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 
 @Injectable()
@@ -20,13 +20,13 @@ export class ConvertService {
   constructor(
     @InjectRepository(Convert)
     private readonly convertRepository: ConvertRepository,
-    private readonly convertToUserService: ConvertToUserService,
+    private readonly convertToPostService: ConvertToPostService,
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAll(account: AccountReadDto): Promise<ConvertReadDto[]> {
+  async findAllForUser(userId: string): Promise<ConvertReadDto[]> {
     const converts = await this.convertRepository.find({
-      where: { account: { id: account.id } },
+      where: { convertToPosts: { post: {user: {id: userId}} } },
     });
     return converts.map((convert) => ({
       id: convert.id,
@@ -34,11 +34,11 @@ export class ConvertService {
       pathOfPosts: convert.pathOfPosts,
       expirationTime: convert.expirationTime,
       convertType: convert.convertType,
-      activeUserId: convert.activeUserId,
+      activePostId: convert.activePostId,
       dateFinish: convert.dateFinish,
       createdAt: convert.createdAt,
       messages: convert.messages,
-      convertToUsers: convert.convertToUsers,
+      convertToPosts: convert.convertToPosts,
       host: convert.host,
       account: convert.account,
     }));
@@ -58,11 +58,11 @@ export class ConvertService {
         pathOfPosts: convert.pathOfPosts,
         expirationTime: convert.expirationTime,
         convertType: convert.convertType,
-        activeUserId: convert.activeUserId,
+        activePostId: convert.activePostId,
         dateFinish: convert.dateFinish,
         createdAt: convert.createdAt,
         messages: convert.messages,
-        convertToUsers: convert.convertToUsers,
+        convertToPosts: convert.convertToPosts,
         host: convert.host,
         account: convert.account,
       };
@@ -90,21 +90,18 @@ export class ConvertService {
       convert.pathOfPosts = convertCreateDto.pathOfPosts;
       convert.expirationTime = convertCreateDto.expirationTime;
       convert.convertType = convertCreateDto.convertType;
+      convert.activePostId = convertCreateDto.pathOfPosts[1];
       convert.dateFinish = convertCreateDto.dateFinish;
       convert.host = convertCreateDto.host;
       convert.account = convertCreateDto.account;
       const createdConvert = await this.convertRepository.save(convert);
-      await this.convertToUserService.createSeveral(
+      await this.convertToPostService.createSeveral(
         createdConvert,
-        convertCreateDto.userIds,
+        convertCreateDto.pathOfPosts.slice(0, 2),
       );
       return createdConvert;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException('Ошибка при создании чата');
     }
   }
@@ -117,21 +114,18 @@ export class ConvertService {
       if (!convert) {
         throw new NotFoundException(`Чат с ID ${_id} не найден`);
       }
-      if (convertUpdateDto.pathOfPosts) {
-        convert.pathOfPosts = convertUpdateDto.pathOfPosts;
+      if (convertUpdateDto.activePostId) {
+        convert.activePostId = convertUpdateDto.activePostId;
       }
-      if (convertUpdateDto.activeUserId) {
-        convert.activeUserId = convertUpdateDto.activeUserId;
-      }
-      if (convertUpdateDto.userIds) {
-        await this.convertToUserService.remove(convert);
-        await this.convertToUserService.createSeveral(
+      if (convertUpdateDto.convertToPostIds) {
+        await this.convertToPostService.remove(convert);
+        await this.convertToPostService.createSeveral(
           convert,
-          convertUpdateDto.userIds,
+          convertUpdateDto.convertToPostIds,
         );
       }
       await this.convertRepository.update(convert.id, {
-        pathOfPosts: convert.pathOfPosts,
+        activePostId: convert.activePostId,
       });
       return convert.id;
     } catch (err) {

@@ -16,6 +16,7 @@ import { Statistic } from './statistic.entity';
 import { Account } from './account.entity';
 import { HistoryUsersToPost } from './historyUsersToPost.entity';
 import { TargetHolder } from './targetHolder.entity';
+import { ConvertToPost } from './convertToPost.entity';
 
 /**
  * Сущность, представляющая должность (пост).
@@ -57,7 +58,7 @@ export class Post {
    * @remarks
    * Инкремент в БД. Нужен для автогенерации названия отдела при отсутствии parentId, т.е. на клиенте будет, например, "Подразделение 2"
    */
-  @Column({nullable: false})
+  @Column({ nullable: false })
   divisionNumber: number;
 
   /**
@@ -170,4 +171,10 @@ export class Post {
    */
   @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.post)
   targetHolders: TargetHolder[];
+
+  /**
+   * Связь с сущностью 1:M ConvertToPost.
+   */
+  @OneToMany(() => ConvertToPost, (convertToPost) => convertToPost.post)
+  convertToPosts: ConvertToPost[];
 }

@@ -30,7 +30,7 @@ import { QueueModule } from './application/modules/queue.module';
 import { PolicyToPolicyDirectoryModule } from './application/modules/policyToPolicyDirectory.module';
 import { PolicyDirectoryModule } from './application/modules/policyDirectory.module';
 import { ConvertModule } from './application/modules/convert.module';
-import { ConvertToUserModule } from './application/modules/convertToUser.module';
+import { ConvertToPostModule } from './application/modules/convertToPost.module';
 import { MessageModule } from './application/modules/message.module';
 import { GroupModule } from './application/modules/group.module';
 import { GroupToUserModule } from './application/modules/groupToUser.module';
@@ -104,7 +104,7 @@ dotenv.config();
     PolicyToPolicyDirectoryModule,
     PolicyDirectoryModule,
     ConvertModule,
-    ConvertToUserModule,
+    ConvertToPostModule,
     MessageModule,
     GroupModule,
     GroupToUserModule,

@@ -4,7 +4,6 @@ import { Organization } from 'src/domains/organization.entity';
 import { OrganizationService } from '../services/organization/organization.service';
 import { OrganizationRepository } from '../services/organization/repository/organization.repository';
 import { OrganizationController } from 'src/controllers/organization.controller';
-import { UsersModule } from './users.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Organization])],

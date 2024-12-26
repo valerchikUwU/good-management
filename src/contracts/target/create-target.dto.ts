@@ -29,6 +29,7 @@ export class TargetCreateDto {
       'Правила',
       'Продукт',
       'Организационные мероприятия',
+      'Приказ'
     ],
   })
   @IsOptional()

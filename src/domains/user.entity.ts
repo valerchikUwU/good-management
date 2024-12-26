@@ -14,12 +14,10 @@ import { Organization } from './organization.entity';
 import { Goal } from './goal.entity';
 import { Policy } from './policy.entity';
 import { Strategy } from './strategy.entity';
-import { TargetHolder } from './targetHolder.entity';
 import { Account } from './account.entity';
 import { Project } from './project.entity';
 import { Role } from './role.entity';
 import { Convert } from './convert.entity';
-import { ConvertToUser } from './convertToUser.entity';
 import { Message } from './message.entity';
 import { GroupToUser } from './groupToUser.entity';
 import { HistoryUsersToPost } from './historyUsersToPost.entity';
@@ -176,12 +174,6 @@ export class User {
    */
   @OneToMany(() => Message, (message) => message.sender)
   messages: Message[];
-
-  /**
-   * Связь с сущностью 1:M ConvertToUser.
-   */
-  @OneToMany(() => ConvertToUser, (convertToUser) => convertToUser.user)
-  convertToUsers: ConvertToUser[];
 
   /**
    * Связь с сущностью 1:M GroupToUser.
