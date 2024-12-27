@@ -50,6 +50,7 @@ export class TelegramService {
               const telegramId = ctx.message.from.id;
               const user = await this.usersService.findOneByTelegramId(telegramId);
               if (user !== null) {
+                ctx.reply('Подождите, идёт вход...')
                 const authFlag = await this.authRequest(
                   user.telephoneNumber,
                   telegramId,
@@ -173,14 +174,13 @@ export class TelegramService {
       );
       return true;
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        this.logger.error(error);
+      if (error.response && error.response.status === 400) {
         ctx.reply('Попробуйте войти еще раз!');
+      } else if (error.response && error.response.status === 401) {
+        ctx.reply('Попробуйте войти еще раз!')
       } else if (error.response && error.response.status === 404) {
-        this.logger.error(error);
         ctx.reply('Ой, что - то пошло не так!');
       } else if (error.response && error.response.status === 500) {
-        this.logger.error(error);
         ctx.reply('Ой, что - то пошло не так!');
       }
     }

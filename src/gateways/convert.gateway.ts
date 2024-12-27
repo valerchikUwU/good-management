@@ -24,7 +24,7 @@ import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { TypeConvert } from 'src/domains/convert.entity';
 import { Logger } from 'winston';
 
-@WebSocketGateway(5001, { namespace: 'chat', cors: '*:*' })
+@WebSocketGateway(5001, { namespace: 'chat', cors: process.env.NODE_ENV === 'dev' ? '*:*' : {origin: process.env.PROD_API_HOST} })
 export class ConvertGateway
   implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
