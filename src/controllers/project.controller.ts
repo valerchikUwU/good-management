@@ -166,7 +166,7 @@ export class ProjectController {
   }> {
     const posts = await this.postService.findAllWithUserForOrganization(organizationId, ['user']);
     const strategies = await this.strategyService.findAllActiveForOrganization(organizationId);
-    const projects = await this.projectService.findAllProjectsWithoutProgramForOrganization(organizationId);
+    const projects = await this.projectService.findAllProjectsWithoutProgramForOrganization(organizationId, ['targets']);
     return {
       posts: posts,
       strategies: strategies,
