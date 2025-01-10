@@ -74,9 +74,9 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 5000;
-  const host = process.env.API_HOST;
+  const host = process.env.NODE_ENV === 'dev' ? process.env.API_HOST : process.env.PROD_API_HOST;
 
-  await app.listen(port, () => console.log(`${host}${port}/`));
+  await app.listen(port, () => console.log(`${host}/`));
 }
 
 bootstrap();

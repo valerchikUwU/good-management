@@ -73,7 +73,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       // Обработка других ошибок
-      throw new InternalServerErrorException('Ошибка при получении проекта');
+      throw new InternalServerErrorException('Ошибка при входе!');
     }
 
   }
@@ -83,50 +83,27 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     expectedData: string[],
     timeoutMs = 3000, // Тайм-аут в миллисекундах
   ): Promise<Record<string, any>> {
-    try {
-      const client = this.clients.get(clientId);
-      if (!client) {
-        throw new NotFoundException(
-          `WebSocket соединение не установлено, клиент с ID: ${clientId} не найден`,
-        );
-      }
+    const client = this.clients.get(clientId);
+    if (!client) {
+      throw new NotFoundException(`WebSocket соединение не установлено, клиент с ID: ${clientId} не найден`);
+    }
+    const payload = { expectedData, clientId };
+    client.emit('requestInfo', payload);
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error(`Timeout waiting for response from client: ${clientId}`));
+      }, timeoutMs);
 
-      const payload = { expectedData, clientId };
-      client.emit('requestInfo', payload);
-
-      return new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error(`Timeout waiting for response from client: ${clientId}`));
-        }, timeoutMs);
-  
-        client.once('responseFromClient', async (data) => {
-          try {
-            clearTimeout(timeout);
-  
-            const clientCredentialsDto = plainToInstance(ClientCredentialsDto, data);
-            // Выполнение валидации с обработкой ошибок
-            await validateOrReject(clientCredentialsDto).catch(errors => {
-              // Логируем ошибку валидации и отклоняем промис
-              console.log('VALIDATION ERROR');
-              reject(new BadRequestException(errors));
-            });
-  
-            resolve(data); // Завершаем промис
-          } catch (err) {
-            // Логирование и отклонение промиса в случае ошибки
-            console.error('Error processing client response:', err);
-            reject(err);
-          }
+      client.once('responseFromClient', async (data) => {
+        clearTimeout(timeout);
+        const clientCredentialsDto = plainToInstance(ClientCredentialsDto, data);
+        await validateOrReject(clientCredentialsDto).catch(errors => {
+          reject(new BadRequestException(errors));
         });
+        resolve(data); // Завершаем промис
       });
-    }
-    catch (err) {
-      this.logger.error(err)
-      if (err instanceof BadRequestException) {
-        console.log(err)
-        throw err
-      }
-    }
+    });
+
 
   }
 

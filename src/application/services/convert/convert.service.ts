@@ -81,10 +81,6 @@ export class ConvertService {
 
   async create(convertCreateDto: ConvertCreateDto): Promise<ConvertReadDto> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!convertCreateDto.convertTheme) {
-        throw new BadRequestException('Тема не может быть пустой!');
-      }
       const convert = new Convert();
       convert.convertTheme = convertCreateDto.convertTheme;
       convert.pathOfPosts = convertCreateDto.pathOfPosts;

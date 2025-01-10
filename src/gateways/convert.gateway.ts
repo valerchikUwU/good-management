@@ -2,7 +2,6 @@ import {
   ForbiddenException,
   Inject,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
 import {
   SubscribeMessage,
@@ -20,11 +19,10 @@ import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
-import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { TypeConvert } from 'src/domains/convert.entity';
 import { Logger } from 'winston';
 
-@WebSocketGateway(5001, { namespace: 'chat', cors: process.env.NODE_ENV === 'dev' ? '*:*' : {origin: process.env.PROD_API_HOST} })
+@WebSocketGateway({ namespace: 'chat', cors: process.env.NODE_ENV === 'dev' ? '*:*' : {origin: process.env.PROD_API_HOST} })
 export class ConvertGateway
   implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
@@ -229,15 +227,45 @@ export class ConvertGateway
   }
 
   handleDisconnect(client: Socket) {
+    // Извлечение параметров из URL
     this.logger.info(`Client Disconnected: ${client.id}`);
-    this.clients.delete(client.id);
+    this.clients.delete(client.id);    
+    this.clients.forEach((client) => {
+      this.logger.info(`Client ID: ${client.id}, Socket ID: ${JSON.stringify(client.data)}`);
+    });
   }
 
   handleConnection(client: Socket) {
     // Извлечение параметров из URL
     const { postId } = client.handshake.query;
-    this.logger.info(`Client Connected: ${postId}`);
-    this.clients.set(postId as string, client);
+    client.data.postId = postId;
+    this.logger.info(`Client Connected: ${client.id}`);
+    this.clients.set(client.id, client);
     this.logger.info(`Number of connected clients: ${this.clients.size}`);
+    this.clients.forEach((client) => {
+      this.logger.info(`Client ID: ${client.id}, Socket ID: ${JSON.stringify(client.data)}`);
+    });
   }
+
+  handleConvertExtensionEvent(convert: ConvertReadDto, postId: string){
+    const socketsToNotify = findKeysByValue(this.clients, postId);
+    socketsToNotify.forEach(socket => {
+      socket.join(convert.id);
+    });
+    this.ws.to(convert.id).emit('creationConvertEvent', convert);
+    this.ws.in(convert.id).disconnectSockets(true);
+  }
+}
+
+function findKeysByValue(map: Map<string, Socket>, postId: string): Socket[] {
+  const matchingKeys: Socket[] = [];
+
+  map.forEach((value, key) => {
+    if (postId === value.data.postId) {
+      const client = this.clients.get(key);
+      matchingKeys.push(client);
+    }
+  });
+
+  return matchingKeys;
 }

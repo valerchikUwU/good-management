@@ -282,13 +282,7 @@ export class UsersService {
       return readUserDto;
     } catch (err) {
       this.logger.error(err);
-      if (err instanceof NotFoundException) {
-        throw err;
-      }
-
-      throw new InternalServerErrorException(
-        'Ошибка при получении пользователя',
-      );
+      throw new InternalServerErrorException('Ошибка при получении пользователя');
     }
   }
 

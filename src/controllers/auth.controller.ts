@@ -230,34 +230,34 @@ export class AuthController {
     const requiredInfo = ['fingerprint', 'userAgent', 'ip', 'token'];
     const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo).catch();
 
-    // if (clientInfo.token === authTg.token) {
-    //   const user = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
-    //   console.log(user.telegramId)
-    //   if (user.telegramId === null) {
-    //     const updateTgAuthUserDto: UpdateTgAuthUserDto = { telegramId: authTg.telegramId };
-    //     await this.userService.updateTgAuth(user, updateTgAuthUserDto);
-    //   }
-    //   const authenticateResult = await this.authService.authenticateTG(
-    //     user.id,
-    //     clientInfo.ip,
-    //     clientInfo.userAgent,
-    //     clientInfo.fingerprint,
-    //   );
-    //   this.eventsGateway.sendTokenToClient(
-    //     authTg.clientId,
-    //     authenticateResult._user.id,
-    //     authenticateResult._user.token,
-    //     authenticateResult.refreshTokenId,
-    //   );
-    // } else {
-    //   this.eventsGateway.sendTokenToClient(
-    //     authTg.clientId,
-    //     'false',
-    //     null,
-    //     null,
-    //   );
-    //   throw new UnauthorizedException('Неуспешный вход!');
-    // }
+    if (clientInfo.token === authTg.token) {
+      const user = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
+      console.log(user.telegramId)
+      if (user.telegramId === null) {
+        const updateTgAuthUserDto: UpdateTgAuthUserDto = { telegramId: authTg.telegramId };
+        await this.userService.updateTgAuth(user, updateTgAuthUserDto);
+      }
+      const authenticateResult = await this.authService.authenticateTG(
+        user.id,
+        clientInfo.ip,
+        clientInfo.userAgent,
+        clientInfo.fingerprint,
+      );
+      this.eventsGateway.sendTokenToClient(
+        authTg.clientId,
+        authenticateResult._user.id,
+        authenticateResult._user.token,
+        authenticateResult.refreshTokenId,
+      );
+    } else {
+      this.eventsGateway.sendTokenToClient(
+        authTg.clientId,
+        'false',
+        null,
+        null,
+      );
+      throw new UnauthorizedException('Неуспешный вход!');
+    }
   }
 
   @UseGuards(AccessTokenGuard)

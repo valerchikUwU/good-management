@@ -8,7 +8,7 @@ import {
 import { Telegraf } from 'telegraf';
 import { UsersService } from '../users/users.service';
 import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ChatStorageService } from './chatStorage.service';
 import { Logger } from 'winston';
 @Injectable()
@@ -50,7 +50,9 @@ export class TelegramService {
               const telegramId = ctx.message.from.id;
               const user = await this.usersService.findOneByTelegramId(telegramId);
               if (user !== null) {
-                ctx.reply('Подождите, идёт вход...')
+                await ctx.reply('Привет, я помощник Галя!')
+                await ctx.replyWithSticker('CAACAgIAAxkBAAENeNlngPAY6knFZm1PqHtxfwABMiDhSFIAArBLAAKGjalLo34TEjv98bk2BA')
+                await ctx.reply('Регистрирую вас на массажик)')
                 const authFlag = await this.authRequest(
                   user.telephoneNumber,
                   telegramId,
@@ -161,9 +163,9 @@ export class TelegramService {
     ctx: any,
   ): Promise<any> {
     try {
-      const response = await lastValueFrom(
+      const response = await firstValueFrom(
         this.httpService.post(
-          `${process.env.API_HOST}${process.env.PORT}/auth/login/tg`,
+          process.env.NODE_ENV === 'dev' ? `${process.env.API_HOST}/auth/login/tg` : `${process.env.PROD_API_HOST}/auth/login/tg`,
           {
             telephoneNumber: phoneNumber,
             telegramId: telegramId,
