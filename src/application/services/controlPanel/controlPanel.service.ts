@@ -36,7 +36,8 @@ export class ControlPanelService {
                 createdAt: controlPanel.createdAt,
                 updatedAt: controlPanel.updatedAt,
                 panelToStatistics: controlPanel.panelToStatistics,
-                organization: controlPanel.organization
+                organization: controlPanel.organization,
+                post: controlPanel.post
             }))
         }
         catch (err) {
@@ -62,7 +63,8 @@ export class ControlPanelService {
                 createdAt: controlPanel.createdAt,
                 updatedAt: controlPanel.updatedAt,
                 panelToStatistics: controlPanel.panelToStatistics,
-                organization: controlPanel.organization
+                organization: controlPanel.organization,
+                post: controlPanel.post
             }
 
             return controlPanelReadDto;
@@ -89,6 +91,7 @@ export class ControlPanelService {
             controlPanel.orderNumber = controlPanelCreateDto.orderNumber;
             controlPanel.graphType = controlPanelCreateDto.graphType;
             controlPanel.organization = controlPanelCreateDto.organization;
+            if(controlPanelCreateDto.post) controlPanel.post = controlPanelCreateDto.post
             const createdControlPanel = await this.controlPanelRepository.save(controlPanel);
             await this.panelToStatisticService.createSeveral(createdControlPanel, controlPanelCreateDto.statisticIds);
 

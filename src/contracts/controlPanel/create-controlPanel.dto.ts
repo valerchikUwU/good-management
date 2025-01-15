@@ -3,6 +3,7 @@ import { Exclude } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from "class-validator";
 import { GraphType, PanelType } from "src/domains/controlPanel.entity";
 import { Organization } from "src/domains/organization.entity";
+import { Post } from "src/domains/post.entity";
 
 
 /**
@@ -68,6 +69,19 @@ export class ControlPanelCreateDto {
     @IsNotEmpty({ message: 'ID организации не может быть пустой!' })
     organizationId: string;
 
+    @ApiProperty({
+        description: 'ID поста создателя',
+        required: true,
+        example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
+    })
+    @IsOptional()
+    @IsUUID()
+    @IsNotEmpty({ message: 'ID поста не может быть пустой!' })
+    postId?: string;
+
     @Exclude({ toPlainOnly: true })
     organization: Organization;
+
+    @Exclude({ toPlainOnly: true })
+    post: Post;
 }

@@ -26,6 +26,7 @@ import { ControlPanelService } from 'src/application/services/controlPanel/contr
 import { ControlPanelReadDto } from 'src/contracts/controlPanel/read-controlPanel.dto';
 import { ControlPanelCreateDto } from 'src/contracts/controlPanel/create-controlPanel.dto';
 import { ControlPanelUpdateDto } from 'src/contracts/controlPanel/update-controlPanel.dto';
+import { PostService } from 'src/application/services/post/post.service';
 
 @ApiTags('ControlPanels')
 @ApiBearerAuth('access-token')
@@ -35,6 +36,7 @@ export class ControlPanelController {
     constructor(
         private readonly controlPanelService: ControlPanelService,
         private readonly organizationService: OrganizationService,
+        private readonly postService: PostService,
         @Inject('winston') private readonly logger: Logger,
     ) { }
 
@@ -159,7 +161,11 @@ export class ControlPanelController {
     async create(
         @Body() controlPanelCreateDto: ControlPanelCreateDto,
     ): Promise<{ id: string }> {
-        const organization = await this.organizationService.findOneById(controlPanelCreateDto.organizationId)
+        const organization = await this.organizationService.findOneById(controlPanelCreateDto.organizationId);
+        if(controlPanelCreateDto.postId){
+            const post = await this.postService.findOneById(controlPanelCreateDto.postId)
+            controlPanelCreateDto.post = post
+        }
         controlPanelCreateDto.organization = organization;
         const createdControlPanelId = await this.controlPanelService.create(controlPanelCreateDto);
         this.logger.info(

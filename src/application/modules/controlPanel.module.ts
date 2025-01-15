@@ -6,13 +6,15 @@ import { OrganizationModule } from './organization.module';
 import { PanelToStatisticModule } from './panelToStatistic.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ControlPanel } from 'src/domains/controlPanel.entity';
+import { PostModule } from './post.module';
 
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ControlPanel]),
     OrganizationModule,
-    PanelToStatisticModule
+    PanelToStatisticModule,
+    PostModule
   ],
   controllers: [ControlPanelController],
   providers: [ControlPanelService, ControlPanelRepository],
