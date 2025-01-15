@@ -142,8 +142,8 @@ export class Organization {
   strategies: Strategy[];
 
   /**
- * Связь с сущностью 1:M ControlPanel.
- */
+   * Связь с сущностью 1:M ControlPanel.
+   */
   @OneToMany(() => ControlPanel, (controlPanel) => controlPanel.organization)
   controlPanels: ControlPanel[];
 

@@ -53,7 +53,8 @@ export class PostService {
         historiesUsersToPost: post.historiesUsersToPost,  
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
-        messages: post.messages
+        messages: post.messages,
+        controlPanels: post.controlPanels
       }));
     } catch (err) {
       this.logger.error(err);
@@ -92,7 +93,8 @@ export class PostService {
         historiesUsersToPost: post.historiesUsersToPost,  
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
-        messages: post.messages
+        messages: post.messages,
+        controlPanels: post.controlPanels
       }));
     } catch (err) {
       this.logger.error(err);
@@ -129,7 +131,8 @@ export class PostService {
         historiesUsersToPost: post.historiesUsersToPost,  
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
-        messages: post.messages
+        messages: post.messages,
+        controlPanels: post.controlPanels
       }));
     } catch (err) {
       this.logger.error(err);
@@ -169,7 +172,8 @@ export class PostService {
         historiesUsersToPost: post.historiesUsersToPost,  
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
-        messages: post.messages
+        messages: post.messages,
+        controlPanels: post.controlPanels
       };
 
       return postReadDto;
@@ -237,10 +241,6 @@ export class PostService {
       return createdPostId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException('Ошибка при создании поста');
     }
   }

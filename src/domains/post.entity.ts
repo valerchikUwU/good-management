@@ -19,6 +19,7 @@ import { TargetHolder } from './targetHolder.entity';
 import { ConvertToPost } from './convertToPost.entity';
 import { Convert } from './convert.entity';
 import { Message } from './message.entity';
+import { ControlPanel } from './controlPanel.entity';
 
 /**
  * Сущность, представляющая должность (пост).
@@ -192,4 +193,10 @@ export class Post {
    */
   @OneToMany(() => Message, (message) => message.sender)
   messages: Message[];
+
+  /**
+   * Связь с сущностью 1:M ControlPanel.
+   */
+  @OneToMany(() => ControlPanel, (controlPanel) => controlPanel.post)
+  controlPanels: ControlPanel[];
 }

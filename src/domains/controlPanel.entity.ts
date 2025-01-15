@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { PanelToStatistic } from './panelToStatistic.entity';
 import { Organization } from './organization.entity';
+import { Post } from './post.entity';
 
 
 /**
@@ -70,6 +71,17 @@ export class ControlPanel {
       */
     @Column({ nullable: false })
     orderNumber: number;
+
+    
+    /**
+      * Номер панели в БД относительно поста.
+      * 
+      * @remarks
+      * nullable: false. Инркемент в БД относительно поста.
+      */
+    @Column({ nullable: false })
+    controlPanelNumber: number;
+
 
     /**
      * Тип панели.
@@ -133,7 +145,16 @@ export class ControlPanel {
      */
     @ManyToOne(
         () => Organization,
-        (organization) => organization.policies,
+        (organization) => organization.controlPanels,
     )
     organization: Organization;
+
+    /**
+     * Связь с сущностью M:1 Post.
+     */
+    @ManyToOne(
+        () => Post,
+        (post) => post.controlPanels,
+    )
+    post: Post;
 }

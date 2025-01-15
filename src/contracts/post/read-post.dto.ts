@@ -1,4 +1,5 @@
 import { Account } from 'src/domains/account.entity';
+import { ControlPanel } from 'src/domains/controlPanel.entity';
 import { Convert } from 'src/domains/convert.entity';
 import { ConvertToPost } from 'src/domains/convertToPost.entity';
 import { HistoryUsersToPost } from 'src/domains/historyUsersToPost.entity';
@@ -29,4 +30,5 @@ export class PostReadDto {
   targetHolders: TargetHolder[];
   convertToPosts: ConvertToPost[];
   messages: Message[];
+  controlPanels: ControlPanel[];
 }
