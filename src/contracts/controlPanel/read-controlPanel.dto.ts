@@ -13,6 +13,8 @@ export class ControlPanelReadDto {
 
     orderNumber: number;
 
+    controlPanelNumber: number;
+
     panelType: PanelType;
 
     graphType: GraphType;
