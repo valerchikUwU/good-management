@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, IsUUID } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from "class-validator";
 import { GraphType, PanelType } from "src/domains/controlPanel.entity";
 import { Organization } from "src/domains/organization.entity";
 
@@ -18,6 +18,14 @@ export class ControlPanelCreateDto {
     @IsNotEmpty({ message: 'Название панели не может быть пустым!' })
     panelName: string;
 
+    @ApiProperty({
+        description: 'Порядковый номер панели (минимум 1)',
+        required: true,
+        example: 1,
+    })
+    @IsNumber()
+    @Min(1)
+    orderNumber: number;
 
     @ApiProperty({
         description: 'Тип панели',
@@ -36,7 +44,7 @@ export class ControlPanelCreateDto {
         required: true,
         default: GraphType.DAY,
         example: 'Ежедневные',
-        examples: ['13 недель', 'Месячные', 'Ежедневные'],
+        examples: ['13', '26', '52', 'Ежемесячный', 'Ежедневный', 'Ежегодовой'],
     })
     @IsEnum(GraphType)
     @IsNotEmpty({ message: 'Выберите тип отображения графика!' })
@@ -47,8 +55,9 @@ export class ControlPanelCreateDto {
         required: true,
         example: ['05339d16-b595-4344-9b3b-2c67ed649830'],
     })
+    @IsOptional()
     @IsArray({ message: 'Список Ids статистик должен быть массивом' })
-    statisticIds: string[];
+    statisticIds?: string[];
 
     @ApiProperty({
         description: 'ID организации, с которой связать панель',

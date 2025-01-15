@@ -23,9 +23,12 @@ export enum PanelType {
  * Перечисление типов панели.
  */
 export enum GraphType {
-    WEEK = '13 недель',
-    MONTH = 'Месячные',
-    DAY = 'Ежедневные'
+    YEAR = 'Ежегодовой',
+    WEEK_13 = '13',
+    WEEK_26 = '26',
+    WEEK_52 = '52',
+    MONTH = 'Ежемесячный',
+    DAY = 'Ежедневный'
 }
 
 /**
@@ -57,6 +60,16 @@ export class ControlPanel {
      */
     @Column({ nullable: false })
     panelName: string;
+
+
+    /**
+      * Порядковый номер панели.
+      * 
+      * @remarks
+      * nullable: false.
+      */
+    @Column({ nullable: false })
+    orderNumber: number;
 
     /**
      * Тип панели.
@@ -115,12 +128,12 @@ export class ControlPanel {
     panelToStatistics: PanelToStatistic[];
 
 
-      /**
-       * Связь с сущностью M:1 Organization.
-       */
-      @ManyToOne(
+    /**
+     * Связь с сущностью M:1 Organization.
+     */
+    @ManyToOne(
         () => Organization,
         (organization) => organization.policies,
-      )
-      organization: Organization;
+    )
+    organization: Organization;
 }

@@ -82,6 +82,7 @@ export class ControlPanelService {
             const controlPanel = new ControlPanel();
             controlPanel.panelName = controlPanelCreateDto.panelName;
             controlPanel.panelType = controlPanelCreateDto.panelType;
+            controlPanel.orderNumber = controlPanelCreateDto.orderNumber;
             controlPanel.graphType = controlPanelCreateDto.graphType;
             controlPanel.organization = controlPanelCreateDto.organization;
             const createdControlPanel = await this.controlPanelRepository.save(controlPanel);
