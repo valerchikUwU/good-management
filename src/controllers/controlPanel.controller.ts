@@ -6,6 +6,7 @@ import {
     HttpStatus,
     Inject,
     Param,
+    Patch,
     Post,
     UseGuards,
 } from '@nestjs/common';
@@ -24,6 +25,7 @@ import { OrganizationService } from 'src/application/services/organization/organ
 import { ControlPanelService } from 'src/application/services/controlPanel/controlPanel.service';
 import { ControlPanelReadDto } from 'src/contracts/controlPanel/read-controlPanel.dto';
 import { ControlPanelCreateDto } from 'src/contracts/controlPanel/create-controlPanel.dto';
+import { ControlPanelUpdateDto } from 'src/contracts/controlPanel/update-controlPanel.dto';
 
 @ApiTags('ControlPanels')
 @ApiBearerAuth('access-token')
@@ -166,53 +168,53 @@ export class ControlPanelController {
         return { id: createdControlPanelId };
     }
 
-    // @Patch(':policyDirectoryId/update')
-    // @ApiOperation({ summary: 'Обновить папку для политик' })
-    // @ApiBody({
-    //     description: 'ДТО для обновления папки',
-    //     type: PolicyDirectoryUpdateDto,
-    //     required: true,
-    // })
-    // @ApiResponse({
-    //     status: HttpStatus.CREATED,
-    //     description: 'ОК!',
-    //     example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
-    // })
-    // @ApiResponse({
-    //     status: HttpStatus.BAD_REQUEST,
-    //     description: 'Ошибка валидации!',
-    // })
-    // @ApiResponse({
-    //     status: HttpStatus.UNAUTHORIZED,
-    //     description: 'Вы не авторизованы!',
-    // })
-    // @ApiResponse({
-    //     status: HttpStatus.NOT_FOUND,
-    //     description: 'Папка не найдена!',
-    // })
-    // @ApiResponse({
-    //     status: HttpStatus.INTERNAL_SERVER_ERROR,
-    //     description: 'Ошибка сервера!',
-    // })
-    // @ApiParam({
-    //     name: 'policyDirectoryId',
-    //     required: true,
-    //     description: 'Id папки',
-    //     example: 'a8b9c962-13d7-4b6f-a445-233b51fa6988',
-    // })
-    // async update(
-    //     @Param('policyDirectoryId') policyDirectoryId: string,
-    //     @Body() policyDirectoryUpdateDto: PolicyDirectoryUpdateDto,
-    // ): Promise<{ id: string }> {
-    //     const updatedPolicyDirectoryId = await this.policyDirectoryService.update(
-    //         policyDirectoryId,
-    //         policyDirectoryUpdateDto,
-    //     );
-    //     this.logger.info(
-    //         `${yellow('OK!')} - UPDATED POLICYDIRECTORY: ${JSON.stringify(policyDirectoryUpdateDto)} - Папка успешно обновлена!`,
-    //     );
-    //     return { id: updatedPolicyDirectoryId };
-    // }
+    @Patch(':controlPanelId/update')
+    @ApiOperation({ summary: 'Обновить панель управления' })
+    @ApiBody({
+        description: 'ДТО для обновления панели',
+        type: ControlPanelUpdateDto,
+        required: true,
+    })
+    @ApiResponse({
+        status: HttpStatus.CREATED,
+        description: 'ОК!',
+        example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Ошибка валидации!',
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'Вы не авторизованы!',
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'Панель не найдена!',
+    })
+    @ApiResponse({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        description: 'Ошибка сервера!',
+    })
+    @ApiParam({
+        name: 'controlPanelId',
+        required: true,
+        description: 'Id панели',
+        example: 'a8b9c962-13d7-4b6f-a445-233b51fa6988',
+    })
+    async update(
+        @Param('controlPanelId') controlPanelId: string,
+        @Body() сontrolPanelUpdateDto: ControlPanelUpdateDto,
+    ): Promise<{ id: string }> {
+        const updatedControlPanelId = await this.controlPanelService.update(
+            controlPanelId,
+            сontrolPanelUpdateDto,
+        );
+        this.logger.info(
+            `${yellow('OK!')} - UPDATED CONTROLPANEL: ${JSON.stringify(сontrolPanelUpdateDto)} - Панель успешно обновлена!`,
+        );
+        return { id: updatedControlPanelId };
+    }
 
     @Delete(':controlPanelId/remove')
     @ApiOperation({ summary: 'Удалить панель' })

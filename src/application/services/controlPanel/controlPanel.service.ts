@@ -7,6 +7,7 @@ import { ControlPanelRepository } from "./repository/controlPanel.repository";
 import { PanelToStatisticService } from "../panelToStatistic/panelToStatistic.service";
 import { ControlPanelReadDto } from "src/contracts/controlPanel/read-controlPanel.dto";
 import { ControlPanelCreateDto } from "src/contracts/controlPanel/create-controlPanel.dto";
+import { ControlPanelUpdateDto } from "src/contracts/controlPanel/update-controlPanel.dto";
 
 
 
@@ -99,39 +100,37 @@ export class ControlPanelService {
     }
 
 
-    // async update(_id: string, updatePolicyDto: PolicyUpdateDto): Promise<string> {
-    //     try {
-    //         const policy = await this.policyRepository.findOne({ where: { id: _id } });
-    //         if (!policy) {
-    //             throw new NotFoundException(`Политика с ID ${_id} не найдена`);
-    //         }
-    //         // Обновить свойства, если они указаны в DTO
-    //         if (updatePolicyDto.policyName) policy.policyName = updatePolicyDto.policyName;
-    //         if (updatePolicyDto.state) policy.state = updatePolicyDto.state;
-    //         if (updatePolicyDto.type) policy.type = updatePolicyDto.type;
-    //         if (updatePolicyDto.content) policy.content = updatePolicyDto.content;
-    //         if (updatePolicyDto.state === State.ACTIVE) policy.dateActive = new Date();
+    async update(_id: string, updateControlPanelDto: ControlPanelUpdateDto): Promise<string> {
+        try {
+            const controlPanel = await this.controlPanelRepository.findOne({ where: { id: _id } });
+            if (!controlPanel) {
+                throw new NotFoundException(`Панель с ID ${_id} не найдена`);
+            }
+            // Обновить свойства, если они указаны в DTO
+            if (updateControlPanelDto.panelName) controlPanel.panelName = updateControlPanelDto.panelName;
+            if (updateControlPanelDto.panelType) controlPanel.panelType = updateControlPanelDto.panelType;
+            if (updateControlPanelDto.graphType) controlPanel.graphType = updateControlPanelDto.graphType;
 
-    //         if (updatePolicyDto.policyToOrganizations) {
-    //             await this.policyToOrganizationService.remove(policy);
-    //             await this.policyToOrganizationService.createSeveral(policy, updatePolicyDto.policyToOrganizations);
-    //         }
-    //         await this.policyRepository.update(policy.id, { policyName: policy.policyName, state: policy.state, type: policy.type, content: policy.content, dateActive: policy.dateActive });
-    //         return policy.id
-    //     }
-    //     catch (err) {
+            if (updateControlPanelDto.statisticIds) {
+                await this.panelToStatisticService.remove(controlPanel);
+                await this.panelToStatisticService.createSeveral(controlPanel, updateControlPanelDto.statisticIds);
+            }
+            await this.controlPanelRepository.update(controlPanel.id, { panelName: controlPanel.panelName, panelType: controlPanel.panelType, graphType: controlPanel.graphType });
+            return controlPanel.id
+        }
+        catch (err) {
 
-    //         this.logger.error(err);
-    //         // Обработка специфичных исключений
-    //         if (err instanceof NotFoundException) {
-    //             throw err; // Пробрасываем исключение дальше
-    //         }
+            this.logger.error(err);
+            // Обработка специфичных исключений
+            if (err instanceof NotFoundException) {
+                throw err; // Пробрасываем исключение дальше
+            }
 
-    //         // Обработка других ошибок
-    //         throw new InternalServerErrorException('Ошибка при обновлении политики');
-    //     }
+            // Обработка других ошибок
+            throw new InternalServerErrorException('Ошибка при обновлении политики');
+        }
 
-    // }
+    }
 
 
 
