@@ -173,52 +173,55 @@ export class TargetController {
     const holderPost = await this.postService.findOneById(targetCreateDto.holderPostId);
     targetCreateDto.holderPost = holderPost;
     const createdTarget = await this.targetService.create(targetCreateDto);
-    this.logger.info(               
+    this.logger.info(
       `${yellow('OK!')} - CREATED TARGET: ${JSON.stringify(targetCreateDto)} - Личная задача успешно создана!`,
     );
     return { id: createdTarget.id };
   }
 
-    @Patch(':targetId/update')
-    @ApiOperation({ summary: 'Обновить личную задачу по Id' })
-    @ApiBody({
-      description: 'ДТО для обновления задачи',
-      type: TargetUpdateDto,
-      required: true,
-    })
-    @ApiResponse({
-      status: HttpStatus.OK,
-      description: 'ОК!',
-      example: {id: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05'},
-    })
-    @ApiResponse({
-      status: HttpStatus.UNAUTHORIZED,
-      description: 'Вы не авторизованы!',
-    })
-    @ApiResponse({
-      status: HttpStatus.BAD_REQUEST,
-      description: 'Ошибка валидации!',
-    })
-    @ApiResponse({
-      status: HttpStatus.NOT_FOUND,
-      description: `Задача не найдена!`,
-    })
-    @ApiResponse({
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
-      description: 'Ошибка сервера!',
-    })
-    @ApiParam({ name: 'targetId', required: true, description: 'Id задачи' })
-    async update(
-      @Param('targetId') targetId: string,
-      @Body() targetUpdateDto: TargetUpdateDto,
-    ): Promise<{ id: string }> {
-  
-      const updatedTargetId = await this.targetService.update(targetUpdateDto);
-      
-      this.logger.info(
-        `${yellow('OK!')} - targetUpdateDto: ${JSON.stringify(targetUpdateDto)} - Задача успешно обновлена!`,
-      );
-      return { id: updatedTargetId };
+  @Patch(':targetId/update')
+  @ApiOperation({ summary: 'Обновить личную задачу по Id' })
+  @ApiBody({
+    description: 'ДТО для обновления задачи',
+    type: TargetUpdateDto,
+    required: true,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: { id: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05' },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: `Задача не найдена!`,
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({ name: 'targetId', required: true, description: 'Id задачи' })
+  async update(
+    @Param('targetId') targetId: string,
+    @Body() targetUpdateDto: TargetUpdateDto,
+  ): Promise<{ id: string }> {
+    if (targetUpdateDto.holderPostId) {
+      const holderPost = await this.postService.findOneById(targetUpdateDto.holderPostId);
+      targetUpdateDto.holderPost = holderPost;
     }
-  
+    const updatedTargetId = await this.targetService.update(targetUpdateDto);
+
+    this.logger.info(
+      `${yellow('OK!')} - targetUpdateDto: ${JSON.stringify(targetUpdateDto)} - Задача успешно обновлена!`,
+    );
+    return { id: updatedTargetId };
+  }
+
 }

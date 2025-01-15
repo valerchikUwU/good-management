@@ -153,12 +153,6 @@ export class TargetService {
       return createdTarget;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при создании задачи');
     }
   }
