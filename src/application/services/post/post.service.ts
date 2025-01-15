@@ -49,9 +49,11 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
+        convert: post.convert,
         historiesUsersToPost: post.historiesUsersToPost,  
         targetHolders: post.targetHolders,
-        convertToPosts: post.convertToPosts
+        convertToPosts: post.convertToPosts,
+        messages: post.messages
       }));
     } catch (err) {
       this.logger.error(err);
@@ -62,10 +64,13 @@ export class PostService {
     }
   }
 
-  async findAllForUser(userId: string, relations?: string[]): Promise<PostReadDto[]> {
+  async findAllForUserInOrganization(userId: string, organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { user: { id: userId }},
+        where: { 
+          user: { id: userId },
+          organization: {id: organizationId}
+        },
         relations: relations !== undefined ? relations : [],
       });
 
@@ -84,9 +89,11 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
+        convert: post.convert,
         historiesUsersToPost: post.historiesUsersToPost,  
         targetHolders: post.targetHolders,
-        convertToPosts: post.convertToPosts
+        convertToPosts: post.convertToPosts,
+        messages: post.messages
       }));
     } catch (err) {
       this.logger.error(err);
@@ -119,9 +126,11 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
+        convert: post.convert,
         historiesUsersToPost: post.historiesUsersToPost,  
         targetHolders: post.targetHolders,
-        convertToPosts: post.convertToPosts
+        convertToPosts: post.convertToPosts,
+        messages: post.messages
       }));
     } catch (err) {
       this.logger.error(err);
@@ -157,9 +166,11 @@ export class PostService {
         statistics: post.statistics,
         organization: post.organization,
         account: post.account,
+        convert: post.convert,
         historiesUsersToPost: post.historiesUsersToPost,  
         targetHolders: post.targetHolders,
-        convertToPosts: post.convertToPosts
+        convertToPosts: post.convertToPosts,
+        messages: post.messages
       };
 
       return postReadDto;

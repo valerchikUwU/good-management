@@ -10,18 +10,25 @@ import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Message } from './message.entity';
 import { ConvertToPost } from './convertToPost.entity';
+import { Post } from './post.entity';
 
 /**
  * Перечисление типов конвертов.
  */
 export enum TypeConvert {
-  /** Прямой тип конверта. */
-  DIRECT = 'Прямой',
-  /** Конвертация через приказ. */
+  CHAT = 'Переписка',
   ORDER = 'Приказ',
-  /** Конвертация для согласования. */
-  COORDINATION = 'Согласование',
+  PROPOSAL = 'Заявка',
 }
+/**
+ * Перечисление маршрутов конвертов.
+ */
+export enum PathConvert {
+  DIRECT = 'Прямой',
+  COORDINATION = 'Согласование',
+  REQUEST = 'Запрос',
+}
+
 
 /**
  * Сущность Convert.
@@ -78,6 +85,22 @@ export class Convert {
   pathOfPosts: string[];
 
   /**
+   * Тип маршрута конверта.
+   * 
+   * @remarks
+   * Использует перечисление PathConvert. Поле может быть пустым.
+   * 
+   * @example
+   * PathConvert.DIRECT
+   */
+  @Column({
+    type: 'enum',
+    enum: PathConvert,
+    nullable: false,
+  })
+  convertPath: PathConvert;
+
+  /**
    * Тип конвертации.
    * 
    * @remarks
@@ -89,9 +112,23 @@ export class Convert {
   @Column({
     type: 'enum',
     enum: TypeConvert,
-    nullable: true,
+    nullable: false,
   })
   convertType: TypeConvert;
+
+
+
+  /**
+   * Статус конверта.
+   * 
+   * @remarks
+   * default: true, nullable: false. true - активен, false - завершен
+   * 
+   * @example
+   * true
+   */
+    @Column({ default: true, nullable: false })
+    convertStatus: boolean;
 
   /**
    * Идентификатор пользователя, который должен подтвердить получение конверта.
@@ -147,8 +184,8 @@ export class Convert {
    * @remarks
    * nullable: false.
    */
-  @ManyToOne(() => User, (user) => user.convert, { nullable: false })
-  host: User;
+  @ManyToOne(() => Post, (post) => post.convert, { nullable: false })
+  host: Post;
 
   /**
    * Связь с аккаунтом (M:1 Account).

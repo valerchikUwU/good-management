@@ -14,6 +14,7 @@ import { TargetHolderService } from '../targetHolder/targetHolder.service';
 import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
 import { TargetUpdateDto } from 'src/contracts/target/update-target.dto';
 import { Logger } from 'winston';
+import { IsNull, Not } from 'typeorm';
 
 @Injectable()
 export class TargetService {
@@ -24,17 +25,15 @@ export class TargetService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllPersonal(userId: string): Promise<TargetReadDto[]> {
+  async findAllPersonalForPost(postId: string): Promise<TargetReadDto[]> {
     try {
-      const targets = await this.targetRepository
-      .createQueryBuilder('target')
-      .leftJoin('target.project', 'project')
-      .leftJoin('target.targetHolders', 'targetHolders')
-      .leftJoin('targetHolders.post', 'post')
-      .leftJoin('post.user', 'user')
-      .where('project.id IS NULL')
-      .andWhere('post.user.id = :userId', {userId: userId})
-      .getMany()
+      const targets = await this.targetRepository.find({
+        where: {
+          holderPostId: postId,
+          project: {id: IsNull()},
+          type: Type.PERSONAL
+        }
+      })
 
       return targets.map((target) => ({
         id: target.id,
@@ -61,17 +60,14 @@ export class TargetService {
   }
 
 
-  async findAllFromProjects(userId: string): Promise<TargetReadDto[]> {
+  async findAllFromProjectsForPost(postId: string): Promise<TargetReadDto[]> {
     try {
-      const targets = await this.targetRepository
-      .createQueryBuilder('target')
-      .leftJoin('target.project', 'project')
-      .leftJoin('target.targetHolders', 'targetHolders')
-      .leftJoin('targetHolders.post', 'post')
-      .leftJoin('post.user', 'user')
-      .where('project.id IS NOT NULL')
-      .andWhere('post.user.id = :userId', {userId: userId})
-      .getMany()
+      const targets = await this.targetRepository.find({
+        where: {
+          holderPostId: postId,
+          project: {id: Not(IsNull())},
+        }
+      })
 
       return targets.map((target) => ({
         id: target.id,

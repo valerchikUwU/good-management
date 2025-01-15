@@ -164,18 +164,6 @@ export class User {
   projects: Project[];
 
   /**
-   * Связь с сущностью 1:M Convert.
-   */
-  @OneToMany(() => Convert, (convert) => convert.host)
-  convert: Convert;
-
-  /**
-   * Связь с сущностью 1:M Message.
-   */
-  @OneToMany(() => Message, (message) => message.sender)
-  messages: Message[];
-
-  /**
    * Связь с сущностью 1:M GroupToUser.
    */
   @OneToMany(() => GroupToUser, (groupToUser) => groupToUser.user)

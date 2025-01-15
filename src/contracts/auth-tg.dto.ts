@@ -1,39 +1,26 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { ReadUserDto } from './user/read-user.dto';
+import { Exclude, Type } from 'class-transformer';
 
 export class AuthTG {
-  @ApiProperty({ description: 'Номер телефона' })
-  @IsString()
-  telephoneNumber: string;
 
   @ApiProperty({ description: 'Телеграм id' })
   @IsNumber()
+  @IsNotEmpty()
   telegramId: number;
 
   @ApiProperty({ description: 'Id сокета клиента' })
   @IsString()
+  @IsNotEmpty()
   clientId: string;
 
   @ApiProperty({ description: 'Токен логина' })
   @IsString()
+  @IsNotEmpty()
   token: string;
 
-  @ApiProperty({ description: 'Флаг для создания пользователя' })
-  @IsOptional()
-  @IsBoolean()
-  createUserFlag?: boolean;
-
-  @ApiProperty({
-    description: 'Имя юзера, если он логиниться через тг первый раз',
-  })
-  @IsOptional()
-  @IsString()
-  firstName?: string;
-
-  @ApiProperty({
-    description: 'Фамилия юзера, если он логиниться через тг первый раз',
-  })
-  @IsOptional()
-  @IsString()
-  lastName?: string;
+  @ValidateNested()
+  @Type(() => ReadUserDto) 
+  user: ReadUserDto
 }

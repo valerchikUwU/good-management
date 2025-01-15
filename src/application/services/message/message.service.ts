@@ -7,8 +7,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Logger } from 'winston';
-import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
-import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageRepository } from './repository/message.repository';
 import { Message } from 'src/domains/message.entity';
 import { MessageReadDto } from 'src/contracts/message/read-message.dto';
@@ -35,22 +33,14 @@ export class MessageService {
     }));
   }
 
-  async create(messageCreateDto: MessageCreateDto): Promise<boolean> {
+  async create(messageCreateDto: MessageCreateDto): Promise<Message> {
     try {
       // Используем метод insert
-      await this.messageRepository.insert({
-        content: messageCreateDto.content,
-        convert: messageCreateDto.convert,
-        sender: messageCreateDto.sender,
-      });
+      const createdMessage = await this.messageRepository.save(messageCreateDto);
 
-      return true; // Возвращаем полное сообщение
+      return createdMessage; // Возвращаем полное сообщение
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException('Ошибка при создании сообщения');
     }
   }
@@ -67,7 +57,7 @@ export class MessageService {
         throw new NotFoundException(`Сообщение с ID ${_id} не найден`);
       }
       if (messageUpdateDto.content) message.content = messageUpdateDto.content;
-      return this.messageRepository.save(message);
+      return await this.messageRepository.save(message);
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений

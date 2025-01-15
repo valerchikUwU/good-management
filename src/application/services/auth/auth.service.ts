@@ -31,7 +31,7 @@ export class AuthService {
   ) {}
 
   async validateUser(payload: JwtPayloadInterface): Promise<User> {
-    return await this.usersService.findOne(payload.id, ['account']);
+    return await this.usersService.findOne(payload.id, ['account', 'posts']);
   }
 
   async authenticateVK(

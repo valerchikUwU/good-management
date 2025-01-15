@@ -6,9 +6,10 @@ import { User } from 'src/domains/user.entity';
 import { UsersRepository } from '../services/users/Repository/users.repository';
 import { RoleSettingModule } from './roleSetting.module';
 import { RoleModule } from './role.module';
+import { OrganizationModule } from './organization.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), RoleSettingModule, RoleModule],
+  imports: [TypeOrmModule.forFeature([User]), RoleSettingModule, RoleModule, OrganizationModule],
   providers: [UsersService, UsersRepository],
   controllers: [UsersController],
   exports: [UsersService],

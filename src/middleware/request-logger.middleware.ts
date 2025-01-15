@@ -11,8 +11,11 @@ export class RequestLoggerMiddleware implements NestMiddleware {
       if (
         statusCode === 401 ||
         statusCode === 400 ||
+        statusCode === 403 ||
         statusCode === 404 ||
-        statusCode === 405
+        statusCode === 405 ||
+        statusCode === 500 ||
+        statusCode === 502 
       ) {
         this.logger.warn(`[${req.method}] ${req.url} - ${statusCode}`);
       }

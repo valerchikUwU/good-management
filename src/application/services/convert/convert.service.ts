@@ -14,6 +14,7 @@ import { Logger } from 'winston';
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertToPostService } from '../convertToPost/convertToPost.service';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
+import { In } from 'typeorm';
 
 @Injectable()
 export class ConvertService {
@@ -24,9 +25,9 @@ export class ConvertService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForUser(userId: string): Promise<ConvertReadDto[]> {
+  async findAllForUserPosts(userPostsIds: string[]): Promise<ConvertReadDto[]> {
     const converts = await this.convertRepository.find({
-      where: { convertToPosts: { post: {user: {id: userId}} } },
+      where: { convertToPosts: { post: {id: In(userPostsIds)}} },
     });
     return converts.map((convert) => ({
       id: convert.id,
@@ -34,6 +35,8 @@ export class ConvertService {
       pathOfPosts: convert.pathOfPosts,
       expirationTime: convert.expirationTime,
       convertType: convert.convertType,
+      convertPath: convert.convertPath,
+      convertStatus: convert.convertStatus,
       activePostId: convert.activePostId,
       dateFinish: convert.dateFinish,
       createdAt: convert.createdAt,
@@ -58,6 +61,8 @@ export class ConvertService {
         pathOfPosts: convert.pathOfPosts,
         expirationTime: convert.expirationTime,
         convertType: convert.convertType,
+        convertPath: convert.convertPath,
+        convertStatus: convert.convertStatus,
         activePostId: convert.activePostId,
         dateFinish: convert.dateFinish,
         createdAt: convert.createdAt,
@@ -86,6 +91,7 @@ export class ConvertService {
       convert.pathOfPosts = convertCreateDto.pathOfPosts;
       convert.expirationTime = convertCreateDto.expirationTime;
       convert.convertType = convertCreateDto.convertType;
+      convert.convertPath = convertCreateDto.convertPath;
       convert.activePostId = convertCreateDto.pathOfPosts[1];
       convert.dateFinish = convertCreateDto.dateFinish;
       convert.host = convertCreateDto.host;
@@ -113,6 +119,9 @@ export class ConvertService {
       if (convertUpdateDto.activePostId) {
         convert.activePostId = convertUpdateDto.activePostId;
       }
+      if (convertUpdateDto.convertStatus) {
+        convert.convertStatus = convertUpdateDto.convertStatus;
+      }
       if (convertUpdateDto.convertToPostIds) {
         await this.convertToPostService.remove(convert);
         await this.convertToPostService.createSeveral(
@@ -122,6 +131,7 @@ export class ConvertService {
       }
       await this.convertRepository.update(convert.id, {
         activePostId: convert.activePostId,
+        convertStatus: convert.convertStatus
       });
       return convert.id;
     } catch (err) {

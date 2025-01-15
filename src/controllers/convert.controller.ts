@@ -1,11 +1,13 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpStatus,
   Inject,
   Ip,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -27,11 +29,14 @@ import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { PostService } from 'src/application/services/post/post.service';
 import { ConvertGateway } from 'src/gateways/convert.gateway';
-import { TypeConvert } from 'src/domains/convert.entity';
+import { PathConvert, TypeConvert } from 'src/domains/convert.entity';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express'
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { TargetService } from 'src/application/services/target/target.service';
+import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
+import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
+import { MessageService } from 'src/application/services/message/message.service';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -40,10 +45,12 @@ import { TargetService } from 'src/application/services/target/target.service';
 export class ConvertController {
   constructor(
     private readonly convertService: ConvertService,
+    private readonly messageService: MessageService,
     private readonly postService: PostService,
     private readonly targetService: TargetService,
+    private readonly convertGateway: ConvertGateway,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Все чаты' })
@@ -66,7 +73,8 @@ export class ConvertController {
   })
   async findAll(@Req() req: ExpressRequest): Promise<ConvertReadDto[]> {
     const user = req.user as ReadUserDto;
-    const converts = await this.convertService.findAllForUser(user.id);
+    const userPostsIds = user.posts.map(post => post.id)
+    const converts = await this.convertService.findAllForUserPosts(userPostsIds);
     return converts;
   }
 
@@ -162,14 +170,24 @@ export class ConvertController {
     description: 'Ошибка сервера!',
   })
   async findOne(
+    @Req() req: ExpressRequest,
     @Param('convertId') convertId: string,
   ): Promise<ConvertReadDto> {
+    const user = req.user as ReadUserDto;
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
       'host',
       'messages.sender',
     ]);
-    return convert;
+    const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id)
+    if(userIdsInConvert.includes(user.id)){
+      return convert;
+    }
+    else {
+      const err = new ForbiddenException('У вас нет доступа к этому чату!');
+      this.logger.error(err)
+      throw err;
+    }
   }
 
   @Post('new')
@@ -192,23 +210,23 @@ export class ConvertController {
   })
   async create(
     @Req() req: ExpressRequest,
-    @Query('senderPostId') senderPostId: string,
-    @Query('reciverPostId') reciverPostId: string,
     @Body() convertCreateDto: ConvertCreateDto,
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
+    const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId)
+    console.log()
     const [postIdsFromSenderToTop, postIdsFromRecieverToTop] =
       await Promise.all([ // условие на DIRECT поставить выше чтобы не выолнять лишние запросы к БД
-        await this.postService.getHierarchyToTop(senderPostId),
-        await this.postService.getHierarchyToTop(reciverPostId),
+        await this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
+        await this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
       ]);
     const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
       postIdsFromRecieverToTop.includes(postId),
     );
     const postIdsFromSenderToReciver: string[] = [];
     console.log(isCommonDivision);
-    if (convertCreateDto.convertType === TypeConvert.DIRECT) {
-      postIdsFromSenderToReciver.push(senderPostId, reciverPostId);
+    if (convertCreateDto.convertPath === PathConvert.DIRECT) {
+      postIdsFromSenderToReciver.push(convertCreateDto.senderPostId, convertCreateDto.reciverPostId);
     } else if (isCommonDivision) {
       postIdsFromSenderToReciver.push(
         ...createPathInOneDivision(
@@ -227,19 +245,94 @@ export class ConvertController {
     console.log(postIdsFromRecieverToTop);
     console.log(postIdsFromSenderToReciver);
     convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
-    convertCreateDto.host = user;
+    convertCreateDto.host = userPost;
     convertCreateDto.account = user.account;
+    convertCreateDto.targetCreateDto.holderPost = await this.postService.findOneById(convertCreateDto.reciverPostId)
     const [targetId, createdConvert] =
-    await Promise.all([ 
-      await this.targetService.create(convertCreateDto.targetCreateDto),
-      await this.convertService.create(convertCreateDto),
-    ]);
+      await Promise.all([
+        await this.targetService.create(convertCreateDto.targetCreateDto),
+        await this.convertService.create(convertCreateDto),
+      ]);
+    this.convertGateway.handleConvertExtensionEvent(createdConvert, createdConvert.activePostId)
     this.logger.info(
       `${yellow('OK!')} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый конверт!`,
     );
     return { id: createdConvert.id };
   }
+
+  @Patch(':convertId/approve')
+  @ApiOperation({ summary: 'Завершить конверт' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'ОК!',
+    example: {
+      id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  async approve(
+    @Param('convertId') convertId: string,
+  ): Promise<string> {
+    const convert = await this.convertService.findOneById(convertId);
+    const convertUpdateDto: ConvertUpdateDto = {
+      _id: convert.id,
+      convertStatus: false,
+    };
+    const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    return finishedConvertId;
+    // const nextPost = await this.postService.findOneById(convert.pathOfPosts[indexOfActivePostId + 1]); // МОЖЕТ БЫТЬ NULL когда последний пост, соответственно аккуратно с nextPost.user.id
+    // const newConvertToPostIds = payload.convertToPostIds.concat(nextPost.id);
+    // const convertUpdateDto: ConvertUpdateDto = {
+    //   _id: convert.id,
+    //   convertToPostIds: newConvertToPostIds,
+    //   activePostId: nextPost.id,
+    // };
+    // await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+
+    // return { success: true, message: 'Одобрение выполнено успешно' };
+  }
+
+
+  @Patch(':convertId/sendMessage')
+  @ApiOperation({ summary: 'Отправить сообщение' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'ОК!',
+    example: {
+      id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  async sendMessage(
+    @Req() req: ExpressRequest,
+    @Param('convertId') convertId: string,
+    @Body() messageCreateDto: MessageCreateDto
+  ): Promise<string> {
+    const user = req.user as ReadUserDto;
+    const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId)
+    const convert = await this.convertService.findOneById(convertId);
+    messageCreateDto.convert = convert;
+    messageCreateDto.sender = userSenderPost;
+    const createdMessage = await this.messageService.create(messageCreateDto);
+    this.convertGateway.handleMessageCreationEvent(convertId, createdMessage);
+    return createdMessage.id;
+  }
+
 }
+
+
+
+
+
+
+
+
 
 function createPathInOneDivision(arr1: string[], arr2: string[]) {
   // Элементы, которые есть в arr1, но нет в arr2

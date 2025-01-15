@@ -6,7 +6,7 @@ import { ConvertModule } from './convert.module';
 import { PostModule } from './post.module';
 
 @Module({
-  imports: [MessageModule, ConvertModule, PostModule],
+  imports: [ConvertModule],
   providers: [EventsGateway, ConvertGateway],
   exports: [EventsGateway, ConvertGateway],
 })

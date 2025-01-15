@@ -136,7 +136,7 @@ export class StatisticController {
   })
   @ApiQuery({
     name: 'statisticData',
-    required: true,
+    required: false,
     description: 'Флаг для отправки доп. данных (точек)',
     example: true,
   })

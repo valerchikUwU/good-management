@@ -4,6 +4,7 @@ import {
   Get, 
   HttpStatus, 
   Inject, 
+  Param, 
   Post, 
   Req, 
   UseGuards 
@@ -37,7 +38,7 @@ export class TargetController {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  @Get()
+  @Get(':organizationId/:postId')
   @ApiOperation({ summary: 'Личные задачи и задачи из проектов' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -54,16 +55,18 @@ export class TargetController {
     description: 'Ошибка сервера!',
   })
   async findAll(
-    @Req() req: ExpressRequest
+    @Req() req: ExpressRequest,
+    @Param('organizationId') organizationId: string,
+    @Param('postId') postId: string,
   ): Promise<{
     userPosts: PostReadDto[];
     personalTargets: TargetReadDto[];
     projectTargets: TargetReadDto[];
   }> {
     const user = req.user as ReadUserDto;
-    const userPosts = await this.postService.findAllForUser(user.id);
-    const personalTargets = await this.targetService.findAllPersonal(user.id);
-    const projectTargets = await this.targetService.findAllFromProjects(user.id);
+    const userPosts = await this.postService.findAllForUserInOrganization(user.id, organizationId);
+    const personalTargets = await this.targetService.findAllPersonalForPost(postId);
+    const projectTargets = await this.targetService.findAllFromProjectsForPost(postId);
     return { userPosts: userPosts, personalTargets: personalTargets, projectTargets: projectTargets };
   }
 

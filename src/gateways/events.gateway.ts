@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  GatewayTimeoutException,
   Inject,
   InternalServerErrorException,
   NotFoundException,
@@ -81,7 +82,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async requestInfoFromClient(
     clientId: string,
     expectedData: string[],
-    timeoutMs = 3000, // Тайм-аут в миллисекундах
   ): Promise<Record<string, any>> {
     const client = this.clients.get(clientId);
     if (!client) {
@@ -89,22 +89,20 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     const payload = { expectedData, clientId };
     client.emit('requestInfo', payload);
-    return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        reject(new Error(`Timeout waiting for response from client: ${clientId}`));
-      }, timeoutMs);
-
-      client.once('responseFromClient', async (data) => {
-        clearTimeout(timeout);
-        const clientCredentialsDto = plainToInstance(ClientCredentialsDto, data);
-        await validateOrReject(clientCredentialsDto).catch(errors => {
-          reject(new BadRequestException(errors));
+    return await Promise.race([
+      new Promise<ClientCredentialsDto>((resolve, reject) => {
+        client.once('responseFromClient', async (data) => {
+          const clientCredentialsDto = plainToInstance(ClientCredentialsDto, data);
+          await validateOrReject(clientCredentialsDto).catch(errors => {
+            reject(new BadRequestException(errors));
+          });
+          resolve(clientCredentialsDto); // Завершаем промис
         });
-        resolve(data); // Завершаем промис
-      });
-    });
-
-
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error(`Превышено время ожидания ответа от соединения: ${clientId}`)), 5000),
+      )
+    ]).catch((err) => this.logger.error(err))
   }
 
 

@@ -8,6 +8,8 @@ import { ConvertController } from 'src/controllers/convert.controller';
 import { PostModule } from './post.module';
 import { EventsModule } from './events.module';
 import { TargetModule } from './target.module';
+import { MessageModule } from './message.module';
+import { ConvertGateway } from 'src/gateways/convert.gateway';
 
 @Module({
   imports: [
@@ -15,6 +17,8 @@ import { TargetModule } from './target.module';
     ConvertToPostModule,
     PostModule,
     TargetModule,
+    MessageModule,
+    ConvertGateway,
     forwardRef(() => EventsModule),
   ],
   controllers: [ConvertController],

@@ -26,7 +26,6 @@ import { UserVkAuthDto } from '../contracts/user/user-vkauth-dto';
 import { AuthVK } from '../contracts/auth-vk.dto';
 import { AuthService } from '../application/services/auth/auth.service';
 import { UsersService } from '../application/services/users/users.service';
-import { CreateUserDto } from 'src/contracts/user/create-user.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { RefreshTokenGuard } from 'src/guards/refreshToken.guard';
 import { EventsGateway } from 'src/gateways/events.gateway';
@@ -116,6 +115,8 @@ export class AuthController {
       );
       res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, {
         httpOnly: true,
+        path: '/auth',
+        // secure: true, ДОБАВИТЬ В ПРОДЕ
         maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
       });
       return authenticateResult._user;
@@ -224,21 +225,28 @@ export class AuthController {
   }
 
   @Post('login/tg')
-  @ApiOperation({ summary: 'НЕ ЧИПАТЬ!' })
-  async tg(@Body() authTg: AuthTG): Promise<void> {
+  @ApiOperation({ summary: 'Запрос для телеграм бота, с помощью которого происходит аутентификация' })
+  @ApiBody({
+    description: 'ДТО данных для аутентификации',
+    type: AuthTG,
+    required: true,
+  })
+  async loginTG(@Body() authTg: AuthTG): Promise<void> {
     // Запрашиваем у клиента необходимую информацию
     const requiredInfo = ['fingerprint', 'userAgent', 'ip', 'token'];
-    const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo).catch();
+    const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo);
 
     if (clientInfo.token === authTg.token) {
-      const user = await this.userService.findOneByTelephoneNumber(authTg.telephoneNumber);
-      console.log(user.telegramId)
-      if (user.telegramId === null) {
-        const updateTgAuthUserDto: UpdateTgAuthUserDto = { telegramId: authTg.telegramId };
-        await this.userService.updateTgAuth(user, updateTgAuthUserDto);
+      console.log(authTg.user.telegramId)
+      if (authTg.user.telegramId === null) {
+        const updateTgAuthUserDto: UpdateUserDto = {
+          id: authTg.user.id,
+          telegramId: authTg.telegramId
+        };
+        await this.userService.update(authTg.user.id, updateTgAuthUserDto);
       }
       const authenticateResult = await this.authService.authenticateTG(
-        user.id,
+        authTg.user.id,
         clientInfo.ip,
         clientInfo.userAgent,
         clientInfo.fingerprint,

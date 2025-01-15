@@ -9,6 +9,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
+import { Organization } from 'src/domains/organization.entity';
 import { Role } from 'src/domains/role.entity';
 
 export class CreateUserDto {
@@ -61,8 +62,19 @@ export class CreateUserDto {
   @IsUUID()
   roleId?: string;
 
+  @ApiProperty({
+    description: 'ID организации',
+    required: false,
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
+  })
+  @IsUUID()
+  organizationId?: string;
+
   @Exclude({ toPlainOnly: true })
   role: Role;
+
+  @Exclude({ toPlainOnly: true })
+  organization?: Organization;
 
   @Exclude({ toPlainOnly: true })
   account: Account;

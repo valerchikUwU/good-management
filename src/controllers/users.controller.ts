@@ -8,12 +8,14 @@ import {
   HttpStatus,
   Inject,
   Ip,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from 'src/application/services/users/users.service';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { CreateUserDto } from 'src/contracts/user/create-user.dto';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiHeader,
   ApiOperation,
@@ -21,26 +23,30 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from 'src/domains/user.entity';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { RoleSettingCreateDto } from 'src/contracts/roleSetting/create-roleSetting.dto';
 import { RoleSettingService } from 'src/application/services/roleSetting/roleSetting.service';
 import { RoleService } from 'src/application/services/role/role.service';
 import { RoleReadDto } from 'src/contracts/role/read-role.dto';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { OrganizationService } from 'src/application/services/organization/organization.service';
 
 @ApiTags('User')
-@Controller(':userId/users')
+@ApiBearerAuth('access-token')
+@UseGuards(AccessTokenGuard)
+@Controller('users')
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
+    private readonly organizationService: OrganizationService,
     private readonly roleSettingService: RoleSettingService,
     private readonly roleService: RoleService,
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  @Get()
-  @ApiOperation({ summary: 'Все пользователи' })
+  @Get(':organizationId/organization')
+  @ApiOperation({ summary: 'Все пользователи в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
@@ -61,18 +67,21 @@ export class UsersController {
     ],
   })
   @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'organizationId',
     required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async findAll(@Param('userId') userId: string): Promise<ReadUserDto[]> {
-    const user = await this.usersService.findOne(userId, ['account']);
-    return this.usersService.findAllForAccount(user.account);
+  async findAll(@Param('organizationId') organizationId: string): Promise<ReadUserDto[]> {
+    return await this.usersService.findAllForOrganization(organizationId);
   }
 
   @Get('new')
@@ -107,7 +116,7 @@ export class UsersController {
     return await this.roleService.findAll();
   }
 
-  @Get(':id')
+  @Get(':userId')
   @ApiOperation({ summary: 'Получить пользователя по Id' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -124,6 +133,14 @@ export class UsersController {
       createdAt: '1900-01-01 00:00:00',
       updatedAt: '1900-01-01 00:00:00',
     },
+  })  
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: `Пользователь не найден!`,
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -136,7 +153,7 @@ export class UsersController {
     example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async findOne(@Param('id') id: string): Promise<ReadUserDto> {
-    return this.usersService.findOne(id);
+    return await this.usersService.findOne(id);
   }
 
   @Post('new')
@@ -146,24 +163,36 @@ export class UsersController {
     type: CreateUserDto,
     required: true,
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'ОК!',
+    example: {"id": "71ba1ba2-9e53-4238-9bb2-14a475460689"},
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   async create(
-    @Param('userId') userId: string,
     @Body() userCreateDto: CreateUserDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const user = await this.usersService.findOne(userId, ['account']);
-    const role = await this.roleService.findOneById(userCreateDto.roleId);
-    userCreateDto.account = user.account;
+    const [organization, role] = await Promise.all([
+      await this.organizationService.findOneById(userCreateDto.organizationId, ['account']),
+      await this.roleService.findOneById(userCreateDto.roleId)
+    ])
     userCreateDto.role = role;
+    userCreateDto.organization = organization;
+    userCreateDto.account = organization.account;
     const createdUserId = await this.usersService.create(userCreateDto);
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - userCreateDto: ${JSON.stringify(userCreateDto)} - Создан юзер!`,
+      `${yellow('OK!')} - userCreateDto: ${JSON.stringify(userCreateDto)} - Создан контакт!`,
     );
     return { id: createdUserId };
   }

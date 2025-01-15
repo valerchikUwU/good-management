@@ -73,6 +73,16 @@ export class PostCreateDto {
   responsibleUserId?: string;
 
   @ApiProperty({
+    description: 'ID политики',
+    required: false,
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
+  })
+  @IsOptional()
+  @IsUUID()
+  @IsNotEmpty()
+  policyId?: string;
+
+  @ApiProperty({
     description: 'ID организации, с которой связать пост',
     required: true,
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',

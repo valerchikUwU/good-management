@@ -1,23 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
-  ArrayNotEmpty,
-  IsArray,
-  IsNotEmpty,
-  IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 import { Convert } from 'src/domains/convert.entity';
-import { User } from 'src/domains/user.entity';
+import { Post } from 'src/domains/post.entity';
 
 export class MessageCreateDto {
   @IsString()
   content: string;
 
+  @IsString()
+  postId: string;
+
   @Exclude({ toPlainOnly: true })
   convert: Convert;
 
   @Exclude({ toPlainOnly: true })
-  sender: User;
+  sender: Post;
 }

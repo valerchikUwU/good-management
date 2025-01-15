@@ -17,6 +17,8 @@ import { Account } from './account.entity';
 import { HistoryUsersToPost } from './historyUsersToPost.entity';
 import { TargetHolder } from './targetHolder.entity';
 import { ConvertToPost } from './convertToPost.entity';
+import { Convert } from './convert.entity';
+import { Message } from './message.entity';
 
 /**
  * Сущность, представляющая должность (пост).
@@ -155,6 +157,12 @@ export class Post {
   account: Account;
 
   /**
+   * Связь с сущностью 1:M Convert.
+   */
+  @OneToMany(() => Convert, (convert) => convert.host)
+  convert: Convert;
+
+  /**
    * Связь с сущностью 1:M Statistic.
    */
   @OneToMany(() => Statistic, (statistic) => statistic.post)
@@ -177,4 +185,11 @@ export class Post {
    */
   @OneToMany(() => ConvertToPost, (convertToPost) => convertToPost.post)
   convertToPosts: ConvertToPost[];
+
+
+  /**
+   * Связь с сущностью 1:M Message.
+   */
+  @OneToMany(() => Message, (message) => message.sender)
+  messages: Message[];
 }

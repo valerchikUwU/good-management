@@ -46,8 +46,6 @@ export class UsersService {
       organization: user.organization,
       account: user.account,
       role: user.role,
-      convert: user.convert,
-      messages: user.messages,
       groupToUsers: user.groupToUsers,
       historiesUsersToPost: user.historiesUsersToPost
 
@@ -84,8 +82,6 @@ export class UsersService {
         organization: user.organization,
         account: user.account,
         role: user.role,
-        convert: user.convert,
-        messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
 
@@ -128,8 +124,6 @@ export class UsersService {
         organization: user.organization,
         account: user.account,
         role: user.role,
-        convert: user.convert,
-        messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
 
@@ -171,8 +165,6 @@ export class UsersService {
         organization: user.organization,
         account: user.account,
         role: user.role,
-        convert: user.convert,
-        messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
       };
@@ -224,8 +216,6 @@ export class UsersService {
         organization: user.organization,
         account: user.account,
         role: user.role,
-        convert: user.convert,
-        messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
       };
@@ -273,8 +263,6 @@ export class UsersService {
         organization: user.organization,
         account: user.account,
         role: user.role,
-        convert: user.convert,
-        messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
       };
@@ -315,8 +303,6 @@ export class UsersService {
         organization: user.organization,
         account: user.account,
         role: user.role,
-        convert: user.convert,
-        messages: user.messages,
         groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
       };
@@ -343,21 +329,6 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!createUserDto.firstName) {
-        throw new BadRequestException('У юзера обязательно наличие имени!');
-      }
-      if (!createUserDto.lastName) {
-        throw new BadRequestException('У юзера обязательно наличие фамилии!');
-      }
-      if (!createUserDto.telephoneNumber) {
-        throw new BadRequestException(
-          'У юзера обязательно наличие номера телефона!',
-        );
-      }
-      if (!createUserDto.role) {
-        throw new BadRequestException('У юзера обязательно наличие роли!');
-      }
       const user = new User();
       if (user.id) user.id = createUserDto.id;
       user.firstName = createUserDto.firstName;
@@ -365,6 +336,7 @@ export class UsersService {
       user.middleName = createUserDto.middleName;
       user.telephoneNumber = createUserDto.telephoneNumber;
       user.role = createUserDto.role;
+      user.organization = createUserDto.organization;
       user.account = createUserDto.account;
       const createdUserId = await this.usersRepository.insert(user);
       return createdUserId.identifiers[0].id;
@@ -377,7 +349,7 @@ export class UsersService {
   async update(
     _id: string,
     updateUserDto: UpdateUserDto,
-  ): Promise<ReadUserDto | null> {
+  ): Promise<string> {
     try {
       const user = await this.usersRepository.findOneBy({ id: _id });
 
@@ -387,13 +359,21 @@ export class UsersService {
       if (updateUserDto.firstName) user.firstName = updateUserDto.firstName;
       if (updateUserDto.lastName) user.lastName = updateUserDto.lastName;
       if (updateUserDto.middleName) user.middleName = updateUserDto.middleName;
-      if (updateUserDto.telephoneNumber)
-        user.telephoneNumber = updateUserDto.telephoneNumber;
+      if (updateUserDto.vk_id) user.vk_id = updateUserDto.vk_id;
+      if (updateUserDto.telegramId) user.telegramId = updateUserDto.telegramId;
+      if (updateUserDto.avatar_url) user.avatar_url = updateUserDto.avatar_url;
+      if (updateUserDto.telephoneNumber) user.telephoneNumber = updateUserDto.telephoneNumber;
       await this.usersRepository.update(_id, {
         firstName: updateUserDto.firstName,
+        lastName: updateUserDto.lastName,
+        middleName: updateUserDto.middleName,
+        vk_id: updateUserDto.vk_id,
+        telegramId: updateUserDto.telegramId,
+        avatar_url: updateUserDto.avatar_url,
+        telephoneNumber: updateUserDto.telephoneNumber
       });
 
-      return await this.usersRepository.save(user);
+      return user.id;
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
@@ -406,18 +386,6 @@ export class UsersService {
     }
   }
 
-  async updateTgAuth(
-    user: User,
-    updateTgAuthUserDto: UpdateTgAuthUserDto,
-  ): Promise<string> {
-    try {
-      const updatedUserResult = await this.usersRepository.update(user.id, {telegramId: updateTgAuthUserDto.telegramId})
-      return user.id;
-    } catch (err) {
-      this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при обновлении юзера');
-    }
-  }
 
   async updateVkAuth(
     user: User,

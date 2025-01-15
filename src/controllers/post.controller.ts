@@ -7,7 +7,6 @@ import {
   Param,
   Patch,
   Post,
-  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -526,15 +525,14 @@ export class PostController {
   async create(
     @Req() req: ExpressRequest,
     @Body() postCreateDto: PostCreateDto,
-    @Query('addPolicyId') addPolicyId?: string,
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
     const promises: Promise<void>[] = [];
 
     // Условно добавляем запросы в массив промисов
-    if (addPolicyId !== 'null') {
+    if (postCreateDto.policyId) {
       promises.push(
-        this.policyService.findOneById(addPolicyId).then(policy => {
+        this.policyService.findOneById(postCreateDto.policyId).then(policy => {
           postCreateDto.policy = policy;
         }),
       );
@@ -601,7 +599,9 @@ export class PostController {
       product: postCreateDto.product,
       purpose: postCreateDto.purpose,
       createdAt: new Date(),
-      policyId: addPolicyId !== 'null' ? addPolicyId : null,
+      policyId: postCreateDto.policyId !== undefined 
+        ? postCreateDto.policyId 
+        : null,
       accountId: user.account.id,
       responsibleUserId:
         postCreateDto.responsibleUserId !== undefined

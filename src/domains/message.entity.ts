@@ -1,19 +1,14 @@
 import {
   Entity,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
-  JoinColumn,
-  Index,
 } from 'typeorm';
-import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Convert } from './convert.entity';
+import { Post } from './post.entity';
 
 @Entity()
 export class Message {
@@ -32,6 +27,6 @@ export class Message {
   @ManyToOne(() => Convert, (convert) => convert.messages, { nullable: false })
   convert: Convert;
 
-  @ManyToOne(() => User, (user) => user.messages, { nullable: false })
-  sender: User;
+  @ManyToOne(() => Post, (post) => post.messages, { nullable: false })
+  sender: Post;
 }

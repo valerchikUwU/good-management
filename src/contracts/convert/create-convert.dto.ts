@@ -1,23 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
-  ArrayNotEmpty,
-  IsArray,
   IsDate,
-  IsEAN,
   IsEnum,
   IsNotEmpty,
-  IsObject,
+  IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
   ValidateNested,
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
-import { User } from 'src/domains/user.entity';
-import { MessageCreateDto } from '../message/create-message.dto';
-import { TypeConvert } from 'src/domains/convert.entity';
+import { PathConvert, TypeConvert } from 'src/domains/convert.entity';
 import { TargetCreateDto } from '../target/create-target.dto';
+import { Post } from 'src/domains/post.entity';
 // import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
 
 export class ConvertCreateDto {
@@ -33,18 +28,27 @@ export class ConvertCreateDto {
     description: 'Длительность конверта',
     example: 17828282828,
   })
-  @IsString()
+  @IsNumber()
   @IsNotEmpty({ message: 'Длительность чата не может быть пустой!' })
   expirationTime: number;
 
   @ApiProperty({
     description: 'Тип конверта',
-    example: TypeConvert.DIRECT,
-    examples: [TypeConvert.DIRECT, TypeConvert.ORDER, TypeConvert.COORDINATION],
+    example: TypeConvert.CHAT,
+    examples: [TypeConvert.CHAT, TypeConvert.ORDER, TypeConvert.PROPOSAL],
   })
   @IsEnum(TypeConvert)
   @IsNotEmpty({ message: 'Тип конверта не может быть пустой!' })
   convertType: TypeConvert;
+
+  @ApiProperty({
+    description: 'Тип конверта',
+    example: PathConvert.DIRECT,
+    examples: [PathConvert.DIRECT, PathConvert.COORDINATION, PathConvert.REQUEST],
+  })
+  @IsEnum(PathConvert)
+  @IsNotEmpty({ message: 'Тип конверта не может быть пустой!' })
+  convertPath: PathConvert;
 
   @ApiProperty({
     description: 'Дата окончания актуальности конверта',
@@ -54,6 +58,18 @@ export class ConvertCreateDto {
   @Type(() => Date)
   @IsNotEmpty({ message: 'Дата не может быть пустой!' })
   dateFinish: Date;
+
+
+  @ApiProperty({ description: 'Id поста отправителя' })
+  @IsString()
+  @IsNotEmpty({ message: 'Id поста отправителя не может быть пустой!' })
+  senderPostId: string;
+
+
+  @ApiProperty({ description: 'Id поста получителя' })
+  @IsString()
+  @IsNotEmpty({ message: 'Id поста получителя не может быть пустой!' })
+  reciverPostId: string;
 
   // @ApiProperty({
   //     description: 'IDs участников чата и их тип', example:
@@ -69,7 +85,7 @@ export class ConvertCreateDto {
   // convertToUserCreateDtos: ConvertToUserCreateDto[];
 
   @Exclude({ toPlainOnly: true })
-  host: User;
+  host: Post;
 
   @Exclude({ toPlainOnly: true })
   account: Account;

@@ -1,5 +1,5 @@
 import { Convert } from 'src/domains/convert.entity';
-import { User } from 'src/domains/user.entity';
+import { Post } from 'src/domains/post.entity';
 
 export class MessageReadDto {
   id: string;
@@ -8,5 +8,5 @@ export class MessageReadDto {
 
   convert: Convert;
 
-  sender: User;
+  sender: Post;
 }

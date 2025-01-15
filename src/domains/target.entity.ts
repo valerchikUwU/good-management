@@ -20,7 +20,8 @@ export enum Type {
   RULE = 'Правила',
   PRODUCT = 'Продукт',
   EVENT = 'Организационные мероприятия',
-  ORDER = 'Приказ'
+  ORDER = 'Приказ',
+  PERSONAL = 'Личная'
 }
 
 /**

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayNotEmpty, IsArray, IsUUID } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsBoolean, IsUUID } from 'class-validator';
 // import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
 
 export class ConvertUpdateDto {
@@ -9,6 +9,8 @@ export class ConvertUpdateDto {
   convertToPostIds?: string[];
   @IsUUID()
   activePostId?: string;
+  @IsBoolean()
+  convertStatus?: boolean;
 
   // @ApiProperty({
   //     description: 'IDs участников чата и их тип', example:
