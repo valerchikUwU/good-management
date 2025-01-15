@@ -170,6 +170,8 @@ export class TargetController {
   async create(
     @Body() targetCreateDto: TargetCreateDto
   ): Promise<{ id: string }> {
+    const holderPost = await this.postService.findOneById(targetCreateDto.holderPostId);
+    targetCreateDto.holderPost = holderPost;
     const createdTarget = await this.targetService.create(targetCreateDto);
     this.logger.info(               
       `${yellow('OK!')} - CREATED TARGET: ${JSON.stringify(targetCreateDto)} - Личная задача успешно создана!`,

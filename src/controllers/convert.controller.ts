@@ -215,10 +215,11 @@ export class ConvertController {
     const user = req.user as ReadUserDto;
     const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId)
     console.log()
-    const [postIdsFromSenderToTop, postIdsFromRecieverToTop] =
+    const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
       await Promise.all([ // условие на DIRECT поставить выше чтобы не выолнять лишние запросы к БД
         await this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
         await this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
+        await this.postService.findOneById(convertCreateDto.reciverPostId),
       ]);
     const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
       postIdsFromRecieverToTop.includes(postId),
@@ -247,13 +248,14 @@ export class ConvertController {
     convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
     convertCreateDto.host = userPost;
     convertCreateDto.account = user.account;
-    convertCreateDto.targetCreateDto.holderPost = await this.postService.findOneById(convertCreateDto.reciverPostId)
-    const [targetId, createdConvert] =
+    convertCreateDto.targetCreateDto.holderPost = targetHolderPost
+    const [targetId, createdConvert, activePost] =
       await Promise.all([
         await this.targetService.create(convertCreateDto.targetCreateDto),
         await this.convertService.create(convertCreateDto),
+        await this.postService.findOneById(convertCreateDto.pathOfPosts[1])
       ]);
-    this.convertGateway.handleConvertExtensionEvent(createdConvert, createdConvert.activePostId)
+    this.convertGateway.handleConvertExtensionEvent(createdConvert, activePost?.user.id) // ПРОВЕРИТЬ КАК РАБОТАЕТ ЕСЛИ У ПОСТА НЕ БУДЕТ ЮЗЕРА
     this.logger.info(
       `${yellow('OK!')} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый конверт!`,
     );

@@ -160,15 +160,15 @@ export class ConvertGateway
     @MessageBody()
     payload: {
       convertId: string;
-      socketId: string;
     },
+    connectedClient: Socket
   ) {
-    const client = this.clients.get(payload.socketId);
+    const client = this.clients.get(connectedClient.id);
     if (!client) {
       return {success: false, message: 'Не удалось подключиться к чату!'};
     }
     client.join(payload.convertId); // Теперь используем join, чтобы присоединить клиента к комнате
-    this.logger.info(`${payload.socketId} is joining ${payload.convertId}`);
+    this.logger.info(`${connectedClient.id} is joining ${payload.convertId}`);
     const sockets = await this.ws.in(payload.convertId).fetchSockets();
     for (const socket of sockets) {
       console.log(socket.id);
@@ -188,8 +188,8 @@ export class ConvertGateway
 
   handleConnection(client: Socket) {
     // Извлечение параметров из URL
-    const { postId } = client.handshake.query;
-    client.data.postId = postId;
+    const { userId } = client.handshake.query;
+    client.data.userId = userId;
     this.logger.info(`Client Connected: ${client.id}`);
     this.clients.set(client.id, client);
     this.logger.info(`Number of connected clients: ${this.clients.size}`);
@@ -205,8 +205,8 @@ export class ConvertGateway
     return true;
   }
 
-  handleConvertExtensionEvent(convert: ConvertReadDto, postId: string) {
-    const socketsToNotify = this.findKeysByValue(this.clients, postId);
+  handleConvertExtensionEvent(convert: ConvertReadDto, userId: string) {
+    const socketsToNotify = this.findKeysByValue(this.clients, userId);
     socketsToNotify.forEach(socket => {
       socket.join(convert.id);
     });
@@ -215,11 +215,11 @@ export class ConvertGateway
     return true;
   }
 
-   findKeysByValue(map: Map<string, Socket>, postId: string): Socket[] {
+   findKeysByValue(map: Map<string, Socket>, userId: string): Socket[] {
     const matchingKeys: Socket[] = [];
   
     map.forEach((value, key) => {
-      if (postId === value.data.postId) {
+      if (userId === value.data.userId) {
         const client = this.clients.get(key);
         matchingKeys.push(client);
       }
