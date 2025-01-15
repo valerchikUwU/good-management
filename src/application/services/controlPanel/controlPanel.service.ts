@@ -29,6 +29,7 @@ export class ControlPanelService {
             return controlPanels.map(controlPanel => ({
                 id: controlPanel.id,
                 panelName: controlPanel.panelName,
+                orderNumber: controlPanel.orderNumber,
                 panelType: controlPanel.panelType,
                 graphType: controlPanel.graphType,
                 createdAt: controlPanel.createdAt,
@@ -53,6 +54,7 @@ export class ControlPanelService {
             const controlPanelReadDto: ControlPanelReadDto = {
                 id: controlPanel.id,
                 panelName: controlPanel.panelName,
+                orderNumber: controlPanel.orderNumber,
                 panelType: controlPanel.panelType,
                 graphType: controlPanel.graphType,
                 createdAt: controlPanel.createdAt,
