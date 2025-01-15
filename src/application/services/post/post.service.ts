@@ -64,12 +64,11 @@ export class PostService {
     }
   }
 
-  async findAllForUserInOrganization(userId: string, organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
+  async findAllForUser(userId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: { 
           user: { id: userId },
-          organization: {id: organizationId}
         },
         relations: relations !== undefined ? relations : [],
       });

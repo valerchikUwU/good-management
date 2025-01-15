@@ -14,7 +14,7 @@ import { TargetHolderService } from '../targetHolder/targetHolder.service';
 import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
 import { TargetUpdateDto } from 'src/contracts/target/update-target.dto';
 import { Logger } from 'winston';
-import { IsNull, Not } from 'typeorm';
+import { In, IsNull, Not } from 'typeorm';
 
 @Injectable()
 export class TargetService {
@@ -25,11 +25,11 @@ export class TargetService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllPersonalForPost(postId: string): Promise<TargetReadDto[]> {
+  async findAllPersonalForUserPosts(postIds: string[]): Promise<TargetReadDto[]> {
     try {
       const targets = await this.targetRepository.find({
         where: {
-          holderPostId: postId,
+          holderPostId: In(postIds),
           project: {id: IsNull()},
           type: Type.PERSONAL
         }
@@ -60,11 +60,45 @@ export class TargetService {
   }
 
 
-  async findAllFromProjectsForPost(postId: string): Promise<TargetReadDto[]> {
+  async findAllOrdersForUserPosts(postIds: string[]): Promise<TargetReadDto[]> {
     try {
       const targets = await this.targetRepository.find({
         where: {
-          holderPostId: postId,
+          holderPostId: In(postIds),
+          project: {id: IsNull()},
+          type: Type.ORDER
+        }
+      })
+
+      return targets.map((target) => ({
+        id: target.id,
+        type: target.type,
+        orderNumber: target.orderNumber,
+        content: target.content,
+        holderPostId: target.holderPostId,
+        targetState: target.targetState,
+        dateStart: target.dateStart,
+        deadline: target.deadline,
+        dateComplete: target.dateComplete,
+        createdAt: target.createdAt,
+        updatedAt: target.updatedAt,
+        targetHolders: target.targetHolders,
+        project: target.project,
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех задач!',
+      );
+    }
+  }
+
+  async findAllFromProjectsForUserPosts(postIds: string[]): Promise<TargetReadDto[]> {
+    try {
+      const targets = await this.targetRepository.find({
+        where: {
+          holderPostId: In(postIds),
           project: {id: Not(IsNull())},
         }
       })
