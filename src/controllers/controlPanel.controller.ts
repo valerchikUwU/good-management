@@ -161,11 +161,11 @@ export class ControlPanelController {
     async create(
         @Body() controlPanelCreateDto: ControlPanelCreateDto,
     ): Promise<{ id: string }> {
-        const organization = await this.organizationService.findOneById(controlPanelCreateDto.organizationId);
-        if(controlPanelCreateDto.postId){
-            const post = await this.postService.findOneById(controlPanelCreateDto.postId)
-            controlPanelCreateDto.post = post
-        }
+        const [organization, post] = await Promise.all([
+            await this.organizationService.findOneById(controlPanelCreateDto.organizationId),
+            await this.postService.findOneById(controlPanelCreateDto.postId)
+        ]) 
+        controlPanelCreateDto.post = post
         controlPanelCreateDto.organization = organization;
         const createdControlPanelId = await this.controlPanelService.create(controlPanelCreateDto);
         this.logger.info(

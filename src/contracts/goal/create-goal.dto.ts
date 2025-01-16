@@ -15,6 +15,7 @@ import { User } from 'src/domains/user.entity';
 export class GoalCreateDto {
   @ApiProperty({
     description: 'Текст цели',
+    required: true,
     isArray: true,
     example: ['Контент цели', 'one more content'],
   })
@@ -23,6 +24,7 @@ export class GoalCreateDto {
 
   @ApiProperty({
     description: 'ID организации, с которой связать цель',
+    required: true,
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   @IsUUID()

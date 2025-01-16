@@ -14,7 +14,7 @@ import { TargetHolderService } from '../targetHolder/targetHolder.service';
 import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
 import { TargetUpdateDto } from 'src/contracts/target/update-target.dto';
 import { Logger } from 'winston';
-import { In, IsNull, Not } from 'typeorm';
+import { And, Between, Equal, In, IsNull, LessThan, Not, Or } from 'typeorm';
 
 @Injectable()
 export class TargetService {
@@ -23,14 +23,19 @@ export class TargetService {
     private readonly targetRepository: TargetRepository,
     private readonly targetHolderService: TargetHolderService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
-  async findAllPersonalForUserPosts(postIds: string[]): Promise<TargetReadDto[]> {
+  async findAllPersonalForUserPosts(postIds: string[], isArchive: boolean): Promise<TargetReadDto[]> {
     try {
+      const today = new Date();
+      const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+      const yesterdayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 1));
+      const tomorrowUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
       const targets = await this.targetRepository.find({
         where: {
           holderPostId: In(postIds),
-          project: {id: IsNull()},
+          project: { id: IsNull() },
+          dateComplete: isArchive ? LessThan(todayUTC) : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
           type: Type.PERSONAL
         }
       })
@@ -60,12 +65,17 @@ export class TargetService {
   }
 
 
-  async findAllOrdersForUserPosts(postIds: string[]): Promise<TargetReadDto[]> {
+  async findAllOrdersForUserPosts(postIds: string[], isArchive: boolean): Promise<TargetReadDto[]> {
     try {
+      const today = new Date();
+      const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+      const yesterdayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 1));
+      const tomorrowUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
       const targets = await this.targetRepository.find({
         where: {
           holderPostId: In(postIds),
-          project: {id: IsNull()},
+          project: { id: IsNull() },
+          dateComplete: isArchive ? LessThan(todayUTC) : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
           type: Type.ORDER
         }
       })
@@ -94,12 +104,17 @@ export class TargetService {
     }
   }
 
-  async findAllFromProjectsForUserPosts(postIds: string[]): Promise<TargetReadDto[]> {
+  async findAllFromProjectsForUserPosts(postIds: string[], isArchive: boolean): Promise<TargetReadDto[]> {
     try {
+      const today = new Date();
+      const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+      const yesterdayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 1));
+      const tomorrowUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
       const targets = await this.targetRepository.find({
         where: {
           holderPostId: In(postIds),
-          project: {id: Not(IsNull())},
+          project: { id: Not(IsNull()) },
+          dateComplete: isArchive ? LessThan(todayUTC) : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
         }
       })
 

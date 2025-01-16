@@ -338,12 +338,6 @@ export class StatisticController {
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
-  })
-  @ApiParam({
     name: 'postId',
     required: true,
     description: 'Id поста',

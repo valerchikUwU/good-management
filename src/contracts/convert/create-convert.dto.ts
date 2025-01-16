@@ -16,7 +16,11 @@ import { Post } from 'src/domains/post.entity';
 // import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
 
 export class ConvertCreateDto {
-  @ApiProperty({ description: 'Тема конверта', example: 'Тема' })
+  @ApiProperty({ 
+    description: 'Тема конверта', 
+    required: true,
+    example: 'Тема' 
+  })
   @IsString()
   @IsNotEmpty({ message: 'Тема не может быть пустой!' })
   convertTheme: string;
@@ -26,7 +30,8 @@ export class ConvertCreateDto {
 
   @ApiProperty({
     description: 'Длительность конверта',
-    example: 17828282828,
+    required: true,
+    example: 17828282,
   })
   @IsNumber()
   @IsNotEmpty({ message: 'Длительность чата не может быть пустой!' })
@@ -34,7 +39,8 @@ export class ConvertCreateDto {
 
   @ApiProperty({
     description: 'Тип конверта',
-    example: TypeConvert.CHAT,
+    required: true,
+    example: TypeConvert.ORDER,
     examples: [TypeConvert.CHAT, TypeConvert.ORDER, TypeConvert.PROPOSAL],
   })
   @IsEnum(TypeConvert)
@@ -42,7 +48,8 @@ export class ConvertCreateDto {
   convertType: TypeConvert;
 
   @ApiProperty({
-    description: 'Тип конверта',
+    description: 'Тип маршрута',
+    required: true,
     example: PathConvert.DIRECT,
     examples: [PathConvert.DIRECT, PathConvert.COORDINATION, PathConvert.REQUEST],
   })
@@ -52,6 +59,7 @@ export class ConvertCreateDto {
 
   @ApiProperty({
     description: 'Дата окончания актуальности конверта',
+    required: true,
     example: '2024-09-26T13:03:19.759Z',
   })
   @IsDate()
@@ -60,13 +68,19 @@ export class ConvertCreateDto {
   dateFinish: Date;
 
 
-  @ApiProperty({ description: 'Id поста отправителя' })
+  @ApiProperty({ 
+    description: 'Id поста отправителя',
+    required: true, 
+  })
   @IsString()
   @IsNotEmpty({ message: 'Id поста отправителя не может быть пустой!' })
   senderPostId: string;
 
 
-  @ApiProperty({ description: 'Id поста получителя' })
+  @ApiProperty({ 
+    description: 'Id поста получителя',
+    required: true
+   })
   @IsString()
   @IsNotEmpty({ message: 'Id поста получителя не может быть пустой!' })
   reciverPostId: string;

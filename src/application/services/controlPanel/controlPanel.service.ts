@@ -87,11 +87,9 @@ export class ControlPanelService {
         try {
             const controlPanel = new ControlPanel();
             controlPanel.panelName = controlPanelCreateDto.panelName;
-            controlPanel.panelType = controlPanelCreateDto.panelType;
             controlPanel.orderNumber = controlPanelCreateDto.orderNumber;
-            controlPanel.graphType = controlPanelCreateDto.graphType;
             controlPanel.organization = controlPanelCreateDto.organization;
-            if(controlPanelCreateDto.post) controlPanel.post = controlPanelCreateDto.post
+            controlPanel.post = controlPanelCreateDto.post
             const createdControlPanel = await this.controlPanelRepository.save(controlPanel);
             await this.panelToStatisticService.createSeveral(createdControlPanel, controlPanelCreateDto.statisticIds);
 
@@ -99,10 +97,6 @@ export class ControlPanelService {
         }
         catch (err) {
             this.logger.error(err);
-            // Обработка специфичных исключений
-            if (err instanceof BadRequestException) {
-                throw err; // Пробрасываем исключение дальше
-            }
             throw new InternalServerErrorException('Ошибка при создании панели управления')
         }
     }

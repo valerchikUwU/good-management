@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from "class-validator";
-import { GraphType, PanelType } from "src/domains/controlPanel.entity";
 import { Organization } from "src/domains/organization.entity";
 import { Post } from "src/domains/post.entity";
 
@@ -16,10 +15,9 @@ export class ControlPanelCreateDto {
         required: false,
         example: 'Панель новая',
     })
-    @IsOptional()
     @IsString()
     @IsNotEmpty({ message: 'Название панели не может быть пустым!' })
-    panelName?: string;
+    panelName: string;
 
     @ApiProperty({
         description: 'Порядковый номер панели (минимум 1)',
@@ -29,31 +27,6 @@ export class ControlPanelCreateDto {
     @IsNumber()
     @Min(1)
     orderNumber: number;
-
-    @ApiProperty({
-        description: 'Тип панели',
-        required: false,
-        default: PanelType.LOCAL,
-        example: 'Личная',
-        examples: ['Личная', 'Глобальная'],
-    })
-    @IsOptional()
-    @IsEnum(PanelType)
-    @IsNotEmpty({ message: 'Выберите тип панели!' })
-    panelType?: PanelType;
-
-
-    @ApiProperty({
-        description: 'Тип отображения графика',
-        required: false,
-        default: GraphType.DAY,
-        example: 'Ежегодовой',
-        examples: ['13', '26', '52', 'Ежемесячный', 'Ежедневный', 'Ежегодовой'],
-    })
-    @IsOptional()
-    @IsEnum(GraphType)
-    @IsNotEmpty({ message: 'Выберите тип отображения графика!' })
-    graphType?: GraphType;
 
     @ApiProperty({
         description: 'IDs статистик, которые связать с панелью',
@@ -78,10 +51,9 @@ export class ControlPanelCreateDto {
         required: true,
         example: '16ee6c67-0cc9-4d08-8622-7b50c4c7f45c',
     })
-    @IsOptional()
     @IsUUID()
     @IsNotEmpty({ message: 'ID поста не может быть пустой!' })
-    postId?: string;
+    postId: string;
 
     @Exclude({ toPlainOnly: true })
     organization: Organization;

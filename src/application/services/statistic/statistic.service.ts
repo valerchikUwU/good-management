@@ -166,10 +166,6 @@ export class StatisticService {
       return createdStatistic;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException('Ошибка при создании статистики!');
     }
   }
@@ -185,8 +181,7 @@ export class StatisticService {
       // Обновить свойства, если они указаны в DTO
       if (statisticUpdateDto.type) statistic.type = statisticUpdateDto.type;
       if (statisticUpdateDto.name) statistic.name = statisticUpdateDto.name;
-      if (statisticUpdateDto.description)
-        statistic.description = statisticUpdateDto.description;
+      if (statisticUpdateDto.description) statistic.description = statisticUpdateDto.description;
       if (statisticUpdateDto.post) statistic.post = statisticUpdateDto.post;
       await this.statisticRepository.update(statistic.id, {
         type: statistic.type,
