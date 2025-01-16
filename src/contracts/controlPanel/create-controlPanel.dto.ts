@@ -12,12 +12,14 @@ import { Post } from "src/domains/post.entity";
 export class ControlPanelCreateDto {
     @ApiProperty({
         description: 'Название панели',
-        required: true,
+        default: 'Панель №',
+        required: false,
         example: 'Панель новая',
     })
+    @IsOptional()
     @IsString()
     @IsNotEmpty({ message: 'Название панели не может быть пустым!' })
-    panelName: string;
+    panelName?: string;
 
     @ApiProperty({
         description: 'Порядковый номер панели (минимум 1)',
@@ -30,26 +32,28 @@ export class ControlPanelCreateDto {
 
     @ApiProperty({
         description: 'Тип панели',
-        required: true,
-        default: PanelType.GLOBAL,
+        required: false,
+        default: PanelType.LOCAL,
         example: 'Личная',
         examples: ['Личная', 'Глобальная'],
     })
+    @IsOptional()
     @IsEnum(PanelType)
     @IsNotEmpty({ message: 'Выберите тип панели!' })
-    panelType: PanelType;
+    panelType?: PanelType;
 
 
     @ApiProperty({
         description: 'Тип отображения графика',
-        required: true,
+        required: false,
         default: GraphType.DAY,
-        example: 'Ежедневные',
+        example: 'Ежегодовой',
         examples: ['13', '26', '52', 'Ежемесячный', 'Ежедневный', 'Ежегодовой'],
     })
+    @IsOptional()
     @IsEnum(GraphType)
     @IsNotEmpty({ message: 'Выберите тип отображения графика!' })
-    graphType: GraphType;
+    graphType?: GraphType;
 
     @ApiProperty({
         description: 'IDs статистик, которые связать с панелью',
@@ -72,7 +76,7 @@ export class ControlPanelCreateDto {
     @ApiProperty({
         description: 'ID поста создателя',
         required: true,
-        example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
+        example: '16ee6c67-0cc9-4d08-8622-7b50c4c7f45c',
     })
     @IsOptional()
     @IsUUID()

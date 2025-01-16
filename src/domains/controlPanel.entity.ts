@@ -59,7 +59,7 @@ export class ControlPanel {
      * @example
      * 'photo.jpg'
      */
-    @Column({ nullable: false })
+    @Column({ default: 'Панель №', nullable: false })
     panelName: string;
 
 
@@ -92,7 +92,7 @@ export class ControlPanel {
     @Column({
         type: 'enum',
         enum: PanelType,
-        default: PanelType.GLOBAL,
+        default: PanelType.LOCAL,
         nullable: false,
     })
     panelType: PanelType;
