@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Inject,
@@ -176,7 +177,7 @@ export class TargetController {
           "updatedAt": "2025-01-14T15:58:12.214Z"
         }
       ],
-      "personalTargets": [
+      "personalArchiveTargets": [
         {
           "id": "b123fb06-4d9d-44c6-824a-100629fb764a",
           "type": "Личная",
@@ -186,12 +187,12 @@ export class TargetController {
           "targetState": "Активная",
           "dateStart": "2024-12-25T10:45:37.697Z",
           "deadline": "2024-09-18T14:59:47.010Z",
-          "dateComplete": null,
+          "dateComplete": "2025-01-15T14:59:47.010Z",
           "createdAt": "2024-12-25T10:45:37.923Z",
           "updatedAt": "2024-12-25T10:45:37.923Z"
         },
       ],
-      "ordersTargets": [
+      "ordersArchiveTargets": [
         {
           "id": "qqqqfb06-4d9d-44c6-824a-100629fb764a",
           "type": "Приказ",
@@ -201,12 +202,12 @@ export class TargetController {
           "targetState": "Активная",
           "dateStart": "2024-12-25T10:45:37.697Z",
           "deadline": "2024-09-18T14:59:47.010Z",
-          "dateComplete": null,
+          "dateComplete": "2025-01-15T14:59:47.010Z",
           "createdAt": "2024-12-25T10:45:37.923Z",
           "updatedAt": "2024-12-25T10:45:37.923Z"
         },
       ],
-      "projectTargets": [
+      "projectArchiveTargets": [
         {
           "id": "a008fb06-4d9d-44c6-824a-100629fb764a",
           "type": "Продукт",
@@ -216,7 +217,7 @@ export class TargetController {
           "targetState": "Активная",
           "dateStart": "2024-12-25T10:45:37.697Z",
           "deadline": "2024-09-18T14:59:47.010Z",
-          "dateComplete": null,
+          "dateComplete": "2025-01-15T14:59:47.010Z",
           "createdAt": "2024-12-25T10:45:37.923Z",
           "updatedAt": "2024-12-25T10:45:37.923Z"
         },
@@ -327,6 +328,39 @@ export class TargetController {
       `${yellow('OK!')} - targetUpdateDto: ${JSON.stringify(targetUpdateDto)} - Задача успешно обновлена!`,
     );
     return { id: updatedTargetId };
+  }
+
+
+  @Delete(':targetId/remove')
+  @ApiOperation({ summary: 'Удалить личную задачу' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'ОК!',
+    example: { "message": "Личная задача успешно удалена!" },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Задача не найдена!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+
+  @ApiParam({
+    name: 'targetId',
+    required: true,
+    description: 'Id личной задачи'
+  })
+  async remove(
+    @Param('targetId') targetId: string,
+  ) {
+    await this.targetService.remove(targetId);
+    return { message: "Личная задача успешно удалена!" }
   }
 
 }

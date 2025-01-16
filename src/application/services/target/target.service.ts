@@ -218,4 +218,35 @@ export class TargetService {
       throw new InternalServerErrorException('Ошибка при обновлении задачи');
     }
   }
+
+
+  async remove(_id: string): Promise<void> {
+    try {
+      const target = await this.targetRepository.findOne({
+        where: { id: _id },
+      });
+      if (!target) {
+        throw new NotFoundException(`Личная задача с ID ${_id} не найдена`);
+      }
+      if (target.type !== Type.PERSONAL)
+        throw new BadRequestException('Удалять можно только личные задачи!')
+
+      await this.targetHolderService.remove(target);
+      await this.targetRepository.remove(target);
+    }
+    catch (err) {
+
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+      // Обработка специфичных исключений
+      if (err instanceof BadRequestException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+      throw new InternalServerErrorException('Ошибка при удалении панели управления')
+    }
+
+  }
 }

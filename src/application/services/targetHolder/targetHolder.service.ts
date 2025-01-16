@@ -4,6 +4,7 @@ import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { TargetHolderRepository } from './repository/targetHolder.repository';
 import { TargetHolderReadDto } from 'src/contracts/targetHolder/read-targetHolder.dto';
 import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
+import { TargetReadDto } from 'src/contracts/target/read-target.dto';
 
 @Injectable()
 export class TargetHolderService {
@@ -40,5 +41,11 @@ export class TargetHolderService {
         'Ошибка при создании ответственного за задачу',
       );
     }
+  }
+
+
+
+  async remove(target: TargetReadDto): Promise<void> {
+    await this.targetHolderRepository.delete({ target: target });
   }
 }
