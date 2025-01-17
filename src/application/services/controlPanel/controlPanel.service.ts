@@ -51,7 +51,7 @@ export class ControlPanelService {
 
     async findOneById(id: string): Promise<ControlPanelReadDto> {
         try {
-            const controlPanel = await this.controlPanelRepository.findOne({ where: { id }, relations: ['panelToStatistics.statistic'] });
+            const controlPanel = await this.controlPanelRepository.findOne({ where: { id }, relations: ['panelToStatistics.statistic.statisticDatas'] });
             if (!controlPanel) throw new NotFoundException(`Панель управления с ID: ${id} не найдена`);
             const controlPanelReadDto: ControlPanelReadDto = {
                 id: controlPanel.id,

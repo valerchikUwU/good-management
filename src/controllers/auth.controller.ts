@@ -117,7 +117,7 @@ export class AuthController {
         httpOnly: true,
         path: '/auth',
         // secure: true, ДОБАВИТЬ В ПРОДЕ
-        maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
+        maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
       });
       return authenticateResult._user;
     } else {
@@ -193,7 +193,7 @@ export class AuthController {
       httpOnly: true,
       path: '/auth',
       // secure: true, ДОБАВИТЬ В ПРОДЕ
-      maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
+      maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
     });
     return { newAccessToken: data.newAccessToken };
   }
@@ -291,8 +291,7 @@ export class AuthController {
     res.cookie('refresh-tokenId', refreshTokenId, {
       httpOnly: true,
       // secure: true, ДОБАВИТЬ В ПРОДЕ
-      path: '/auth',
-      maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
+      maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
     });
     return { message: 'Куки успешно установлены' };
   }
