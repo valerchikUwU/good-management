@@ -25,7 +25,7 @@ export class TargetService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async findAllPersonalForUserPosts(postIds: string[], isArchive: boolean): Promise<TargetReadDto[]> {
+  async findAllPersonalForUserPosts(postIds: string[], isArchive: boolean, relations?: string[]): Promise<TargetReadDto[]> {
     try {
       const today = new Date();
       const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
@@ -37,7 +37,8 @@ export class TargetService {
           project: { id: IsNull() },
           dateComplete: isArchive ? LessThan(todayUTC) : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
           type: Type.PERSONAL
-        }
+        },
+        relations: relations !== undefined ? relations : []
       })
 
       return targets.map((target) => ({

@@ -15,14 +15,17 @@ import { Logger } from 'winston';
 import { StatisticCreateDto } from 'src/contracts/statistic/create-statistic.dto';
 import { StatisticUpdateDto } from 'src/contracts/statistic/update-statistic.dto';
 import { In } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class StatisticService {
   constructor(
     @InjectRepository(Statistic)
     private readonly statisticRepository: StatisticRepository,
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<StatisticReadDto[]> {
     try {
@@ -55,7 +58,7 @@ export class StatisticService {
   async findAllForOrganization(organizationId: string, relations?: string[]): Promise<StatisticReadDto[]> {
     try {
       const statistics = await this.statisticRepository.find({
-        where: { post: { organization: {id: organizationId} } },
+        where: { post: { organization: { id: organizationId } } },
         relations: relations !== undefined ? relations : [],
       });
 
@@ -82,6 +85,20 @@ export class StatisticService {
 
   async findOneById(id: string, relations?: string[]): Promise<StatisticReadDto> {
     try {
+      var start = new Date().getTime();
+      const cachedData = await this.cacheService.get<StatisticReadDto>(id)
+
+      if (cachedData) {
+        console.log(`Getting data from cache! ${JSON.stringify(cachedData)}`);
+        var end = new Date().getTime();
+
+        var time = end - start;
+
+        console.log('Время выполнения = ' + time);
+
+        return cachedData;
+      }
+
       const statistic = await this.statisticRepository.findOne({
         where: { id: id },
         relations: relations !== undefined ? relations : [],
@@ -102,6 +119,12 @@ export class StatisticService {
         panelToStatistics: statistic.panelToStatistics
       };
 
+      await this.cacheService.set(id, statisticReadDto);
+      var end = new Date().getTime();
+
+      var time = end - start;
+
+      console.log('Время выполнения = ' + time);
       return statisticReadDto;
     } catch (err) {
       this.logger.error(err);

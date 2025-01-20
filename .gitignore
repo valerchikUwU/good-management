@@ -65,3 +65,4 @@ test
 #docker volumes
 pgdata
 rabbit_data
+redis_data

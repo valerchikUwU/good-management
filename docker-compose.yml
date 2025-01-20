@@ -55,7 +55,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:management
-    container_name: rabbitmq  
+    container_name: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
@@ -65,3 +65,16 @@ services:
     ports:
       - '5672:5672' # AMQP порт
       - '15672:15672' # Порт для управления через веб-интерфейс
+
+  redis:
+    container_name: cache
+    image: redis
+    volumes:
+      - ./redis_data:/var/lib/redis
+    environment:
+      - REDIS_HOST_LOCAL=${REDIS_HOST_LOCAL}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USERNAME=${REDIS_USERNAME}
+      - REDIS_PASSWORD:=${REDIS_PASSWORD}
+    ports:
+      - 6379:6379

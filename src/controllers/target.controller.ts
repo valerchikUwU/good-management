@@ -139,9 +139,9 @@ export class TargetController {
     projectTargets: TargetReadDto[];
   }> {
     const user = req.user as ReadUserDto;
-    const userPosts = await this.postService.findAllForUser(user.id);
+    const userPosts = await this.postService.findAllForUser(user.id, ['organization']);
     const userPostsIds = userPosts.map(post => post.id)
-    const personalTargets = await this.targetService.findAllPersonalForUserPosts(userPostsIds, false);
+    const personalTargets = await this.targetService.findAllPersonalForUserPosts(userPostsIds, false, ['policy']);
     const orderTargets = await this.targetService.findAllOrdersForUserPosts(userPostsIds, false);
     const projectTargets = await this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false);
     return { userPosts: userPosts, personalTargets: personalTargets, ordersTargets: orderTargets, projectTargets: projectTargets };
@@ -243,9 +243,9 @@ export class TargetController {
     projectArchiveTargets: TargetReadDto[];
   }> {
     const user = req.user as ReadUserDto;
-    const userPosts = await this.postService.findAllForUser(user.id);
+    const userPosts = await this.postService.findAllForUser(user.id, ['organization']);
     const userPostsIds = userPosts.map(post => post.id)
-    const personalArchiveTargets = await this.targetService.findAllPersonalForUserPosts(userPostsIds, true);
+    const personalArchiveTargets = await this.targetService.findAllPersonalForUserPosts(userPostsIds, true, ['policy']);
     const orderArchiveTargets = await this.targetService.findAllOrdersForUserPosts(userPostsIds, true);
     const projectArchiveTargets = await this.targetService.findAllFromProjectsForUserPosts(userPostsIds, true);
     return { userPosts: userPosts, personalArchiveTargets: personalArchiveTargets, ordersArchiveTargets: orderArchiveTargets, projectArchiveTargets: projectArchiveTargets };
