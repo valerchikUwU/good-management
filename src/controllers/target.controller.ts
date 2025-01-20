@@ -31,6 +31,7 @@ import { PostService } from 'src/application/services/post/post.service';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { yellow } from 'colorette';
 import { TargetUpdateDto } from 'src/contracts/target/update-target.dto';
+import { PolicyService } from 'src/application/services/policy/policy.service';
 
 @ApiBearerAuth('access-token')
 @UseGuards(AccessTokenGuard)
@@ -40,6 +41,7 @@ export class TargetController {
   constructor(
     private readonly targetService: TargetService,
     private readonly postService: PostService,
+    private readonly policyService: PolicyService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -276,8 +278,21 @@ export class TargetController {
   async create(
     @Body() targetCreateDto: TargetCreateDto
   ): Promise<{ id: string }> {
-    const holderPost = await this.postService.findOneById(targetCreateDto.holderPostId);
-    targetCreateDto.holderPost = holderPost;
+
+    const promises: Promise<void>[] = [];
+    promises.push(
+      this.postService.findOneById(targetCreateDto.holderPostId).then(post => {
+        targetCreateDto.holderPost = post;
+      }),
+    );
+    if (targetCreateDto.policyId) {
+      promises.push(
+        this.policyService.findOneById(targetCreateDto.policyId).then(policy => {
+          targetCreateDto.policy = policy;
+        }),
+      );
+    }
+    await Promise.all(promises);
     const createdTarget = await this.targetService.create(targetCreateDto);
     this.logger.info(
       `${yellow('OK!')} - CREATED TARGET: ${JSON.stringify(targetCreateDto)} - Личная задача успешно создана!`,
@@ -318,9 +333,20 @@ export class TargetController {
     @Param('targetId') targetId: string,
     @Body() targetUpdateDto: TargetUpdateDto,
   ): Promise<{ id: string }> {
+    const promises: Promise<void>[] = [];
     if (targetUpdateDto.holderPostId) {
-      const holderPost = await this.postService.findOneById(targetUpdateDto.holderPostId);
-      targetUpdateDto.holderPost = holderPost;
+      promises.push(
+        this.postService.findOneById(targetUpdateDto.holderPostId).then(post => {
+          targetUpdateDto.holderPost = post;
+        }),
+      );
+    }
+    if (targetUpdateDto.policyId != null) {
+      promises.push(
+        this.policyService.findOneById(targetUpdateDto.policyId).then(policy => {
+          targetUpdateDto.policy = policy;
+        }),
+      );
     }
     const updatedTargetId = await this.targetService.update(targetUpdateDto);
 

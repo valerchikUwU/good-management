@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   db:
-    image: postgres
+    image: postgres:16
     restart: always
     environment:
       - POSTGRES_DB=${DATABASE_NAME}
@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile
     container_name: good-management
     environment:
-      - DATABASE_HOST=db # Используйте имя сервиса 'db' вместо localhost
+      - DATABASE_HOST=${DATABASE_HOST} #'db' вместо localhost
       - DATABASE_PORT=${DATABASE_PORT}
       - DATABASE_USERNAME=${DATABASE_USERNAME}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
@@ -29,10 +29,15 @@ services:
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - JWT_REFRESH_EXPIRESIN=${JWT_REFRESH_EXPIRESIN}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+      - COOKIE_EXPIRESIN=${COOKIE_EXPIRESIN}
+      - NODE_ENV=${NODE_ENV}
     ports:
       - '5000:5000'
     depends_on:
       - db
+      - rabbitmq
     volumes:
       - ./src:/app/src
 
@@ -47,3 +52,16 @@ services:
       - '5050:80'
     depends_on:
       - db
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq  
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - ./rabbit_data:/var/lib/rabbitmq
+    restart: always
+    ports:
+      - '5672:5672' # AMQP порт
+      - '15672:15672' # Порт для управления через веб-интерфейс

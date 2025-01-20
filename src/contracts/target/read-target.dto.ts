@@ -1,3 +1,4 @@
+import { Policy } from 'src/domains/policy.entity';
 import { Project } from 'src/domains/project.entity';
 import { State, Type } from 'src/domains/target.entity';
 import { TargetHolder } from 'src/domains/targetHolder.entity';
@@ -16,4 +17,5 @@ export class TargetReadDto {
   updatedAt: Date;
   targetHolders: TargetHolder[];
   project: Project;
+  policy: Policy;
 }

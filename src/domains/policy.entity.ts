@@ -13,6 +13,7 @@ import { Post } from './post.entity';
 import { Account } from './account.entity';
 import { PolicyToPolicyDirectory } from './policyToPolicyDirectories.entity';
 import { Organization } from './organization.entity';
+import { Target } from './target.entity';
 
 /**
  * Перечисление состояний политики.
@@ -68,7 +69,7 @@ export class Policy {
    * @remarks
    * Инкремент в БД.
    */
-  @Column({nullable: false})
+  @Column({ nullable: false })
   policyNumber: number;
 
   /**
@@ -146,6 +147,12 @@ export class Policy {
    */
   @OneToMany(() => Post, (post) => post.policy)
   posts: Post[];
+
+  /**
+   * Связь с сущностью 1:M Target.
+   */
+  @OneToMany(() => Target, (target) => target.policy)
+  targets: Target[];
 
   /**
    * Связь с сущностью 1:M PolicyToPolicyDirectory.

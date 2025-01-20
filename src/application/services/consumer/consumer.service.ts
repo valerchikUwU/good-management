@@ -37,7 +37,7 @@ export class ConsumerService implements OnModuleInit {
   ) {
     // Подключение к RabbitMQ с правильными учетными данными
     if (process.env.NODE_ENV === 'dev') {
-      const connection = amqp.connect(['amqp://localhost']);
+      const connection = amqp.connect(['amqp://rabbitmq']);
       this.channelWrapper = connection.createChannel();
     } else {
       const connection = amqp.connect([

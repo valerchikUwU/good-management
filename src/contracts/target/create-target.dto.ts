@@ -12,6 +12,7 @@ import {
   Min,
   min,
 } from 'class-validator';
+import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
 import { State, Type as TypeTarget } from 'src/domains/target.entity';
@@ -64,6 +65,16 @@ export class TargetCreateDto {
   holderPostId: string;
 
   @ApiProperty({
+    description: 'Id политики',
+    required: false,
+    example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
+  })
+  @IsOptional()
+  @IsUUID()
+  @IsNotEmpty({ message: 'Id политики не может быть пустым' })
+  policyId?: string;
+
+  @ApiProperty({
     description: 'Дата начала выполнения (default: new Date())',
     required: false,
     default: new Date(),
@@ -87,6 +98,10 @@ export class TargetCreateDto {
 
   @Exclude({ toPlainOnly: true })
   holderPost: Post;
+
   @Exclude({ toPlainOnly: true })
   project: Project;
+
+  @Exclude({ toPlainOnly: true })
+  policy: Policy;
 }

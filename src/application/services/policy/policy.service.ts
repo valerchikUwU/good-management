@@ -44,6 +44,7 @@ export class PolicyService {
         user: policy.user,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
       }));
     } catch (err) {
       this.logger.error(err);
@@ -76,6 +77,7 @@ export class PolicyService {
         user: policy.user,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
       }));
     } catch (err) {
       this.logger.error(err);
@@ -112,6 +114,7 @@ export class PolicyService {
         user: policy.user,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
       }));
     } catch (err) {
       this.logger.error(err);
@@ -148,6 +151,7 @@ export class PolicyService {
         user: policy.user,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
       };
 
       return policyReadDto;
@@ -191,6 +195,7 @@ export class PolicyService {
         user: policy.user,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
       }));
 
     } catch (err) {

@@ -10,6 +10,7 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
+import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { State, Type as TargetType } from 'src/domains/target.entity';
 
@@ -55,6 +56,15 @@ export class TargetUpdateDto {
   holderPostId?: string;
 
   @ApiProperty({
+    description: 'Id политики',
+    required: false,
+    example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
+  })
+  @IsUUID()
+  @IsNotEmpty({ message: 'Id политики не может быть пустым' })
+  policyId?: string;
+
+  @ApiProperty({
     description: 'Состояние задачи',
     required: false,
     example: 'Отменена',
@@ -91,4 +101,7 @@ export class TargetUpdateDto {
 
   @Exclude({ toPlainOnly: true })
   holderPost: Post;
+
+  @Exclude({ toPlainOnly: true })
+  policy: Policy;
 }

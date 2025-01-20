@@ -6,12 +6,14 @@ import { TargetRepository } from '../services/target/repository/target.repositor
 import { TargetHolderModule } from './targetHolder.module';
 import { TargetController } from 'src/controllers/target.controller';
 import { PostModule } from './post.module';
+import { PolicyModule } from './policy.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Target]),
     TargetHolderModule,
-    PostModule
+    PostModule,
+    PolicyModule
   ],
   controllers: [TargetController],
   providers: [TargetService, TargetRepository],

@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { TargetHolder } from './targetHolder.entity';
 import { Project } from './project.entity';
+import { Policy } from './policy.entity';
 
 /**
  * Перечисление типов задач.
@@ -88,7 +89,7 @@ export class Target {
    */
   @Column({ type: 'uuid', nullable: false })
   holderPostId: string;
-  
+
   /**
    * Состояние задачи.
    * 
@@ -115,7 +116,7 @@ export class Target {
     nullable: false,
   })
   dateStart: Date;
-  
+
   /**
    * Дедлайн задачи.
    * 
@@ -124,7 +125,7 @@ export class Target {
    */
   @Column({ type: 'timestamp', nullable: true })
   deadline: Date;
-  
+
   /**
    * Дата окончания задачи.
    * 
@@ -133,7 +134,7 @@ export class Target {
    */
   @Column({ type: 'timestamp', nullable: true })
   dateComplete: Date;
-  
+
   /**
    * Дата создания записи.
    * 
@@ -163,7 +164,7 @@ export class Target {
    */
   @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.target)
   targetHolders: TargetHolder[];
-  
+
   /**
    * Связь с сущностью M:1 Project.
    * 
@@ -173,4 +174,14 @@ export class Target {
   @ManyToOne(() => Project, (project) => project.targets, { nullable: true })
   @Index() // Добавляем индекс для поля project
   project: Project;
+
+  /**
+   * Связь с сущностью M:1 Policy.
+   * 
+   * @remarks
+   * Установлен индекс, nullable: true
+   */
+  @ManyToOne(() => Policy, (policy) => policy.targets, { nullable: true })
+  @Index() // Добавляем индекс для поля policy
+  policy: Policy;
 }

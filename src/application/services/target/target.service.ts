@@ -54,6 +54,7 @@ export class TargetService {
         updatedAt: target.updatedAt,
         targetHolders: target.targetHolders,
         project: target.project,
+        policy: target.policy,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -94,6 +95,7 @@ export class TargetService {
         updatedAt: target.updatedAt,
         targetHolders: target.targetHolders,
         project: target.project,
+        policy: target.policy,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -132,6 +134,7 @@ export class TargetService {
         updatedAt: target.updatedAt,
         targetHolders: target.targetHolders,
         project: target.project,
+        policy: target.policy,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -156,6 +159,7 @@ export class TargetService {
       target.dateStart = targetCreateDto.dateStart !== undefined ? targetCreateDto.dateStart : new Date();
       target.deadline = targetCreateDto.deadline;
       target.project = targetCreateDto.project;
+      target.policy = targetCreateDto.policy;
       const createdTargetResult = await this.targetRepository.insert(target);
       const createdTarget = await this.targetRepository.findOne({
         where: { id: createdTargetResult.identifiers[0].id },
@@ -197,6 +201,12 @@ export class TargetService {
       if (updateTargetDto.targetState === State.FINISHED) target.dateComplete = new Date();
       if (updateTargetDto.dateStart) target.dateStart = updateTargetDto.dateStart;
       if (updateTargetDto.deadline) target.deadline = updateTargetDto.deadline;
+      if (updateTargetDto.policy != null) {
+        target.policy = updateTargetDto.policy;
+      }
+      else if (updateTargetDto.policyId === null){
+        target.policy = null 
+      }
       await this.targetRepository.update(target.id, {
         content: target.content,
         orderNumber: target.orderNumber,
@@ -205,6 +215,7 @@ export class TargetService {
         dateStart: target.dateStart,
         deadline: target.deadline,
         dateComplete: target.dateComplete,
+        policy: target.policy
       });
       return target.id;
     } catch (err) {
