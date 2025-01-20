@@ -66,3 +66,7 @@ test
 pgdata
 rabbit_data
 redis_data
+
+
+#app_controller where tg bot launch
+app.controller.ts
