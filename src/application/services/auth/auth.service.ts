@@ -18,6 +18,7 @@ import { InjectConfig, ConfigService } from 'nestjs-config';
 import { UserTgAuthDto } from 'src/contracts/user/user-tgauth-dto';
 import { Logger } from 'winston';
 import { AuthVK } from 'src/contracts/auth-vk.dto';
+import { yellow } from 'colorette';
 
 @Injectable()
 export class AuthService {
@@ -28,7 +29,7 @@ export class AuthService {
     private readonly refreshService: RefreshService,
     @InjectConfig() private readonly config: ConfigService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async validateUser(payload: JwtPayloadInterface): Promise<User> {
     return await this.usersService.findOne(payload.id, ['account', 'posts']);
@@ -151,8 +152,8 @@ export class AuthService {
       );
       if (!session) {
         this.logger.info(
-              `Попытка обновления токенов с fingerprint: ${fingerprint} и refreshTokenId: ${refreshTokenId}`,
-            );
+          `Попытка обновления токенов с fingerprint: ${fingerprint} и refreshTokenId: ${refreshTokenId}`,
+        );
         await this.refreshService.remove(refreshTokenId);
         throw new UnauthorizedException(
           'Войдите в свой аккаунт для дальнейшей работы!',
@@ -188,6 +189,9 @@ export class AuthService {
           secret: process.env.JWT_ACCESS_SECRET,
           expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
         },
+      );
+      this.logger.info(
+        `${yellow('OK!')} - CREATED SESSION WITH ID: ${newSessionId} - Создана сессия!`,
       );
       return { newRefreshTokenId: newSessionId, newAccessToken: _newAccessToken };
     } catch (err) {
@@ -283,15 +287,15 @@ export class AuthService {
   }
 
 
-  async isSessionExpired(fingerprint: string): Promise<{isExpired: boolean, userId: string}>{
+  async isSessionExpired(fingerprint: string): Promise<{ isExpired: boolean, userId: string }> {
     const session = await this.refreshService.findOneByFingerprint(
       String(fingerprint),
     );
     if (session === null) {
-      return {isExpired: true, userId: null};
+      return { isExpired: true, userId: null };
     }
     const currentTime = Math.floor(Date.now() / 1000);
     const isExpired = currentTime > session.expiresIn;
-    return {isExpired: isExpired, userId: session.user.id};
+    return { isExpired: isExpired, userId: session.user.id };
   }
 }
