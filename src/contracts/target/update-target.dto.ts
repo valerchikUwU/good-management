@@ -60,6 +60,7 @@ export class TargetUpdateDto {
     required: false,
     example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
   })
+  @IsOptional()
   @IsUUID()
   @IsNotEmpty({ message: 'Id политики не может быть пустым' })
   policyId?: string;
