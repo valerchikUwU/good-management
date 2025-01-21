@@ -10,6 +10,7 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 
 import {
@@ -40,6 +41,7 @@ import { StatisticUpdateBulkDto } from 'src/contracts/statistic/updateBulk_stati
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 
 @UseGuards(AccessTokenGuard)
 @ApiTags('Statistic')
@@ -164,7 +166,7 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {"id": "ed2dfe55-b678-4f7e-a82e-ccf395afae05"},
+    example: { "id": "ed2dfe55-b678-4f7e-a82e-ccf395afae05" },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -375,7 +377,7 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'ОК!',
-    example: {"id": "f35dc993-1c7e-4f55-9ddd-45d8841d4396"},
+    example: { "id": "f35dc993-1c7e-4f55-9ddd-45d8841d4396" },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -532,10 +534,17 @@ export class StatisticController {
   async findOne(
     @Param('statisticId') statisticId: string,
   ): Promise<StatisticReadDto> {
+    var start = new Date().getTime();
+
     const statistic = await this.statisticService.findOneById(statisticId, [
       'statisticDatas',
       'post',
     ]);
+    var end = new Date().getTime();
+
+    var time = end - start;
+
+    console.log('Время выполнения = ' + time);
     return statistic;
   }
 }

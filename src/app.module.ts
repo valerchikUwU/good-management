@@ -40,9 +40,8 @@ import * as dotenv from 'dotenv';
 import { ControlPanelModule } from './application/modules/controlPanel.module';
 import { PanelToStatisticModule } from './application/modules/panelToStatistic.module';
 import { CacheModule } from '@nestjs/cache-manager';
-import * as redisStore from 'cache-manager-redis-store';
+import KeyvRedis, { Keyv } from '@keyv/redis';
 dotenv.config();
-
 
 @Module({
   imports: [
@@ -54,13 +53,19 @@ dotenv.config();
       useFactory: async (configService: ConfigService) =>
         configService.get('database'),
     }),
-    CacheModule.register({
+    CacheModule.registerAsync({
       isGlobal: true,
-      store: redisStore,
-      host: process.env.REDIS_HOST_LOCAL,
-      port: process.env.REDIS_PORT,
-      username: process.env.REDIS_USERNAME, // new property
-      password: process.env.REDIS_PASSWORD, // new property
+      useFactory: async () => {
+        return {
+          stores: [
+            new KeyvRedis({
+              url: `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
+            },
+              { namespace: 'good-management' }
+            ),
+          ],
+        };
+      },
     }),
     ...(process.env.NODE_ENV === 'prod'
       ? [

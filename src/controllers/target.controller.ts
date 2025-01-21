@@ -165,7 +165,15 @@ export class TargetController {
           "product": "fasf",
           "purpose": "sfsf",
           "createdAt": "2024-12-05T20:28:06.763Z",
-          "updatedAt": "2024-12-05T20:28:06.763Z"
+          "updatedAt": "2024-12-05T20:28:06.763Z",
+          "organization": {
+            "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167",
+            "organizationName": "Калоеды",
+            "parentOrganizationId": null,
+            "reportDay": 4,
+            "createdAt": "2024-12-04T13:14:47.767Z",
+            "updatedAt": "2025-01-17T13:18:56.549Z"
+          }
         },
         {
           "id": "261fcded-bb76-4956-a950-a19ab6e2c2fd",
@@ -176,7 +184,15 @@ export class TargetController {
           "product": "Ковальская",
           "purpose": "Ковальская",
           "createdAt": "2025-01-14T15:58:12.214Z",
-          "updatedAt": "2025-01-14T15:58:12.214Z"
+          "updatedAt": "2025-01-14T15:58:12.214Z",
+          "organization": {
+            "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167",
+            "organizationName": "Калоеды",
+            "parentOrganizationId": null,
+            "reportDay": 4,
+            "createdAt": "2024-12-04T13:14:47.767Z",
+            "updatedAt": "2025-01-17T13:18:56.549Z"
+          }
         }
       ],
       "personalArchiveTargets": [

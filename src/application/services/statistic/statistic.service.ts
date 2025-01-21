@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -23,7 +22,7 @@ export class StatisticService {
   constructor(
     @InjectRepository(Statistic)
     private readonly statisticRepository: StatisticRepository,
-    @Inject(CACHE_MANAGER) private cacheService: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -85,20 +84,15 @@ export class StatisticService {
 
   async findOneById(id: string, relations?: string[]): Promise<StatisticReadDto> {
     try {
-      var start = new Date().getTime();
-      const cachedData = await this.cacheService.get<StatisticReadDto>(id)
+      const cachedData = await this.cacheService.get<StatisticReadDto>(`statistic:${id}`)
 
       if (cachedData) {
         console.log(`Getting data from cache! ${JSON.stringify(cachedData)}`);
-        var end = new Date().getTime();
 
-        var time = end - start;
-
-        console.log('Время выполнения = ' + time);
 
         return cachedData;
       }
-
+      
       const statistic = await this.statisticRepository.findOne({
         where: { id: id },
         relations: relations !== undefined ? relations : [],
@@ -119,12 +113,8 @@ export class StatisticService {
         panelToStatistics: statistic.panelToStatistics
       };
 
-      await this.cacheService.set(id, statisticReadDto);
-      var end = new Date().getTime();
+      await this.cacheService.set(`statistic:${id}`, statisticReadDto, 60000);
 
-      var time = end - start;
-
-      console.log('Время выполнения = ' + time);
       return statisticReadDto;
     } catch (err) {
       this.logger.error(err);
