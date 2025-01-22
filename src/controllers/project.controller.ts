@@ -363,22 +363,22 @@ export class ProjectController {
       targetCreateDtos:
         targetCreateEventDtos.length > 0 ? targetCreateEventDtos : null,
     };
-    try {
-      await Promise.race([
-        this.producerService.sendCreatedProjectToQueue(createdEventProjectDto),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendCreatedProjectToQueue(createdEventProjectDto),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
       `${yellow('OK!')} - projectCreateDto: ${JSON.stringify(projectCreateDto)} - Создан новый проект!`,
     );
@@ -555,22 +555,22 @@ export class ProjectController {
       targetCreateDtos:
         targetCreateEventDtos.length > 0 ? targetCreateEventDtos : null,
     };
-    try {
-      await Promise.race([
-        this.producerService.sendUpdatedProjectToQueue(updatedEventProjectDto),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendUpdatedProjectToQueue(updatedEventProjectDto),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
       `${yellow('OK!')} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`,
     );

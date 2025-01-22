@@ -162,6 +162,7 @@ export class AuthService {
       const currentTime = Math.floor(Date.now() / 1000);
       const isExpired = currentTime > session.expiresIn;
       if (isExpired) {
+        await this.refreshService.remove(refreshTokenId);
         throw new UnauthorizedException('Пожалуйста, войдите еще раз в свой аккаунт.');
       }
       const newSession: CreateRefreshSessionDto = {

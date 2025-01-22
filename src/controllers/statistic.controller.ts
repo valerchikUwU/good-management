@@ -287,24 +287,24 @@ export class StatisticController {
           : null,
       accountId: user.account.id,
     };
-    try {
-      await Promise.race([
-        this.producerService.sendUpdatedStatisticToQueue(
-          statisticUpdateEventDto,
-        ),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendUpdatedStatisticToQueue(
+    //       statisticUpdateEventDto,
+    //     ),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
       `${yellow('OK!')} - UPDATED STATISTIC: ${JSON.stringify(statisticUpdateDto)} - Статистика успешно обновлена!`,
     );
@@ -449,24 +449,24 @@ export class StatisticController {
           : null,
     };
 
-    try {
-      await Promise.race([
-        this.producerService.sendCreatedStatisticToQueue(
-          statisticCreateEventDto,
-        ),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendCreatedStatisticToQueue(
+    //       statisticCreateEventDto,
+    //     ),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
       `${yellow('OK!')} - statisticCreateDto: ${JSON.stringify(statisticCreateDto)} - Создана новая статистика!`,
     );

@@ -170,22 +170,22 @@ export class PolicyController {
       updatedAt: new Date(),
       accountId: user.account.id,
     };
-    try {
-      await Promise.race([
-        this.producerService.sendUpdatedPolicyToQueue(updatedEventPolicyDto),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendUpdatedPolicyToQueue(updatedEventPolicyDto),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
       `${yellow('OK!')} - UPDATED POLICY: ${JSON.stringify(policyUpdateDto)} - Политика успешно обновлена!`,
     );
@@ -288,22 +288,22 @@ export class PolicyController {
       accountId: user.account.id,
       organizationId: policyCreateDto.organizationId,
     };
-    try {
-      await Promise.race([
-        this.producerService.sendCreatedPolicyToQueue(createdEventPolicyDto),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendCreatedPolicyToQueue(createdEventPolicyDto),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
       `${yellow('OK!')} - policyCreateDto: ${JSON.stringify(policyCreateDto)} - Создана новая политика!`,
     );

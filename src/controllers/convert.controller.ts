@@ -180,7 +180,7 @@ export class ConvertController {
       'messages.sender',
     ]);
     const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id)
-    if(userIdsInConvert.includes(user.id)){
+    if (userIdsInConvert.includes(user.id)) {
       return convert;
     }
     else {
@@ -214,12 +214,11 @@ export class ConvertController {
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
     const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId)
-    console.log()
     const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
       await Promise.all([ // условие на DIRECT поставить выше чтобы не выолнять лишние запросы к БД
-        await this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
-        await this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
-        await this.postService.findOneById(convertCreateDto.reciverPostId),
+        this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
+        this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
+        this.postService.findOneById(convertCreateDto.reciverPostId),
       ]);
     const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
       postIdsFromRecieverToTop.includes(postId),
@@ -251,9 +250,9 @@ export class ConvertController {
     convertCreateDto.targetCreateDto.holderPost = targetHolderPost
     const [targetId, createdConvert, activePost] =
       await Promise.all([
-        await this.targetService.create(convertCreateDto.targetCreateDto),
-        await this.convertService.create(convertCreateDto),
-        await this.postService.findOneById(convertCreateDto.pathOfPosts[1])
+        this.targetService.create(convertCreateDto.targetCreateDto),
+        this.convertService.create(convertCreateDto),
+        this.postService.findOneById(convertCreateDto.pathOfPosts[1])
       ]);
     // this.convertGateway.handleConvertExtensionEvent(createdConvert, activePost?.user.id) // ПРОВЕРИТЬ КАК РАБОТАЕТ ЕСЛИ У ПОСТА НЕ БУДЕТ ЮЗЕРА
     this.logger.info(

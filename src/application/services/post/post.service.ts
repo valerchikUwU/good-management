@@ -224,6 +224,24 @@ export class PostService {
     return hierarchyIds;
   }
 
+  async getParentPosts(postId: string): Promise<PostReadDto[]> {
+    const parentPosts: PostReadDto[] = [];
+    let currentPost = await this.postRepository.findOne({
+      where: { id: postId },
+      relations: ['user'],
+    });
+    while (currentPost && currentPost.parentId) {
+      parentPosts.push(currentPost);
+      currentPost = await this.postRepository.findOne({
+        where: { id: currentPost.parentId },
+        relations: ['user'],
+      });
+    }
+    // Добавляем верхний уровень (пост без parentId)
+    if (currentPost) parentPosts.push(currentPost);
+    return parentPosts;
+  }
+
   async create(postCreateDto: PostCreateDto): Promise<string> {
     try {
 

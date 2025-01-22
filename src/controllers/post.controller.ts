@@ -222,22 +222,22 @@ export class PostController {
           : null,
       accountId: user.account.id,
     };
-    try {
-      await Promise.race([
-        this.producerService.sendUpdatedPostToQueue(updatedEventPostDto),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendUpdatedPostToQueue(updatedEventPostDto),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
       `${yellow('OK!')} - UPDATED POST: ${JSON.stringify(postUpdateDto)} - Пост успешно обновлен!`,
     );
@@ -316,10 +316,10 @@ export class PostController {
     maxDivisionNumber: number;
   }> {
     const [policies, workers, posts, maxDivisionNumber] = await Promise.all([
-      await this.policyService.findAllActiveForOrganization(organizationId),
-      await this.userService.findAllForOrganization(organizationId),
-      await this.postService.findAllForOrganization(organizationId),
-      await this.postService.findMaxDivisionNumber()
+      this.policyService.findAllActiveForOrganization(organizationId),
+      this.userService.findAllForOrganization(organizationId),
+      this.postService.findAllForOrganization(organizationId),
+      this.postService.findMaxDivisionNumber()
     ])
 
     return {
@@ -472,12 +472,12 @@ export class PostController {
     workers: ReadUserDto[];
     policiesActive: PolicyReadDto[];
   }> {
-    
     const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization', 'statistics']);
+    const isHasBoss = currentPost.parentId !== null ? true : false
     const [posts, workers, policiesActive] = await Promise.all([
-      await this.postService.findAllForOrganization(currentPost.organization.id, ['user']),
-      await this.userService.findAllForOrganization(currentPost.organization.id),
-      await this.policyService.findAllActiveForOrganization(currentPost.organization.id),
+      isHasBoss ? this.postService.getParentPosts(currentPost.id) : this.postService.findAllForOrganization(currentPost.organization.id, ['user']),
+      this.userService.findAllForOrganization(currentPost.organization.id),
+      this.policyService.findAllActiveForOrganization(currentPost.organization.id),
     ])
     const _posts = posts.filter((post) => post.id !== currentPost.id)
     const parentPost = posts.find((post) => post.id === currentPost.parentId);
@@ -599,8 +599,8 @@ export class PostController {
       product: postCreateDto.product,
       purpose: postCreateDto.purpose,
       createdAt: new Date(),
-      policyId: postCreateDto.policyId !== undefined 
-        ? postCreateDto.policyId 
+      policyId: postCreateDto.policyId !== undefined
+        ? postCreateDto.policyId
         : null,
       accountId: user.account.id,
       responsibleUserId:
@@ -612,22 +612,22 @@ export class PostController {
           ? postCreateDto.organizationId
           : null,
     };
-    try {
-      await Promise.race([
-        this.producerService.sendCreatedPostToQueue(createdEventPostDto),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendCreatedPostToQueue(createdEventPostDto),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
       `${yellow('OK!')} - postCreateDto: ${JSON.stringify(postCreateDto)} - Создан новый пост!`,
     );

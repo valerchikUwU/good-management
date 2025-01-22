@@ -43,7 +43,7 @@ export class UsersController {
     private readonly roleSettingService: RoleSettingService,
     private readonly roleService: RoleService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get(':organizationId/organization')
   @ApiOperation({ summary: 'Все пользователи в организации' })
@@ -133,7 +133,7 @@ export class UsersController {
       createdAt: '1900-01-01 00:00:00',
       updatedAt: '1900-01-01 00:00:00',
     },
-  })  
+  })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'Вы не авторизованы!',
@@ -166,7 +166,7 @@ export class UsersController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'ОК!',
-    example: {"id": "71ba1ba2-9e53-4238-9bb2-14a475460689"},
+    example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -184,8 +184,8 @@ export class UsersController {
     @Body() userCreateDto: CreateUserDto,
   ): Promise<{ id: string }> {
     const [organization, role] = await Promise.all([
-      await this.organizationService.findOneById(userCreateDto.organizationId, ['account']),
-      await this.roleService.findOneById(userCreateDto.roleId)
+      this.organizationService.findOneById(userCreateDto.organizationId, ['account']),
+      this.roleService.findOneById(userCreateDto.roleId)
     ])
     userCreateDto.role = role;
     userCreateDto.organization = organization;

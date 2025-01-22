@@ -140,11 +140,13 @@ export class TargetController {
   }> {
     const user = req.user as ReadUserDto;
     const userPosts = await this.postService.findAllForUser(user.id, ['organization']);
-    const userPostsIds = userPosts.map(post => post.id)
-    const personalTargets = await this.targetService.findAllPersonalForUserPosts(userPostsIds, false, ['policy']);
-    const orderTargets = await this.targetService.findAllOrdersForUserPosts(userPostsIds, false);
-    const projectTargets = await this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false);
-    return { userPosts: userPosts, personalTargets: personalTargets, ordersTargets: orderTargets, projectTargets: projectTargets };
+    const userPostsIds = userPosts.map(post => post.id);
+    const [personalTargets, orderTargets, projectTargets] = await Promise.all([
+      this.targetService.findAllPersonalForUserPosts(userPostsIds, false, ['policy']),
+      this.targetService.findAllOrdersForUserPosts(userPostsIds, false),
+      this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false)
+    ]);
+    return { userPosts: userPosts, personalTargets: personalTargets, ordersTargets: orderTargets, projectTargets: projectTargets }
   }
 
 
@@ -261,9 +263,11 @@ export class TargetController {
     const user = req.user as ReadUserDto;
     const userPosts = await this.postService.findAllForUser(user.id, ['organization']);
     const userPostsIds = userPosts.map(post => post.id)
-    const personalArchiveTargets = await this.targetService.findAllPersonalForUserPosts(userPostsIds, true, ['policy']);
-    const orderArchiveTargets = await this.targetService.findAllOrdersForUserPosts(userPostsIds, true);
-    const projectArchiveTargets = await this.targetService.findAllFromProjectsForUserPosts(userPostsIds, true);
+    const [personalArchiveTargets, orderArchiveTargets, projectArchiveTargets] = await Promise.all([
+      this.targetService.findAllPersonalForUserPosts(userPostsIds, false, ['policy']),
+      this.targetService.findAllOrdersForUserPosts(userPostsIds, false),
+      this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false)
+    ]);
     return { userPosts: userPosts, personalArchiveTargets: personalArchiveTargets, ordersArchiveTargets: orderArchiveTargets, projectArchiveTargets: projectArchiveTargets };
   }
 
