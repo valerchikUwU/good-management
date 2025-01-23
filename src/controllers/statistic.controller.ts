@@ -534,17 +534,10 @@ export class StatisticController {
   async findOne(
     @Param('statisticId') statisticId: string,
   ): Promise<StatisticReadDto> {
-    var start = new Date().getTime();
-
     const statistic = await this.statisticService.findOneById(statisticId, [
       'statisticDatas',
       'post',
     ]);
-    var end = new Date().getTime();
-
-    var time = end - start;
-
-    console.log('Время выполнения = ' + time);
     return statistic;
   }
 }

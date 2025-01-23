@@ -84,16 +84,6 @@ export class StatisticService {
 
   async findOneById(id: string, relations?: string[]): Promise<StatisticReadDto> {
     try {
-      console.log('start')
-      const cachedData = await this.cacheService.get<StatisticReadDto>(`statistic:${id}`)
-      console.log(cachedData)
-      if (cachedData) {
-        console.log(`Getting data from cache! ${JSON.stringify(cachedData)}`);
-
-
-        return cachedData;
-      }
-      
       const statistic = await this.statisticRepository.findOne({
         where: { id: id },
         relations: relations !== undefined ? relations : [],
@@ -113,9 +103,6 @@ export class StatisticService {
         account: statistic.account,
         panelToStatistics: statistic.panelToStatistics
       };
-      if (cachedData) {
-        await this.cacheService.set(`statistic:${id}`, statisticReadDto, 60000);
-      }
       return statisticReadDto;
     } catch (err) {
       this.logger.error(err);
