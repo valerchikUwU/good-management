@@ -19,6 +19,9 @@ import { UserTgAuthDto } from 'src/contracts/user/user-tgauth-dto';
 import { Logger } from 'winston';
 import { AuthVK } from 'src/contracts/auth-vk.dto';
 import { yellow } from 'colorette';
+import { ReadRefreshSessionDto } from 'src/contracts/refreshSession/read-refreshSession.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -27,7 +30,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly refreshService: RefreshService,
-    @InjectConfig() private readonly config: ConfigService,
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -150,6 +153,7 @@ export class AuthService {
         String(refreshTokenId),
         String(fingerprint),
       );
+      
       if (!session) {
         this.logger.info(
           `Попытка обновления токенов с fingerprint: ${fingerprint} и refreshTokenId: ${refreshTokenId}`,
