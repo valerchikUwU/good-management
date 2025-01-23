@@ -534,6 +534,7 @@ export class StatisticController {
   async findOne(
     @Param('statisticId') statisticId: string,
   ): Promise<StatisticReadDto> {
+
     const statistic = await this.statisticService.findOneById(statisticId, [
       'statisticDatas',
       'post',

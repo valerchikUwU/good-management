@@ -20,6 +20,8 @@ export class ControlPanelReadDto {
 
     graphType: GraphType;
 
+    isNameChanged: boolean;
+
     createdAt: Date;
 
     updatedAt: Date;

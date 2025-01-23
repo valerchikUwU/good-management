@@ -12,11 +12,14 @@ import { ReadRefreshSessionDto } from 'src/contracts/refreshSession/read-refresh
 import { CreateRefreshSessionDto } from 'src/contracts/refreshSession/create-refreshSession.dto';
 import { UpdateRefreshSessionDto } from 'src/contracts/refreshSession/update-refreshSession.dto';
 import { Logger } from 'winston';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class RefreshService {
   constructor(
     private sessionsRepository: RefreshSessionRepository,
+    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
@@ -55,8 +58,9 @@ export class RefreshService {
       session.expiresIn = createSessionDto.expiresIn;
       session.refreshToken = createSessionDto.refreshToken;
       session.user = createSessionDto.user;
-      const refreshSessionId = await this.sessionsRepository.insert(session);
-      return refreshSessionId.identifiers[0].id
+      const refreshSession = await this.sessionsRepository.save(session);
+      await this.cacheService.set<RefreshSession>(`session:${refreshSession.id}`, refreshSession, 1860000);
+      return refreshSession.id
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при создании сессии!');
@@ -98,7 +102,8 @@ export class RefreshService {
     fingerprint: string,
   ): Promise<ReadRefreshSessionDto | null> {
     try {
-      const session = await this.sessionsRepository.findOneByIdAndFingerprint(
+      const session = await this.cacheService.get<ReadRefreshSessionDto>(`session:${id}`)
+      ?? await this.sessionsRepository.findOneByIdAndFingerprint(
         id,
         fingerprint,
       );

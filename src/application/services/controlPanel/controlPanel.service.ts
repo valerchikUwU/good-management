@@ -33,6 +33,7 @@ export class ControlPanelService {
                 controlPanelNumber: controlPanel.controlPanelNumber,
                 panelType: controlPanel.panelType,
                 graphType: controlPanel.graphType,
+                isNameChanged: controlPanel.isNameChanged,
                 createdAt: controlPanel.createdAt,
                 updatedAt: controlPanel.updatedAt,
                 panelToStatistics: controlPanel.panelToStatistics,
@@ -60,6 +61,7 @@ export class ControlPanelService {
                 controlPanelNumber: controlPanel.controlPanelNumber,
                 panelType: controlPanel.panelType,
                 graphType: controlPanel.graphType,
+                isNameChanged: controlPanel.isNameChanged,
                 createdAt: controlPanel.createdAt,
                 updatedAt: controlPanel.updatedAt,
                 panelToStatistics: controlPanel.panelToStatistics,
@@ -109,7 +111,10 @@ export class ControlPanelService {
                 throw new NotFoundException(`Панель с ID ${_id} не найдена`);
             }
             // Обновить свойства, если они указаны в DTO
-            if (updateControlPanelDto.panelName) controlPanel.panelName = updateControlPanelDto.panelName;
+            if (updateControlPanelDto.panelName){
+                controlPanel.panelName = updateControlPanelDto.panelName;
+                controlPanel.isNameChanged = true;
+            } 
             if (updateControlPanelDto.panelType) controlPanel.panelType = updateControlPanelDto.panelType;
             if (updateControlPanelDto.graphType) controlPanel.graphType = updateControlPanelDto.graphType;
 
@@ -117,7 +122,7 @@ export class ControlPanelService {
                 await this.panelToStatisticService.remove(controlPanel);
                 await this.panelToStatisticService.createSeveral(controlPanel, updateControlPanelDto.statisticIds);
             }
-            await this.controlPanelRepository.update(controlPanel.id, { panelName: controlPanel.panelName, panelType: controlPanel.panelType, graphType: controlPanel.graphType });
+            await this.controlPanelRepository.update(controlPanel.id, { panelName: controlPanel.panelName, panelType: controlPanel.panelType, graphType: controlPanel.graphType, isNameChanged: controlPanel.isNameChanged });
             return controlPanel.id
         }
         catch (err) {

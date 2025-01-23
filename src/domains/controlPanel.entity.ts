@@ -72,7 +72,7 @@ export class ControlPanel {
     @Column({ nullable: false })
     orderNumber: number;
 
-    
+
     /**
       * Номер панели в БД относительно поста.
       * 
@@ -110,6 +110,17 @@ export class ControlPanel {
         nullable: false,
     })
     graphType: GraphType;
+
+
+    /**
+     * Флаг для фронта.
+     * 
+     * @remarks
+     * default: false, nullable: false
+     */
+    @Column({default: false, nullable: false})
+    isNameChanged: boolean;
+
 
     /**
      * Дата создания записи.

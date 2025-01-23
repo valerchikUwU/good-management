@@ -14,15 +14,12 @@ import { Logger } from 'winston';
 import { StatisticCreateDto } from 'src/contracts/statistic/create-statistic.dto';
 import { StatisticUpdateDto } from 'src/contracts/statistic/update-statistic.dto';
 import { In } from 'typeorm';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 
 @Injectable()
 export class StatisticService {
   constructor(
     @InjectRepository(Statistic)
     private readonly statisticRepository: StatisticRepository,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -84,6 +81,7 @@ export class StatisticService {
 
   async findOneById(id: string, relations?: string[]): Promise<StatisticReadDto> {
     try {
+      
       const statistic = await this.statisticRepository.findOne({
         where: { id: id },
         relations: relations !== undefined ? relations : [],
