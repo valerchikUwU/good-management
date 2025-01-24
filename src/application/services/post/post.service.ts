@@ -14,7 +14,7 @@ import { OrganizationReadDto } from 'src/contracts/organization/read-organizatio
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
 import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
-import { IsNull, Not } from 'typeorm';
+import { FindOptionsWhere, IsNull, Not } from 'typeorm';
 
 @Injectable()
 export class PostService {
@@ -25,12 +25,12 @@ export class PostService {
   ) { }
 
 
-  
+
 
   async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { organization: { id: organizationId }},
+        where: { organization: { id: organizationId } },
         relations: relations !== undefined ? relations : [],
       });
 
@@ -50,7 +50,7 @@ export class PostService {
         organization: post.organization,
         account: post.account,
         convert: post.convert,
-        historiesUsersToPost: post.historiesUsersToPost,  
+        historiesUsersToPost: post.historiesUsersToPost,
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
@@ -68,7 +68,7 @@ export class PostService {
   async findAllForUser(userId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { 
+        where: {
           user: { id: userId },
         },
         relations: relations !== undefined ? relations : [],
@@ -90,7 +90,7 @@ export class PostService {
         organization: post.organization,
         account: post.account,
         convert: post.convert,
-        historiesUsersToPost: post.historiesUsersToPost,  
+        historiesUsersToPost: post.historiesUsersToPost,
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
@@ -108,7 +108,7 @@ export class PostService {
   async findAllWithUserForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { organization: { id: organizationId }, user: {id: Not(IsNull())} },
+        where: { organization: { id: organizationId }, user: { id: Not(IsNull()) } },
         relations: relations !== undefined ? relations : [],
       });
 
@@ -128,7 +128,7 @@ export class PostService {
         organization: post.organization,
         account: post.account,
         convert: post.convert,
-        historiesUsersToPost: post.historiesUsersToPost,  
+        historiesUsersToPost: post.historiesUsersToPost,
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
@@ -169,7 +169,7 @@ export class PostService {
         organization: post.organization,
         account: post.account,
         convert: post.convert,
-        historiesUsersToPost: post.historiesUsersToPost,  
+        historiesUsersToPost: post.historiesUsersToPost,
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
@@ -242,6 +242,21 @@ export class PostService {
     return parentPosts;
   }
 
+  async getChildrenPosts(postId: string): Promise<PostReadDto[]> {
+    const childrenPosts: PostReadDto[] = [];
+    const post = await this.postRepository.findOne({ where: { id: postId } })
+    // Находим прямых потомков
+    const directChildren = await this.postRepository.find({ where: { parentId: post.id }, relations: ['user'] });
+    // Добавляем прямых потомков в результат
+    childrenPosts.push(...directChildren);
+    // Рекурсивно ищем потомков для каждого прямого потомка
+    for (const child of directChildren) {
+      const grandchildren = await this.getChildrenPosts(child.id);
+      childrenPosts.push(...grandchildren);
+    }
+    return childrenPosts;
+  }
+
   async create(postCreateDto: PostCreateDto): Promise<string> {
     try {
 
@@ -293,7 +308,7 @@ export class PostService {
       } else {
         post.policy = null;
       }
-      
+
       await this.postRepository.update(post.id, {
         postName: post.postName,
         divisionName: post.divisionName,

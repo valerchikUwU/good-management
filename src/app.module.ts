@@ -42,7 +42,7 @@ import { PanelToStatisticModule } from './application/modules/panelToStatistic.m
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis, { Keyv } from '@keyv/redis';
 dotenv.config();
-
+console.log(__dirname)
 @Module({
   imports: [
     ConfigModule.load(
@@ -83,7 +83,7 @@ dotenv.config();
       ? [
         ServeStaticModule.forRoot({
           rootPath: join(__dirname, '../../../gm_front_build/GM'),
-          serveRoot: '/gm/mobile', // Фронтенд будет доступен по корню
+          serveRoot: '/gm/mobile',
         }),
       ]
       : []),
@@ -91,7 +91,7 @@ dotenv.config();
       ? [
         ServeStaticModule.forRoot({
           rootPath: join(__dirname, '../../../gm_front_build/GMDesktop'),
-          serveRoot: '/gm/desktop', // Фронтенд будет доступен по корню
+          serveRoot: '/gm/desktop',
         }),
       ]
       : []),

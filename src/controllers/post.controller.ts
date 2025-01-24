@@ -40,6 +40,7 @@ import { HistoryUsersToPostService } from 'src/application/services/historyUsers
 import { HistoryUsersToPostCreateDto } from 'src/contracts/historyUsersToPost/create-historyUsersToPost.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
+import { In, Not } from 'typeorm';
 
 @ApiTags('Posts')
 @ApiBearerAuth('access-token')
@@ -463,6 +464,11 @@ export class PostController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
+  @ApiParam({ 
+    name: 'postId', 
+    required: true, 
+    description: 'Id поста' 
+  })
   async findOne(
     @Param('postId') postId: string,
   ): Promise<{
@@ -490,6 +496,71 @@ export class PostController {
       workers: workers,
       policiesActive: policiesActive
     };
+  }
+
+
+
+  @Get(':postId/allUnderPosts')
+  @ApiOperation({ summary: 'Получить все дочерние посты' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: [
+      {
+        "id": "9ad461a7-9e13-4f40-a1e3-8090be47771a",
+        "postName": "Тест 2",
+        "divisionName": "Подразделение №73",
+        "divisionNumber": 7,
+        "parentId": "9b6596ea-be16-4b97-a579-cab6b7d722b0",
+        "product": "Тест 2",
+        "purpose": "Тест 2",
+        "createdAt": "2024-12-25T13:01:55.517Z",
+        "updatedAt": "2024-12-25T13:01:55.517Z",
+        "user": null
+      },
+      {
+        "id": "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
+        "postName": "постецкий",
+        "divisionName": "Подразделение №66",
+        "divisionNumber": 66,
+        "parentId": "9ad461a7-9e13-4f40-a1e3-8090be47771a",
+        "product": "ясчмп",
+        "purpose": "яывсачм",
+        "createdAt": "2024-12-04T15:50:26.335Z",
+        "updatedAt": "2025-01-15T09:57:05.584Z",
+        "user": {
+          "id": "0618825d-3564-4c3b-8a6a-cc245e766ea7",
+          "firstName": "Илья",
+          "lastName": "Белописькин",
+          "middleName": null,
+          "telegramId": 388089893,
+          "telephoneNumber": "+79787294592",
+          "avatar_url": null,
+          "vk_id": null,
+          "createdAt": "2024-12-24T18:38:17.034Z",
+          "updatedAt": "2024-12-24T18:39:06.592Z"
+        }
+      }
+    ]
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({ 
+    name: 'postId', 
+    required: true, 
+    description: 'Id поста' 
+  })
+  async findAllUnderPosts(
+    @Param('postId') postId: string,
+  ): Promise<PostReadDto[]> {
+    const underPosts = await this.postService.getChildrenPosts(postId)
+    return underPosts;
   }
 
   @Post('new')

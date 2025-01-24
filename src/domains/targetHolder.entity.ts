@@ -56,9 +56,7 @@ export class TargetHolder {
    * @remarks
    * Установлен индекс, nullable: false
    */
-  @ManyToOne(() => Target, (target) => target.targetHolders, {
-    nullable: false,
-  })
+  @ManyToOne(() => Target, (target) => target.targetHolders, { nullable: false })
   @Index() // Добавляем индекс для поля target
   target: Target;
 

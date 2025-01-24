@@ -162,7 +162,7 @@ export class Target {
   /**
    * Связь с сущностью 1:M TargetHolder.
    */
-  @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.target)
+  @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.target, { cascade: ["remove"] })
   targetHolders: TargetHolder[];
 
   /**
