@@ -101,11 +101,7 @@ export class RefreshService {
     fingerprint: string,
   ): Promise<ReadRefreshSessionDto | null> {
     try {
-      const session = await this.cacheService.get<ReadRefreshSessionDto>(`session:${id}`)
-      ?? await this.sessionsRepository.findOneByIdAndFingerprint(
-        id,
-        fingerprint,
-      );
+      const session = await this.sessionsRepository.findOneByIdAndFingerprint(id, fingerprint);
       if (!session)
         return null;
 
