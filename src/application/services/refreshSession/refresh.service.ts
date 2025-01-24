@@ -65,37 +65,7 @@ export class RefreshService {
       throw new InternalServerErrorException('Ошибка при создании сессии!');
     }
   }
-
-  async findOneByFingerprint(
-    fingerprint: string,
-  ): Promise<ReadRefreshSessionDto | null> {
-    try {
-      const session = await this.sessionsRepository.findOneByFingerprint(fingerprint);
-      if (!session)
-        return null;
-
-      // Преобразование объекта User в ReadUserDto
-      const readRefreshSessionDto: ReadRefreshSessionDto = {
-        id: session.id,
-        user_agent: session.user_agent,
-        fingerprint: session.fingerprint,
-        ip: session.ip,
-        expiresIn: session.expiresIn,
-        refreshToken: session.refreshToken,
-        createdAt: session.createdAt,
-        updatedAt: session.updatedAt,
-        user: session.user,
-      };
-
-      return readRefreshSessionDto;
-    } catch (err) {
-      this.logger.error(err);
-
-      // Обработка других ошибок
-      throw new InternalServerErrorException('Ошибка при получении сессии');
-    }
-  }
-
+  
   async findOneByIdAndFingerprint(
     id: string,
     fingerprint: string,

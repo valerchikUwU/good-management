@@ -5,6 +5,7 @@ import {
   OnModuleInit,
   HttpStatus,
   Query,
+  Req,
 } from '@nestjs/common';
 import * as crypto from 'crypto';
 import { TelegramService } from './application/services/telegram/telegram.service';
@@ -16,7 +17,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from './application/services/auth/auth.service';
-
+import { Request as ExpressRequest } from 'express';
+import { Response as ExpressResponse } from 'express';
 @ApiTags('Homepage')
 @Controller()
 export class AppController implements OnModuleInit {
@@ -56,13 +58,15 @@ export class AppController implements OnModuleInit {
     example: '123rewt235r3wefe',
   })
   async getToken(
+    @Req() req: ExpressRequest,
     @Headers('User-Agent') user_agent: string,
     @Query('fingerprint') fingerprint?: string,
   ): Promise<object> {
     let isLogged = false;
     let userId = null;
-    if(fingerprint){
-      const isLoggedResult = await this.authService.isSessionExpired(fingerprint)
+    const refreshTokenId = req.cookies['refresh-tokenId'];
+    if(fingerprint && refreshTokenId){
+      const isLoggedResult = await this.authService.isSessionExpired(fingerprint, refreshTokenId)
       isLogged = isLoggedResult.isExpired ? false : true
       userId = isLogged ? isLoggedResult.userId : null;
     }
@@ -89,7 +93,7 @@ export class AppController implements OnModuleInit {
   }
   
   onModuleInit() {
-      if (process.env.NODE_ENV === 'prod') {
+      if (process.env.NODE_ENV === 'dev') {
       this.telegramBotService.startBot();
     }
   }

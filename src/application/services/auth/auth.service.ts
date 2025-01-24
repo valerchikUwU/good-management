@@ -292,8 +292,10 @@ export class AuthService {
   }
 
 
-  async isSessionExpired(fingerprint: string): Promise<{ isExpired: boolean, userId: string }> {
-    const session = await this.refreshService.findOneByFingerprint(
+  async isSessionExpired(fingerprint: string, refreshTokenId: string): Promise<{ isExpired: boolean, userId: string }> {
+    
+    const session = await this.refreshService.findOneByIdAndFingerprint(
+      String(refreshTokenId),
       String(fingerprint),
     );
     if (session === null) {
