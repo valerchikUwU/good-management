@@ -59,7 +59,6 @@ export class RefreshService {
       session.refreshToken = createSessionDto.refreshToken;
       session.user = createSessionDto.user;
       const refreshSession = await this.sessionsRepository.save(session);
-      await this.cacheService.set<RefreshSession>(`session:${refreshSession.id}`, refreshSession, 1860000);
       return refreshSession.id
     } catch (err) {
       this.logger.error(err);
