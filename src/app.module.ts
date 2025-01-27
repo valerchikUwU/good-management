@@ -42,7 +42,7 @@ import { PanelToStatisticModule } from './application/modules/panelToStatistic.m
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis, { Keyv } from '@keyv/redis';
 dotenv.config();
-console.log(__dirname)
+
 @Module({
   imports: [
     ConfigModule.load(
@@ -67,31 +67,19 @@ console.log(__dirname)
         };
       },
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: process.env.NODE_ENV === 'prod' ? '/gm/uploads' : 'uploads',
+    }),
     ...(process.env.NODE_ENV === 'prod'
       ? [
         ServeStaticModule.forRoot({
-          rootPath: join(__dirname, '..', 'uploads'),
-          serveRoot: '/gm/uploads',
-        })
-      ] : [
-        ServeStaticModule.forRoot({
-          rootPath: join(__dirname, '..', 'uploads'),
-          serveRoot: 'uploads',
-        })
-      ]),
-    ...(process.env.NODE_ENV === 'prod'
-      ? [
-        ServeStaticModule.forRoot({
-          rootPath: join(__dirname, '../../../gm_front_build/GM'),
-          serveRoot: '/gm/mobile',
+          rootPath: process.env.FRONTEND_MOBILE_PATH,
+          serveRoot: '/gm/mobile', // Фронтенд будет доступен по корню
         }),
-      ]
-      : []),
-    ...(process.env.NODE_ENV === 'prod'
-      ? [
         ServeStaticModule.forRoot({
-          rootPath: join(__dirname, '../../../gm_front_build/GMDesktop'),
-          serveRoot: '/gm/desktop',
+          rootPath: process.env.FRONTEND_DESKTOP_PATH,
+          serveRoot: '/gm/desktop', // Фронтенд будет доступен по корню
         }),
       ]
       : []),

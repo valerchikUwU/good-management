@@ -7,6 +7,7 @@ import { Message } from 'src/domains/message.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Policy } from 'src/domains/policy.entity';
 import { Statistic } from 'src/domains/statistic.entity';
+import { Target } from 'src/domains/target.entity';
 import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { User } from 'src/domains/user.entity';
 
@@ -20,6 +21,7 @@ export class PostReadDto {
   purpose: string;
   createdAt: Date;
   updatedAt: Date;
+  target: Target;
   user: User;
   policy: Policy;
   statistics: Statistic[];

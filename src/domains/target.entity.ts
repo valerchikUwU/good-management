@@ -7,10 +7,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
 import { TargetHolder } from './targetHolder.entity';
 import { Project } from './project.entity';
 import { Policy } from './policy.entity';
+import { Post } from './post.entity';
 
 /**
  * Перечисление типов задач.
@@ -158,6 +161,14 @@ export class Target {
    */
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+
+  /**
+   * Связь с сущностью 1:1 User.
+   */
+  @OneToOne(() => Post, (post) => post.target, {nullable: true})
+  @JoinColumn()
+  senderPost: Post;
 
   /**
    * Связь с сущностью 1:M TargetHolder.

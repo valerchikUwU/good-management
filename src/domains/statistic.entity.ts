@@ -68,6 +68,15 @@ export class Statistic {
   description: string;
 
   /**
+   * Порядковый номер.
+   * 
+   * @remarks
+   * nullable: true
+   */
+  @Column({ nullable: true })
+  orderNumber: number;
+
+  /**
    * Дата создания записи.
    * 
    * @remarks

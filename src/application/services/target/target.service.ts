@@ -53,6 +53,7 @@ export class TargetService {
         dateComplete: target.dateComplete,
         createdAt: target.createdAt,
         updatedAt: target.updatedAt,
+        senderPost: target.senderPost,
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
@@ -79,7 +80,8 @@ export class TargetService {
           project: { id: IsNull() },
           dateComplete: isArchive ? LessThan(todayUTC) : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
           type: Type.ORDER
-        }
+        },
+        relations: ['senderPost']
       })
 
       return targets.map((target) => ({
@@ -94,6 +96,7 @@ export class TargetService {
         dateComplete: target.dateComplete,
         createdAt: target.createdAt,
         updatedAt: target.updatedAt,
+        senderPost: target.senderPost,
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
@@ -133,6 +136,7 @@ export class TargetService {
         dateComplete: target.dateComplete,
         createdAt: target.createdAt,
         updatedAt: target.updatedAt,
+        senderPost: target.senderPost,
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
@@ -159,6 +163,7 @@ export class TargetService {
       target.holderPostId = targetCreateDto.holderPostId;
       target.dateStart = targetCreateDto.dateStart !== undefined ? targetCreateDto.dateStart : new Date();
       target.deadline = targetCreateDto.deadline;
+      target.senderPost = targetCreateDto.senderPost;
       target.project = targetCreateDto.project;
       target.policy = targetCreateDto.policy;
       const createdTargetResult = await this.targetRepository.insert(target);

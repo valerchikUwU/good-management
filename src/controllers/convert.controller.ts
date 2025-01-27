@@ -247,7 +247,8 @@ export class ConvertController {
     convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
     convertCreateDto.host = userPost;
     convertCreateDto.account = user.account;
-    convertCreateDto.targetCreateDto.holderPost = targetHolderPost
+    convertCreateDto.targetCreateDto.holderPost = targetHolderPost;
+    convertCreateDto.targetCreateDto.senderPost = userPost;
     const [targetId, createdConvert, activePost] =
       await Promise.all([
         this.targetService.create(convertCreateDto.targetCreateDto),

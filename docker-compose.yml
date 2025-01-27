@@ -33,6 +33,9 @@ services:
       - CLIENT_SECRET=${CLIENT_SECRET}
       - COOKIE_EXPIRESIN=${COOKIE_EXPIRESIN}
       - NODE_ENV=${NODE_ENV}
+      - UPLOADS_PATH=/static/uploads
+      - FRONTEND_MOBILE_PATH=/static/frontend/mobile
+      - FRONTEND_DESKTOP_PATH=/static/frontend/desktop
     ports:
       - '5000:5000'
     depends_on:
@@ -40,6 +43,9 @@ services:
       - rabbitmq
     volumes:
       - ./src:/app/src
+      - ./uploads:/app/uploads  # Монтирование папки uploads
+      - /root/gm_front_build/GM:/static/frontend/mobile  # Монтирование папки с мобильным фронтендом
+      - /root/gm_front_build/GMDesktop:/static/frontend/desktop 
 
   pgadmin:
     image: dpage/pgadmin4

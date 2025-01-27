@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   Index,
   Generated,
+  OneToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
@@ -20,6 +21,7 @@ import { ConvertToPost } from './convertToPost.entity';
 import { Convert } from './convert.entity';
 import { Message } from './message.entity';
 import { ControlPanel } from './controlPanel.entity';
+import { Target } from './target.entity';
 
 /**
  * Сущность, представляющая должность (пост).
@@ -115,6 +117,13 @@ export class Post {
    */
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+
+  /**
+   * Связь с сущностью 1:1 Goal.
+   */
+  @OneToOne(() => Target, (target) => target.senderPost)
+  target: Target;
 
   /**
    * Связь с сущностью М:1 User.

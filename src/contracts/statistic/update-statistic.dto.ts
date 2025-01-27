@@ -9,6 +9,7 @@ import {
   IsArray,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
@@ -55,6 +56,16 @@ export class StatisticUpdateDto {
   @IsString()
   @IsNotEmpty({ message: 'Описание статистики не может быть пустым!' })
   description?: string;
+
+  @ApiProperty({
+    description: 'Порядковый номер',
+    required: false,
+    example: 22,
+  })
+  @IsOptional()
+  @IsNumber()
+  @IsNotEmpty({ message: 'Номер не может быть пустым!' })
+  orderNumber?: number;
 
   @ApiProperty({
     description: 'Id поста, к которому привязать статистику',

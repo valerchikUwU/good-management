@@ -58,11 +58,20 @@ export class TargetCreateDto {
   @ApiProperty({
     description: 'Id ответственного поста',
     required: true,
-    example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
+    example: 'a065a77a-36b0-4aea-9af4-5b313e550c19',
   })
   @IsUUID()
   @IsNotEmpty({ message: 'Id ответственного поста не может быть пустым' })
   holderPostId: string;
+
+  @ApiProperty({
+    description: 'Id поста отправителя приказа',
+    required: false,
+    example: '261fcded-bb76-4956-a950-a19ab6e2c2fd',
+  })
+  @IsUUID()
+  @IsNotEmpty({ message: 'Id поста отправителя не может быть пустым' })
+  senderPostId?: string;
 
   @ApiProperty({
     description: 'Id политики',
@@ -95,6 +104,9 @@ export class TargetCreateDto {
   @Type(() => Date)
   @IsDate()
   deadline?: Date;
+
+  @Exclude({ toPlainOnly: true })
+  senderPost: Post;
 
   @Exclude({ toPlainOnly: true })
   holderPost: Post;

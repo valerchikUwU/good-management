@@ -127,8 +127,8 @@ export class Convert {
    * @example
    * true
    */
-    @Column({ default: true, nullable: false })
-    convertStatus: boolean;
+  @Column({ default: true, nullable: false })
+  convertStatus: boolean;
 
   /**
    * Идентификатор пользователя, который должен подтвердить получение конверта.
