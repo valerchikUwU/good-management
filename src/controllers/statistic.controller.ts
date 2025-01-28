@@ -366,50 +366,6 @@ export class StatisticController {
     return { message: 'Статистики успешно обновлены.' };
   }
 
-
-  @Patch('updateOrderNumbers')
-  @ApiOperation({ summary: 'Обновить порядок статистик в панеле' })
-  @ApiBody({
-    description: 'ДТО для обновления статистики',
-    type: StatisticUpdateDto,
-    isArray: true,
-    required: true,
-  })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
-    example: 'Статистики успешно обновлены.',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Ошибка валидации!',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: 'Ресурс не найден!',
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  async updateOrderNumbers(
-    @Body() statisticUpdateDtos: StatisticUpdateDto[],
-  ): Promise<{ message: string }> {
-    const updateStatisticPromises = statisticUpdateDtos.map(
-      async (statisticUpdateDto) => {
-        const updatedStatisticId = await this.statisticService.update(statisticUpdateDto._id, statisticUpdateDto);
-        return updatedStatisticId;
-      },
-    );
-    await Promise.all(updateStatisticPromises);
-    return { message: 'Статистики успешно обновлены.' };
-  }
-
-
   @Post('new')
   @ApiOperation({ summary: 'Создать статистику' })
   @ApiBody({

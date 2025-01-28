@@ -6,17 +6,17 @@ import { ControlPanel } from "src/domains/controlPanel.entity";
 import { PanelToStatistic } from "src/domains/panelToStatistic.entity";
 import { StatisticService } from "../statistic/statistic.service";
 import { ControlPanelReadDto } from "src/contracts/controlPanel/read-controlPanel.dto";
+import { PanelToStatisticUpdateDto } from "src/contracts/panelToStatistic/update-panelToStatistic.dto";
 
 
 @Injectable()
-export class PanelToStatisticService{
-    constructor(
-        @InjectRepository(PanelToStatisticRepository)
-        private readonly panelToStatisticRepository: PanelToStatisticRepository,
-        private readonly statisticService: StatisticService,
-        @Inject('winston') private readonly logger: Logger
-    )
-    {}
+export class PanelToStatisticService {
+  constructor(
+    @InjectRepository(PanelToStatisticRepository)
+    private readonly panelToStatisticRepository: PanelToStatisticRepository,
+    private readonly statisticService: StatisticService,
+    @Inject('winston') private readonly logger: Logger
+  ) { }
 
   async createSeveral(
     controlPanel: ControlPanel,
@@ -41,9 +41,39 @@ export class PanelToStatisticService{
 
   }
 
-    async remove(controlPanel: ControlPanelReadDto): Promise<void>{
-        await this.panelToStatisticRepository.delete({controlPanel: controlPanel});
+
+  async update(_id: string, panelToStatisticUpdateDto: PanelToStatisticUpdateDto): Promise<string> {
+    try {
+      const panelToStatistic = await this.panelToStatisticRepository.findOne({
+        where: { id: _id },
+      });
+      if (!panelToStatistic) {
+        throw new NotFoundException(`Статистика с ID ${_id} в панеле не найдена`);
+      }
+      // Обновить свойства, если они указаны в DTO
+      if (panelToStatisticUpdateDto.orderStatisticNumber) panelToStatistic.orderStatisticNumber = panelToStatisticUpdateDto.orderStatisticNumber;
+      await this.panelToStatisticRepository.update(panelToStatistic.id, {
+        orderStatisticNumber: panelToStatistic.orderStatisticNumber,
+      });
+      return panelToStatistic.id;
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при обновлении статистики в панеле',
+      );
     }
-    
+
+  }
+
+  async remove(controlPanel: ControlPanelReadDto): Promise<void> {
+    await this.panelToStatisticRepository.delete({ controlPanel: controlPanel });
+  }
+
 
 }

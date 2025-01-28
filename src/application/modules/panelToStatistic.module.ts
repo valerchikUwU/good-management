@@ -4,6 +4,7 @@ import { PanelToStatisticRepository } from '../services/panelToStatistic/reposit
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PanelToStatistic } from 'src/domains/panelToStatistic.entity';
 import { StatisticModule } from './statistic.module';
+import { PanelToStatisticController } from 'src/controllers/panelToStatistic.controller';
 
 
 @Module({
@@ -11,6 +12,7 @@ import { StatisticModule } from './statistic.module';
     TypeOrmModule.forFeature([PanelToStatistic]),
     StatisticModule
   ],
+  controllers: [PanelToStatisticController],
   providers: [PanelToStatisticService, PanelToStatisticRepository],
   exports: [PanelToStatisticService],
 })

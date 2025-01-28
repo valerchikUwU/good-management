@@ -35,7 +35,6 @@ export class StatisticService {
         type: statistic.type,
         name: statistic.name,
         description: statistic.description,
-        orderNumber: statistic.orderNumber,
         createdAt: statistic.createdAt,
         updatedAt: statistic.updatedAt,
         statisticDatas: statistic.statisticDatas,
@@ -64,7 +63,6 @@ export class StatisticService {
         type: statistic.type,
         name: statistic.name,
         description: statistic.description,
-        orderNumber: statistic.orderNumber,
         createdAt: statistic.createdAt,
         updatedAt: statistic.updatedAt,
         statisticDatas: statistic.statisticDatas,
@@ -96,7 +94,6 @@ export class StatisticService {
         type: statistic.type,
         name: statistic.name,
         description: statistic.description,
-        orderNumber: statistic.orderNumber,
         createdAt: statistic.createdAt,
         updatedAt: statistic.updatedAt,
         statisticDatas: statistic.statisticDatas,
@@ -135,7 +132,6 @@ export class StatisticService {
         type: statistic.type,
         name: statistic.name,
         description: statistic.description,
-        orderNumber: statistic.orderNumber,
         createdAt: statistic.createdAt,
         updatedAt: statistic.updatedAt,
         statisticDatas: statistic.statisticDatas,
@@ -186,12 +182,10 @@ export class StatisticService {
       if (statisticUpdateDto.name) statistic.name = statisticUpdateDto.name;
       if (statisticUpdateDto.description) statistic.description = statisticUpdateDto.description;
       if (statisticUpdateDto.post) statistic.post = statisticUpdateDto.post;
-      if (statisticUpdateDto.orderNumber) statistic.orderNumber = statisticUpdateDto.orderNumber;
       await this.statisticRepository.update(statistic.id, {
         type: statistic.type,
         name: statistic.name,
         description: statistic.description,
-        orderNumber: statistic.orderNumber,
         post: statistic.post,
       });
       return statistic.id;

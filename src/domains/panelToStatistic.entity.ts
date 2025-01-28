@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   Index,
@@ -23,6 +24,17 @@ export class PanelToStatistic {
    */
   @PrimaryGeneratedColumn('uuid')
   public id: string;
+
+
+  /**
+ * Порядковый номер статистики в панеле.
+ * 
+ * @remarks
+ * nullable: true
+ */
+  @Column({ nullable: true })
+  orderStatisticNumber: number;
+
 
   /**
    * Дата создания записи.
@@ -54,13 +66,13 @@ export class PanelToStatistic {
    * @remarks
    * Установлен индекс
    */
-  @ManyToOne(() => ControlPanel, (controlPanel) => controlPanel.panelToStatistics, {nullable: false})
+  @ManyToOne(() => ControlPanel, (controlPanel) => controlPanel.panelToStatistics, { nullable: false })
   @Index() // Добавляем индекс 
   controlPanel: ControlPanel;
 
   /**
    * Связь с сущностью М:1 Statistic.
    */
-  @ManyToOne(() => Statistic, (statistic) => statistic.panelToStatistics, {nullable: false})
+  @ManyToOne(() => Statistic, (statistic) => statistic.panelToStatistics, { nullable: false })
   statistic: Statistic;
 }

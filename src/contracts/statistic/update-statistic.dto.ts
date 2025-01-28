@@ -58,16 +58,6 @@ export class StatisticUpdateDto {
   description?: string;
 
   @ApiProperty({
-    description: 'Порядковый номер',
-    required: false,
-    example: 22,
-  })
-  @IsOptional()
-  @IsNumber()
-  @IsNotEmpty({ message: 'Номер не может быть пустым!' })
-  orderNumber?: number;
-
-  @ApiProperty({
     description: 'Id поста, к которому привязать статистику',
     required: false,
     example: '2420fabb-3e37-445f-87e6-652bfd5a050c',

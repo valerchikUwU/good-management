@@ -69,17 +69,17 @@ dotenv.config();
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: process.env.NODE_ENV === 'prod' ? '/gm/uploads' : 'uploads',
+      serveRoot: process.env.NODE_ENV === 'prod' ? '/gm/uploads' : '/uploads',
     }),
     ...(process.env.NODE_ENV === 'prod'
       ? [
         ServeStaticModule.forRoot({
           rootPath: process.env.FRONTEND_MOBILE_PATH,
-          serveRoot: '/gm/mobile', // Фронтенд будет доступен по корню
+          serveRoot: '/gm/mobile',
         }),
         ServeStaticModule.forRoot({
           rootPath: process.env.FRONTEND_DESKTOP_PATH,
-          serveRoot: '/gm/desktop', // Фронтенд будет доступен по корню
+          serveRoot: '/gm/desktop',
         }),
       ]
       : []),

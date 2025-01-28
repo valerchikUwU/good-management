@@ -6,7 +6,6 @@ import {
   HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import { FileUploadService } from '../application/services/file-upload/file-upload.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from 'src/application/services/file/file.service';
 import { FileCreateDto } from 'src/contracts/file-upload/create-file.dto';
@@ -17,6 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { FileValidationPipe } from 'src/validators/pipes/fileValidationPipe';
 
 @ApiTags('File')
 @ApiBearerAuth('access-token')
@@ -24,9 +24,8 @@ import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 @Controller('file-upload')
 export class FileUploadController {
   constructor(
-    private readonly fileUploadService: FileUploadService,
     private readonly fileService: FileService,
-  ) {}
+  ) { }
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
@@ -49,15 +48,15 @@ export class FileUploadController {
     description: 'Ошибка сервера!',
   })
   async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-  ) {
+    @UploadedFile(new FileValidationPipe()) file: Express.Multer.File,
+  ): Promise<{ message: string, filePath: string }> {
     const fileCreateDto: FileCreateDto = {
       fileName: file.filename,
       path: file.path,
       size: file.size,
       mimetype: file.mimetype,
     };
-    await this.fileService.create(fileCreateDto);
-    return this.fileUploadService.handleFileUpload(file);
+    const createdFile = await this.fileService.create(fileCreateDto);
+    return { message: 'Файл успешно загружен!', filePath: createdFile.path };
   }
 }

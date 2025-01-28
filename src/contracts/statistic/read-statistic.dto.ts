@@ -9,7 +9,6 @@ export class StatisticReadDto {
   type: Type;
   name: string;
   description: string;
-  orderNumber: number;
   createdAt: Date;
   updatedAt: Date;
   statisticDatas: StatisticData[];
