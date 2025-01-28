@@ -120,7 +120,7 @@ export class StatisticService {
       const statistics = await this.statisticRepository.find({
         where: { id: In(ids) },
       });
-      const foundIds = statistics.map(policy => policy.id);
+      const foundIds = statistics.map(statistic => statistic.id);
       const missingIds = ids.filter(id => !foundIds.includes(id));
       if (missingIds.length > 0) {
         throw new NotFoundException(

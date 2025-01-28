@@ -15,6 +15,7 @@ import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetH
 import { TargetUpdateDto } from 'src/contracts/target/update-target.dto';
 import { Logger } from 'winston';
 import { And, Between, Equal, In, IsNull, LessThan, Not, Or } from 'typeorm';
+import { AttachmentToTargetService } from '../attachmentToTarget/attachmentToTarget.service';
 
 @Injectable()
 export class TargetService {
@@ -22,6 +23,7 @@ export class TargetService {
     @InjectRepository(Target)
     private readonly targetRepository: TargetRepository,
     private readonly targetHolderService: TargetHolderService,
+    private readonly attachmentToTargetService: AttachmentToTargetService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -154,8 +156,6 @@ export class TargetService {
 
   async create(targetCreateDto: TargetCreateDto): Promise<Target> {
     try {
-      // Проверка на наличие обязательных данных
-
       const target = new Target();
       target.type = targetCreateDto.type;
       target.orderNumber = targetCreateDto.orderNumber;
@@ -175,6 +175,9 @@ export class TargetService {
         post: targetCreateDto.holderPost,
       };
       await this.targetHolderService.create(targetHolderCreateDto);
+      if(targetCreateDto.attachmentIds){
+        await this.attachmentToTargetService.createSeveral(createdTarget, targetCreateDto.attachmentIds);
+      }
       return createdTarget;
     } catch (err) {
       this.logger.error(err);

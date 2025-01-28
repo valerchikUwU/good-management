@@ -14,6 +14,7 @@ import { TargetHolder } from './targetHolder.entity';
 import { Project } from './project.entity';
 import { Policy } from './policy.entity';
 import { Post } from './post.entity';
+import { AttachmentToTarget } from './attachmentToTarget.entity';
 
 /**
  * Перечисление типов задач.
@@ -166,15 +167,9 @@ export class Target {
   /**
    * Связь с сущностью 1:1 User.
    */
-  @OneToOne(() => Post, (post) => post.target, {nullable: true})
+  @OneToOne(() => Post, (post) => post.target, { nullable: true })
   @JoinColumn()
   senderPost: Post;
-
-  /**
-   * Связь с сущностью 1:M TargetHolder.
-   */
-  @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.target, { cascade: ["remove"] })
-  targetHolders: TargetHolder[];
 
   /**
    * Связь с сущностью M:1 Project.
@@ -195,4 +190,17 @@ export class Target {
   @ManyToOne(() => Policy, (policy) => policy.targets, { nullable: true })
   @Index() // Добавляем индекс для поля policy
   policy: Policy;
+
+  /**
+   * Связь с сущностью 1:M TargetHolder.
+   */
+  @OneToMany(() => TargetHolder, (targetHolder) => targetHolder.target, { cascade: ["remove"] })
+  targetHolders: TargetHolder[];
+
+  /**
+  * Связь с сущностью 1:M AttachmentToTarget.
+  */
+  @OneToMany(() => AttachmentToTarget, (attachmentToTarget) => attachmentToTarget.target)
+  attachmentToTargets: AttachmentToTarget[];
+
 }

@@ -37,6 +37,7 @@ export class PanelToStatisticService {
     }
     catch (err) {
       this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при связывании статистик с панелью!')
     }
 
   }

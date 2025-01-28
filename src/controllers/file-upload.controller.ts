@@ -5,18 +5,25 @@ import {
   UploadedFile,
   HttpStatus,
   UseGuards,
+  UploadedFiles,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { FileService } from 'src/application/services/file/file.service';
-import { FileCreateDto } from 'src/contracts/file-upload/create-file.dto';
+import { FileCreateDto } from 'src/contracts/file/create-file.dto';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
-import { FileValidationPipe } from 'src/validators/pipes/fileValidationPipe';
+import { ImageValidationPipe } from 'src/validators/pipes/imageValidationPipe';
+import { AttachmentService } from 'src/application/services/attachment/attachment.service';
+import { AttachmentCreateDto } from 'src/contracts/attachment/create-attachment.dto';
+import { Attachment } from 'src/domains/attachment.entity';
+import { AttachmentReadDto } from 'src/contracts/attachment/read-attachment.dto';
 
 @ApiTags('File')
 @ApiBearerAuth('access-token')
@@ -25,11 +32,26 @@ import { FileValidationPipe } from 'src/validators/pipes/fileValidationPipe';
 export class FileUploadController {
   constructor(
     private readonly fileService: FileService,
+    private readonly attachmentService: AttachmentService
   ) { }
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Загрузить файл' })
+  @ApiOperation({ summary: 'Загрузить картинку в политику' })
+  @ApiBody({
+    description: 'Загрузка картинки',
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
@@ -47,16 +69,61 @@ export class FileUploadController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  async uploadFile(
-    @UploadedFile(new FileValidationPipe()) file: Express.Multer.File,
+  async uploadImageInPolicy(
+    @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ): Promise<{ message: string, filePath: string }> {
     const fileCreateDto: FileCreateDto = {
-      fileName: file.filename,
-      path: file.path,
-      size: file.size,
-      mimetype: file.mimetype,
+      fileName: image.filename,
+      path: image.path,
+      size: image.size,
+      mimetype: image.mimetype,
     };
     const createdFile = await this.fileService.create(fileCreateDto);
     return { message: 'Файл успешно загружен!', filePath: createdFile.path };
+  }
+
+
+  @Post('uploadFile')
+  @UseInterceptors(FilesInterceptor('files', 10)) // 'file' — имя поля формы
+  @ApiOperation({ summary: 'Загрузка файлов и определение хеша для их кеширования' }) // Описание операции
+  @ApiConsumes('multipart/form-data') // Указываем тип контента
+  @ApiBody({
+    description: 'Загрузка файла',
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>): Promise<Attachment[]> {
+    const createdAttachments = await Promise.all(
+      files.map(async (file) => {
+        const fileHash = await this.attachmentService.calculateFileHash(file.path);
+  
+        const attachmentCreateDto: AttachmentCreateDto = {
+          attachmentName: file.filename,
+          attachmentPath: file.path,
+          attachmentSize: file.size,
+          attachmentMimetype: file.mimetype,
+          hash: fileHash,
+          target: null,
+          message: null,
+        };
+  
+        // Сохраняем вложение в базе данных
+        const createdAttachment = await this.attachmentService.create(attachmentCreateDto);
+  
+        console.log('File Hash:', fileHash);
+        return createdAttachment;
+      }),
+    )
+    return createdAttachments;
   }
 }

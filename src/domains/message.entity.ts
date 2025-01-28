@@ -5,10 +5,11 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
-import { User } from './user.entity';
 import { Convert } from './convert.entity';
 import { Post } from './post.entity';
+import { AttachmentToMessage } from './attachmentToMessage.entity';
 
 @Entity()
 export class Message {
@@ -29,4 +30,10 @@ export class Message {
 
   @ManyToOne(() => Post, (post) => post.messages, { nullable: false })
   sender: Post;
+
+  /**
+   * Связь с вложениями сообщения (1:M AttachmentToMessage).
+   */
+  @OneToMany(() => AttachmentToMessage, (attachmentToMessage) => attachmentToMessage.message)
+  attachmentToMessages: AttachmentToMessage[];
 }

@@ -3,6 +3,7 @@ import { FileUploadController } from '../../controllers/file-upload.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { FileModule } from './file.module';
+import { AttachmentModule } from './attachment.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { FileModule } from './file.module';
       }),
     }),
     FileModule,
+    AttachmentModule
   ],
   controllers: [FileUploadController],
 })

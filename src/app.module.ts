@@ -41,6 +41,7 @@ import { ControlPanelModule } from './application/modules/controlPanel.module';
 import { PanelToStatisticModule } from './application/modules/panelToStatistic.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis, { Keyv } from '@keyv/redis';
+import { AttachmentModule } from './application/modules/attachment.module';
 dotenv.config();
 
 @Module({
@@ -112,7 +113,8 @@ dotenv.config();
     GroupModule,
     GroupToUserModule,
     ControlPanelModule,
-    PanelToStatisticModule
+    PanelToStatisticModule,
+    AttachmentModule
   ],
   controllers: [AppController],
   providers: [AppService],

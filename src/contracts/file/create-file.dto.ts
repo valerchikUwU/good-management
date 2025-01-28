@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID, IsNotEmpty, IsString, IsIn, IsNumber, Min, Max } from 'class-validator';
 
 export class FileCreateDto {
   @ApiProperty({

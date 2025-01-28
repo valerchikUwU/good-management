@@ -44,7 +44,7 @@ export class File {
    * nullable: false, на проде добавляется префикс 
    * 
    * @example
-   * 'uploads/documents/document.pdf'
+   * 'uploads/image.jpg'
    */
   @Column({ nullable: false })
   path: string;

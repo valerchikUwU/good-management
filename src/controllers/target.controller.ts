@@ -32,6 +32,7 @@ import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { yellow } from 'colorette';
 import { TargetUpdateDto } from 'src/contracts/target/update-target.dto';
 import { PolicyService } from 'src/application/services/policy/policy.service';
+import { AttachmentService } from 'src/application/services/attachment/attachment.service';
 
 @ApiBearerAuth('access-token')
 @UseGuards(AccessTokenGuard)

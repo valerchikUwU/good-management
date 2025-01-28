@@ -1,8 +1,9 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsDate,
-  IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -12,10 +13,11 @@ import {
   Min,
   min,
 } from 'class-validator';
+import { Attachment } from 'src/domains/attachment.entity';
 import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
-import { State, Type as TypeTarget } from 'src/domains/target.entity';
+import { Type as TypeTarget } from 'src/domains/target.entity';
 
 @ApiExtraModels()
 export class TargetCreateDto {
@@ -82,6 +84,16 @@ export class TargetCreateDto {
   @IsUUID()
   @IsNotEmpty({ message: 'Id политики не может быть пустым' })
   policyId?: string;
+
+  @ApiProperty({
+    description: 'Ids файлов',
+    required: false,
+    example: ['0d081ac3-200f-4c7c-adc8-d11f1f66b20a'],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty({ message: 'Ids файлов не может быть пустым' })
+  attachmentIds?: string[];
 
   @ApiProperty({
     description: 'Дата начала выполнения (default: new Date())',

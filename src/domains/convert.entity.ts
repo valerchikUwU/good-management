@@ -173,7 +173,7 @@ export class Convert {
   messages: Message[];
 
   /**
-   * Связь с пользователями конвертации (1:M ConvertToUser).
+   * Связь с пользователями конверта (1:M ConvertToUser).
    */
   @OneToMany(() => ConvertToPost, (convertToPost) => convertToPost.convert)
   convertToPosts: ConvertToPost[];

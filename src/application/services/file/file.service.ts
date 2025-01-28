@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { File } from 'src/domains/file.entity';
 import { FileRepository } from './repository/file.repository';
 import { Logger } from 'winston';
-import { FileCreateDto } from 'src/contracts/file-upload/create-file.dto';
+import { FileCreateDto } from 'src/contracts/file/create-file.dto';
 
 @Injectable()
 export class FileService {
