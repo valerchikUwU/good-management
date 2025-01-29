@@ -2,31 +2,34 @@ import { PipeTransform, Injectable, BadRequestException, ArgumentMetadata, Injec
 
 @Injectable()
 export class FileValidationPipe implements PipeTransform {
-    transform(file: Express.Multer.File, metadata: ArgumentMetadata) {
-        if (!file) {
-            throw new BadRequestException('Файл не загружен');
+    transform(files: Array<Express.Multer.File>, metadata: ArgumentMetadata) {
+        if (!files) {
+            throw new BadRequestException('Файлы не загружены');
         }
-        if (file.size > 1024 * 1024 * 1024 * 2) {
-            throw new BadRequestException('Размер файла превышает 2 GB');
-        }
-        const allowedMimeTypes = [
-            'image/jpeg', 
-            'image/png', 
-            'image/gif', 
-            'image/webp', 
-            'image/jpg', 
-            'application/pdf', 
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
-            'video/mp4', 
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation', 
-            'application/vnd.ms-powerpoint', 
-            'text/plain', 
-            'application/vnd.ms-excel', 
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        ];
-        if (!allowedMimeTypes.includes(file.mimetype)) {
-            throw new BadRequestException('Недопустимый тип файла');
-        }
-        return file;
+        files.forEach(file => {
+            if (file.size > 1024 * 1024 * 1024 * 2) {
+                throw new BadRequestException('Размер файла превышает 2 GB');
+            }
+            const allowedMimeTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/gif',
+                'image/webp',
+                'image/jpg',
+                'application/pdf',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'video/mp4',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                'application/vnd.ms-powerpoint',
+                'text/plain',
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            ];
+            if (!allowedMimeTypes.includes(file.mimetype)) {
+                throw new BadRequestException('Недопустимый тип файла');
+            }
+        });
+
+        return files;
     }
 }

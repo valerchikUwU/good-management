@@ -103,6 +103,7 @@ export class FileUploadController {
     },
   })
   async uploadFiles(@UploadedFiles(new FileValidationPipe()) files: Array<Express.Multer.File>): Promise<Attachment[]> {
+    console.log(files)
     const createdAttachments = await Promise.all(
       files.map(async (file) => {
         const fileHash = await this.attachmentService.calculateFileHash(file.path);
