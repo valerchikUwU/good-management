@@ -143,8 +143,8 @@ export class TargetController {
     const userPosts = await this.postService.findAllForUser(user.id, ['organization']);
     const userPostsIds = userPosts.map(post => post.id);
     const [personalTargets, orderTargets, projectTargets] = await Promise.all([
-      this.targetService.findAllPersonalForUserPosts(userPostsIds, false, ['policy']),
-      this.targetService.findAllOrdersForUserPosts(userPostsIds, false),
+      this.targetService.findAllPersonalForUserPosts(userPostsIds, false, ['policy', 'attachmentToTargets.attachment']),
+      this.targetService.findAllOrdersForUserPosts(userPostsIds, false, ['senderPost', 'attachmentToTargets.attachment']),
       this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false)
     ]);
     return { userPosts: userPosts, personalTargets: personalTargets, ordersTargets: orderTargets, projectTargets: projectTargets }
