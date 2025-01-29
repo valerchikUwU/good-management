@@ -24,6 +24,7 @@ import { AttachmentService } from 'src/application/services/attachment/attachmen
 import { AttachmentCreateDto } from 'src/contracts/attachment/create-attachment.dto';
 import { Attachment } from 'src/domains/attachment.entity';
 import { AttachmentReadDto } from 'src/contracts/attachment/read-attachment.dto';
+import { FileValidationPipe } from 'src/validators/pipes/fileValidationPipe';
 
 @ApiTags('File')
 @ApiBearerAuth('access-token')
@@ -38,16 +39,15 @@ export class FileUploadController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Загрузить картинку в политику' })
+  @ApiConsumes('multipart/form-data') // Указываем тип контента
   @ApiBody({
     description: 'Загрузка картинки',
     schema: {
       type: 'object',
       properties: {
-        files: {
-          items: {
-            type: 'string',
-            format: 'binary',
-          },
+        file: {
+          type: 'string',
+          format: 'binary',
         },
       },
     },
@@ -102,11 +102,10 @@ export class FileUploadController {
       },
     },
   })
-  async uploadFiles(@UploadedFiles() files: Array<Express.Multer.File>): Promise<Attachment[]> {
+  async uploadFiles(@UploadedFiles(new FileValidationPipe()) files: Array<Express.Multer.File>): Promise<Attachment[]> {
     const createdAttachments = await Promise.all(
       files.map(async (file) => {
         const fileHash = await this.attachmentService.calculateFileHash(file.path);
-  
         const attachmentCreateDto: AttachmentCreateDto = {
           attachmentName: file.filename,
           attachmentPath: file.path,
@@ -116,10 +115,10 @@ export class FileUploadController {
           target: null,
           message: null,
         };
-  
+
         // Сохраняем вложение в базе данных
         const createdAttachment = await this.attachmentService.create(attachmentCreateDto);
-  
+
         console.log('File Hash:', fileHash);
         return createdAttachment;
       }),

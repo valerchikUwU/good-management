@@ -5,6 +5,7 @@ import { Target } from "src/domains/target.entity";
 import { Logger } from "winston";
 import { AttachmentService } from "../attachment/attachment.service";
 import { AttachmentToTargetRepository } from "./repostitory/attachmentToTarget.repository";
+import { TargetReadDto } from "src/contracts/target/read-target.dto";
 
 @Injectable()
 export class AttachmentToTargetService {
@@ -34,5 +35,9 @@ export class AttachmentToTargetService {
             this.logger.error(err);
             throw new InternalServerErrorException('Ошибка при связывании вложений с задачей!');
         }
+    }
+
+    async remove(target: TargetReadDto): Promise<void> {
+        await this.attachmentToTargetRepository.delete({ target: target });
     }
 }

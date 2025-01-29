@@ -113,6 +113,7 @@ export class ConvertCreateDto {
           orderNumber: 1,
           content: 'Контент задачи',
           holderPostId: 'c92895e6-9496-4cb5-aa7b-e3c72c18934a',
+          attachmentIds: ['222895e6-9496-4cb5-aa7b-e3c72c18934a'],
           dateStart: '2024-09-18T14:59:47.010Z',
           deadline: '2024-09-18T14:59:47.010Z',
         }

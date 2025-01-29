@@ -70,7 +70,7 @@ export class TargetService {
   }
 
 
-  async findAllOrdersForUserPosts(postIds: string[], isArchive: boolean): Promise<TargetReadDto[]> {
+  async findAllOrdersForUserPosts(postIds: string[], isArchive: boolean, relations?: string[]): Promise<TargetReadDto[]> {
     try {
       const today = new Date();
       const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
@@ -83,7 +83,7 @@ export class TargetService {
           dateComplete: isArchive ? LessThan(todayUTC) : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
           type: Type.ORDER
         },
-        relations: ['senderPost']
+        relations: relations !== undefined ? relations : []
       })
 
       return targets.map((target) => ({
@@ -215,6 +215,13 @@ export class TargetService {
       }
       else if (updateTargetDto.policyId === null){
         target.policy = null 
+      }
+      if (updateTargetDto.attachmentIds !== undefined) {
+        await this.attachmentToTargetService.remove(target);
+        await this.attachmentToTargetService.createSeveral(target, updateTargetDto.attachmentIds);
+      }
+      else if (updateTargetDto.attachmentIds === null){
+        await this.attachmentToTargetService.remove(target);
       }
       await this.targetRepository.update(target.id, {
         content: target.content,

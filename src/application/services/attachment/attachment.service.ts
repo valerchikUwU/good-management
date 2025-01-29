@@ -5,9 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { File } from 'src/domains/file.entity';
 import { Logger } from 'winston';
-import { FileCreateDto } from 'src/contracts/file/create-file.dto';
 import { Attachment } from 'src/domains/attachment.entity';
 import { AttachmentRepository } from './repository/attachment.repository';
 import { AttachmentCreateDto } from 'src/contracts/attachment/create-attachment.dto';
