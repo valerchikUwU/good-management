@@ -59,6 +59,7 @@ export class TargetService {
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
+        attachmentToTargets: target.attachmentToTargets
       }));
     } catch (err) {
       this.logger.error(err);
@@ -102,6 +103,7 @@ export class TargetService {
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
+        attachmentToTargets: target.attachmentToTargets
       }));
     } catch (err) {
       this.logger.error(err);
@@ -142,6 +144,7 @@ export class TargetService {
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
+        attachmentToTargets: target.attachmentToTargets
       }));
     } catch (err) {
       this.logger.error(err);

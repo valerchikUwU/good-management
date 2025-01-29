@@ -1,3 +1,4 @@
+import { AttachmentToTarget } from 'src/domains/attachmentToTarget.entity';
 import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
@@ -20,4 +21,5 @@ export class TargetReadDto {
   targetHolders: TargetHolder[];
   project: Project;
   policy: Policy;
+  attachmentToTargets: AttachmentToTarget[];
 }
