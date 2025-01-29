@@ -71,6 +71,7 @@ export class TargetCreateDto {
     required: false,
     example: '261fcded-bb76-4956-a950-a19ab6e2c2fd',
   })
+  @IsOptional()
   @IsUUID()
   @IsNotEmpty({ message: 'Id поста отправителя не может быть пустым' })
   senderPostId?: string;
