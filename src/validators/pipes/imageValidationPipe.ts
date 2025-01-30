@@ -9,7 +9,7 @@ export class ImageValidationPipe implements PipeTransform {
     if (file.size > 1024* 1024 * 1024 * 2) {
       throw new BadRequestException('Размер файла превышает 2 GB');
     }
-    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg'];
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/jpg', 'image/heic'];
     if (!allowedMimeTypes.includes(file.mimetype)) {
       throw new BadRequestException('Недопустимый тип файла');
     }
