@@ -12,7 +12,7 @@ import { RoleModule } from './role.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Account]),
-    UsersModule,
+    forwardRef(() => UsersModule),
     forwardRef(() => QueueModule),
     RoleSettingModule,
     RoleModule,

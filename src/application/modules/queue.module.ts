@@ -13,7 +13,7 @@ import { StatisticDataModule } from './statisticData.module';
 
 @Module({
   imports: [
-    UsersModule,
+    forwardRef(() => UsersModule),
     forwardRef(() => AccountModule),
     OrganizationModule,
     RoleSettingModule,

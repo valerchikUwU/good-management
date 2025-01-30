@@ -88,7 +88,25 @@ export class TargetController {
           "deadline": "2024-09-18T14:59:47.010Z",
           "dateComplete": null,
           "createdAt": "2024-12-25T10:45:37.923Z",
-          "updatedAt": "2024-12-25T10:45:37.923Z"
+          "updatedAt": "2024-12-25T10:45:37.923Z",
+          "policy": null,
+          "attachmentToTargets": [
+            {
+              "id": "82cb83b3-dbde-4a22-a7d8-cb042854bf0f",
+              "createdAt": "2025-01-29T13:47:10.678Z",
+              "updatedAt": "2025-01-29T13:47:10.678Z",
+              "attachment": {
+                "id": "6750fe5b-7f47-4828-9b42-5dd902875224",
+                "attachmentName": "1738156848746--wXW1G9b1iI.jpg",
+                "attachmentPath": "uploads/1738156848746--wXW1G9b1iI.jpg",
+                "attachmentSize": 957667,
+                "attachmentMimetype": "image/jpeg",
+                "hash": "ff80c55fa1d38c114bdc14c587c75894fab21b3db71cd941bc1b46b37dfaeaaf",
+                "createdAt": "2025-01-29T13:20:48.877Z",
+                "updatedAt": "2025-01-29T13:20:48.877Z"
+              }
+            }
+          ]
         },
       ],
       "ordersTargets": [
@@ -103,7 +121,24 @@ export class TargetController {
           "deadline": "2024-09-18T14:59:47.010Z",
           "dateComplete": null,
           "createdAt": "2024-12-25T10:45:37.923Z",
-          "updatedAt": "2024-12-25T10:45:37.923Z"
+          "updatedAt": "2024-12-25T10:45:37.923Z",
+          "attachmentToTargets": [
+            {
+              "id": "82cb83b3-dbde-4a22-a7d8-cb042854bf0f",
+              "createdAt": "2025-01-29T13:47:10.678Z",
+              "updatedAt": "2025-01-29T13:47:10.678Z",
+              "attachment": {
+                "id": "6750fe5b-7f47-4828-9b42-5dd902875224",
+                "attachmentName": "1738156848746--wXW1G9b1iI.jpg",
+                "attachmentPath": "uploads/1738156848746--wXW1G9b1iI.jpg",
+                "attachmentSize": 957667,
+                "attachmentMimetype": "image/jpeg",
+                "hash": "ff80c55fa1d38c114bdc14c587c75894fab21b3db71cd941bc1b46b37dfaeaaf",
+                "createdAt": "2025-01-29T13:20:48.877Z",
+                "updatedAt": "2025-01-29T13:20:48.877Z"
+              }
+            }
+          ]
         },
       ],
       "projectTargets": [
@@ -210,7 +245,25 @@ export class TargetController {
           "deadline": "2024-09-18T14:59:47.010Z",
           "dateComplete": "2025-01-15T14:59:47.010Z",
           "createdAt": "2024-12-25T10:45:37.923Z",
-          "updatedAt": "2024-12-25T10:45:37.923Z"
+          "updatedAt": "2024-12-25T10:45:37.923Z",
+          "policy": null,
+          "attachmentToTargets": [
+            {
+              "id": "82cb83b3-dbde-4a22-a7d8-cb042854bf0f",
+              "createdAt": "2025-01-29T13:47:10.678Z",
+              "updatedAt": "2025-01-29T13:47:10.678Z",
+              "attachment": {
+                "id": "6750fe5b-7f47-4828-9b42-5dd902875224",
+                "attachmentName": "1738156848746--wXW1G9b1iI.jpg",
+                "attachmentPath": "uploads/1738156848746--wXW1G9b1iI.jpg",
+                "attachmentSize": 957667,
+                "attachmentMimetype": "image/jpeg",
+                "hash": "ff80c55fa1d38c114bdc14c587c75894fab21b3db71cd941bc1b46b37dfaeaaf",
+                "createdAt": "2025-01-29T13:20:48.877Z",
+                "updatedAt": "2025-01-29T13:20:48.877Z"
+              }
+            }
+          ]
         },
       ],
       "ordersArchiveTargets": [
@@ -225,7 +278,24 @@ export class TargetController {
           "deadline": "2024-09-18T14:59:47.010Z",
           "dateComplete": "2025-01-15T14:59:47.010Z",
           "createdAt": "2024-12-25T10:45:37.923Z",
-          "updatedAt": "2024-12-25T10:45:37.923Z"
+          "updatedAt": "2024-12-25T10:45:37.923Z",
+          "attachmentToTargets": [
+            {
+              "id": "82cb83b3-dbde-4a22-a7d8-cb042854bf0f",
+              "createdAt": "2025-01-29T13:47:10.678Z",
+              "updatedAt": "2025-01-29T13:47:10.678Z",
+              "attachment": {
+                "id": "6750fe5b-7f47-4828-9b42-5dd902875224",
+                "attachmentName": "1738156848746--wXW1G9b1iI.jpg",
+                "attachmentPath": "uploads/1738156848746--wXW1G9b1iI.jpg",
+                "attachmentSize": 957667,
+                "attachmentMimetype": "image/jpeg",
+                "hash": "ff80c55fa1d38c114bdc14c587c75894fab21b3db71cd941bc1b46b37dfaeaaf",
+                "createdAt": "2025-01-29T13:20:48.877Z",
+                "updatedAt": "2025-01-29T13:20:48.877Z"
+              }
+            }
+          ]
         },
       ],
       "projectArchiveTargets": [

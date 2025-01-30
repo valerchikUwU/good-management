@@ -146,6 +146,45 @@ export class PostService {
     }
   }
 
+  async findAllWithoutUserForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
+    try {
+      const posts = await this.postRepository.find({
+        where: { organization: { id: organizationId }, user: { id: IsNull() } },
+        relations: relations !== undefined ? relations : [],
+      });
+
+      return posts.map((post) => ({
+        id: post.id,
+        postName: post.postName,
+        divisionName: post.divisionName,
+        divisionNumber: post.divisionNumber,
+        parentId: post.parentId,
+        product: post.product,
+        purpose: post.purpose,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+        target: post.target,
+        user: post.user,
+        policy: post.policy,
+        statistics: post.statistics,
+        organization: post.organization,
+        account: post.account,
+        convert: post.convert,
+        historiesUsersToPost: post.historiesUsersToPost,
+        targetHolders: post.targetHolders,
+        convertToPosts: post.convertToPosts,
+        messages: post.messages,
+        controlPanels: post.controlPanels
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех постов!',
+      );
+    }
+  }
+
 
 
   async findOneById(id: string, relations?: string[]): Promise<PostReadDto> {

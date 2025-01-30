@@ -7,9 +7,10 @@ import { UsersRepository } from '../services/users/Repository/users.repository';
 import { RoleSettingModule } from './roleSetting.module';
 import { RoleModule } from './role.module';
 import { OrganizationModule } from './organization.module';
+import { PostModule } from './post.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User]), RoleSettingModule, RoleModule, OrganizationModule],
+  imports: [TypeOrmModule.forFeature([User]), RoleSettingModule, RoleModule, OrganizationModule, PostModule],
   providers: [UsersService, UsersRepository],
   controllers: [UsersController],
   exports: [UsersService],

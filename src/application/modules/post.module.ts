@@ -14,7 +14,7 @@ import { HistoryUsersToPostModule } from './historyUsersToPost.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post]),
-    UsersModule,
+    forwardRef(() => UsersModule),
     PolicyModule,
     OrganizationModule,
     forwardRef(() => QueueModule),

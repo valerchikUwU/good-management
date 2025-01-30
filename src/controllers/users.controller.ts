@@ -31,6 +31,8 @@ import { RoleService } from 'src/application/services/role/role.service';
 import { RoleReadDto } from 'src/contracts/role/read-role.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
+import { PostService } from 'src/application/services/post/post.service';
+import { PostReadDto } from 'src/contracts/post/read-post.dto';
 
 @ApiTags('User')
 @ApiBearerAuth('access-token')
@@ -42,6 +44,7 @@ export class UsersController {
     private readonly organizationService: OrganizationService,
     private readonly roleSettingService: RoleSettingService,
     private readonly roleService: RoleService,
+    private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -84,7 +87,7 @@ export class UsersController {
     return await this.usersService.findAllForOrganization(organizationId);
   }
 
-  @Get('new')
+  @Get(':orgainizationId/new')
   @ApiOperation({ summary: 'Получить данные для создания юзера' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -103,17 +106,25 @@ export class UsersController {
     },
   })
   @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'orgainizationId',
     required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async beforeCreate(): Promise<RoleReadDto[]> {
-    return await this.roleService.findAll();
+  async beforeCreate(@Param('orgainizationId') orgainizationId: string): Promise<{postsWithoutUser: PostReadDto[], roles: RoleReadDto[]}> {
+    const [postsWithoutUser, roles] = await Promise.all([
+      this.postService.findAllWithoutUserForOrganization(orgainizationId),
+      this.roleService.findAll()
+    ])
+    return  {postsWithoutUser: postsWithoutUser, roles: roles}
   }
 
   @Get(':userId')
@@ -183,11 +194,11 @@ export class UsersController {
   async create(
     @Body() userCreateDto: CreateUserDto,
   ): Promise<{ id: string }> {
-    const [organization, role] = await Promise.all([
+    const [organization /**, role */] = await Promise.all([
       this.organizationService.findOneById(userCreateDto.organizationId, ['account']),
-      this.roleService.findOneById(userCreateDto.roleId)
+      // this.roleService.findOneById(userCreateDto.roleId)
     ])
-    userCreateDto.role = role;
+    // userCreateDto.role = role;
     userCreateDto.organization = organization;
     userCreateDto.account = organization.account;
     const createdUserId = await this.usersService.create(userCreateDto);

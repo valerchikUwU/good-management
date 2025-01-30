@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
-  IsEmail,
-  IsInt,
+  IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -10,12 +9,13 @@ import {
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { Organization } from 'src/domains/organization.entity';
+import { Post } from 'src/domains/post.entity';
 import { Role } from 'src/domains/role.entity';
 
 export class CreateUserDto {
   @ApiProperty({
     description: 'ID юзера',
-    required: true,
+    required: false,
     example: '675a797e-d0f2-4907-bad5-25733c3e2380',
   })
   @IsOptional()
@@ -50,23 +50,34 @@ export class CreateUserDto {
     required: true,
     example: '+79787878778',
   })
-  @IsString()
+  @IsMobilePhone('ru-RU', {strictMode: true})
   @IsNotEmpty()
   telephoneNumber: string;
 
   @ApiProperty({
     description: 'ID роли',
-    required: true,
+    required: false,
     example: '675a797e-d0f2-4907-bad5-25733c3e2380',
   })
+  @IsOptional()
   @IsUUID()
   roleId?: string;
+
+  @ApiProperty({
+    description: 'ID поста',
+    required: false,
+    example: '675a797e-d0f2-4907-bad5-25733c3e2380',
+  })
+  @IsOptional()
+  @IsUUID()
+  postId?: string;
 
   @ApiProperty({
     description: 'ID организации',
     required: false,
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
+  @IsOptional()
   @IsUUID()
   organizationId?: string;
 
