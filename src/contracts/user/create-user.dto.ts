@@ -55,6 +55,15 @@ export class CreateUserDto {
   telephoneNumber: string;
 
   @ApiProperty({
+    description: 'Путь к аватарке',
+    required: false,
+    example: '/uploads/111.jpg',
+  })
+  @IsOptional()
+  @IsString()
+  avatar_url?: string;
+
+  @ApiProperty({
     description: 'ID роли',
     required: false,
     example: '675a797e-d0f2-4907-bad5-25733c3e2380',

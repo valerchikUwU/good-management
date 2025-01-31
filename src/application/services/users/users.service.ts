@@ -335,6 +335,7 @@ export class UsersService {
       user.lastName = createUserDto.lastName;
       user.middleName = createUserDto.middleName;
       user.telephoneNumber = createUserDto.telephoneNumber;
+      user.avatar_url = createUserDto.avatar_url;
       user.role = createUserDto.role;
       user.organization = createUserDto.organization;
       user.account = createUserDto.account;
