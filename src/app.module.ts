@@ -76,12 +76,8 @@ dotenv.config();
       ? [
         ServeStaticModule.forRoot({
           rootPath: process.env.FRONTEND_MOBILE_PATH,
-          serveRoot: '/gm/mobile',
-        }),
-        ServeStaticModule.forRoot({
-          rootPath: process.env.FRONTEND_DESKTOP_PATH,
-          serveRoot: '/gm/desktop',
-        }),
+          serveRoot: '/gm',
+        })
       ]
       : []),
     WinstonModule.forRoot(winstonConfig),

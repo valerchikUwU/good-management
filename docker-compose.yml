@@ -44,8 +44,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads  # Монтирование папки uploads
-      - /root/gm_front_build/GM:/static/frontend/mobile  # Монтирование папки с мобильным фронтендом
-      - /root/gm_front_build/GMDesktop:/static/frontend/desktop 
+      - /root/gm_front_build/GM:/static/frontend/build  # Монтирование папки с мобильным фронтендом
 
   pgadmin:
     image: dpage/pgadmin4
