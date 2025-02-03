@@ -74,7 +74,6 @@ export class TargetUpdateDto {
   })
   @IsOptional()
   @IsArray()
-  @ArrayNotEmpty({ message: 'Ids файлов не может быть пустым' })
   attachmentIds?: string[];
 
   @ApiProperty({
