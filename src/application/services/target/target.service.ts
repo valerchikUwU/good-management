@@ -219,7 +219,7 @@ export class TargetService {
       else if (updateTargetDto.policyId === null){
         target.policy = null 
       }
-      if (updateTargetDto.attachmentIds !== undefined) {
+      if (updateTargetDto.attachmentIds) {
         await this.attachmentToTargetService.remove(target);
         await this.attachmentToTargetService.createSeveral(target, updateTargetDto.attachmentIds);
       }

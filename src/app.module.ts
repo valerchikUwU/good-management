@@ -75,7 +75,7 @@ dotenv.config();
     ...(process.env.NODE_ENV === 'prod'
       ? [
         ServeStaticModule.forRoot({
-          rootPath: process.env.FRONTEND_MOBILE_PATH,
+          rootPath: process.env.BUILD_PATH,
           serveRoot: '/gm',
         })
       ]
