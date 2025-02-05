@@ -129,24 +129,4 @@ export class RefreshService {
       throw new InternalServerErrorException('Ошибка при обновлении сессии');
     }
   }
-
-  async getId(refreshToken: string): Promise<string> {
-    try {
-      const session = await this.sessionsRepository.findOneBy({ refreshToken });
-      if (!session)
-        throw new NotFoundException(
-          `Сессия с refreshToken: ${refreshToken} не найдена`,
-        );
-      return session.id;
-    } catch (err) {
-      this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
-      }
-
-      // Обработка других ошибок
-      throw new InternalServerErrorException('Ошибка при получении id сессии');
-    }
-  }
 }

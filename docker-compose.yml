@@ -40,6 +40,7 @@ services:
     depends_on:
       - db
       - rabbitmq
+      - redis
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads  # Монтирование папки uploads
