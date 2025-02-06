@@ -93,7 +93,9 @@ export class ControlPanelService {
             controlPanel.organization = controlPanelCreateDto.organization;
             controlPanel.post = controlPanelCreateDto.post
             const createdControlPanel = await this.controlPanelRepository.save(controlPanel);
-            await this.panelToStatisticService.createSeveral(createdControlPanel, controlPanelCreateDto.statisticIds);
+            if(controlPanelCreateDto.statisticIds){
+                await this.panelToStatisticService.createSeveral(createdControlPanel, controlPanelCreateDto.statisticIds);
+            }
 
             return createdControlPanel.id
         }
