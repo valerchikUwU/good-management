@@ -14,12 +14,10 @@ import { JwtPayloadInterface } from 'src/utils/jwt-payload.interface';
 import { User } from 'src/domains/user.entity';
 import { CreateRefreshSessionDto } from 'src/contracts/refreshSession/create-refreshSession.dto';
 import { RefreshService } from '../refreshSession/refresh.service';
-import { InjectConfig, ConfigService } from 'nestjs-config';
 import { UserTgAuthDto } from 'src/contracts/user/user-tgauth-dto';
 import { Logger } from 'winston';
 import { AuthVK } from 'src/contracts/auth-vk.dto';
 import { yellow } from 'colorette';
-import { ReadRefreshSessionDto } from 'src/contracts/refreshSession/read-refreshSession.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
@@ -30,12 +28,18 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly refreshService: RefreshService,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async validateUser(payload: JwtPayloadInterface): Promise<User> {
-    return await this.usersService.findOne(payload.id, ['account', 'posts']);
+  async validateUser(payload: JwtPayloadInterface): Promise<ReadUserDto> {
+    let user = await this.cacheService.get<ReadUserDto>(`user:${payload.id}`); 
+    if(user === null){
+      user = await this.usersService.findOne(payload.id, ['account', 'posts']);
+      await this.cacheService.set<ReadUserDto>(`user:${user.id}`, user, 1860000);
+    }
+    return user;
   }
 
   async authenticateVK(
@@ -153,7 +157,7 @@ export class AuthService {
         String(refreshTokenId),
         String(fingerprint),
       );
-      
+
       if (!session) {
         this.logger.info(
           `Попытка обновления токенов с fingerprint: ${fingerprint} и refreshTokenId: ${refreshTokenId}`,
@@ -293,7 +297,7 @@ export class AuthService {
 
 
   async isSessionExpired(fingerprint: string, refreshTokenId: string): Promise<{ isExpired: boolean, userId: string }> {
-    
+
     const session = await this.refreshService.findOneByIdAndFingerprint(
       String(refreshTokenId),
       String(fingerprint),

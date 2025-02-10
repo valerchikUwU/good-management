@@ -13,6 +13,10 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
+    cors: { 
+      origin: process.env.NODE_ENV === 'dev' ? true : false,
+      credentials: true,
+    },
   });
   // const app = await NestFactory.create<NestFastifyApplication>(
   //   AppModule,
@@ -35,10 +39,6 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
-  app.enableCors({ 
-    origin: process.env.NODE_ENV === 'dev' ? true : false,
-    credentials: true,
-  });
 
   if (process.env.NODE_ENV === 'prod') {
     app.setGlobalPrefix('gm');

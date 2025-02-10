@@ -40,7 +40,8 @@ import { HistoryUsersToPostService } from 'src/application/services/historyUsers
 import { HistoryUsersToPostCreateDto } from 'src/contracts/historyUsersToPost/create-historyUsersToPost.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
-import { In, Not } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @ApiTags('Posts')
 @ApiBearerAuth('access-token')
@@ -55,6 +56,8 @@ export class PostController {
     private readonly producerService: ProducerService,
     private readonly groupService: GroupService,
     private readonly historyUsersToPostService: HistoryUsersToPostService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -464,10 +467,10 @@ export class PostController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({ 
-    name: 'postId', 
-    required: true, 
-    description: 'Id поста' 
+  @ApiParam({
+    name: 'postId',
+    required: true,
+    description: 'Id поста'
   })
   async findOne(
     @Param('postId') postId: string,
@@ -551,10 +554,10 @@ export class PostController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({ 
-    name: 'postId', 
-    required: true, 
-    description: 'Id поста' 
+  @ApiParam({
+    name: 'postId',
+    required: true,
+    description: 'Id поста'
   })
   async findAllUnderPosts(
     @Param('postId') postId: string,
@@ -641,7 +644,11 @@ export class PostController {
           this.logger.error(
             `Failed to create historyUsersToPost: ${error.message}`,
           );
-        });;
+        });
+      if(user.id === postCreateDto.responsibleUserId) {
+        user.posts.push(createdPost)
+        await this.cacheService.set<ReadUserDto>(`user:${user.id}`, user, 1860000);
+      }
     }
 
 

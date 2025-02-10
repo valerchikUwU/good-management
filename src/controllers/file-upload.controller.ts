@@ -23,7 +23,6 @@ import { ImageValidationPipe } from 'src/validators/pipes/imageValidationPipe';
 import { AttachmentService } from 'src/application/services/attachment/attachment.service';
 import { AttachmentCreateDto } from 'src/contracts/attachment/create-attachment.dto';
 import { Attachment } from 'src/domains/attachment.entity';
-import { AttachmentReadDto } from 'src/contracts/attachment/read-attachment.dto';
 import { FileValidationPipe } from 'src/validators/pipes/fileValidationPipe';
 
 @ApiTags('File')

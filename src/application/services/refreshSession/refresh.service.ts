@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -10,7 +9,6 @@ import { RefreshSession } from 'src/domains/refreshSession.entity';
 import { RefreshSessionRepository } from './Repository/refresh.repository';
 import { ReadRefreshSessionDto } from 'src/contracts/refreshSession/read-refreshSession.dto';
 import { CreateRefreshSessionDto } from 'src/contracts/refreshSession/create-refreshSession.dto';
-import { UpdateRefreshSessionDto } from 'src/contracts/refreshSession/update-refreshSession.dto';
 import { Logger } from 'winston';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -19,9 +17,11 @@ import { Cache } from 'cache-manager';
 export class RefreshService {
   constructor(
     private sessionsRepository: RefreshSessionRepository,
-    @Inject(CACHE_MANAGER) private readonly cacheService: Cache,
-    @Inject('winston') private readonly logger: Logger,
-  ) {}
+    @Inject(CACHE_MANAGER) 
+    private readonly cacheService: Cache,
+    @Inject('winston') 
+    private readonly logger: Logger,
+  ) { }
 
   async findAllByUserId(userId: string): Promise<ReadRefreshSessionDto[]> {
     try {
@@ -59,19 +59,24 @@ export class RefreshService {
       session.refreshToken = createSessionDto.refreshToken;
       session.user = createSessionDto.user;
       const refreshSession = await this.sessionsRepository.save(session);
+      await this.cacheService.set<RefreshSession>(`session:${refreshSession.id}`, refreshSession, 1860000);
       return refreshSession.id
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при создании сессии!');
     }
   }
-  
+
   async findOneByIdAndFingerprint(
     id: string,
     fingerprint: string,
   ): Promise<ReadRefreshSessionDto | null> {
     try {
-      const session = await this.sessionsRepository.findOneByIdAndFingerprint(id, fingerprint);
+      const session = await this.cacheService.get<ReadRefreshSessionDto>(`session:${id}`)
+        ?? await this.sessionsRepository.findOneByIdAndFingerprint(
+          id,
+          fingerprint,
+        );
       if (!session)
         return null;
 

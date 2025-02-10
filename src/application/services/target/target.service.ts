@@ -178,6 +178,7 @@ export class TargetService {
         post: targetCreateDto.holderPost,
       };
       await this.targetHolderService.create(targetHolderCreateDto);
+      
       if(targetCreateDto.attachmentIds){
         await this.attachmentToTargetService.createSeveral(createdTarget, targetCreateDto.attachmentIds);
       }
