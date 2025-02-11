@@ -165,10 +165,9 @@ export class Target {
 
 
   /**
-   * Связь с сущностью 1:1 User.
+   * Связь с сущностью M:1 Post.
    */
-  @OneToOne(() => Post, (post) => post.target, { nullable: true })
-  @JoinColumn()
+  @ManyToOne(() => Post, (post) => post.targets, { nullable: true })
   senderPost: Post;
 
   /**

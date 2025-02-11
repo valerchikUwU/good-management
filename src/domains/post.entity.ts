@@ -122,8 +122,8 @@ export class Post {
   /**
    * Связь с сущностью 1:1 Goal.
    */
-  @OneToOne(() => Target, (target) => target.senderPost)
-  target: Target;
+  @OneToMany(() => Target, (target) => target.senderPost)
+  targets: Target[];
 
   /**
    * Связь с сущностью М:1 User.

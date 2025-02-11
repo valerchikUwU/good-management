@@ -255,7 +255,7 @@ export class ConvertController {
         this.convertService.create(convertCreateDto),
         this.postService.findOneById(convertCreateDto.pathOfPosts[1])
       ]);
-    // this.convertGateway.handleConvertExtensionEvent(createdConvert, activePost?.user.id) // ПРОВЕРИТЬ КАК РАБОТАЕТ ЕСЛИ У ПОСТА НЕ БУДЕТ ЮЗЕРА
+    this.convertGateway.handleConvertExtensionEvent(createdConvert, activePost?.user.id) // ПРОВЕРИТЬ КАК РАБОТАЕТ ЕСЛИ У ПОСТА НЕ БУДЕТ ЮЗЕРА
     this.logger.info(
       `${yellow('OK!')} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый конверт!`,
     );
