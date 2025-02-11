@@ -188,7 +188,7 @@ export class ConvertGateway
 
   handleConnection(client: Socket) {
     // Извлечение параметров из URL
-    const { userId } = client.handshake.query;
+    const { userId } = client.handshake.auth;
     client.data.userId = userId;
     this.logger.info(`Client Connected: ${client.id}`);
     this.clients.set(client.id, client);
