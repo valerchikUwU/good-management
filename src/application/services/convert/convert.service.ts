@@ -23,14 +23,23 @@ export class ConvertService {
     private readonly convertRepository: ConvertRepository,
     private readonly convertToPostService: ConvertToPostService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForUserPosts(userPostsIds: string[], relations?: string[]): Promise<ConvertReadDto[]> {
-    const converts = await this.convertRepository.find({
-      where: { convertToPosts: { post: {id: In(userPostsIds)}} },
-      relations: relations !== undefined ? relations : []
+    const converts = await this.convertRepository
+      .createQueryBuilder('convert')
+      .leftJoinAndSelect('convert.convertToPosts', 'convertToPost')
+      .leftJoinAndSelect('convertToPost.post', 'post')
+      .leftJoinAndSelect('post.user', 'user')
+      .getMany();
+
+    // Фильтруем converts, оставляя только те, у которых есть хотя бы один post.id из userPostsIds
+    const filteredConverts = converts.filter(convert => {
+      return convert.convertToPosts.some(convertToPost => {
+        return userPostsIds.includes(convertToPost.post.id);
+      });
     });
-    return converts.map((convert) => ({
+    return filteredConverts.map((convert) => ({
       id: convert.id,
       convertTheme: convert.convertTheme,
       pathOfPosts: convert.pathOfPosts,
