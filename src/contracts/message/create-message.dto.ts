@@ -1,21 +1,45 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
 } from 'class-validator';
 import { Convert } from 'src/domains/convert.entity';
 import { Post } from 'src/domains/post.entity';
 
 export class MessageCreateDto {
+
+  @ApiProperty({
+    description: 'Текст сообщения',
+    required: true,
+    example: 'Текст',
+  })
   @IsString()
-  @MaxLength(200)
+  @MaxLength(4096)
+  @IsNotEmpty({ message: 'Текст сообщения не может быть пустым!' })
   content: string;
 
-  @IsString()
+  @ApiProperty({
+    description: 'Id поста отправителя',
+    required: true,
+    example: '22dcf96d-1e6a-4c8c-bc12-c90589b40e93',
+  })
+  @IsUUID()
+  @IsNotEmpty({ message: 'Id отправителя не может быть пустым!' })
   postId: string;
 
-  attachmentIds: string[];
+  @ApiProperty({
+    description: 'Ids вложений',
+    required: false,
+    example: ['22dcf96d-1e6a-4c8c-bc12-c90589b40e93'],
+  })
+  @IsOptional()
+  @IsArray({message: 'Должен быть массив!'})
+  attachmentIds?: string[];
 
   @Exclude({ toPlainOnly: true })
   convert: Convert;

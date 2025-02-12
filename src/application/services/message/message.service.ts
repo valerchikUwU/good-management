@@ -12,12 +12,14 @@ import { Message } from 'src/domains/message.entity';
 import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
+import { AttachmentToMessageService } from '../attachmentToMessage/attachmentToMessage.service';
 
 @Injectable()
 export class MessageService {
   constructor(
     @InjectRepository(Message)
     private readonly messageRepository: MessageRepository,
+    private readonly attachmentToMessageService: AttachmentToMessageService,
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
@@ -35,10 +37,11 @@ export class MessageService {
 
   async create(messageCreateDto: MessageCreateDto): Promise<Message> {
     try {
-      // Используем метод insert
       const createdMessage = await this.messageRepository.save(messageCreateDto);
-
-      return createdMessage; // Возвращаем полное сообщение
+      if(messageCreateDto.attachmentIds){
+        await this.attachmentToMessageService.createSeveral(createdMessage, messageCreateDto.attachmentIds);
+      }
+      return createdMessage;
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при создании сообщения');

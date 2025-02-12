@@ -49,9 +49,39 @@ export class AttachmentService {
     }
     catch (err) {
       this.logger.error(err)
-      if(err instanceof NotFoundException)
+      if (err instanceof NotFoundException)
         throw err;
       throw new InternalServerErrorException('Ошибка при получении вложений!')
+    }
+  }
+
+  async findOneByHash(fileHash: string): Promise<AttachmentReadDto | null> {
+    try {
+      const attachment = await this.attachmentRepository.findOne({
+        where: { hash: fileHash },
+      });
+      if (attachment)
+        return null;
+
+      const attachmentReadDto: AttachmentReadDto = {
+        id: attachment.id,
+        attachmentName: attachment.attachmentName,
+        attachmentPath: attachment.attachmentPath,
+        attachmentSize: attachment.attachmentSize,
+        attachmentMimetype: attachment.attachmentMimetype,
+        hash: attachment.hash,
+        createdAt: attachment.createdAt,
+        updatedAt: attachment.updatedAt,
+        attachmentToTargets: attachment.attachmentToTargets,
+        attachmentToMessages: attachment.attachmentToMessages
+      }
+      return attachmentReadDto;
+    }
+    catch (err) {
+      this.logger.error(err)
+      if (err instanceof NotFoundException)
+        throw err;
+      throw new InternalServerErrorException('Ошибка при получении вложения!')
     }
   }
 

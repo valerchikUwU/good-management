@@ -25,9 +25,10 @@ export class ConvertService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForUserPosts(userPostsIds: string[]): Promise<ConvertReadDto[]> {
+  async findAllForUserPosts(userPostsIds: string[], relations?: string[]): Promise<ConvertReadDto[]> {
     const converts = await this.convertRepository.find({
       where: { convertToPosts: { post: {id: In(userPostsIds)}} },
+      relations: relations !== undefined ? relations : []
     });
     return converts.map((convert) => ({
       id: convert.id,

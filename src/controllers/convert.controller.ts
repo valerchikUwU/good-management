@@ -59,13 +59,51 @@ export class ConvertController {
     description: 'ОК!',
     example: [
       {
-        id: '222f1a02-d053-4885-99b6-f353eb277b6f',
-        convertTheme: 'Тема',
-        expirationTime: 172323233,
-        dateFinish: '2024-09-26T13:03:19.759Z',
-        createdAt: '2024-10-21T13:10:51.781Z',
+        "id": "a9b4df3a-09d7-4489-8985-ce4090ea090f",
+        "convertTheme": "сука сосаааааааааать",
+        "pathOfPosts": [
+          "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
+          "240d67da-d6d1-40c0-9391-8ceab74aeb6f"
+        ],
+        "expirationTime": 999,
+        "convertType": "Приказ",
+        "convertPath": "Прямой",
+        "convertStatus": true,
+        "activePostId": "240d67da-d6d1-40c0-9391-8ceab74aeb6f",
+        "dateFinish": "2025-02-11T00:00:00.000Z",
+        "createdAt": "2025-02-11T15:15:55.783Z",
+        "convertToPosts": [
+          {
+            "id": "55aad076-be20-4cfa-a725-ea1815e33f68",
+            "createdAt": "2025-02-11T15:15:55.990Z",
+            "updatedAt": "2025-02-11T15:15:55.990Z",
+            "post": {
+              "id": "240d67da-d6d1-40c0-9391-8ceab74aeb6f",
+              "postName": "socket",
+              "divisionName": "Подразделение №73",
+              "divisionNumber": 17,
+              "parentId": "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
+              "product": "ccc",
+              "purpose": "ccc",
+              "createdAt": "2025-02-11T15:09:07.533Z",
+              "updatedAt": "2025-02-11T15:09:07.533Z",
+              "user": {
+                "id": "bc807845-08a8-423e-9976-4f60df183ae2",
+                "firstName": "Максим",
+                "lastName": "Ковальская",
+                "middleName": "Тимофеевич",
+                "telegramId": 453120600,
+                "telephoneNumber": "+79787513901",
+                "avatar_url": null,
+                "vk_id": null,
+                "createdAt": "2024-12-04T16:16:56.785Z",
+                "updatedAt": "2025-01-10T17:14:37.056Z"
+              }
+            }
+          }
+        ]
       },
-    ],
+    ]
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -74,7 +112,7 @@ export class ConvertController {
   async findAll(@Req() req: ExpressRequest): Promise<ConvertReadDto[]> {
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map(post => post.id)
-    const converts = await this.convertService.findAllForUserPosts(userPostsIds);
+    const converts = await this.convertService.findAllForUserPosts(userPostsIds, ['convertToPosts.post.user']);
     return converts;
   }
 
@@ -255,7 +293,9 @@ export class ConvertController {
         this.convertService.create(convertCreateDto),
         this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user'])
       ]);
-    this.convertGateway.handleConvertExtensionEvent(createdConvert, activePost?.user.id) // ПРОВЕРИТЬ КАК РАБОТАЕТ ЕСЛИ У ПОСТА НЕ БУДЕТ ЮЗЕРА
+    if(activePost.user.id){
+      this.convertGateway.handleConvertExtensionEvent(createdConvert, activePost.user.id)
+    }
     this.logger.info(
       `${yellow('OK!')} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый конверт!`,
     );
@@ -300,6 +340,11 @@ export class ConvertController {
 
   @Patch(':convertId/sendMessage')
   @ApiOperation({ summary: 'Отправить сообщение' })
+  @ApiBody({
+    description: 'ДТО для создания сообщения',
+    type: MessageCreateDto,
+    required: true,
+  })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'ОК!',

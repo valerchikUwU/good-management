@@ -106,6 +106,7 @@ export class FileUploadController {
     const createdAttachments = await Promise.all(
       files.map(async (file) => {
         const fileHash = await this.attachmentService.calculateFileHash(file.path);
+        
         const attachmentCreateDto: AttachmentCreateDto = {
           attachmentName: file.filename,
           attachmentPath: file.path,
@@ -116,7 +117,6 @@ export class FileUploadController {
           message: null,
         };
 
-        // Сохраняем вложение в базе данных
         const createdAttachment = await this.attachmentService.create(attachmentCreateDto);
 
         console.log('File Hash:', fileHash);
