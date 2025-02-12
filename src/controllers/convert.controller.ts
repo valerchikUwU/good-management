@@ -113,7 +113,16 @@ export class ConvertController {
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map(post => post.id)
     const converts = await this.convertService.findAllForUserPosts(userPostsIds, ['convertToPosts.post.user']);
-    return converts;
+    const filteredConverts = converts.map(convert => {
+      // Фильтруем convertToPosts, оставляя только те, у которых post.id содержится в userPostsIds
+      convert.convertToPosts = convert.convertToPosts.filter(convertToPost => {
+        return !userPostsIds.includes(convertToPost.post.id);
+      });
+    
+      // Возвращаем изменённый объект convert
+      return convert;
+    });
+    return filteredConverts;
   }
 
   @Get(':convertId')
