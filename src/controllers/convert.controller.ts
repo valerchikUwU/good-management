@@ -253,7 +253,7 @@ export class ConvertController {
       await Promise.all([
         this.targetService.create(convertCreateDto.targetCreateDto),
         this.convertService.create(convertCreateDto),
-        this.postService.findOneById(convertCreateDto.pathOfPosts[1])
+        this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user'])
       ]);
     this.convertGateway.handleConvertExtensionEvent(createdConvert, activePost?.user.id) // ПРОВЕРИТЬ КАК РАБОТАЕТ ЕСЛИ У ПОСТА НЕ БУДЕТ ЮЗЕРА
     this.logger.info(
