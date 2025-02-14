@@ -14,7 +14,7 @@ import { OrganizationReadDto } from 'src/contracts/organization/read-organizatio
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
 import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
-import { FindOptionsWhere, IsNull, Not } from 'typeorm';
+import { FindOptionsWhere, In, IsNull, Not } from 'typeorm';
 
 @Injectable()
 export class PostService {
@@ -61,7 +61,7 @@ export class PostService {
       this.logger.error(err);
       // Обработка других ошибок
       throw new InternalServerErrorException(
-        'Ошибка при получении всех постов!',
+        'Ошибка при получении всех постов для организации!',
       );
     }
   }
@@ -102,7 +102,7 @@ export class PostService {
       this.logger.error(err);
       // Обработка других ошибок
       throw new InternalServerErrorException(
-        'Ошибка при получении всех постов!',
+        'Ошибка при получении всех постов для юзера!',
       );
     }
   }
@@ -141,7 +141,7 @@ export class PostService {
       this.logger.error(err);
       // Обработка других ошибок
       throw new InternalServerErrorException(
-        'Ошибка при получении всех постов!',
+        'Ошибка при получении всех постов для организации!',
       );
     }
   }
@@ -180,7 +180,53 @@ export class PostService {
       this.logger.error(err);
       // Обработка других ошибок
       throw new InternalServerErrorException(
-        'Ошибка при получении всех постов!',
+        'Ошибка при получении всех постов без юзеров!',
+      );
+    }
+  }
+
+  async findAllPostsWithConvertsForCurrentUser(userPostsIds: string[], relations?: string[]): Promise<PostReadDto[]> {
+    try {
+      const posts = await this.postRepository
+      .createQueryBuilder('post')
+      .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
+      .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
+      .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
+      .innerJoin('otherCtp.post', 'otherPost')  // получаем посты из этих связей
+      .innerJoin('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
+      .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
+      .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
+      .select([
+        'c.id AS "convertId"',
+        'c.convertTheme' as "convertTheme",
+        'ARRAY_AGG(DISTINCT otherPost.id) AS "postIds"',
+        'ARRAY_AGG(DISTINCT otherPost.postName) AS "postNames"',
+        'ARRAY_AGG(DISTINCT otherPost.divisionName) AS "divisionNames"',
+        'ARRAY_AGG(DISTINCT otherPost.divisionNumber) AS "divisionNumbers"',
+        'ARRAY_AGG(DISTINCT otherPost.parentId) AS "parentIds"',
+        'ARRAY_AGG(DISTINCT otherPost.product) AS "products"',
+        'ARRAY_AGG(DISTINCT otherPost.purpose) AS "purposes"',
+        'ARRAY_AGG(DISTINCT otherPost.createdAt) AS "createdAts"',
+        'ARRAY_AGG(DISTINCT otherPost.updatedAt) AS "updatedAts"',
+        
+        'ARRAY_AGG(DISTINCT otherUser.id) AS "userIds"',
+        'ARRAY_AGG(DISTINCT otherUser.firstName) AS "userFirstNames"',
+        'ARRAY_AGG(DISTINCT otherUser.lastName) AS "userLastNames"',
+        'ARRAY_AGG(DISTINCT otherUser.telegramId) AS "userTelegramIds"',
+        'ARRAY_AGG(DISTINCT otherUser.telephoneNumber) AS "userTelephoneNumbers"',
+        'ARRAY_AGG(DISTINCT otherUser.avatar_url) AS "userAvatars"'
+      ])
+      .groupBy('c.id')
+      .getRawMany();
+    
+      console.log(posts)
+
+      return posts
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех постов c чатами!',
       );
     }
   }

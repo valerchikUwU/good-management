@@ -37,6 +37,7 @@ import { TargetService } from 'src/application/services/target/target.service';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageService } from 'src/application/services/message/message.service';
+import { PostReadDto } from 'src/contracts/post/read-post.dto';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -109,20 +110,11 @@ export class ConvertController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  async findAll(@Req() req: ExpressRequest): Promise<ConvertReadDto[]> {
+  async findAll(@Req() req: ExpressRequest): Promise<any[]> {
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map(post => post.id)
-    const converts = await this.convertService.findAllForUserPosts(userPostsIds, ['convertToPosts.post.user']);
-    const filteredConverts = converts.map(convert => {
-      // Фильтруем convertToPosts, оставляя только те, у которых post.id содержится в userPostsIds
-      convert.convertToPosts = convert.convertToPosts.filter(convertToPost => {
-        return !userPostsIds.includes(convertToPost.post.id);
-      });
-    
-      // Возвращаем изменённый объект convert
-      return convert;
-    });
-    return filteredConverts;
+    const postsWithConverts = await this.postService.findAllPostsWithConvertsForCurrentUser(userPostsIds)
+    return postsWithConverts;
   }
 
   @Get(':convertId')
@@ -302,7 +294,7 @@ export class ConvertController {
         this.convertService.create(convertCreateDto),
         this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user'])
       ]);
-    if(activePost.user.id){
+    if (activePost.user.id) {
       this.convertGateway.handleConvertExtensionEvent(createdConvert, activePost.user.id)
     }
     this.logger.info(
