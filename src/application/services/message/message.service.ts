@@ -24,15 +24,24 @@ export class MessageService {
   ) {}
 
   async findAllForConvert(convertId: string): Promise<MessageReadDto[]> {
-    const messages = await this.messageRepository.find({
-      where: { convert: { id: convertId } },
-    });
-    return messages.map((message) => ({
-      id: message.id,
-      content: message.content,
-      convert: message.convert,
-      sender: message.sender,
-    }));
+    try {
+      const messages = await this.messageRepository.find({
+        where: { convert: { id: convertId } },
+      });
+      return messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        timeSeen: message.timeSeen,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        convert: message.convert,
+        sender: message.sender,
+      }));
+    }
+    catch(err){
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении сообщений в конверте');
+    }
   }
 
   async create(messageCreateDto: MessageCreateDto): Promise<Message> {
@@ -51,7 +60,7 @@ export class MessageService {
   async update(
     _id: string,
     messageUpdateDto: MessageUpdateDto,
-  ): Promise<Message> {
+  ): Promise<string> {
     try {
       const message = await this.messageRepository.findOne({
         where: { id: _id },
@@ -60,7 +69,9 @@ export class MessageService {
         throw new NotFoundException(`Сообщение с ID ${_id} не найден`);
       }
       if (messageUpdateDto.content) message.content = messageUpdateDto.content;
-      return await this.messageRepository.save(message);
+      if (messageUpdateDto.timeSeen) message.timeSeen = new Date();
+      await this.messageRepository.update(_id, {content: message.content, timeSeen: message.timeSeen});
+      return _id
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений

@@ -6,6 +6,12 @@ export class MessageReadDto {
 
   content: string;
 
+  timeSeen: Date;
+
+  createdAt: Date;
+
+  updatedAt: Date;
+
   convert: Convert;
 
   sender: Post;

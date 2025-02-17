@@ -22,7 +22,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ConvertService } from 'src/application/services/convert/convert.service';
-import { UsersService } from 'src/application/services/users/users.service';
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { Logger } from 'winston';
@@ -37,7 +36,6 @@ import { TargetService } from 'src/application/services/target/target.service';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageService } from 'src/application/services/message/message.service';
-import { PostReadDto } from 'src/contracts/post/read-post.dto';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -60,50 +58,166 @@ export class ConvertController {
     description: 'ОК!',
     example: [
       {
-        "id": "a9b4df3a-09d7-4489-8985-ce4090ea090f",
-        "convertTheme": "сука сосаааааааааать",
-        "pathOfPosts": [
-          "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
-          "240d67da-d6d1-40c0-9391-8ceab74aeb6f"
+        "c_convertTheme": "ЕБКА",
+        "convertId": "213622b0-a4e6-46eb-9161-27e5043f9e3c",
+        "postIds": [
+          "88fd21e0-a67a-4edf-8cac-0be1e7011480"
         ],
-        "expirationTime": 999,
-        "convertType": "Приказ",
-        "convertPath": "Прямой",
-        "convertStatus": true,
-        "activePostId": "240d67da-d6d1-40c0-9391-8ceab74aeb6f",
-        "dateFinish": "2025-02-11T00:00:00.000Z",
-        "createdAt": "2025-02-11T15:15:55.783Z",
-        "convertToPosts": [
-          {
-            "id": "55aad076-be20-4cfa-a725-ea1815e33f68",
-            "createdAt": "2025-02-11T15:15:55.990Z",
-            "updatedAt": "2025-02-11T15:15:55.990Z",
-            "post": {
-              "id": "240d67da-d6d1-40c0-9391-8ceab74aeb6f",
-              "postName": "socket",
-              "divisionName": "Подразделение №73",
-              "divisionNumber": 17,
-              "parentId": "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
-              "product": "ccc",
-              "purpose": "ccc",
-              "createdAt": "2025-02-11T15:09:07.533Z",
-              "updatedAt": "2025-02-11T15:09:07.533Z",
-              "user": {
-                "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-                "firstName": "Максим",
-                "lastName": "Ковальская",
-                "middleName": "Тимофеевич",
-                "telegramId": 453120600,
-                "telephoneNumber": "+79787513901",
-                "avatar_url": null,
-                "vk_id": null,
-                "createdAt": "2024-12-04T16:16:56.785Z",
-                "updatedAt": "2025-01-10T17:14:37.056Z"
-              }
-            }
-          }
+        "postNames": [
+          "СЫН ДРОЧУНА"
+        ],
+        "divisionNames": [
+          "Подразделение №2"
+        ],
+        "divisionNumbers": [
+          2
+        ],
+        "parentIds": [
+          "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652"
+        ],
+        "products": [
+          "СЛАВА БОГУ"
+        ],
+        "purposes": [
+          "я хохолро"
+        ],
+        "createdAts": [
+          "2025-02-13T17:18:44.349Z"
+        ],
+        "updatedAts": [
+          "2025-02-14T16:01:31.745Z"
+        ],
+        "userIds": [
+          "45469765-eb6e-477a-be23-69d66e8080c3"
+        ],
+        "userFirstNames": [
+          "Татьяна"
+        ],
+        "userLastNames": [
+          "Пятницкая"
+        ],
+        "userTelegramIds": [
+          null
+        ],
+        "userTelephoneNumbers": [
+          "+79261559180"
+        ],
+        "userAvatars": [
+          null
         ]
       },
+      {
+        "c_convertTheme": "второй блять",
+        "convertId": "2b31ed0a-cbb4-4318-9d34-52054d259ff5",
+        "postIds": [
+          "88fd21e0-a67a-4edf-8cac-0be1e7011480"
+        ],
+        "postNames": [
+          "СЫН ДРОЧУНА"
+        ],
+        "divisionNames": [
+          "Подразделение №2"
+        ],
+        "divisionNumbers": [
+          2
+        ],
+        "parentIds": [
+          "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652"
+        ],
+        "products": [
+          "СЛАВА БОГУ"
+        ],
+        "purposes": [
+          "я хохолро"
+        ],
+        "createdAts": [
+          "2025-02-13T17:18:44.349Z"
+        ],
+        "updatedAts": [
+          "2025-02-14T16:01:31.745Z"
+        ],
+        "userIds": [
+          "45469765-eb6e-477a-be23-69d66e8080c3"
+        ],
+        "userFirstNames": [
+          "Татьяна"
+        ],
+        "userLastNames": [
+          "Пятницкая"
+        ],
+        "userTelegramIds": [
+          null
+        ],
+        "userTelephoneNumbers": [
+          "+79261559180"
+        ],
+        "userAvatars": [
+          null
+        ]
+      },
+      {
+        "c_convertTheme": "ГРЯЗНАЯ",
+        "convertId": "3b42c299-ad37-4126-953e-146d7849f8da",
+        "postIds": [
+          "1f10df03-d8c9-492a-ad68-b2a814681a77",
+          "53e0a8b0-bce4-4c81-b26f-7e5a4ad6e259"
+        ],
+        "postNames": [
+          "NOw",
+          "ДОЧЬ ДРОЧУНЬИ"
+        ],
+        "divisionNames": [
+          "Подразделение №13",
+          "Подразделение №5"
+        ],
+        "divisionNumbers": [
+          5,
+          13
+        ],
+        "parentIds": [
+          "154387db-f8de-4439-8a88-4c54ab97f863",
+          "5c848447-2431-4a28-b462-0747af5b92eb"
+        ],
+        "products": [
+          "qq",
+          "ИЛЮХА ХУЙ"
+        ],
+        "purposes": [
+          "qqq",
+          "ОССИas"
+        ],
+        "createdAts": [
+          "2025-02-13T17:35:35.946Z",
+          "2025-02-13T18:39:00.479Z"
+        ],
+        "updatedAts": [
+          "2025-02-13T18:39:34.159Z",
+          "2025-02-13T18:44:16.074Z"
+        ],
+        "userIds": [
+          "45469765-eb6e-477a-be23-69d66e8080c3",
+          "f76cac23-3f61-4e26-b3f7-9120e6ebd837"
+        ],
+        "userFirstNames": [
+          "Валера",
+          "Татьяна"
+        ],
+        "userLastNames": [
+          "Лысенко",
+          "Пятницкая"
+        ],
+        "userTelegramIds": [
+          803348257,
+          null
+        ],
+        "userTelephoneNumbers": [
+          "+79261559180",
+          "+79787512027"
+        ],
+        "userAvatars": [
+          null
+        ]
+      }
     ]
   })
   @ApiResponse({
@@ -111,9 +225,13 @@ export class ConvertController {
     description: 'Ошибка сервера!',
   })
   async findAll(@Req() req: ExpressRequest): Promise<any[]> {
+    let start = new Date()
     const user = req.user as ReadUserDto;
-    const userPostsIds = user.posts.map(post => post.id)
-    const postsWithConverts = await this.postService.findAllPostsWithConvertsForCurrentUser(userPostsIds)
+    const userPostsIds = user.posts.map(post => post.id);
+    const postsWithConverts = await this.postService.findAllPostsWithConvertsForCurrentUser(userPostsIds);
+    let c = new Date()
+    let end = c.getTime() - start.getTime()
+    console.log(end)
     return postsWithConverts;
   }
 

@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConvertGateway } from 'src/gateways/convert.gateway';
 import { EventsGateway } from 'src/gateways/events.gateway';
-import { MessageModule } from './message.module';
 import { ConvertModule } from './convert.module';
-import { PostModule } from './post.module';
+import { MessageModule } from './message.module';
 
 @Module({
-  imports: [ConvertModule],
+  imports: [MessageModule],
   providers: [EventsGateway, ConvertGateway],
   exports: [EventsGateway, ConvertGateway],
 })

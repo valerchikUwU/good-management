@@ -11,16 +11,17 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ConvertService } from 'src/application/services/convert/convert.service';
+import { MessageService } from 'src/application/services/message/message.service';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { MessageReadDto } from 'src/contracts/message/read-message.dto';
-import { Message } from 'src/domains/message.entity';
+import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
 import { Logger } from 'winston';
 
 @WebSocketGateway({ namespace: 'convert', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST } })
 export class ConvertGateway
   implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
+    private readonly messageService: MessageService,
     @Inject('winston') private readonly logger: Logger, // инъекция логгера
   ) { }
   private clients: Map<string, Socket> = new Map();
@@ -154,29 +155,6 @@ export class ConvertGateway
   // }
 
 
-
-  @SubscribeMessage('join_convert')
-  async handleSetClientDataEvent(
-    @MessageBody()
-    payload: {
-      convertId: string;
-    },
-    connectedClient: Socket
-  ) {
-    const client = this.clients.get(connectedClient.id);
-    if (!client) {
-      return {success: false, message: 'Не удалось подключиться к чату!'};
-    }
-    client.join(payload.convertId); // Теперь используем join, чтобы присоединить клиента к комнате
-    this.logger.info(`${connectedClient.id} is joining ${payload.convertId}`);
-    const sockets = await this.ws.in(payload.convertId).fetchSockets();
-    for (const socket of sockets) {
-      console.log(socket.id);
-      console.log(socket.rooms);
-    }
-    return {success: true};
-  }
-
   handleDisconnect(client: Socket) {
     // Извлечение параметров из URL
     this.logger.info(`Client Disconnected: ${client.id}`);
@@ -196,14 +174,61 @@ export class ConvertGateway
     this.clients.forEach((client) => {
       this.logger.info(`Client ID: ${client.id}, Socket ID: ${JSON.stringify(client.data)}`);
     });
-    return {success: true}
+    return { success: true }
   }
 
+  @SubscribeMessage('join_convert')
+  async handleSetClientDataEvent(
+    @MessageBody()
+    payload: {
+      convertId: string;
+    },
+    connectedClient: Socket
+  ) {
+    const client = this.clients.get(connectedClient.id);
+    if (!client) {
+      return { success: false, message: 'Не удалось подключиться к чату!' };
+    }
+    client.join(payload.convertId); // Теперь используем join, чтобы присоединить клиента к комнате
+    this.logger.info(`${connectedClient.id} is joining ${payload.convertId}`);
+    const sockets = await this.ws.in(payload.convertId).fetchSockets();
+    for (const socket of sockets) {
+      console.log(socket.id);
+      console.log(socket.rooms);
+    }
+    return { success: true };
+  }
+
+  @SubscribeMessage('messagesSeen')
+  async handleMessagesSeenEvent(
+    @MessageBody()
+    payload: {
+      convertId: string;
+      messageIds: string[];
+    },
+  ) {
+    const updateMessagesPromises = payload.messageIds.map(
+      async (id) => {
+        const messageUpdateDto: MessageUpdateDto = {
+          _id: id,
+          timeSeen: new Date()
+        };
+        await Promise.all(updateMessagesPromises);
+        const updatedMessageId = await this.messageService.update(id, messageUpdateDto);
+
+        return updatedMessageId;
+      },
+    );
+    this.ws.to(payload.convertId).emit('messagesAreSeen', new Date());
+    return true;
+  }
 
   handleMessageCreationEvent(convertId: string, message: MessageReadDto) {
     this.ws.to(convertId).emit('messageCreationEvent', message) // broadcast messages
     return true;
   }
+
+
 
   handleConvertExtensionEvent(convert: ConvertReadDto, userId: string) {
     const socketsToNotify = this.findKeysByValue(this.clients, userId);
@@ -215,16 +240,16 @@ export class ConvertGateway
     return true;
   }
 
-   findKeysByValue(map: Map<string, Socket>, userId: string): Socket[] {
+  findKeysByValue(map: Map<string, Socket>, userId: string): Socket[] {
     const matchingKeys: Socket[] = [];
-  
+
     map.forEach((value, key) => {
       if (userId === value.data.userId) {
         const client = this.clients.get(key);
         matchingKeys.push(client);
       }
     });
-  
+
     return matchingKeys;
   }
 }

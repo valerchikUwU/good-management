@@ -19,6 +19,9 @@ export class Message {
   @Column({ type: 'text', nullable: false })
   content: string;
 
+  @Column({type: 'timestamp', nullable: true})
+  timeSeen: Date;
+
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
