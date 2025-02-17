@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -118,12 +119,19 @@ export class PostController {
     description: 'Id организации',
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
   })
+  @ApiQuery({
+    name: 'structure',
+    required: false,
+    description: 'Флаг для структуры организации',
+    example: true,
+  })
   async findAll(
+    @Query('structure') structure: boolean,
     @Param('organizationId') organizationId: string
   ): Promise<PostReadDto[]> {
-    const posts = await this.postService.findAllForOrganization(organizationId, [
-      'user',
-    ]);
+    if (!structure)
+      structure = false;
+    const posts = await this.postService.findAllForOrganization(organizationId, structure, ['user']);
     return posts;
   }
 
@@ -322,7 +330,7 @@ export class PostController {
     const [policies, workers, posts, maxDivisionNumber] = await Promise.all([
       this.policyService.findAllActiveForOrganization(organizationId),
       this.userService.findAllForOrganization(organizationId),
-      this.postService.findAllForOrganization(organizationId),
+      this.postService.findAllForOrganization(organizationId, false),
       this.postService.findMaxDivisionNumber()
     ])
 
@@ -484,7 +492,7 @@ export class PostController {
     const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization', 'statistics']);
     const isHasBoss = currentPost.parentId !== null ? true : false
     const [posts, workers, policiesActive] = await Promise.all([
-      isHasBoss ? this.postService.getParentPosts(currentPost.id) : this.postService.findAllForOrganization(currentPost.organization.id, ['user']),
+      isHasBoss ? this.postService.getParentPosts(currentPost.id) : this.postService.findAllForOrganization(currentPost.organization.id, false, ['user']),
       this.userService.findAllForOrganization(currentPost.organization.id),
       this.policyService.findAllActiveForOrganization(currentPost.organization.id),
     ])
@@ -645,7 +653,7 @@ export class PostController {
             `Failed to create historyUsersToPost: ${error.message}`,
           );
         });
-      if(user.id === postCreateDto.responsibleUserId) {
+      if (user.id === postCreateDto.responsibleUserId) {
         user.posts.push(createdPost)
         await this.cacheService.set<ReadUserDto>(`user:${user.id}`, user, 1860000);
       }

@@ -27,7 +27,7 @@ export class PostService {
 
 
 
-  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
+  async findAllForOrganization(organizationId: string, structure: boolean, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: { organization: { id: organizationId } },
@@ -55,7 +55,8 @@ export class PostService {
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
-        controlPanels: post.controlPanels
+        controlPanels: post.controlPanels,
+        underPosts: structure === true ? posts.filter(underPost => underPost.parentId === post.id) : null
       }));
     } catch (err) {
       this.logger.error(err);
@@ -185,7 +186,7 @@ export class PostService {
     }
   }
 
-  async findAllPostsWithConvertsForCurrentUser(userPostsIds: string[], relations?: string[]): Promise<PostReadDto[]> {
+  async findAllPostsWithConvertsForCurrentUser(userPostsIds: string[], relations?: string[]): Promise<any[]> {
     try {
       const posts = await this.postRepository
       .createQueryBuilder('post')
@@ -197,30 +198,32 @@ export class PostService {
       .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
       .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
       .select([
-        'c.id AS "convertId"',
-        'c.convertTheme' as "convertTheme",
-        'ARRAY_AGG(DISTINCT otherPost.id) AS "postIds"',
-        'ARRAY_AGG(DISTINCT otherPost.postName) AS "postNames"',
-        'ARRAY_AGG(DISTINCT otherPost.divisionName) AS "divisionNames"',
-        'ARRAY_AGG(DISTINCT otherPost.divisionNumber) AS "divisionNumbers"',
-        'ARRAY_AGG(DISTINCT otherPost.parentId) AS "parentIds"',
-        'ARRAY_AGG(DISTINCT otherPost.product) AS "products"',
-        'ARRAY_AGG(DISTINCT otherPost.purpose) AS "purposes"',
-        'ARRAY_AGG(DISTINCT otherPost.createdAt) AS "createdAts"',
-        'ARRAY_AGG(DISTINCT otherPost.updatedAt) AS "updatedAts"',
-        
-        'ARRAY_AGG(DISTINCT otherUser.id) AS "userIds"',
-        'ARRAY_AGG(DISTINCT otherUser.firstName) AS "userFirstNames"',
-        'ARRAY_AGG(DISTINCT otherUser.lastName) AS "userLastNames"',
-        'ARRAY_AGG(DISTINCT otherUser.telegramId) AS "userTelegramIds"',
-        'ARRAY_AGG(DISTINCT otherUser.telephoneNumber) AS "userTelephoneNumbers"',
-        'ARRAY_AGG(DISTINCT otherUser.avatar_url) AS "userAvatars"'
+          'c.id AS "convertId"',
+          'c.convertTheme AS "convertTheme"',
+          `jsonb_agg(
+              jsonb_build_object(
+                  'postId', otherPost.id,
+                  'postName', otherPost.postName,
+                  'divisionName', otherPost.divisionName,
+                  'divisionNumber', otherPost.divisionNumber,
+                  'parentId', otherPost.parentId,
+                  'product', otherPost.product,
+                  'purpose', otherPost.purpose,
+                  'createdAt', otherPost.createdAt,
+                  'updatedAt', otherPost.updatedAt,
+                  'user', jsonb_build_object(
+                      'userId', "otherUser".id,
+                      'firstName', "otherUser"."firstName",
+                      'lastName', "otherUser"."lastName",
+                      'telegramId', "otherUser"."telegramId",
+                      'telephoneNumber', "otherUser"."telephoneNumber",
+                      'avatar', "otherUser"."avatar_url"
+                  )
+              )
+          ) AS "postsAndUsers"`
       ])
       .groupBy('c.id')
       .getRawMany();
-    
-      console.log(posts)
-
       return posts
     } catch (err) {
       this.logger.error(err);

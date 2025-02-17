@@ -33,4 +33,5 @@ export class PostReadDto {
   convertToPosts: ConvertToPost[];
   messages: Message[];
   controlPanels: ControlPanel[];
+  underPosts?: PostReadDto[];
 }
