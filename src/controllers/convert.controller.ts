@@ -355,6 +355,7 @@ export class ConvertController {
       const index = createdConvert.pathOfPosts.indexOf(userPost.id);
       const pathOfPostsWithoutHostPost = createdConvert.pathOfPosts.splice(index, 1);
       createdConvert.host.user = user;
+      createdConvert.host.user.posts = null;
       this.convertGateway.handleConvertExtensionEvent(createdConvert.id, createdConvert.host, activePost, pathOfPostsWithoutHostPost)
     }
     this.logger.info(
