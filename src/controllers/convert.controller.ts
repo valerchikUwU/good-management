@@ -58,164 +58,103 @@ export class ConvertController {
     description: 'ОК!',
     example: [
       {
-        "c_convertTheme": "ЕБКА",
         "convertId": "213622b0-a4e6-46eb-9161-27e5043f9e3c",
-        "postIds": [
-          "88fd21e0-a67a-4edf-8cac-0be1e7011480"
-        ],
-        "postNames": [
-          "СЫН ДРОЧУНА"
-        ],
-        "divisionNames": [
-          "Подразделение №2"
-        ],
-        "divisionNumbers": [
-          2
-        ],
-        "parentIds": [
-          "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652"
-        ],
-        "products": [
-          "СЛАВА БОГУ"
-        ],
-        "purposes": [
-          "я хохолро"
-        ],
-        "createdAts": [
-          "2025-02-13T17:18:44.349Z"
-        ],
-        "updatedAts": [
-          "2025-02-14T16:01:31.745Z"
-        ],
-        "userIds": [
-          "45469765-eb6e-477a-be23-69d66e8080c3"
-        ],
-        "userFirstNames": [
-          "Татьяна"
-        ],
-        "userLastNames": [
-          "Пятницкая"
-        ],
-        "userTelegramIds": [
-          null
-        ],
-        "userTelephoneNumbers": [
-          "+79261559180"
-        ],
-        "userAvatars": [
-          null
+        "convertTheme": "ЕБКА",
+        "latestMessageContent": null,
+        "latestMessageCreatedAt": null,
+        "postsAndUsers": [
+          {
+            "user": {
+              "avatar": null,
+              "userId": "0618825d-3564-4c3b-8a6a-cc245e766ea7",
+              "lastName": "Белописькин",
+              "firstName": "Илья",
+              "telegramId": 388089893,
+              "telephoneNumber": "+79787294592"
+            },
+            "postId": "88fd21e0-a67a-4edf-8cac-0be1e7011480",
+            "product": "СЛАВА БОГУ",
+            "purpose": "я хохолро",
+            "parentId": "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
+            "postName": "СЫН ДРОЧУНА",
+            "createdAt": "2025-02-13T17:18:44.349418",
+            "updatedAt": "2025-02-17T15:44:04.346914",
+            "divisionName": "Подразделение №2",
+            "divisionNumber": 2
+          }
         ]
       },
       {
-        "c_convertTheme": "второй блять",
         "convertId": "2b31ed0a-cbb4-4318-9d34-52054d259ff5",
-        "postIds": [
-          "88fd21e0-a67a-4edf-8cac-0be1e7011480"
-        ],
-        "postNames": [
-          "СЫН ДРОЧУНА"
-        ],
-        "divisionNames": [
-          "Подразделение №2"
-        ],
-        "divisionNumbers": [
-          2
-        ],
-        "parentIds": [
-          "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652"
-        ],
-        "products": [
-          "СЛАВА БОГУ"
-        ],
-        "purposes": [
-          "я хохолро"
-        ],
-        "createdAts": [
-          "2025-02-13T17:18:44.349Z"
-        ],
-        "updatedAts": [
-          "2025-02-14T16:01:31.745Z"
-        ],
-        "userIds": [
-          "45469765-eb6e-477a-be23-69d66e8080c3"
-        ],
-        "userFirstNames": [
-          "Татьяна"
-        ],
-        "userLastNames": [
-          "Пятницкая"
-        ],
-        "userTelegramIds": [
-          null
-        ],
-        "userTelephoneNumbers": [
-          "+79261559180"
-        ],
-        "userAvatars": [
-          null
+        "convertTheme": "второй блять",
+        "latestMessageContent": null,
+        "latestMessageCreatedAt": null,
+        "postsAndUsers": [
+          {
+            "user": {
+              "avatar": null,
+              "userId": "0618825d-3564-4c3b-8a6a-cc245e766ea7",
+              "lastName": "Белописькин",
+              "firstName": "Илья",
+              "telegramId": 388089893,
+              "telephoneNumber": "+79787294592"
+            },
+            "postId": "88fd21e0-a67a-4edf-8cac-0be1e7011480",
+            "product": "СЛАВА БОГУ",
+            "purpose": "я хохолро",
+            "parentId": "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
+            "postName": "СЫН ДРОЧУНА",
+            "createdAt": "2025-02-13T17:18:44.349418",
+            "updatedAt": "2025-02-17T15:44:04.346914",
+            "divisionName": "Подразделение №2",
+            "divisionNumber": 2
+          }
         ]
       },
       {
-        "c_convertTheme": "ГРЯЗНАЯ",
         "convertId": "3b42c299-ad37-4126-953e-146d7849f8da",
-        "postIds": [
-          "1f10df03-d8c9-492a-ad68-b2a814681a77",
-          "53e0a8b0-bce4-4c81-b26f-7e5a4ad6e259"
-        ],
-        "postNames": [
-          "NOw",
-          "ДОЧЬ ДРОЧУНЬИ"
-        ],
-        "divisionNames": [
-          "Подразделение №13",
-          "Подразделение №5"
-        ],
-        "divisionNumbers": [
-          5,
-          13
-        ],
-        "parentIds": [
-          "154387db-f8de-4439-8a88-4c54ab97f863",
-          "5c848447-2431-4a28-b462-0747af5b92eb"
-        ],
-        "products": [
-          "qq",
-          "ИЛЮХА ХУЙ"
-        ],
-        "purposes": [
-          "qqq",
-          "ОССИas"
-        ],
-        "createdAts": [
-          "2025-02-13T17:35:35.946Z",
-          "2025-02-13T18:39:00.479Z"
-        ],
-        "updatedAts": [
-          "2025-02-13T18:39:34.159Z",
-          "2025-02-13T18:44:16.074Z"
-        ],
-        "userIds": [
-          "45469765-eb6e-477a-be23-69d66e8080c3",
-          "f76cac23-3f61-4e26-b3f7-9120e6ebd837"
-        ],
-        "userFirstNames": [
-          "Валера",
-          "Татьяна"
-        ],
-        "userLastNames": [
-          "Лысенко",
-          "Пятницкая"
-        ],
-        "userTelegramIds": [
-          803348257,
-          null
-        ],
-        "userTelephoneNumbers": [
-          "+79261559180",
-          "+79787512027"
-        ],
-        "userAvatars": [
-          null
+        "convertTheme": "ГРЯЗНАЯ",
+        "latestMessageContent": null,
+        "latestMessageCreatedAt": null,
+        "postsAndUsers": [
+          {
+            "user": {
+              "avatar": null,
+              "userId": "0618825d-3564-4c3b-8a6a-cc245e766ea7",
+              "lastName": "Белописькин",
+              "firstName": "Илья",
+              "telegramId": 388089893,
+              "telephoneNumber": "+79787294592"
+            },
+            "postId": "53e0a8b0-bce4-4c81-b26f-7e5a4ad6e259",
+            "product": "ИЛЮХА ХУЙ",
+            "purpose": "ОССИas",
+            "parentId": "154387db-f8de-4439-8a88-4c54ab97f863",
+            "postName": "ДОЧЬ ДРОЧУНЬИ",
+            "createdAt": "2025-02-13T17:35:35.946011",
+            "updatedAt": "2025-02-17T17:14:26.305298",
+            "divisionName": "Подразделение №5",
+            "divisionNumber": 5
+          },
+          {
+            "user": {
+              "avatar": null,
+              "userId": "f76cac23-3f61-4e26-b3f7-9120e6ebd837",
+              "lastName": "Лысенко",
+              "firstName": "Валера",
+              "telegramId": 803348257,
+              "telephoneNumber": "+79787512027"
+            },
+            "postId": "1f10df03-d8c9-492a-ad68-b2a814681a77",
+            "product": "qq",
+            "purpose": "qqq",
+            "parentId": "5c848447-2431-4a28-b462-0747af5b92eb",
+            "postName": "NOw",
+            "createdAt": "2025-02-13T18:39:00.479839",
+            "updatedAt": "2025-02-13T18:39:34.15952",
+            "divisionName": "Подразделение №13",
+            "divisionNumber": 13
+          }
         ]
       }
     ]
@@ -229,6 +168,13 @@ export class ConvertController {
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map(post => post.id);
     const postsWithConverts = await this.postService.findAllPostsWithConvertsForCurrentUser(userPostsIds);
+    await Promise.all(
+      postsWithConverts.map(async (convert) => {
+        const unseenCountMessagesForConvert = await this.messageService.findCountOfUnseenForConvert(convert.id);
+        convert.unseenCountMessage = unseenCountMessagesForConvert;
+      })
+    );
+    
     let c = new Date()
     let end = c.getTime() - start.getTime()
     console.log(end)

@@ -13,6 +13,7 @@ import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
 import { AttachmentToMessageService } from '../attachmentToMessage/attachmentToMessage.service';
+import { IsNull } from 'typeorm';
 
 @Injectable()
 export class MessageService {
@@ -41,6 +42,19 @@ export class MessageService {
     catch(err){
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при получении сообщений в конверте');
+    }
+  }
+
+  async findCountOfUnseenForConvert(convertId: string): Promise<number> {
+    try {
+      const messages = await this.messageRepository.count({
+        where: { convert: { id: convertId }, timeSeen: IsNull() },
+      });
+      return messages
+    }
+    catch(err){
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении кол-ва непрочитанных сообщений в конверте');
     }
   }
 

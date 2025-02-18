@@ -186,20 +186,33 @@ export class PostService {
     }
   }
 
-  async findAllPostsWithConvertsForCurrentUser(userPostsIds: string[], relations?: string[]): Promise<any[]> {
+  async findAllPostsWithConvertsForCurrentUser(userPostsIds: string[]): Promise<any[]> {
     try {
       const posts = await this.postRepository
-      .createQueryBuilder('post')
-      .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
-      .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
-      .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
-      .innerJoin('otherCtp.post', 'otherPost')  // получаем посты из этих связей
-      .innerJoin('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
-      .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
-      .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
-      .select([
+        .createQueryBuilder('post')
+        .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
+        .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
+        .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
+        .leftJoin(
+          qb =>
+            qb
+              .select('"m1".*')
+              .from('message', 'm1')
+              .where('"m1"."createdAt" = (SELECT MAX("m2"."createdAt") FROM "message" "m2" WHERE "m2"."convertId" = "m1"."convertId")'),
+          'latestMessage',
+          '"latestMessage"."convertId" = c.id'
+        )
+        .leftJoin('c.messages', 'unreadMessages', '"unreadMessages"."timeSeen" IS NULL')
+        .innerJoin('otherCtp.post', 'otherPost')  // получаем посты из этих связей
+        .innerJoin('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
+        .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
+        .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
+        .select([
           'c.id AS "convertId"',
           'c.convertTheme AS "convertTheme"',
+          '"latestMessage"."content" AS "latestMessageContent"',
+          '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
+          'COUNT("unreadMessages"."id") AS "unreadMessageCount"',
           `jsonb_agg(
               jsonb_build_object(
                   'postId', otherPost.id,
@@ -212,7 +225,7 @@ export class PostService {
                   'createdAt', otherPost.createdAt,
                   'updatedAt', otherPost.updatedAt,
                   'user', jsonb_build_object(
-                      'userId', "otherUser".id,
+                      'userId', "otherUser"."id",
                       'firstName', "otherUser"."firstName",
                       'lastName', "otherUser"."lastName",
                       'telegramId', "otherUser"."telegramId",
@@ -221,9 +234,9 @@ export class PostService {
                   )
               )
           ) AS "postsAndUsers"`
-      ])
-      .groupBy('c.id')
-      .getRawMany();
+        ])
+        .groupBy('c.id, "latestMessage"."createdAt", "latestMessage"."content"')
+        .getRawMany();
       return posts
     } catch (err) {
       this.logger.error(err);
