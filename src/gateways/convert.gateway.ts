@@ -231,12 +231,12 @@ export class ConvertGateway
 
 
 
-  handleConvertExtensionEvent(convertId: string, host: PostReadDto, reciever: PostReadDto) {
+  handleConvertExtensionEvent(convertId: string, host: PostReadDto, reciever: PostReadDto, pathOfPostsWithoutHostPost: string[]) {
     const socketsToNotify = this.findKeysByValue(this.clients, reciever.user.id);
     socketsToNotify.forEach(socket => {
       socket.join(convertId);
     });
-    this.ws.to(convertId).emit('convertCreationEvent', {host: host, reciever: reciever});
+    this.ws.to(convertId).emit('convertCreationEvent', {host: host, reciever: reciever, pathOfPostsWithoutHostPost: pathOfPostsWithoutHostPost});
     socketsToNotify.forEach(socket => {
       socket.leave(convertId);
     });
