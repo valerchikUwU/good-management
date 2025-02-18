@@ -310,10 +310,7 @@ export class ProjectController {
           const createdTarget = await this.targetService.create(targetCreateDto);
           const targetCreateEventDto: TargetCreateEventDto = {
             id: createdTarget.id,
-            type:
-              targetCreateDto.type !== undefined
-                ? (targetCreateDto.type as string)
-                : (TypeTarget.COMMON as string), // TypeTarget alias for Type (target)
+            type: targetCreateDto.type ?? TypeTarget.COMMON, // TypeTarget alias for Type (target)
             orderNumber: targetCreateDto.orderNumber,
             content: targetCreateDto.content,
             createdAt: new Date(),

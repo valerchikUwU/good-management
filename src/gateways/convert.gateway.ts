@@ -207,21 +207,21 @@ export class ConvertGateway
       messageIds: string[];
     },
   ) {
-    const updateMessagesPromises = payload.messageIds.map(
-      async (id) => {
-        const messageUpdateDto: MessageUpdateDto = {
-          _id: id,
-          timeSeen: new Date()
-        };
-        await Promise.all(updateMessagesPromises);
-        const updatedMessageId = await this.messageService.update(id, messageUpdateDto);
+    const updateMessagesPromises = payload.messageIds.map((id) => {
+      const messageUpdateDto: MessageUpdateDto = {
+        _id: id,
+        timeSeen: new Date(),
+      };
+      return this.messageService.update(id, messageUpdateDto); // Возвращаем промис напрямую
+    });
 
-        return updatedMessageId;
-      },
-    );
+    await Promise.all(updateMessagesPromises); // Дожидаемся всех обновлений
+
     this.ws.to(payload.convertId).emit('messagesAreSeen', new Date());
+
     return true;
   }
+
 
   handleMessageCreationEvent(convertId: string, message: MessageReadDto) {
     this.ws.to(convertId).emit('messageCreationEvent', message) // broadcast messages

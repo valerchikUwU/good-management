@@ -168,13 +168,6 @@ export class ConvertController {
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map(post => post.id);
     const postsWithConverts = await this.postService.findAllPostsWithConvertsForCurrentUser(userPostsIds);
-    await Promise.all(
-      postsWithConverts.map(async (convert) => {
-        const unseenCountMessagesForConvert = await this.messageService.findCountOfUnseenForConvert(convert.id);
-        convert.unseenCountMessage = unseenCountMessagesForConvert;
-      })
-    );
-    
     let c = new Date()
     let end = c.getTime() - start.getTime()
     console.log(end)

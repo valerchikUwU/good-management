@@ -212,7 +212,7 @@ export class PostService {
           'c.convertTheme AS "convertTheme"',
           '"latestMessage"."content" AS "latestMessageContent"',
           '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
-          'COUNT("unreadMessages"."id") AS "unreadMessageCount"',
+          'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
           `jsonb_agg(
               jsonb_build_object(
                   'postId', otherPost.id,
