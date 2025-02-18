@@ -352,7 +352,9 @@ export class ConvertController {
         this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user'])
       ]);
     if (activePost.user.id) {
-      this.convertGateway.handleConvertExtensionEvent(createdConvert, activePost.user.id)
+      const index = createdConvert.pathOfPosts.indexOf(userPost.id)
+      const pathOfPostsWithoutHostPost = createdConvert.pathOfPosts.splice(index, 1)
+      this.convertGateway.handleConvertExtensionEvent(createdConvert.id, createdConvert.host, activePost)
     }
     this.logger.info(
       `${yellow('OK!')} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый конверт!`,

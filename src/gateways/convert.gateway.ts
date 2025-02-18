@@ -15,6 +15,7 @@ import { MessageService } from 'src/application/services/message/message.service
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
+import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { Logger } from 'winston';
 
 @WebSocketGateway({ namespace: 'convert', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST } })
@@ -230,13 +231,15 @@ export class ConvertGateway
 
 
 
-  handleConvertExtensionEvent(convert: ConvertReadDto, userId: string) {
-    const socketsToNotify = this.findKeysByValue(this.clients, userId);
+  handleConvertExtensionEvent(convertId: string, host: PostReadDto, reciever: PostReadDto) {
+    const socketsToNotify = this.findKeysByValue(this.clients, reciever.user.id);
     socketsToNotify.forEach(socket => {
-      socket.join(convert.id);
+      socket.join(convertId);
     });
-    this.ws.to(convert.id).emit('convertCreationEvent', convert);
-    this.ws.in(convert.id).disconnectSockets(true);
+    this.ws.to(convertId).emit('convertCreationEvent', {host: host, reciever: reciever});
+    socketsToNotify.forEach(socket => {
+      socket.leave(convertId);
+    });
     return true;
   }
 
