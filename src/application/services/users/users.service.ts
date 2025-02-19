@@ -144,7 +144,7 @@ export class UsersService {
         relations: relations !== undefined ? relations : [],
       });
       if (!user) throw new NotFoundException(`Пользователь с ${id} не найден!`);
-      // Преобразование объекта User в ReadUserDto
+      
       const readUserDto: ReadUserDto = {
         id: user.id,
         firstName: user.firstName,

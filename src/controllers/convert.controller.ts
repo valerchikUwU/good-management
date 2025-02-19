@@ -345,12 +345,20 @@ export class ConvertController {
     convertCreateDto.account = user.account;
     convertCreateDto.targetCreateDto.holderPost = targetHolderPost;
     convertCreateDto.targetCreateDto.senderPost = userPost;
+
     const [targetId, createdConvert, activePost] =
       await Promise.all([
         this.targetService.create(convertCreateDto.targetCreateDto),
         this.convertService.create(convertCreateDto),
-        this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user'])
+        this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user']),
       ]);
+    const messageCreateDto: MessageCreateDto = {
+      content: convertCreateDto.targetCreateDto.content,
+      postId: convertCreateDto.senderPostId,
+      convert: createdConvert,
+      sender: userPost
+    }
+    await this.messageService.create(messageCreateDto);
     if (activePost.user.id) {
       const index = createdConvert.pathOfPosts.indexOf(userPost.id);
       const pathOfPostsWithoutHostPost = createdConvert.pathOfPosts.splice(index, 1);
