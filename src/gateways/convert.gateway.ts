@@ -230,14 +230,14 @@ export class ConvertGateway
   }
 
 
-  handleMessageCountEvent(convertId: string, userIdsInConvert: string[]) {
+  handleMessageCountEvent(convertId: string, userIdsInConvert: string[], postIdsInConvert: string[]) {
     let socketsToNotify: Socket[];
     userIdsInConvert.forEach(userId => socketsToNotify = this.findKeysByValue(this.clients, userId))
 
     socketsToNotify.forEach(socket => {
       socket.join(convertId);
     });
-    this.ws.to(convertId).emit('messageCountEvent', 1);
+    this.ws.to(convertId).emit('messageCountEvent', {count: 1, postIdsInConvert: postIdsInConvert});
     socketsToNotify.forEach(socket => {
       socket.leave(convertId);
     });

@@ -434,15 +434,16 @@ export class ConvertController {
     const user = req.user as ReadUserDto;
     const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId)
     const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user']);
+    const postIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.id);
     const userIdsInConvert = convert.convertToPosts.map(convertToPost => {
       if (convertToPost.post.user && convertToPost.post.user.id !== user.id)
         return convertToPost.post.user.id
-    })
+    });
     messageCreateDto.convert = convert;
     messageCreateDto.sender = userSenderPost;
     const createdMessage = await this.messageService.create(messageCreateDto);
     this.convertGateway.handleMessageCreationEvent(convertId, createdMessage);
-    this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert);
+    this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, postIdsInConvert);
     return createdMessage.id;
   }
 
