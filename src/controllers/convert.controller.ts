@@ -434,7 +434,10 @@ export class ConvertController {
     const user = req.user as ReadUserDto;
     const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId)
     const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user']);
-    const postIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.id);
+    const postIdsInConvert = convert.convertToPosts.map(convertToPost => {
+      if (convertToPost.post.id !== userSenderPost.id)
+        return convertToPost.post.user.id
+    });
     const userIdsInConvert = convert.convertToPosts.map(convertToPost => {
       if (convertToPost.post.user && convertToPost.post.user.id !== user.id)
         return convertToPost.post.user.id
