@@ -214,7 +214,7 @@ export class PostService {
           '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
           'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
           `jsonb_agg(
-              jsonb_build_object(
+              DISTINCT jsonb_build_object(
                   'postId', otherPost.id,
                   'postName', otherPost.postName,
                   'divisionName', otherPost.divisionName,
