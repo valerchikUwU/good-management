@@ -273,7 +273,7 @@ export class ConvertController {
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
       'host',
-      'messages.sender',
+      'messages.sender.user',
     ]);
     const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id)
     if (userIdsInConvert.includes(user.id)) {
