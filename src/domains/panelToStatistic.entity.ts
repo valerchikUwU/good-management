@@ -66,7 +66,7 @@ export class PanelToStatistic {
    * @remarks
    * Установлен индекс
    */
-  @ManyToOne(() => ControlPanel, (controlPanel) => controlPanel.panelToStatistics, { nullable: false })
+  @ManyToOne(() => ControlPanel, (controlPanel) => controlPanel.panelToStatistics, { nullable: false, onDelete: 'CASCADE' })
   @Index() // Добавляем индекс 
   controlPanel: ControlPanel;
 

@@ -152,7 +152,6 @@ export class ControlPanelService {
                 throw new NotFoundException(`Панель с ID ${_id} не найдена`);
             }
 
-            await this.panelToStatisticService.remove(controlPanel);
             await this.controlPanelRepository.delete({ id: _id });
         }
         catch (err) {

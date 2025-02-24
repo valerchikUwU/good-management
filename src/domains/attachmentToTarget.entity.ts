@@ -28,7 +28,7 @@ export class AttachmentToTarget {
   @Index() 
   attachment: Attachment;
 
-  @ManyToOne(() => Target, (target) => target.attachmentToTargets)
+  @ManyToOne(() => Target, (target) => target.attachmentToTargets, {onDelete: 'CASCADE'})
   @Index() 
   target: Target;
 }

@@ -12,7 +12,6 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageService } from 'src/application/services/message/message.service';
-import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';

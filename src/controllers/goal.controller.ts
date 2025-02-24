@@ -32,6 +32,7 @@ import { TimeoutError } from 'rxjs';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
+import { findAllGoalsExample } from 'src/constants/swagger-examples/goal/goal-examples';
 
 
 @UseGuards(AccessTokenGuard)
@@ -51,17 +52,7 @@ export class GoalController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "id": "d2845ccb-c4c3-4ddc-90f5-7a840160cef0",
-      "content": [
-        "333333",
-        "1",
-        "2\n",
-        "4"
-      ],
-      "createdAt": "2024-12-04T16:06:47.420Z",
-      "updatedAt": "2024-12-19T09:38:11.150Z"
-    }
+    example: findAllGoalsExample
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,

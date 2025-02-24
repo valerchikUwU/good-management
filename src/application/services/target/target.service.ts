@@ -262,7 +262,6 @@ export class TargetService {
       if (target.type !== Type.PERSONAL)
         throw new BadRequestException('Удалять можно только личные задачи!')
 
-      await this.targetHolderService.remove(target);
       await this.targetRepository.remove(target);
     }
     catch (err) {

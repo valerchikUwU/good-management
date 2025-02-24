@@ -36,6 +36,7 @@ import { ObjectiveCreateEventDto } from 'src/contracts/objective/createEvent-obj
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { findAllStrategiesExample, findeOneStrategyExample } from 'src/constants/swagger-examples/strategy/strategy-examples';
 
 @ApiTags('Strategy')
 @ApiBearerAuth('access-token')
@@ -56,17 +57,7 @@ export class StrategyController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: [
-      {
-        "id": "c970f786-b785-49da-894c-b9c975ec0e26",
-        "strategyNumber": 194,
-        "dateActive": null,
-        "content": "HTML текст",
-        "state": "Черновик",
-        "createdAt": "2024-12-20T12:15:04.395Z",
-        "updatedAt": "2024-12-20T12:15:04.395Z"
-      }
-    ]
+    example: findAllStrategiesExample
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -169,15 +160,7 @@ export class StrategyController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "id": "c970f786-b785-49da-894c-b9c975ec0e26",
-      "strategyNumber": 194,
-      "dateActive": null,
-      "content": "HTML текст",
-      "state": "Черновик",
-      "createdAt": "2024-12-20T12:15:04.395Z",
-      "updatedAt": "2024-12-20T12:15:04.395Z"
-    }
+    example: findeOneStrategyExample
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,

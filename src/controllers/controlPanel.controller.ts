@@ -27,6 +27,7 @@ import { ControlPanelReadDto } from 'src/contracts/controlPanel/read-controlPane
 import { ControlPanelCreateDto } from 'src/contracts/controlPanel/create-controlPanel.dto';
 import { ControlPanelUpdateDto } from 'src/contracts/controlPanel/update-controlPanel.dto';
 import { PostService } from 'src/application/services/post/post.service';
+import { findAllControlPanelsExample, findOneExample } from 'src/constants/swagger-examples/controlPanel/controlPanel-examples';
 
 @ApiTags('ControlPanels')
 @ApiBearerAuth('access-token')
@@ -46,16 +47,7 @@ export class ControlPanelController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'ОК!',
-        example: [
-            {
-                "id": "1bf5e414-6a75-444b-83dd-8d4aeff8f9a1",
-                "panelName": "Панель новая",
-                "panelType": "Личная",
-                "graphType": "Ежедневные",
-                "createdAt": "2025-01-15T10:57:16.485Z",
-                "updatedAt": "2025-01-15T10:57:16.485Z"
-            }
-        ]
+        example: findAllControlPanelsExample
     })
     @ApiResponse({
         status: HttpStatus.UNAUTHORIZED,
@@ -86,29 +78,7 @@ export class ControlPanelController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'ОК!',
-        example: {
-            "id": "1bf5e414-6a75-444b-83dd-8d4aeff8f9a1",
-            "panelName": "Панель новая",
-            "panelType": "Личная",
-            "graphType": "Ежедневные",
-            "createdAt": "2025-01-15T10:57:16.485Z",
-            "updatedAt": "2025-01-15T10:57:16.485Z",
-            "panelToStatistics": [
-                {
-                    "id": "853a7b29-149e-48ec-9b61-05ec16da2570",
-                    "createdAt": "2025-01-15T10:57:16.668Z",
-                    "updatedAt": "2025-01-15T10:57:16.668Z",
-                    "statistic": {
-                        "id": "05339d16-b595-4344-9b3b-2c67ed649830",
-                        "type": "Обратная",
-                        "name": "Статистика4",
-                        "description": null,
-                        "createdAt": "2024-12-06T08:54:18.034Z",
-                        "updatedAt": "2024-12-17T16:03:52.804Z"
-                    }
-                }
-            ]
-        }
+        example: findOneExample
     })
     @ApiResponse({
         status: HttpStatus.UNAUTHORIZED,

@@ -2,12 +2,10 @@ import {
   Controller,
   Get,
   Post,
-  Delete,
   Param,
   Body,
   HttpStatus,
   Inject,
-  Ip,
   UseGuards,
 } from '@nestjs/common';
 import { UsersService } from 'src/application/services/users/users.service';
@@ -17,7 +15,6 @@ import { CreateUserDto } from 'src/contracts/user/create-user.dto';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiHeader,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -25,7 +22,6 @@ import {
 } from '@nestjs/swagger';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
-import { RoleSettingCreateDto } from 'src/contracts/roleSetting/create-roleSetting.dto';
 import { RoleSettingService } from 'src/application/services/roleSetting/roleSetting.service';
 import { RoleService } from 'src/application/services/role/role.service';
 import { RoleReadDto } from 'src/contracts/role/read-role.dto';
@@ -33,6 +29,7 @@ import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
 import { PostService } from 'src/application/services/post/post.service';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
+import { beforeCreateUserExample, findAllUsersExample, findOneUserExample } from 'src/constants/swagger-examples/user/user-examples';
 
 @ApiTags('User')
 @ApiBearerAuth('access-token')
@@ -55,19 +52,7 @@ export class UsersController {
     description: 'ОК!',
     type: ReadUserDto,
     isArray: true,
-    example: [
-      {
-        id: '98ea2391-3643-40f3-9fe8-779d266faef6',
-        firstName: 'Maxik',
-        lastName: 'Koval',
-        telegramId: 1313131313,
-        telephoneNumber: '+79787513901',
-        avatar_url: 'https://avatar/img.png',
-        vk_id: 123123123,
-        createdAt: '1900-01-01 00:00:00',
-        updatedAt: '1900-01-01 00:00:00',
-      },
-    ],
+    example: findAllUsersExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -93,17 +78,7 @@ export class UsersController {
     status: HttpStatus.OK,
     description: 'ОК!',
     type: ReadUserDto,
-    example: {
-      id: '98ea2391-3643-40f3-9fe8-779d266faef6',
-      firstName: 'Maxik',
-      lastName: 'Koval',
-      telegramId: 1313131313,
-      telephoneNumber: '+79787513901',
-      avatar_url: 'https://avatar/img.png',
-      vk_id: 123123123,
-      createdAt: '1900-01-01 00:00:00',
-      updatedAt: '1900-01-01 00:00:00',
-    },
+    example: beforeCreateUserExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -133,17 +108,7 @@ export class UsersController {
     status: HttpStatus.OK,
     description: 'ОК!',
     type: ReadUserDto,
-    example: {
-      id: '98ea2391-3643-40f3-9fe8-779d266faef6',
-      firstName: 'Maxik',
-      lastName: 'Koval',
-      telegramId: 1313131313,
-      telephoneNumber: '+79787513901',
-      avatar_url: 'https://avatar/img.png',
-      vk_id: 123123123,
-      createdAt: '1900-01-01 00:00:00',
-      updatedAt: '1900-01-01 00:00:00',
-    },
+    example: findOneUserExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,

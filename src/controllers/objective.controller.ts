@@ -27,6 +27,7 @@ import { TimeoutError } from 'rxjs';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { findAllObjectivesExample, findOneObjectiveExample } from 'src/constants/swagger-examples/objective/objective-examples';
 
 @ApiTags('Objective')
 @ApiBearerAuth('access-token')
@@ -44,23 +45,7 @@ export class ObjectiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: [
-      {
-        "id": "28e21d6b-9664-455c-99fa-e4b24d77d911",
-        "situation": [
-          ""
-        ],
-        "content": [
-          "",
-          ""
-        ],
-        "rootCause": [
-          ""
-        ],
-        "createdAt": "2024-12-20T12:15:04.491Z",
-        "updatedAt": "2024-12-20T12:15:04.491Z"
-      }
-    ]
+    example: findAllObjectivesExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -168,21 +153,7 @@ export class ObjectiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "id": "28e21d6b-9664-455c-99fa-e4b24d77d911",
-      "situation": [
-        ""
-      ],
-      "content": [
-        "",
-        ""
-      ],
-      "rootCause": [
-        ""
-      ],
-      "createdAt": "2024-12-20T12:15:04.491Z",
-      "updatedAt": "2024-12-20T12:15:04.491Z"
-    }
+    example: findOneObjectiveExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,

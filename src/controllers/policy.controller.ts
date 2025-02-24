@@ -37,6 +37,7 @@ import { PolicyUpdateEventDto } from 'src/contracts/policy/updateEvent-policy.dt
 import { TimeoutError } from 'rxjs';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
+import { findAllPoliciesExample, findOnePolicyExample } from 'src/constants/swagger-examples/policy/policy-examples';
 
 @ApiTags('Policy')
 @ApiBearerAuth('access-token')
@@ -55,34 +56,7 @@ export class PolicyController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "directives": [
-        {
-          "id": "7e1de0a5-b736-416f-82ab-7968db43115e",
-          "policyName": "Папка",
-          "policyNumber": 156,
-          "state": "Черновик",
-          "type": "Директива",
-          "dateActive": "2024-12-12T16:41:56.829Z",
-          "content": "Папка",
-          "createdAt": "2024-12-12T16:41:57.005Z",
-          "updatedAt": "2024-12-12T17:21:17.051Z"
-        }
-      ],
-      "instructions": [
-        {
-          "id": "15d5f40c-9b02-473f-8ce7-48efc0be14ac",
-          "policyName": "Сейчас",
-          "policyNumber": 153,
-          "state": "Черновик",
-          "type": "Инструкция",
-          "dateActive": null,
-          "content": "Привет",
-          "createdAt": "2024-12-12T13:43:51.479Z",
-          "updatedAt": "2024-12-13T12:55:38.152Z"
-        }
-      ]
-    }
+    example: findAllPoliciesExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -200,17 +174,7 @@ export class PolicyController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "id": "15d5f40c-9b02-473f-8ce7-48efc0be14ac",
-      "policyName": "Сейчас",
-      "policyNumber": 153,
-      "state": "Черновик",
-      "type": "Инструкция",
-      "dateActive": null,
-      "content": "Привет",
-      "createdAt": "2024-12-12T13:43:51.479Z",
-      "updatedAt": "2024-12-13T12:55:38.152Z"
-    }
+    example: findOnePolicyExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,

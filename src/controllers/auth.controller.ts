@@ -7,15 +7,9 @@ import {
   Req,
   Ip,
   Res,
-  Header,
   Headers,
   UseGuards,
-  Get,
-  HttpCode,
-  Delete,
-  NotFoundException,
   HttpStatus,
-  InternalServerErrorException,
   UnauthorizedException,
   Inject,
   BadRequestException,
@@ -27,25 +21,20 @@ import { AuthVK } from '../contracts/auth-vk.dto';
 import { AuthService } from '../application/services/auth/auth.service';
 import { UsersService } from '../application/services/users/users.service';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
-import { RefreshTokenGuard } from 'src/guards/refreshToken.guard';
 import { EventsGateway } from 'src/gateways/events.gateway';
-import { JwtService } from '@nestjs/jwt';
 
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
-  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthTG } from 'src/contracts/auth-tg.dto';
 import { Logger } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
-import { profile } from 'console';
 import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
-import { UpdateTgAuthUserDto } from 'src/contracts/user/update-tgauthUser.dto';
 import { UpdateVkAuthUserDto } from 'src/contracts/user/update-vkauthUser.dto';
+import { refreshTokensExample } from 'src/constants/swagger-examples/auth/auth-examples';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -171,9 +160,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "newAccessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImJjODA3ODQ1LTA4YTgtNDIzZS05OTc2LTRmNjBkZjE4M2FlMiIsImlhdCI6MTczNDY5ODQxMSwiZXhwIjoxNzM0NzAwMjExfQ.uD91NZRU5gd4wpxaMeQPGq56268DIbM_1MEzJJaxK1Q"
-    }
+    example: refreshTokensExample
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,

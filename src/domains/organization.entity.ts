@@ -81,6 +81,19 @@ export class Organization {
   })
   reportDay: ReportDay;
 
+
+  /**
+   * Список кодов цветов, в которые красятся отделы.
+   * 
+   * @remarks
+   * Поле содержит массив string кодов цветов для структуры организации.
+   * 
+   * @example
+   * ['#FFFFF', '#AAAAA']
+   */
+  @Column({ type: 'text', array: true, nullable: true })
+  colorCodes: string[];
+
   /**
    * Дата создания записи.
    * 

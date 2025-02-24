@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsArray,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -24,6 +25,12 @@ export class OrganizationUpdateDto {
   @IsOptional()
   @IsEnum(ReportDay)
   reportDay?: ReportDay;
+
+  @ApiProperty({ description: 'Список кодов цветов' })
+  @IsOptional()
+  @IsArray({message: 'Должен быть массив'})
+  @IsNotEmpty()
+  colorCodes?: string[];
 
   @ApiProperty({ description: 'ID родительской организации' })
   @IsOptional()

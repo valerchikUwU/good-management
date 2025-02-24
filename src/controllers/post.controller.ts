@@ -43,6 +43,7 @@ import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { beforeCreateExample, findAllPostsExample, findAllUnderPostsExample, findOnePostExample } from 'src/constants/swagger-examples/post/post-examples';
 
 @ApiTags('Posts')
 @ApiBearerAuth('access-token')
@@ -67,43 +68,7 @@ export class PostController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: [
-      {
-        "id": "c92895e6-9496-4cb5-aa7b-e3c72c18934a",
-        "postName": "Post",
-        "divisionName": "Подразделение №69",
-        "divisionNumber": 69,
-        "parentId": "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
-        "product": "fasf",
-        "purpose": "sfsf",
-        "createdAt": "2024-12-05T20:28:06.763Z",
-        "updatedAt": "2024-12-05T20:28:06.763Z",
-        "user": {
-          "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-          "firstName": "Максим",
-          "lastName": "Ковальская",
-          "middleName": "Тимофеевич",
-          "telegramId": 453120600,
-          "telephoneNumber": "+79787513901",
-          "avatar_url": null,
-          "vk_id": null,
-          "createdAt": "2024-12-04T13:16:56.785Z",
-          "updatedAt": "2024-12-04T15:37:36.501Z"
-        }
-      },
-      {
-        "id": "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
-        "postName": "чясми",
-        "divisionName": "Подразделение №66",
-        "divisionNumber": 66,
-        "parentId": null,
-        "product": "ясчм",
-        "purpose": "яывсачм",
-        "createdAt": "2024-12-04T15:50:26.335Z",
-        "updatedAt": "2024-12-06T13:34:56.291Z",
-        "user": null
-      }
-    ]
+    example: findAllPostsExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -261,49 +226,7 @@ export class PostController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "workers": [
-        {
-          "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-          "firstName": "Максим",
-          "lastName": "Ковальская",
-          "middleName": "Тимофеевич",
-          "telegramId": 453120600,
-          "telephoneNumber": "+79787513901",
-          "avatar_url": null,
-          "vk_id": null,
-          "createdAt": "2024-12-04T13:16:56.785Z",
-          "updatedAt": "2024-12-04T15:37:36.501Z"
-        }
-      ],
-      "policies": [
-        {
-          "id": "6cf3e08d-8baf-4870-a0ea-18f368e97872",
-          "policyName": "Привет",
-          "policyNumber": 152,
-          "state": "Активный",
-          "type": "Директива",
-          "dateActive": "2024-12-20T11:14:27.156Z",
-          "content": "**Привет**![фыв](http://localhost:5000/uploads/1734018563193-Yanukovich.jpg \"фыв\")",
-          "createdAt": "2024-12-12T13:30:48.085Z",
-          "updatedAt": "2024-12-20T11:14:27.436Z"
-        }
-      ],
-      "posts": [
-        {
-          "id": "993b64bc-1703-415a-89a9-6e191b3d46bb",
-          "postName": "asdsads",
-          "divisionName": "Подразделение №65",
-          "divisionNumber": 65,
-          "parentId": null,
-          "product": "asd",
-          "purpose": "sadsad",
-          "createdAt": "2024-12-04T15:12:11.525Z",
-          "updatedAt": "2024-12-05T19:54:57.861Z"
-        }
-      ],
-      "maxDivisionNumber": 71
-    }
+    example: beforeCreateExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -347,121 +270,7 @@ export class PostController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "currentPost": {
-        "id": "993b64bc-1703-415a-89a9-6e191b3d46bb",
-        "postName": "asdsads",
-        "divisionName": "Подразделение №65",
-        "divisionNumber": 65,
-        "parentId": null,
-        "product": "asd",
-        "purpose": "sadsad",
-        "createdAt": "2024-12-04T15:12:11.525Z",
-        "updatedAt": "2024-12-05T19:54:57.861Z",
-        "user": {
-          "id": "39142b0d-3166-4cd7-b663-270ff064479c",
-          "firstName": "Дмитрий",
-          "lastName": "Климов",
-          "middleName": null,
-          "telegramId": 1587439475,
-          "telephoneNumber": "+79852300581",
-          "avatar_url": null,
-          "vk_id": null,
-          "createdAt": "2024-12-04T14:48:20.726Z",
-          "updatedAt": "2024-12-06T10:02:45.285Z"
-        },
-        "policy": {
-          "id": "bae516be-92fe-4f6d-83a0-fefdbffc2924",
-          "policyName": "Для Максика",
-          "policyNumber": 140,
-          "state": "Активный",
-          "type": "Директива",
-          "dateActive": "2024-12-04T13:29:07.047Z",
-          "content": "content",
-          "createdAt": "2024-12-04T14:07:05.408Z",
-          "updatedAt": "2024-12-16T11:16:38.554Z"
-        },
-        "statistics": [
-          {
-            "id": "1aa4399e-671c-44ee-bad3-2f01554c7f0a",
-            "type": "Прямая",
-            "name": "Статистика2",
-            "description": "gg",
-            "createdAt": "2024-12-05T20:47:26.358Z",
-            "updatedAt": "2024-12-17T15:48:12.579Z"
-          },
-          {
-            "id": "8dace696-59a8-451e-91df-31b18e267337",
-            "type": "Обратная",
-            "name": "Статистика3",
-            "description": null,
-            "createdAt": "2024-12-06T08:52:05.820Z",
-            "updatedAt": "2024-12-17T15:48:12.586Z"
-          }
-        ],
-        "organization": {
-          "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167",
-          "organizationName": "Калоеды",
-          "parentOrganizationId": null,
-          "reportDay": 2,
-          "createdAt": "2024-12-04T13:14:47.767Z",
-          "updatedAt": "2024-12-06T07:09:10.117Z"
-        },
-        "isHasChildPost": false
-      },
-      "posts": [
-        {
-          "id": "c92895e6-9496-4cb5-aa7b-e3c72c18934a",
-          "postName": "Post",
-          "divisionName": "Подразделение №69",
-          "divisionNumber": 69,
-          "parentId": "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
-          "product": "fasf",
-          "purpose": "sfsf",
-          "createdAt": "2024-12-05T20:28:06.763Z",
-          "updatedAt": "2024-12-05T20:28:06.763Z",
-          "user": {
-            "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-            "firstName": "Максим",
-            "lastName": "Ковальская",
-            "middleName": "Тимофеевич",
-            "telegramId": 453120600,
-            "telephoneNumber": "+79787513901",
-            "avatar_url": null,
-            "vk_id": null,
-            "createdAt": "2024-12-04T13:16:56.785Z",
-            "updatedAt": "2024-12-04T15:37:36.501Z"
-          }
-        }
-      ],
-      "workers": [
-        {
-          "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-          "firstName": "Максим",
-          "lastName": "Ковальская",
-          "middleName": "Тимофеевич",
-          "telegramId": 453120600,
-          "telephoneNumber": "+79787513901",
-          "avatar_url": null,
-          "vk_id": null,
-          "createdAt": "2024-12-04T13:16:56.785Z",
-          "updatedAt": "2024-12-04T15:37:36.501Z"
-        }
-      ],
-      "policiesActive": [
-        {
-          "id": "6cf3e08d-8baf-4870-a0ea-18f368e97872",
-          "policyName": "Привет",
-          "policyNumber": 152,
-          "state": "Активный",
-          "type": "Директива",
-          "dateActive": "2024-12-20T11:14:27.156Z",
-          "content": "**Привет**![фыв](http://localhost:5000/uploads/1734018563193-Yanukovich.jpg \"фыв\")",
-          "createdAt": "2024-12-12T13:30:48.085Z",
-          "updatedAt": "2024-12-20T11:14:27.436Z"
-        }
-      ]
-    }
+    example: findOnePostExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -516,43 +325,7 @@ export class PostController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: [
-      {
-        "id": "9ad461a7-9e13-4f40-a1e3-8090be47771a",
-        "postName": "Тест 2",
-        "divisionName": "Подразделение №73",
-        "divisionNumber": 7,
-        "parentId": "9b6596ea-be16-4b97-a579-cab6b7d722b0",
-        "product": "Тест 2",
-        "purpose": "Тест 2",
-        "createdAt": "2024-12-25T13:01:55.517Z",
-        "updatedAt": "2024-12-25T13:01:55.517Z",
-        "user": null
-      },
-      {
-        "id": "f66e6dd0-0b7d-439b-b742-5e8fc2ebc1c0",
-        "postName": "постецкий",
-        "divisionName": "Подразделение №66",
-        "divisionNumber": 66,
-        "parentId": "9ad461a7-9e13-4f40-a1e3-8090be47771a",
-        "product": "ясчмп",
-        "purpose": "яывсачм",
-        "createdAt": "2024-12-04T15:50:26.335Z",
-        "updatedAt": "2025-01-15T09:57:05.584Z",
-        "user": {
-          "id": "0618825d-3564-4c3b-8a6a-cc245e766ea7",
-          "firstName": "Илья",
-          "lastName": "Белописькин",
-          "middleName": null,
-          "telegramId": 388089893,
-          "telephoneNumber": "+79787294592",
-          "avatar_url": null,
-          "vk_id": null,
-          "createdAt": "2024-12-24T18:38:17.034Z",
-          "updatedAt": "2024-12-24T18:39:06.592Z"
-        }
-      }
-    ]
+    example: findAllUnderPostsExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,

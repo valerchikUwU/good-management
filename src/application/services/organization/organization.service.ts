@@ -31,6 +31,7 @@ export class OrganizationService {
         organizationName: organization.organizationName,
         parentOrganizationId: organization.parentOrganizationId,
         reportDay: organization.reportDay,
+        colorCodes: organization.colorCodes,
         createdAt: organization.createdAt,
         updatedAt: organization.updatedAt,
         users: organization.users,
@@ -65,6 +66,7 @@ export class OrganizationService {
         organizationName: organization.organizationName,
         parentOrganizationId: organization.parentOrganizationId,
         reportDay: organization.reportDay,
+        colorCodes: organization.colorCodes,
         createdAt: organization.createdAt,
         updatedAt: organization.updatedAt,
         users: organization.users,
@@ -135,10 +137,13 @@ export class OrganizationService {
         organization.parentOrganizationId = updateOrganizationDto.parentOrganizationId;
       if (updateOrganizationDto.reportDay !== undefined)
         organization.reportDay = updateOrganizationDto.reportDay;
+      if (updateOrganizationDto.colorCodes)
+        organization.colorCodes = updateOrganizationDto.colorCodes;
       await this.organizationRepository.update(_id, {
         organizationName: organization.organizationName,
         parentOrganizationId: organization.parentOrganizationId,
         reportDay: organization.reportDay,
+        colorCodes: organization.colorCodes
       });
       return organization.id;
     } catch (err) {

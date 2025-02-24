@@ -140,7 +140,6 @@ export class PolicyDirectoryService {
         throw new NotFoundException(`Папка с ID ${_id} не найдена`);
       }
 
-      await this.policyToPolicyDirectoryService.remove(policyDirectory);
       await this.policyDirectoryRepository.delete({ id: _id });
     }
     catch (err) {

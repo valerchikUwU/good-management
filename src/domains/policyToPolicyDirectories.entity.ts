@@ -63,7 +63,7 @@ export class PolicyToPolicyDirectory {
    */
   @ManyToOne(
     () => PolicyDirectory,
-    (policyDirectory) => policyDirectory.policyToPolicyDirectories,
+    (policyDirectory) => policyDirectory.policyToPolicyDirectories, {onDelete: 'CASCADE'}
   )
   policyDirectory: PolicyDirectory;
 }
