@@ -26,11 +26,10 @@ export class OrganizationUpdateDto {
   @IsEnum(ReportDay)
   reportDay?: ReportDay;
 
-  @ApiProperty({ description: 'Список кодов цветов' })
+  @ApiProperty({ description: 'Список кодов цветов', example: {'2d1cea4c-7cea-4811-8cd5-078da7f20167': '#FFFFF'} })
   @IsOptional()
-  @IsArray({message: 'Должен быть массив'})
   @IsNotEmpty()
-  colorCodes?: string[];
+  colorCodes?: Record<string, string>;
 
   @ApiProperty({ description: 'ID родительской организации' })
   @IsOptional()

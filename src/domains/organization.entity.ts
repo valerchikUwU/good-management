@@ -86,13 +86,13 @@ export class Organization {
    * Список кодов цветов, в которые красятся отделы.
    * 
    * @remarks
-   * Поле содержит массив string кодов цветов для структуры организации.
+   * Множество k=>v, где postId => colorCode'.
    * 
    * @example
-   * ['#FFFFF', '#AAAAA']
+   * {uuid(postId): '#FFFFF'}
    */
-  @Column({ type: 'text', array: true, nullable: true })
-  colorCodes: string[];
+  @Column({ type: 'hstore', hstoreType: 'object', nullable: true })
+  colorCodes: Record<string, string>;
 
   /**
    * Дата создания записи.

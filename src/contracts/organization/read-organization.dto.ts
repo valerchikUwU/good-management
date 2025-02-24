@@ -22,8 +22,8 @@ export class OrganizationReadDto {
   @ApiProperty({ description: 'Отчетный день' })
   reportDay: ReportDay;
 
-  @ApiProperty({ description: 'Коды цветов' })
-  colorCodes: string[];
+  @ApiProperty({ description: 'Множество k=>v, где postId => colorCode' })
+  colorCodes: Record<string, string>;
 
   @ApiProperty({ description: 'Дата создания' })
   createdAt: Date;
