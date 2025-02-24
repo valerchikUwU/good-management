@@ -128,16 +128,16 @@ export class ConvertController {
     const user = req.user as ReadUserDto;
     const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId)
     const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
-      await Promise.all([ // условие на DIRECT поставить выше чтобы не выолнять лишние запросы к БД
-        this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
-        this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
+      await Promise.all([ // условие на DIRECT поставить выше чтобы не выолнять лишние запросы к БД (gotovo)
+        convertCreateDto.convertPath === PathConvert.DIRECT ? [] : this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
+        convertCreateDto.convertPath === PathConvert.DIRECT ? [] : this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
         this.postService.findOneById(convertCreateDto.reciverPostId),
       ]);
     const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
       postIdsFromRecieverToTop.includes(postId),
     );
     const postIdsFromSenderToReciver: string[] = [];
-    console.log(isCommonDivision);
+    console.log(isCommonDivision); // ___________________________LOG
     if (convertCreateDto.convertPath === PathConvert.DIRECT) {
       postIdsFromSenderToReciver.push(convertCreateDto.senderPostId, convertCreateDto.reciverPostId);
     } else if (isCommonDivision) {
@@ -154,23 +154,30 @@ export class ConvertController {
       );
     }
     // postIdsFromSenderToReciver.shift();
-    console.log(postIdsFromSenderToTop);
-    console.log(postIdsFromRecieverToTop);
-    console.log(postIdsFromSenderToReciver);
+    console.log(postIdsFromSenderToTop); // ___________________________LOG
+    console.log(postIdsFromRecieverToTop); // ___________________________LOG
+    console.log(postIdsFromSenderToReciver); // ___________________________LOG
     convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
     convertCreateDto.host = userPost;
     convertCreateDto.account = user.account;
-    convertCreateDto.targetCreateDto.holderPost = targetHolderPost;
-    convertCreateDto.targetCreateDto.senderPost = userPost;
+    if (convertCreateDto.convertType === TypeConvert.ORDER) {
+      convertCreateDto.targetCreateDto.holderPost = targetHolderPost;
+      convertCreateDto.targetCreateDto.senderPost = userPost;
+    }
+
 
     const [targetId, createdConvert, activePost] =
       await Promise.all([
-        this.targetService.create(convertCreateDto.targetCreateDto),
+        convertCreateDto.convertType === TypeConvert.ORDER ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
         this.convertService.create(convertCreateDto),
         this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user']),
       ]);
+
+
+
+    // ПОКА ЧТО РАБОТАЕТ ТАК ДЛЯ ПРИКАЗА, ПОТОМ УБРАТЬ В ТЕЛО ЗАПРОСА ДЛЯ ОСТАЛЬНЫХ ТИПОВ КОНВЕРТА
     const messageCreateDto: MessageCreateDto = {
-      content: convertCreateDto.targetCreateDto.content,
+      content: createdConvert.convertType === TypeConvert.ORDER ? convertCreateDto.targetCreateDto.content : convertCreateDto.messageContent,
       postId: convertCreateDto.senderPostId,
       convert: createdConvert,
       sender: userPost
@@ -190,7 +197,7 @@ export class ConvertController {
   }
 
   @Patch(':convertId/approve')
-  @ApiOperation({ summary: 'Завершить конверт' })
+  @ApiOperation({ summary: 'Завершить конверт или продолжить его по pathOfPosts' })
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'ОК!',
@@ -225,7 +232,7 @@ export class ConvertController {
   }
 
 
-  @Patch(':convertId/sendMessage')
+  @Post(':convertId/sendMessage')
   @ApiOperation({ summary: 'Отправить сообщение' })
   @ApiBody({
     description: 'ДТО для создания сообщения',
