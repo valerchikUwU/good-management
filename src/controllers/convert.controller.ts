@@ -254,7 +254,7 @@ export class ConvertController {
     @Req() req: ExpressRequest,
     @Param('convertId') convertId: string,
     @Body() messageCreateDto: MessageCreateDto
-  ): Promise<string> {
+  ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
     const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId)
     const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user']);
@@ -271,7 +271,7 @@ export class ConvertController {
     const createdMessage = await this.messageService.create(messageCreateDto);
     this.convertGateway.handleMessageCreationEvent(convertId, createdMessage);
     this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, postIdsInConvert);
-    return createdMessage.id;
+    return {id: createdMessage.id};
   }
 
 }
