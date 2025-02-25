@@ -41,9 +41,7 @@ import { HistoryUsersToPostService } from 'src/application/services/historyUsers
 import { HistoryUsersToPostCreateDto } from 'src/contracts/historyUsersToPost/create-historyUsersToPost.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
-import { beforeCreateExample, findAllPostsExample, findAllUnderPostsExample, findOnePostExample } from 'src/constants/swagger-examples/post/post-examples';
+import { beforeCreateExample, findAllMyPostsExample, findAllPostsExample, findAllUnderPostsExample, findOnePostExample } from 'src/constants/swagger-examples/post/post-examples';
 
 @ApiTags('Posts')
 @ApiBearerAuth('access-token')
@@ -58,10 +56,32 @@ export class PostController {
     private readonly producerService: ProducerService,
     private readonly groupService: GroupService,
     private readonly historyUsersToPostService: HistoryUsersToPostService,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
   ) { }
+
+
+  @Get('myPosts')
+  @ApiOperation({ summary: 'Получить все свои посты' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: findAllMyPostsExample
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  async findAllMyPosts(
+    @Req() req: ExpressRequest
+  ): Promise<PostReadDto[]> {
+    const user = req.user as ReadUserDto
+    return user.posts;
+  }
+
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Все посты в организации' })
@@ -426,10 +446,6 @@ export class PostController {
             `Failed to create historyUsersToPost: ${error.message}`,
           );
         });
-      if (user.id === postCreateDto.responsibleUserId) {
-        user.posts.push(createdPost)
-        await this.cacheService.set<ReadUserDto>(`user:${user.id}`, user, 1860000);
-      }
     }
 
 

@@ -238,3 +238,40 @@ export const findAllUnderPostsExample = [
         }
     }
 ]
+
+
+export const findAllMyPostsExample = [
+    {
+        "id": "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
+        "postName": "ДРОЧУН",
+        "divisionName": "Подразделение №2",
+        "divisionNumber": 1,
+        "parentId": null,
+        "product": "СУКА",
+        "purpose": "СУЧКА",
+        "createdAt": "2025-02-13T17:17:59.999Z",
+        "updatedAt": "2025-02-13T17:17:59.999Z"
+    },
+    {
+        "id": "154387db-f8de-4439-8a88-4c54ab97f863",
+        "postName": "ЖЕНА ДРОЧУНА",
+        "divisionName": "Подразделение №3",
+        "divisionNumber": 4,
+        "parentId": null,
+        "product": "ЖЕНА ПИЗДА",
+        "purpose": "Я ФЕМКА",
+        "createdAt": "2025-02-13T17:34:39.688Z",
+        "updatedAt": "2025-02-13T17:34:39.688Z"
+    },
+    {
+        "id": "4e44595c-b91f-43e7-88ca-438451383815",
+        "postName": "22222222222",
+        "divisionName": "Подразделение №7",
+        "divisionNumber": 7,
+        "parentId": "1696c818-4862-4619-ba6a-f430e4bb62ba",
+        "product": "222",
+        "purpose": "222",
+        "createdAt": "2025-02-13T17:40:26.351Z",
+        "updatedAt": "2025-02-13T17:40:26.351Z"
+    }
+]

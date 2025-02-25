@@ -10,17 +10,19 @@ import { Post } from 'src/domains/post.entity';
 import { PostRepository } from './repository/post.repository';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { PostCreateDto } from 'src/contracts/post/create-post.dto';
-import { OrganizationReadDto } from 'src/contracts/organization/read-organization.dto';
-import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
 import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
 import { FindOptionsWhere, In, IsNull, Not } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class PostService {
   constructor(
     @InjectRepository(Post)
     private readonly postRepository: PostRepository,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -376,6 +378,9 @@ export class PostService {
       post.policy = postCreateDto.policy;
       post.account = postCreateDto.account;
       const createdPostId = await this.postRepository.insert(post);
+      if(postCreateDto.responsibleUserId){
+        await this.cacheService.del(`user:${postCreateDto.responsibleUserId}`)
+      }
       return createdPostId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
