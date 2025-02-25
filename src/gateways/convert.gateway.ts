@@ -183,7 +183,7 @@ export class ConvertGateway
     payload: {
       convertId: string;
     },
-    connectedClient: Socket
+    @ConnectedSocket() connectedClient: Socket
   ) {
     const client = this.clients.get(connectedClient.id);
     if (!client) {
