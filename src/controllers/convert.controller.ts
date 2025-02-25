@@ -128,7 +128,7 @@ export class ConvertController {
     const user = req.user as ReadUserDto;
     const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId)
     const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
-      await Promise.all([ // условие на DIRECT поставить выше чтобы не выолнять лишние запросы к БД (gotovo)
+      await Promise.all([ // если DIRECT то первые два запроса не нужны
         convertCreateDto.convertPath === PathConvert.DIRECT ? [] : this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
         convertCreateDto.convertPath === PathConvert.DIRECT ? [] : this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
         this.postService.findOneById(convertCreateDto.reciverPostId),
@@ -175,7 +175,6 @@ export class ConvertController {
 
 
 
-    // ПОКА ЧТО РАБОТАЕТ ТАК ДЛЯ ПРИКАЗА, ПОТОМ УБРАТЬ В ТЕЛО ЗАПРОСА ДЛЯ ОСТАЛЬНЫХ ТИПОВ КОНВЕРТА
     const messageCreateDto: MessageCreateDto = {
       content: createdConvert.convertType === TypeConvert.ORDER ? convertCreateDto.targetCreateDto.content : convertCreateDto.messageContent,
       postId: convertCreateDto.senderPostId,
@@ -183,7 +182,9 @@ export class ConvertController {
       sender: userPost
     }
     await this.messageService.create(messageCreateDto);
-    if (activePost.user.id) {
+
+    // Если у поста есть юзер, то прокидывать сокет
+    if (activePost.user !== null) {
       const index = createdConvert.pathOfPosts.indexOf(userPost.id);
       const pathOfPostsWithoutHostPost = createdConvert.pathOfPosts.splice(index, 1);
       createdConvert.host.user = user;
@@ -196,6 +197,8 @@ export class ConvertController {
     return { id: createdConvert.id };
   }
 
+
+  // хуй пойми как с согласованием и заявкой делать
   @Patch(':convertId/approve')
   @ApiOperation({ summary: 'Завершить конверт или продолжить его по pathOfPosts' })
   @ApiResponse({
@@ -271,6 +274,9 @@ export class ConvertController {
     const createdMessage = await this.messageService.create(messageCreateDto);
     this.convertGateway.handleMessageCreationEvent(convertId, createdMessage);
     this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, postIdsInConvert);
+    this.logger.info(
+      `${yellow('OK!')} - messageCreateDto: ${JSON.stringify(messageCreateDto)} - Создано новое сообщение!`,
+    );
     return {id: createdMessage.id};
   }
 

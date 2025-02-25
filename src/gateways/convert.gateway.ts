@@ -236,7 +236,7 @@ export class ConvertGateway
     socketsToNotify.forEach(socket => {
       socket.join(convertId);
     });
-    this.ws.to(convertId).emit('messageCountEvent', {count: 1, postIdsInConvert: postIdsInConvert});
+    this.ws.to(convertId).emit('messageCountEvent', { count: 1, postIdsInConvert: postIdsInConvert });
     socketsToNotify.forEach(socket => {
       socket.leave(convertId);
     });
