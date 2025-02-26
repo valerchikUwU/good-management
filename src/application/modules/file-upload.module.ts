@@ -9,7 +9,7 @@ import { AttachmentModule } from './attachment.module';
   imports: [
     MulterModule.register({
       storage: diskStorage({
-        destination: './uploads',
+        destination: process.env.UPLOADS_PATH,
         filename: (req, file, cb) => {
           const mime = file.mimetype.split('/')[0];
           let filename: string;

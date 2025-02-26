@@ -73,7 +73,7 @@ export class FileUploadController {
   ): Promise<{ message: string, filePath: string }> {
     const fileCreateDto: FileCreateDto = {
       fileName: image.filename,
-      path: image.path,
+      path: image.path.slice(1),
       size: image.size,
       mimetype: image.mimetype,
     };

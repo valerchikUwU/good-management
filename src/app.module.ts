@@ -61,18 +61,19 @@ dotenv.config();
       useFactory: async () => {
         return {
           stores: [
-            new KeyvRedis({
-              url: `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
-            },
-              { namespace: 'good-management' }
+            new KeyvRedis(
+              `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
+              {
+                namespace: 'goodmanagement',
+              }
             ),
           ],
         };
       },
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads'),
-      serveRoot: process.env.NODE_ENV === 'prod' ? '/gm/uploads' : '/uploads',
+      rootPath: process.env.UPLOADS_PATH,
+      serveRoot: process.env.NODE_ENV === 'prod' ? '/gm/app/uploads' : '/app/uploads',
     }),
     ...(process.env.NODE_ENV === 'prod'
       ? [

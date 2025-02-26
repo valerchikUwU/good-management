@@ -91,6 +91,7 @@ export class ConvertController {
       'convertToPosts.post.user',
       'host',
       'messages.sender.user',
+      'messages.attachmentToMessages.attachment'
     ]);
     const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id)
     if (userIdsInConvert.includes(user.id)) {
@@ -277,7 +278,7 @@ export class ConvertController {
     this.logger.info(
       `${yellow('OK!')} - messageCreateDto: ${JSON.stringify(messageCreateDto)} - Создано новое сообщение!`,
     );
-    return {id: createdMessage.id};
+    return { id: createdMessage.id };
   }
 
 }

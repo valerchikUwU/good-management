@@ -9,6 +9,8 @@ services:
       - POSTGRES_USER=${DATABASE_USERNAME}
       - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     container_name: postgres
+    depends_on:
+      - redis
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     ports:
@@ -32,9 +34,9 @@ services:
       - CLIENT_ID=${CLIENT_ID}
       - CLIENT_SECRET=${CLIENT_SECRET}
       - COOKIE_EXPIRESIN=${COOKIE_EXPIRESIN}
-      - NODE_ENV=${NODE_ENV}
-      - UPLOADS_PATH=/static/uploads
       - BUILD_PATH=/static/frontend/build
+      - UPLOADS_PATH=/app/uploads
+      - NODE_ENV=${NODE_ENV}
     ports:
       - '5000:5000'
     depends_on:
@@ -43,7 +45,8 @@ services:
       - redis
     volumes:
       - ./src:/app/src
-      - ./uploads:/app/uploads  # Монтирование папки uploads
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
       # - /root/gm_front_build/GM:/static/frontend/build  # Монтирование папки с фронтендом
 
   pgadmin:

@@ -13,13 +13,13 @@ const infoFilter = format((info, opts) => {
 });
 
 const combinedFileRotateTransport = new transports.DailyRotateFile({
-  filename: 'logs/combined-%DATE%.log',
+  filename: '/app/logs/combined-%DATE%.log',
   datePattern: 'DD-MM-YYYY',
   maxFiles: '10d',
 });
 
 const errorFileRotateTransport = new transports.DailyRotateFile({
-  filename: 'logs/app-error-%DATE%.log',
+  filename: '/app/logs/app-error-%DATE%.log',
   level: 'error',
   datePattern: 'DD-MM-YYYY',
   maxFiles: '10d',
@@ -27,7 +27,7 @@ const errorFileRotateTransport = new transports.DailyRotateFile({
 });
 
 const infoFileRotateTransport = new transports.DailyRotateFile({
-  filename: 'logs/app-info-%DATE%.log',
+  filename: '/app/logs/app-info-%DATE%.log',
   level: 'info',
   datePattern: 'DD-MM-YYYY',
   maxFiles: '10d',
