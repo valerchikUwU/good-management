@@ -1,13 +1,22 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Message } from 'src/domains/message.entity';
 import { MessageService } from '../services/message/message.service';
 import { MessageRepository } from '../services/message/repository/message.repository';
 import { AttachmentToMessageModule } from './attachmentToMessage.module';
+import { MessageController } from 'src/controllers/message.controller';
+import { EventsModule } from './events.module';
+import { ConvertModule } from './convert.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Message]), AttachmentToMessageModule],
+  imports: [
+    TypeOrmModule.forFeature([Message]),
+    AttachmentToMessageModule,
+    forwardRef(() => EventsModule),
+    ConvertModule
+  ],
   providers: [MessageService, MessageRepository],
+  controllers: [MessageController],
   exports: [MessageService],
 })
-export class MessageModule {}
+export class MessageModule { }

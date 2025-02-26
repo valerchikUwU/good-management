@@ -17,9 +17,9 @@ import { Cache } from 'cache-manager';
 export class RefreshService {
   constructor(
     private sessionsRepository: RefreshSessionRepository,
-    @Inject(CACHE_MANAGER) 
+    @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
-    @Inject('winston') 
+    @Inject('winston')
     private readonly logger: Logger,
   ) { }
 

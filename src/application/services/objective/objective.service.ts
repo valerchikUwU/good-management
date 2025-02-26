@@ -149,13 +149,6 @@ export class ObjectiveService {
 
   async create(objectiveCreateDto: ObjectiveCreateDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!objectiveCreateDto.strategyId) {
-        throw new BadRequestException(
-          'Выберите стратегию для краткосрочной цели!',
-        );
-      }
-
       const objective = new Objective();
       objective.situation = objectiveCreateDto.situation;
       objective.content = objectiveCreateDto.content;

@@ -1,3 +1,4 @@
+import { AttachmentToMessage } from 'src/domains/attachmentToMessage.entity';
 import { Convert } from 'src/domains/convert.entity';
 import { Post } from 'src/domains/post.entity';
 
@@ -15,4 +16,6 @@ export class MessageReadDto {
   convert: Convert;
 
   sender: Post;
+
+  attachmentToMessage: AttachmentToMessage[]
 }

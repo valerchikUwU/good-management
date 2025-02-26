@@ -112,27 +112,7 @@ export const findOneConvertExample = {
     ],
     expirationTime: 'пока похуй',
     dateFinish: '2024-09-26T13:03:19.759Z',
-    reatedAt: '2024-11-05T12:23:24.463Z',
-    messages: [
-        {
-            id: '2621cfe3-db00-4e38-a229-eff8d61fa05c',
-            content: 'Разрешите мне с курсантом Лысенко выйти в туалет?',
-            createdAt: '2024-11-05T12:23:25.591Z',
-            updatedAt: '2024-11-05T12:23:25.591Z',
-            sender: {
-                id: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
-                firstName: 'Игорь',
-                lastName: 'Вихорьков',
-                middleName: 'Дмитрич',
-                telegramId: null,
-                telephoneNumber: '+79787878777',
-                avatar_url: null,
-                vk_id: null,
-                createdAt: '2024-11-04T10:06:29.775Z',
-                updatedAt: '2024-11-04T10:06:29.775Z',
-            },
-        },
-    ],
+    createdAt: '2024-11-05T12:23:24.463Z',
     convertToPosts: [
         {
             id: 'c809248f-ae9c-4b7c-b681-d677dbd69887',

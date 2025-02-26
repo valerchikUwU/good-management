@@ -14,6 +14,8 @@ import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
 import { AttachmentToMessageService } from '../attachmentToMessage/attachmentToMessage.service';
 import { IsNull } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class MessageService {
@@ -21,14 +23,29 @@ export class MessageService {
     @InjectRepository(Message)
     private readonly messageRepository: MessageRepository,
     private readonly attachmentToMessageService: AttachmentToMessageService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
-  async findAllForConvert(convertId: string): Promise<MessageReadDto[]> {
+  async findAllForConvert(convertId: string, pagination: number, relations?: string[]): Promise<MessageReadDto[]> {
     try {
-      const messages = await this.messageRepository.find({
-        where: { convert: { id: convertId } },
-      });
+      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}`)
+      const messages = cachedMessages ??
+        await this.messageRepository.find({
+          where: { convert: { id: convertId } },
+          relations: relations !== undefined ? relations : [],
+          order: {
+            createdAt: 'DESC'
+          },
+          take: 30,
+          skip: pagination
+        });
+
+      // if (!cachedMessages) {
+      //   await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}`, messages, 1860000);
+      // }
+
       return messages.map((message) => ({
         id: message.id,
         content: message.content,
@@ -37,9 +54,10 @@ export class MessageService {
         updatedAt: message.updatedAt,
         convert: message.convert,
         sender: message.sender,
+        attachmentToMessage: message.attachmentToMessages,
       }));
     }
-    catch(err){
+    catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при получении сообщений в конверте');
     }
@@ -52,7 +70,7 @@ export class MessageService {
       });
       return messages
     }
-    catch(err){
+    catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при получении кол-ва непрочитанных сообщений в конверте');
     }
@@ -61,9 +79,12 @@ export class MessageService {
   async create(messageCreateDto: MessageCreateDto): Promise<Message> {
     try {
       const createdMessage = await this.messageRepository.save(messageCreateDto);
-      if(messageCreateDto.attachmentIds){
+      if (messageCreateDto.attachmentIds) {
         await this.attachmentToMessageService.createSeveral(createdMessage, messageCreateDto.attachmentIds);
       }
+
+      // await this.cacheService.del(`messages:${messageCreateDto.convert.id}:*`);
+
       return createdMessage;
     } catch (err) {
       this.logger.error(err);
@@ -84,7 +105,7 @@ export class MessageService {
       }
       if (messageUpdateDto.content) message.content = messageUpdateDto.content;
       if (messageUpdateDto.timeSeen) message.timeSeen = new Date();
-      await this.messageRepository.update(_id, {content: message.content, timeSeen: message.timeSeen});
+      await this.messageRepository.update(_id, { content: message.content, timeSeen: message.timeSeen });
       return _id
     } catch (err) {
       this.logger.error(err);

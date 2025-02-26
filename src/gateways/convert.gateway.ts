@@ -15,6 +15,7 @@ import { MessageService } from 'src/application/services/message/message.service
 import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
+import { Message } from 'src/domains/message.entity';
 import { Logger } from 'winston';
 
 @WebSocketGateway({ namespace: 'convert', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST } })
@@ -223,7 +224,7 @@ export class ConvertGateway
   }
 
 
-  handleMessageCreationEvent(convertId: string, message: MessageReadDto) {
+  handleMessageCreationEvent(convertId: string, message: Message) {
     this.ws.to(convertId).emit('messageCreationEvent', message) // broadcast messages
     return true;
   }

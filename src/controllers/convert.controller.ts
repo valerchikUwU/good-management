@@ -15,6 +15,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
+  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -82,19 +83,26 @@ export class ConvertController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
+  @ApiParam({
+    name: 'convertId',
+    required: true,
+    description: 'Id конверта',
+    example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
+  })
   async findOne(
     @Req() req: ExpressRequest,
     @Param('convertId') convertId: string,
   ): Promise<ConvertReadDto> {
+    const start = new Date()
     const user = req.user as ReadUserDto;
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
       'host',
-      'messages.sender.user',
-      'messages.attachmentToMessages.attachment'
     ]);
     const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id)
     if (userIdsInConvert.includes(user.id)) {
+      const now = new Date()
+      console.log(now.getTime() - start.getTime());
       return convert;
     }
     else {
@@ -102,6 +110,7 @@ export class ConvertController {
       this.logger.error(err)
       throw err;
     }
+
   }
 
   @Post('new')
@@ -236,50 +245,7 @@ export class ConvertController {
   }
 
 
-  @Post(':convertId/sendMessage')
-  @ApiOperation({ summary: 'Отправить сообщение' })
-  @ApiBody({
-    description: 'ДТО для создания сообщения',
-    type: MessageCreateDto,
-    required: true,
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'ОК!',
-    example: {
-      id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
-    },
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  async sendMessage(
-    @Req() req: ExpressRequest,
-    @Param('convertId') convertId: string,
-    @Body() messageCreateDto: MessageCreateDto
-  ): Promise<{ id: string }> {
-    const user = req.user as ReadUserDto;
-    const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId)
-    const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user']);
-    const postIdsInConvert = convert.convertToPosts.map(convertToPost => {
-      if (convertToPost.post.id !== userSenderPost.id)
-        return convertToPost.post.user.id
-    });
-    const userIdsInConvert = convert.convertToPosts.map(convertToPost => {
-      if (convertToPost.post.user && convertToPost.post.user.id !== user.id)
-        return convertToPost.post.user.id
-    });
-    messageCreateDto.convert = convert;
-    messageCreateDto.sender = userSenderPost;
-    const createdMessage = await this.messageService.create(messageCreateDto);
-    this.convertGateway.handleMessageCreationEvent(convertId, createdMessage);
-    this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, postIdsInConvert);
-    this.logger.info(
-      `${yellow('OK!')} - messageCreateDto: ${JSON.stringify(messageCreateDto)} - Создано новое сообщение!`,
-    );
-    return { id: createdMessage.id };
-  }
+
 
 }
 
