@@ -44,6 +44,7 @@ import KeyvRedis from '@keyv/redis';
 import { AttachmentModule } from './application/modules/attachment.module';
 import { AttachmentToMessageModule } from './application/modules/attachmentToMessage.module';
 import { AttachmentToTargetModule } from './application/modules/attachmentToTarget.module';
+import { RedisModule } from '@nestjs-modules/ioredis';
 dotenv.config();
 
 @Module({
@@ -55,6 +56,12 @@ dotenv.config();
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) =>
         configService.get('database'),
+    }),
+    RedisModule.forRootAsync({
+      useFactory: () => ({
+        type: 'single',
+        url: `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
+      }),
     }),
     CacheModule.registerAsync({
       isGlobal: true,

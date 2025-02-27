@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -16,6 +15,9 @@ import { AttachmentToMessageService } from '../attachmentToMessage/attachmentToM
 import { IsNull } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import Redis from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+// import { redis } from '../../../config/redis'
 
 @Injectable()
 export class MessageService {
@@ -23,6 +25,7 @@ export class MessageService {
     @InjectRepository(Message)
     private readonly messageRepository: MessageRepository,
     private readonly attachmentToMessageService: AttachmentToMessageService,
+    @InjectRedis() private readonly redis: Redis,
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
@@ -42,9 +45,9 @@ export class MessageService {
           skip: pagination
         });
 
-      // if (!cachedMessages) {
-      //   await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}`, messages, 1860000);
-      // }
+      if (!cachedMessages) {
+        await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}`, messages, 1860000);
+      }
 
       return messages.map((message) => ({
         id: message.id,
@@ -82,8 +85,14 @@ export class MessageService {
       if (messageCreateDto.attachmentIds) {
         await this.attachmentToMessageService.createSeveral(createdMessage, messageCreateDto.attachmentIds);
       }
-
-      // await this.cacheService.del(`messages:${messageCreateDto.convert.id}:*`);
+      // Используем pipeline для выполнения удаления всех ключей одним запросом
+      this.redis.keys(`undefined:messages:${messageCreateDto.convert.id}:*`).then((keys) => {
+        let pipeline = this.redis.pipeline();
+        keys.forEach((key) => {
+          pipeline.del(key);
+        });
+        return pipeline.exec();
+      });
 
       return createdMessage;
     } catch (err) {

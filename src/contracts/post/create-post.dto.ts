@@ -12,14 +12,18 @@ export class PostCreateDto {
   @IsNotEmpty()
   id?: string;
 
-  @ApiProperty({ description: 'Название поста', example: 'Директор' })
+  @ApiProperty({ 
+    description: 'Название поста', 
+    required: true,
+    example: 'Директор' 
+  })
   @IsString()
   @IsNotEmpty({ message: 'Название поста не может быть пустым!' })
   postName: string;
 
   @ApiProperty({
-    required: false,
     description: 'Название отдела',
+    required: false,
     example: 'Отдел продаж',
   })
   @IsOptional()
@@ -28,8 +32,8 @@ export class PostCreateDto {
   divisionName?: string;
 
   @ApiProperty({
-    required: false,
     description: 'Родительский пост',
+    required: false,
     example: 'b2218813-8985-465b-848e-9a78b1627f11',
   })
   @IsOptional()
@@ -37,7 +41,11 @@ export class PostCreateDto {
   @IsNotEmpty()
   parentId?: string;
 
-  @ApiProperty({ description: 'Продукт поста', example: 'Продукт' })
+  @ApiProperty({ 
+    description: 'Продукт поста', 
+    required: true, 
+    example: 'Продукт' 
+  })
   @IsString()
   @IsNotEmpty({ message: 'Продукт поста не может быть пустым!' })
   product: string;
@@ -45,6 +53,7 @@ export class PostCreateDto {
   @ApiProperty({
     description: 'Назначение поста',
     example: 'Предназначение поста',
+    required: true,
   })
   @IsString()
   @IsNotEmpty({ message: 'Предназначение поста не может быть пустым!' })
@@ -88,6 +97,6 @@ export class PostCreateDto {
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   @IsUUID()
-  @IsNotEmpty({message: 'Выберите организацию для поста!'})
+  @IsNotEmpty({ message: 'Выберите организацию для поста!' })
   organizationId: string;
 }
