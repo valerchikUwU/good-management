@@ -25,7 +25,8 @@ export class MessageService {
     @InjectRepository(Message)
     private readonly messageRepository: MessageRepository,
     private readonly attachmentToMessageService: AttachmentToMessageService,
-    @InjectRedis() private readonly redis: Redis,
+    @InjectRedis()
+    private readonly redis: Redis,
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
@@ -44,8 +45,7 @@ export class MessageService {
           take: 30,
           skip: pagination
         });
-
-      if (!cachedMessages) {
+      if (!cachedMessages && messages.length !== 0) {
         await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}`, messages, 1860000);
       }
 
@@ -88,9 +88,7 @@ export class MessageService {
       // Используем pipeline для выполнения удаления всех ключей одним запросом
       this.redis.keys(`undefined:messages:${messageCreateDto.convert.id}:*`).then((keys) => {
         let pipeline = this.redis.pipeline();
-        keys.forEach((key) => {
-          pipeline.del(key);
-        });
+        pipeline.unlink(keys)
         return pipeline.exec();
       });
 

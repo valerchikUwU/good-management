@@ -35,7 +35,6 @@ import { MessageModule } from './application/modules/message.module';
 import { GroupModule } from './application/modules/group.module';
 import { GroupToUserModule } from './application/modules/groupToUser.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import * as dotenv from 'dotenv';
 import { ControlPanelModule } from './application/modules/controlPanel.module';
 import { PanelToStatisticModule } from './application/modules/panelToStatistic.module';
@@ -45,6 +44,7 @@ import { AttachmentModule } from './application/modules/attachment.module';
 import { AttachmentToMessageModule } from './application/modules/attachmentToMessage.module';
 import { AttachmentToTargetModule } from './application/modules/attachmentToTarget.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
+
 dotenv.config();
 
 @Module({
@@ -56,12 +56,6 @@ dotenv.config();
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) =>
         configService.get('database'),
-    }),
-    RedisModule.forRootAsync({
-      useFactory: () => ({
-        type: 'single',
-        url: `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
-      }),
     }),
     CacheModule.registerAsync({
       isGlobal: true,
@@ -77,6 +71,12 @@ dotenv.config();
           ],
         };
       },
+    }),
+    RedisModule.forRootAsync({
+      useFactory: () => ({
+        type: 'single',
+        url: `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
+      }),
     }),
     ServeStaticModule.forRoot({
       rootPath: process.env.UPLOADS_PATH,

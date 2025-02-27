@@ -72,12 +72,7 @@ export class MessageController {
     })
     async findAllForConvert(
         @Param('convertId') convertId: string, @Query('pagination', CustomParseIntPipe) pagination: number): Promise<MessageReadDto[]> {
-        let start = new Date()
-        console.log(pagination)
         const messages = await this.messageService.findAllForConvert(convertId, pagination, ['attachmentToMessages.attachment', 'sender.user']);
-        let c = new Date()
-        let end = c.getTime() - start.getTime()
-        console.log(end)
         return messages;
     }
 
