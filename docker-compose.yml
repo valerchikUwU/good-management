@@ -4,10 +4,8 @@ services:
   db:
     image: postgres:16
     restart: always
-    environment:
-      - POSTGRES_DB=${DATABASE_NAME}
-      - POSTGRES_USER=${DATABASE_USERNAME}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    env_file:
+      - .env
     container_name: postgres
     depends_on:
       - redis
@@ -20,23 +18,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: good-management
-    environment:
-      - DATABASE_HOST=${DATABASE_HOST} #'db' вместо localhost
-      - DATABASE_PORT=${DATABASE_PORT}
-      - DATABASE_USERNAME=${DATABASE_USERNAME}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - BOT_TOKEN=${BOT_TOKEN}
-      - JWT_ACCESS_EXPIRESIN=${JWT_ACCESS_EXPIRESIN}
-      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
-      - JWT_REFRESH_EXPIRESIN=${JWT_REFRESH_EXPIRESIN}
-      - CLIENT_ID=${CLIENT_ID}
-      - CLIENT_SECRET=${CLIENT_SECRET}
-      - COOKIE_EXPIRESIN=${COOKIE_EXPIRESIN}
-      - BUILD_PATH=/static/frontend/build
-      - UPLOADS_PATH=/app/uploads
-      - NODE_ENV=${NODE_ENV}
+    env_file:
+      - .env
     ports:
       - '5000:5000'
     depends_on:
@@ -53,6 +36,8 @@ services:
     image: dpage/pgadmin4
     restart: always
     container_name: nest-pgadmin4
+    env_file:
+      - .env
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=pgadmin4
@@ -79,10 +64,7 @@ services:
     image: redis
     volumes:
       - ./redis_data:/var/lib/redis
-    environment:
-      - REDIS_HOST_LOCAL=${REDIS_HOST_LOCAL}
-      - REDIS_PORT=${REDIS_PORT}
-      - REDIS_USERNAME=${REDIS_USERNAME}
-      - REDIS_PASSWORD:=${REDIS_PASSWORD}
+    env_file:
+      - .env
     ports:
       - 6379:6379

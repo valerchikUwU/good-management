@@ -31,6 +31,12 @@ export class OrganizationUpdateDto {
   @IsNotEmpty()
   colorCodes?: Record<string, string>;
 
+  @ApiProperty({ description: 'Код цвета организации', example: '#FFFFF' })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  organizationColor?: string;
+
   @ApiProperty({ description: 'ID родительской организации' })
   @IsOptional()
   @IsUUID()

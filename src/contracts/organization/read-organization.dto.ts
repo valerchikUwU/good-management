@@ -25,6 +25,9 @@ export class OrganizationReadDto {
   @ApiProperty({ description: 'Множество k=>v, где postId => colorCode' })
   colorCodes: Record<string, string>;
 
+  @ApiProperty({ description: 'Код цвета организации' })
+  organizationColor: string;
+
   @ApiProperty({ description: 'Дата создания' })
   createdAt: Date;
 

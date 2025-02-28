@@ -94,6 +94,20 @@ export class Organization {
   @Column({ type: 'hstore', hstoreType: 'object', nullable: true })
   colorCodes: Record<string, string>;
 
+
+  /**
+   * Код цвета организации.
+   * 
+   * @remarks
+   * nullable: true.
+   * 
+   * @example
+   * '#FFFFF'
+   */
+    @Column({ nullable: true, length: 10 })
+    organizationColor: string;
+
+
   /**
    * Дата создания записи.
    * 

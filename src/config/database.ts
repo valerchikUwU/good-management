@@ -14,12 +14,6 @@ const config = {
     migrations: ["dist/migrations/*{.ts,.js}"],
     autoLoadEntities: false,
     synchronize: false,
-    cache: {
-        type: "redis",
-        options: {
-            url: `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
-        }
-    }
 }
 
 // export default registerAs('typeorm', () => config)
@@ -36,12 +30,6 @@ export default {
     migrations: ["dist/migrations/*{.ts,.js}"],
     autoLoadEntities: false,
     synchronize: false,
-    cache: {
-        type: "redis",
-        options: {
-            url: `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
-        }
-    }
 };
 
 export const connectionSource = new DataSource(config as DataSourceOptions);
