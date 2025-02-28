@@ -407,7 +407,8 @@ export class PostService {
       if (updatePostDto.product) post.product = updatePostDto.product;
       if (updatePostDto.purpose) post.purpose = updatePostDto.purpose;
       if (updatePostDto.responsibleUserId !== null) {
-        post.user = updatePostDto.user
+        post.user = updatePostDto.user;
+        await this.cacheService.del(`user:${updatePostDto.responsibleUserId}`)
       }
       else {
         post.user = null;
