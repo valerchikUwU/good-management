@@ -141,6 +141,7 @@ export const findOnePostExample = {
             "parentOrganizationId": null,
             "reportDay": 5,
             "colorCodes": ["#FFFFF", "#AAAAA"],
+            "organizationColor": '#FFFFF',
             "createdAt": "2024-12-04T13:14:47.767Z",
             "updatedAt": "2024-12-06T07:09:10.117Z"
         },

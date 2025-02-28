@@ -23,6 +23,7 @@ export const findeOneExample = {
           parentOrganizationId: null,
           reportDay: 5,
           colorCodes: ["#FFFFF", "#AAAAA"],
+          organizationColor: '#FFFFF',
           createdAt: '2024-09-16T14:24:33.841Z',
           updatedAt: '2024-09-16T14:24:33.841Z',
         },

@@ -123,6 +123,7 @@ export const findAllArchiveExample = {
                 "parentOrganizationId": null,
                 "reportDay": 5,
                 "colorCodes": ["#FFFFF", "#AAAAA"],
+                "organizationColor": '#FFFFF',
                 "createdAt": "2024-12-04T13:14:47.767Z",
                 "updatedAt": "2025-01-17T13:18:56.549Z"
             }
@@ -143,6 +144,7 @@ export const findAllArchiveExample = {
                 "parentOrganizationId": null,
                 "reportDay": 5,
                 "colorCodes": ["#FFFFF", "#AAAAA"],
+                "organizationColor": '#FFFFF',
                 "createdAt": "2024-12-04T13:14:47.767Z",
                 "updatedAt": "2025-01-17T13:18:56.549Z"
             }

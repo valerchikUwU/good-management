@@ -5,6 +5,7 @@ export const findAllOrganizationsExample = [
         "parentOrganizationId": null,
         "reportDay": 2,
         "colorCodes": ["#FFFFF", "#AAAAA"],
+        "organizationColor": '#FFFFF',
         "createdAt": "2024-12-04T13:14:47.767Z",
         "updatedAt": "2024-12-06T07:09:10.117Z",
         "users": [
@@ -39,6 +40,7 @@ export const findOneOrganizationExample = {
     "parentOrganizationId": null,
     "reportDay": 5,
     "colorCodes": ["#FFFFF", "#AAAAA"],
+    "organizationColor": '#FFFFF',
     "createdAt": "2024-12-04T13:28:42.823Z",
     "updatedAt": "2024-12-04T13:28:42.823Z",
 }
