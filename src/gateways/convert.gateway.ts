@@ -240,9 +240,9 @@ export class ConvertGateway
     socketsToNotify.forEach(socket => {
       socket.join(`MCountE-${convertId}`);
     });
-    this.ws.to(convertId).emit('messageCountEvent', { count: 1, postIdsInConvert: postIdsInConvert });
+    this.ws.to(`MCountE-${convertId}`).emit('messageCountEvent', { count: 1, postIdsInConvert: postIdsInConvert });
     socketsToNotify.forEach(socket => {
-      socket.leave(convertId);
+      socket.leave(`MCountE-${convertId}`);
     });
     return true;
   }
@@ -254,9 +254,9 @@ export class ConvertGateway
     socketsToNotify.forEach(socket => {
       socket.join(`CExtE-${convertId}`);
     });
-    this.ws.to(convertId).emit('convertCreationEvent', { host: host, reciever: reciever, pathOfPostsWithoutHostPost: pathOfPostsWithoutHostPost });
+    this.ws.to(`CExtE-${convertId}`).emit('convertCreationEvent', { host: host, reciever: reciever, pathOfPostsWithoutHostPost: pathOfPostsWithoutHostPost });
     socketsToNotify.forEach(socket => {
-      socket.leave(convertId);
+      socket.leave(`CExtE-${convertId}`);
     });
     return true;
   }
