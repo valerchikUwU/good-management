@@ -107,6 +107,7 @@ export class AuthController {
         path: '/',
         secure: process.env.NODE_ENV === 'prod' ? true : false,
         maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
+        sameSite: 'none' // только пока в разработке, потом none
       });
       return authenticateResult._user;
     } else {
@@ -181,6 +182,7 @@ export class AuthController {
       path: '/',
       secure: process.env.NODE_ENV === 'prod' ? true : false,
       maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
+      sameSite: 'none' // только пока в разработке, потом none
     });
     return { newAccessToken: data.newAccessToken };
   }
@@ -280,6 +282,7 @@ export class AuthController {
       secure: process.env.NODE_ENV === 'prod' ? true : false,
       path: '/',
       maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
+      sameSite: 'none' // только пока в разработке, потом none
     });
     return { message: 'Куки успешно установлены' };
   }
