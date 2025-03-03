@@ -104,8 +104,8 @@ export class AuthController {
       );
       res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, {
         httpOnly: true,
-        // path: '/auth',
-        // secure: true, ДОБАВИТЬ В ПРОДЕ
+        path: '/',
+        secure: process.env.NODE_ENV === 'prod' ? true : false,
         maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
       });
       return authenticateResult._user;
@@ -179,7 +179,7 @@ export class AuthController {
     res.cookie('refresh-tokenId', data.newRefreshTokenId, {
       httpOnly: true,
       path: '/',
-      // secure: true, ДОБАВИТЬ В ПРОДЕ
+      secure: process.env.NODE_ENV === 'prod' ? true : false,
       maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
     });
     return { newAccessToken: data.newAccessToken };
@@ -277,7 +277,7 @@ export class AuthController {
   setCookie(@Body('refreshTokenId') refreshTokenId: string, @Res({ passthrough: true }) res: ExpressResponse) {
     res.cookie('refresh-tokenId', refreshTokenId, {
       httpOnly: true,
-      // secure: true, ДОБАВИТЬ В ПРОДЕ
+      secure: process.env.NODE_ENV === 'prod' ? true : false,
       path: '/',
       maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
     });
