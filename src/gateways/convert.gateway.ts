@@ -231,11 +231,14 @@ export class ConvertGateway
 
 
   handleMessageCountEvent(convertId: string, userIdsInConvert: string[], postIdsInConvert: string[]) {
-    let socketsToNotify: Socket[];
-    userIdsInConvert.forEach(userId => socketsToNotify = this.findKeysByValue(this.clients, userId))
+    let socketsToNotify: Socket[] = [];
+    userIdsInConvert.forEach(userId => {
+      const sockets = this.findKeysByValue(this.clients, userId);
+      socketsToNotify = socketsToNotify.concat(sockets);
+    });
 
     socketsToNotify.forEach(socket => {
-      socket.join(convertId);
+      socket.join(`MCountE-${convertId}`);
     });
     this.ws.to(convertId).emit('messageCountEvent', { count: 1, postIdsInConvert: postIdsInConvert });
     socketsToNotify.forEach(socket => {
@@ -249,7 +252,7 @@ export class ConvertGateway
   handleConvertExtensionEvent(convertId: string, host: PostReadDto, reciever: PostReadDto, pathOfPostsWithoutHostPost: string[]) {
     const socketsToNotify = this.findKeysByValue(this.clients, reciever.user.id);
     socketsToNotify.forEach(socket => {
-      socket.join(convertId);
+      socket.join(`CExtE-${convertId}`);
     });
     this.ws.to(convertId).emit('convertCreationEvent', { host: host, reciever: reciever, pathOfPostsWithoutHostPost: pathOfPostsWithoutHostPost });
     socketsToNotify.forEach(socket => {
