@@ -34,6 +34,11 @@ export class OrganizationCreateDto {
   @IsNotEmpty()
   reportDay?: ReportDay;
 
+  @ApiProperty({ description: 'Код цвета организации', example: '#FFFFF' })
+  @IsString()
+  @IsNotEmpty()
+  organizationColor: string;
+
   @Exclude({ toPlainOnly: true })
   account?: Account;
 }

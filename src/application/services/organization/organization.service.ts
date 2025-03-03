@@ -98,28 +98,25 @@ export class OrganizationService {
 
   async create(organizationCreateDto: OrganizationCreateDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!organizationCreateDto.organizationName) {
-        throw new BadRequestException('У организации должно быть название!');
-      }
       const organization = new Organization();
+
       if (organizationCreateDto.id) organization.id = organizationCreateDto.id;
+
       organization.organizationName = organizationCreateDto.organizationName;
-      if (organizationCreateDto.parentOrganizationId)
-        organization.parentOrganizationId =
-          organizationCreateDto.parentOrganizationId;
-      if (organizationCreateDto.reportDay)
-        organization.reportDay = organizationCreateDto.reportDay;
+
+      if (organizationCreateDto.parentOrganizationId) organization.parentOrganizationId = organizationCreateDto.parentOrganizationId;
+
+      if (organizationCreateDto.reportDay) organization.reportDay = organizationCreateDto.reportDay;
+
+      organization.organizationColor = organizationCreateDto.organizationColor;
+
       organization.account = organizationCreateDto.account;
-      const createdOrganizationId =
-        await this.organizationRepository.insert(organization);
+      
+      const createdOrganizationId = await this.organizationRepository.insert(organization);
       return createdOrganizationId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
+
       throw new InternalServerErrorException('Ошибка при создании организации');
     }
   }

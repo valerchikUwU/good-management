@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
+  ArrayMaxSize,
   ArrayNotEmpty,
   IsArray,
   IsInt,
@@ -20,6 +21,7 @@ export class GoalCreateDto {
     example: ['Контент цели', 'one more content'],
   })
   @IsArray()
+  @ArrayMaxSize(2)
   content: string[];
 
   @ApiProperty({
