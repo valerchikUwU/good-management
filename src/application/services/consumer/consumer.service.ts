@@ -160,6 +160,7 @@ export class ConsumerService implements OnModuleInit {
         id: payload.id,
         organizationName: payload.name,
         parentOrganizationId: payload.parentId,
+        organizationColor: payload.organizationColor,
         account: account,
       };
       const createdOrganizationId = await this.organizationService.create(
