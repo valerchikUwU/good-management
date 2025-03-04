@@ -106,6 +106,7 @@ export class MessageService {
     try {
       const message = await this.messageRepository.findOne({
         where: { id: _id },
+        relations: ['convert']
       });
       if (!message) {
         throw new NotFoundException(`Сообщение с ID ${_id} не найден`);
@@ -113,6 +114,14 @@ export class MessageService {
       if (messageUpdateDto.content) message.content = messageUpdateDto.content;
       if (messageUpdateDto.timeSeen) message.timeSeen = new Date();
       await this.messageRepository.update(_id, { content: message.content, timeSeen: message.timeSeen });
+
+      // Используем pipeline для выполнения удаления всех ключей одним запросом
+      this.redis.keys(`undefined:messages:${message.convert.id}:*`).then((keys) => {
+        let pipeline = this.redis.pipeline();
+        pipeline.unlink(keys)
+        return pipeline.exec();
+      });
+
       return _id
     } catch (err) {
       this.logger.error(err);
