@@ -31,6 +31,7 @@ services:
       - ./uploads:/app/uploads
       - ./logs:/app/logs
       # - /root/gm_front_build/GM:/static/frontend/build  # Монтирование папки с фронтендом
+    user: "0:0"  # Замените на ваш UID и GID
 
   pgadmin:
     image: dpage/pgadmin4
@@ -64,7 +65,10 @@ services:
     image: redis
     volumes:
       - ./redis_data:/var/lib/redis
+      - ./src/config/redis.conf:/usr/local/etc/redis/redis.conf  # Конфигурационный файл
+      - ./src/config/users.acl:/var/lib/redis/users.acl  # Файл с ACL пользователей
     env_file:
       - .env
     ports:
       - 6379:6379
+    command: redis-server /usr/local/etc/redis/redis.conf  # Запуск Redis с конфигурационным файлом

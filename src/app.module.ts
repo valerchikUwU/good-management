@@ -62,8 +62,8 @@ dotenv.config();
       useFactory: async () => {
         return {
           stores: [
-            new KeyvRedis(
-              `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
+            new KeyvRedis({url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`, username: `${process.env.REDIS_USERNAME}`, password: `${process.env.REDIS_PASSWORD}`}
+              ,
               {
                 namespace: 'goodmanagement',
               }
@@ -75,7 +75,7 @@ dotenv.config();
     RedisModule.forRootAsync({
       useFactory: () => ({
         type: 'single',
-        url: `redis://${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
+        url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
       }),
     }),
     ServeStaticModule.forRoot({
