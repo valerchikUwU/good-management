@@ -180,4 +180,37 @@ export class MessageService {
       throw new InternalServerErrorException('Ошибка при обновлении сообщения');
     }
   }
+
+
+  async updateBulk(
+    messageIds: string[],
+    convertId: string
+  ): Promise<void> {
+    try {
+
+      const updateDate = new Date();
+      await this.messageRepository.createQueryBuilder()
+        .update('message')
+        .set({ timeSeen: updateDate })
+        .where('id IN (:...ids)', { ids: messageIds })
+        .execute();
+
+      // Используем pipeline для выполнения удаления всех ключей одним запросом
+      this.redis.keys(`undefined:messages:${convertId}:*`).then((keys) => {
+        let pipeline = this.redis.pipeline();
+        pipeline.unlink(keys)
+        return pipeline.exec();
+      });
+
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при обновлении сообщения');
+    }
+  }
 }
