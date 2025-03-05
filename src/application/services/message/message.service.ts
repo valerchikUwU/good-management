@@ -12,7 +12,7 @@ import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
 import { AttachmentToMessageService } from '../attachmentToMessage/attachmentToMessage.service';
-import { IsNull, Not } from 'typeorm';
+import { In, IsNull, Not } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import Redis from 'ioredis';
@@ -31,12 +31,21 @@ export class MessageService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async findSeenOrUnseenForConvert(convertId: string, pagination: number, unseenFlag: boolean, relations?: string[]): Promise<MessageReadDto[]> {
+  async findSeenAndUsersForConvert(convertId: string, pagination: number, userPostIds: string[], relations?: string[]): Promise<MessageReadDto[]> {
     try {
-      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:${unseenFlag}`)
+      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:seen`)
       const messages = cachedMessages ??
         await this.messageRepository.find({
-          where: { convert: { id: convertId }, timeSeen: unseenFlag ? IsNull() : Not(IsNull()) },
+          where: [
+            {
+              convert: { id: convertId },
+              timeSeen: Not(IsNull())
+            },
+            {
+              convert: { id: convertId },
+              sender: {id: In(userPostIds)}
+            }
+          ],
           relations: relations !== undefined ? relations : [],
           order: {
             createdAt: 'DESC'
@@ -45,7 +54,50 @@ export class MessageService {
           skip: pagination
         });
       if (!cachedMessages && messages.length !== 0) {
-        await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}:${unseenFlag}`, messages, 1860000);
+        await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}:seen`, messages, 1860000);
+      }
+
+      return messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        timeSeen: message.timeSeen,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        convert: message.convert,
+        sender: message.sender,
+        attachmentToMessage: message.attachmentToMessages,
+      }));
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении прочитанных сообщений в конверте');
+    }
+  }
+
+  async findUnseenForConvert(convertId: string, pagination: number, userPostIds: string[], relations?: string[]): Promise<MessageReadDto[]> {
+    try {
+      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:unseen`)
+      const messages = cachedMessages ??
+        await this.messageRepository.find({
+          where: [
+            {
+              convert: { id: convertId },
+              timeSeen: IsNull()
+            },
+            {
+              convert: { id: convertId },
+              sender: {id: Not(In(userPostIds))}
+            }
+          ],
+          relations: relations !== undefined ? relations : [],
+          order: {
+            createdAt: 'DESC'
+          },
+          take: 30,
+          skip: pagination
+        });
+      if (!cachedMessages && messages.length !== 0) {
+        await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}:unseen`, messages, 1860000);
       }
 
       return messages.map((message) => ({

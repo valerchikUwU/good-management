@@ -68,8 +68,13 @@ export class MessageController {
         example: 120,
     })
     async findSeenForConvert(
-        @Param('convertId') convertId: string, @Query('pagination', CustomParseIntPipe) pagination: number): Promise<MessageReadDto[]> {
-        const messages = await this.messageService.findSeenOrUnseenForConvert(convertId, pagination, false, ['attachmentToMessages.attachment', 'sender.user']);
+        @Req() req: ExpressRequest,
+        @Param('convertId') convertId: string,
+        @Query('pagination', CustomParseIntPipe) pagination: number
+    ): Promise<MessageReadDto[]> {
+        const user = req.user as ReadUserDto;
+        const userPostIds = user.posts.map(post => post.id)
+        const messages = await this.messageService.findSeenAndUsersForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user']);
         return messages;
     }
 
@@ -97,8 +102,13 @@ export class MessageController {
         example: 120,
     })
     async findUnseenForConvert(
-        @Param('convertId') convertId: string, @Query('pagination', CustomParseIntPipe) pagination: number): Promise<MessageReadDto[]> {
-        const messages = await this.messageService.findSeenOrUnseenForConvert(convertId, pagination, true, ['attachmentToMessages.attachment', 'sender.user']);
+        @Req() req: ExpressRequest,
+        @Param('convertId') convertId: string,
+        @Query('pagination', CustomParseIntPipe) pagination: number
+    ): Promise<MessageReadDto[]> {
+        const user = req.user as ReadUserDto;
+        const userPostIds = user.posts.map(post => post.id)
+        const messages = await this.messageService.findUnseenForConvert(convertId, pagination, ['attachmentToMessages.attachment', 'sender.user']);
         return messages;
     }
 
