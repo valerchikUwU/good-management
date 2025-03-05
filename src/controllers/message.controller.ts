@@ -108,7 +108,7 @@ export class MessageController {
     ): Promise<MessageReadDto[]> {
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findUnseenForConvert(convertId, pagination, ['attachmentToMessages.attachment', 'sender.user']);
+        const messages = await this.messageService.findUnseenForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user']);
         return messages;
     }
 
