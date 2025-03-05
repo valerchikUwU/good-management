@@ -24,7 +24,7 @@ export class OrganizationService {
     try {
       const organizations = await this.organizationRepository.find({
         where: { account: { id: account.id } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       return organizations.map((organization) => ({
         id: organization.id,
@@ -57,7 +57,7 @@ export class OrganizationService {
     try {
       const organization = await this.organizationRepository.findOne({
         where: { id: id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       if (!organization)

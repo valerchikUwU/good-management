@@ -60,7 +60,7 @@ export class UsersService {
     try {
       const users = await this.usersRepository.find({
         where: { account: { id: account.id } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       return users.map((user) => ({
         id: user.id,
@@ -102,7 +102,7 @@ export class UsersService {
     try {
       const users = await this.usersRepository.find({
         where: { organization: { id: organizationId } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       return users.map((user) => ({
         id: user.id,
@@ -141,7 +141,7 @@ export class UsersService {
     try {
       const user = await this.usersRepository.findOne({
         where: { id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       if (!user) throw new NotFoundException(`Пользователь с ${id} не найден!`);
       

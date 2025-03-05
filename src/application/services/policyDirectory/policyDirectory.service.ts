@@ -29,7 +29,7 @@ export class PolicyDirectoryService {
     try {
       const policyDirectories = await this.policyDirectoryRepository.find({
         where: { policyToPolicyDirectories: { policy: { organization: { id: organizationId } } } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       return policyDirectories.map((policyDirectory) => ({
         id: policyDirectory.id,
@@ -51,7 +51,7 @@ export class PolicyDirectoryService {
     try {
       const policyDirectory = await this.policyDirectoryRepository.findOne({
         where: { id: id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
 

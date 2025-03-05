@@ -40,7 +40,7 @@ export class TargetService {
           dateComplete: isArchive ? LessThan(todayUTC) : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
           type: Type.PERSONAL
         },
-        relations: relations !== undefined ? relations : []
+        relations: relations ?? []
       })
 
       return targets.map((target) => ({
@@ -84,7 +84,7 @@ export class TargetService {
           dateComplete: isArchive ? LessThan(todayUTC) : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
           type: Type.ORDER
         },
-        relations: relations !== undefined ? relations : []
+        relations: relations ?? []
       })
 
       return targets.map((target) => ({

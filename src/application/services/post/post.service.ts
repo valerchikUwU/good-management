@@ -33,7 +33,7 @@ export class PostService {
     try {
       const posts = await this.postRepository.find({
         where: { organization: { id: organizationId } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return posts.map((post) => ({
@@ -75,7 +75,7 @@ export class PostService {
         where: {
           user: { id: userId },
         },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return posts.map((post) => ({
@@ -114,7 +114,7 @@ export class PostService {
     try {
       const posts = await this.postRepository.find({
         where: { organization: { id: organizationId }, user: { id: Not(IsNull()) } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return posts.map((post) => ({
@@ -153,7 +153,7 @@ export class PostService {
     try {
       const posts = await this.postRepository.find({
         where: { organization: { id: organizationId }, user: { id: IsNull() } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return posts.map((post) => ({
@@ -305,7 +305,7 @@ export class PostService {
     try {
       const post = await this.postRepository.findOne({
         where: { id: id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       if (!post) throw new NotFoundException(`Пост с ID: ${id} не найден`);

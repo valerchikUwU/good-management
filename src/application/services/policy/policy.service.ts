@@ -59,7 +59,7 @@ export class PolicyService {
     try {
       const policies = await this.policyRepository.find({
         where: { organization: { id: organizationId } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return policies.map((policy) => ({
@@ -132,7 +132,7 @@ export class PolicyService {
     try {
       const policy = await this.policyRepository.findOne({
         where: { id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       if (!policy)
         throw new NotFoundException(`Политика с ID: ${id} не найдена`);

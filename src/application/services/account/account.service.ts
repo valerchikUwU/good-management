@@ -57,7 +57,7 @@ export class AccountService {
     try {
       const account = await this.accountRepository.findOne({
         where: { id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       if (!account) throw new NotFoundException('Аккаунт не найден!');
       const accountReadDto: AccountReadDto = {

@@ -77,7 +77,7 @@ export class GroupService {
     try {
       const group = await this.groupRepository.findOne({
         where: { id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       if (!group) throw new NotFoundException(`Группа с ID: ${id} не найдена`);
       const groupReadDto: GroupReadDto = {

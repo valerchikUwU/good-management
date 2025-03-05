@@ -26,7 +26,7 @@ export class GoalService {
     try {
       const goals = await this.goalRepository.find({
         where: { account: { id: account.id } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       return goals.map((goal) => ({
         id: goal.id,
@@ -50,7 +50,7 @@ export class GoalService {
     try {
       const goal = await this.goalRepository.findOne({
         where: {organization: { id: organizationId }},
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       if (!goal) return null;

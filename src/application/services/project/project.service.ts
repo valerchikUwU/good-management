@@ -28,7 +28,7 @@ export class ProjectService {
     try {
       const projects = await this.projectRepository.find({
         where: { organization: { id: organizationId } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return projects.map((project) => ({
@@ -59,7 +59,7 @@ export class ProjectService {
     try {
       const programs = await this.projectRepository.find({
         where: { type: Type.PROGRAM, organization: { id: organizationId } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return programs.map((program) => ({
@@ -97,7 +97,7 @@ export class ProjectService {
           programId: IsNull(),
           organization: { id: organizationId },
         },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return projects.map((project) => ({
@@ -131,7 +131,7 @@ export class ProjectService {
     try {
       const project = await this.projectRepository.findOne({
         where: {id: id},
-        relations: relations !== undefined ? relations : [] 
+        relations: relations ?? [] 
       })
 
       if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);

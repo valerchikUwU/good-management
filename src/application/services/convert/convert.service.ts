@@ -28,7 +28,7 @@ export class ConvertService {
     try {
       const convert = await this.convertRepository.findOne({
         where: { id: id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       if (!convert) throw new NotFoundException(`Конверт с ID: ${id} не найдена!`);

@@ -93,7 +93,7 @@ export class StrategyService {
           organization: { id: organizationId },
           state: In([State.ACTIVE, State.DRAFT]), // Используем In для OR условия
         },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return strategies.map((strategy) => ({
@@ -159,7 +159,7 @@ export class StrategyService {
     try {
       const strategy = await this.strategyRepository.findOne({
         where: { id: id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       if (!strategy)

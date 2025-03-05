@@ -46,7 +46,7 @@ export class MessageService {
               sender: { id: In(userPostIds) }
             }
           ],
-          relations: relations !== undefined ? relations : [],
+          relations: relations ?? [],
           order: {
             createdAt: 'DESC'
           },
@@ -85,7 +85,7 @@ export class MessageService {
             timeSeen: IsNull(),
             sender: { id: Not(In(userPostIds)) }
           },
-          relations: relations !== undefined ? relations : [],
+          relations: relations ?? [],
           order: {
             createdAt: 'DESC'
           },

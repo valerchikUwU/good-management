@@ -25,7 +25,7 @@ export class ObjectiveService {
   async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<ObjectiveReadDto[]> {
     try {
       const objectives = await this.objectiveRepository.find({
-        where: { account: { id: account.id } }, relations: relations !== undefined ? relations : []
+        where: { account: { id: account.id } }, relations: relations ?? []
       });
 
       return objectives.map((objective) => ({
@@ -51,7 +51,7 @@ export class ObjectiveService {
   async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ObjectiveReadDto[]> {
     try {
       const objectives = await this.objectiveRepository.find({
-        where: { strategy: {organization: { id: organizationId } }}, relations: relations !== undefined ? relations : []
+        where: { strategy: {organization: { id: organizationId } }}, relations: relations ?? []
       });
 
       return objectives.map((objective) => ({
@@ -114,7 +114,7 @@ export class ObjectiveService {
     try {
       const objective = await this.objectiveRepository.findOne({
         where: { strategy: { id: strategyId } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       if (!objective)

@@ -27,7 +27,7 @@ export class StatisticService {
     try {
       const statistics = await this.statisticRepository.find({
         where: { account: { id: account.id } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return statistics.map((statistic) => ({
@@ -55,7 +55,7 @@ export class StatisticService {
     try {
       const statistics = await this.statisticRepository.find({
         where: { post: { organization: { id: organizationId } } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return statistics.map((statistic) => ({
@@ -84,7 +84,7 @@ export class StatisticService {
       
       const statistic = await this.statisticRepository.findOne({
         where: { id: id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       if (!statistic)
