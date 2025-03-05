@@ -33,10 +33,10 @@ export class MessageService {
 
   async findSeenOrUnseenForConvert(convertId: string, pagination: number, unseenFlag: boolean, relations?: string[]): Promise<MessageReadDto[]> {
     try {
-      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}`)
+      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:${unseenFlag}`)
       const messages = cachedMessages ??
         await this.messageRepository.find({
-          where: { convert: { id: convertId }, timeSeen: unseenFlag ? Not(IsNull()) : IsNull() },
+          where: { convert: { id: convertId }, timeSeen: unseenFlag ? IsNull() : Not(IsNull()) },
           relations: relations !== undefined ? relations : [],
           order: {
             createdAt: 'DESC'
@@ -45,7 +45,7 @@ export class MessageService {
           skip: pagination
         });
       if (!cachedMessages && messages.length !== 0) {
-        await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}`, messages, 1860000);
+        await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}:${unseenFlag}`, messages, 1860000);
       }
 
       return messages.map((message) => ({
