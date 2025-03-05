@@ -43,7 +43,7 @@ export class MessageService {
             },
             {
               convert: { id: convertId },
-              sender: {id: In(userPostIds)}
+              sender: { id: In(userPostIds) }
             }
           ],
           relations: relations !== undefined ? relations : [],
@@ -79,16 +79,12 @@ export class MessageService {
       const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:unseen`)
       const messages = cachedMessages ??
         await this.messageRepository.find({
-          where: [
-            {
-              convert: { id: convertId },
-              timeSeen: IsNull()
-            },
-            {
-              convert: { id: convertId },
-              sender: {id: Not(In(userPostIds))}
-            }
-          ],
+          where:
+          {
+            convert: { id: convertId },
+            timeSeen: IsNull(),
+            sender: { id: Not(In(userPostIds)) }
+          },
           relations: relations !== undefined ? relations : [],
           order: {
             createdAt: 'DESC'
