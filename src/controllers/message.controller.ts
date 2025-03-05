@@ -45,7 +45,7 @@ export class MessageController {
     ) { }
 
     @Get(':convertId/seen')
-    @ApiOperation({ summary: 'Прочитанные сообщения в чате с пагинацией' })
+    @ApiOperation({ summary: 'Прочитанные сообщения и сообщения юзера в чате с пагинацией (отсортированы по createdAt DESC)' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'ОК!',
@@ -79,7 +79,7 @@ export class MessageController {
     }
 
     @Get(':convertId/unseen')
-    @ApiOperation({ summary: 'Непрочитанные сообщения в чате с пагинацией' })
+    @ApiOperation({ summary: 'Непрочитанные сообщения в чате с пагинацией (отсортированы по createdAt DESC)' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'ОК!',
