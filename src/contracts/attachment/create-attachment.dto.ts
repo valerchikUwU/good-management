@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
 import { Message } from 'src/domains/message.entity';
 import { Target } from 'src/domains/target.entity';
 
@@ -10,6 +10,9 @@ export class AttachmentCreateDto {
         required: true,
         example: 'Галя_nudes.jpg',
     })
+    @IsString()
+    @MaxLength(255, {message: 'Название вложения должно быть не более 255 символов!'})
+    @IsNotEmpty({message: 'Название вложения не может быть пустым!'})
     attachmentName: string;
 
     @ApiProperty({
@@ -17,6 +20,8 @@ export class AttachmentCreateDto {
         required: true,
         example: 'uploads/1737988764326-photo_2022-03-13_23-16-33.jpg',
     })
+    @IsString()
+    @IsNotEmpty({message: 'Путь к вложению не может быть пустым!'})
     attachmentPath: string;
 
     @ApiProperty({
@@ -24,6 +29,8 @@ export class AttachmentCreateDto {
         required: true,
         example: 345561,
     })
+    @IsNumber()
+    @IsNotEmpty({message: 'Размер вложения не может быть пустым'})
     attachmentSize: number;
 
     @ApiProperty({
@@ -31,6 +38,8 @@ export class AttachmentCreateDto {
         required: true,
         example: 'image/jpeg',
     })
+    @IsString()
+    @IsNotEmpty({message: 'Тип вложения не может быть пустым!'})
     attachmentMimetype: string;
 
     @ApiProperty({
@@ -38,6 +47,8 @@ export class AttachmentCreateDto {
         required: true,
         example: '2sad2828dfs99sdg99s9df9s9d9dhh888',
     })
+    @IsString()
+    @IsNotEmpty()
     hash: string;
 
     @ApiProperty({
@@ -45,6 +56,8 @@ export class AttachmentCreateDto {
         required: false,
     })
     @IsOptional()
+    @IsUUID()
+    @IsNotEmpty({message: 'Id задачи не может быть пустым!'})
     targetId?: string;
 
     @ApiProperty({
@@ -52,6 +65,8 @@ export class AttachmentCreateDto {
         required: false,
     })
     @IsOptional()
+    @IsUUID()
+    @IsNotEmpty({message: 'Id сообщения не может быть пустым!'})
     messageId?: string;
 
     @Exclude({ toPlainOnly: true })

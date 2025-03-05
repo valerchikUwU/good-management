@@ -11,7 +11,6 @@ import { ConvertToPostRepository } from './repository/convertToPost.repository';
 import { Convert } from 'src/domains/convert.entity';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { PostService } from '../post/post.service';
-// import { ConvertToUserCreateDto } from "src/contracts/convertToUser/create-convertToUser.dto";
 
 @Injectable()
 export class ConvertToPostService {
@@ -20,35 +19,41 @@ export class ConvertToPostService {
     private readonly convertToPostRepository: ConvertToPostRepository,
     private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
-  async createSeveral(convert: Convert, postIds: string[]): Promise<string[]> {
-    const createdRelations: string[] = [];
+  async createSeveral(convert: Convert, postIds: string[]): Promise<void> {
+    try {
+      const posts = await this.postService.findBulk(postIds);
 
-    for (const postId of postIds) {
-      try {
-        const post = await this.postService.findOneById(postId);
-
+      const convertToPosts = posts.map(post => {
         const convertToPost = new ConvertToPost();
         convertToPost.post = post;
         convertToPost.convert = convert;
+        return convertToPost
+      })
 
-        const savedRelationId = await this.convertToPostRepository.insert(convertToPost);
-        createdRelations.push(savedRelationId.identifiers[0].id);
-      } catch (err) {
-        this.logger.error(err);
 
-        throw new InternalServerErrorException(
-          'Ой, что - то пошло не так при добавлении участников к чату!',
-        );
-        // Здесь можно добавить логику для обработки ошибок, например, откат транзакции
-      }
+      await this.convertToPostRepository.insert(convertToPosts);
+    } catch (err) {
+      this.logger.error(err);
+
+      throw new InternalServerErrorException(
+        'Ой, что - то пошло не так при добавлении участников к конверту!',
+      );
     }
-
-    return createdRelations;
   }
 
+
   async remove(convert: ConvertReadDto): Promise<void> {
-    await this.convertToPostRepository.delete({ convert: convert });
+    try {
+      await this.convertToPostRepository.delete({ convert: convert });
+    }
+    catch (err) {
+      this.logger.error(err);
+
+      throw new InternalServerErrorException(
+        'Ой, что - то пошло не так при удалении конверта!',
+      );
+    }
   }
 }

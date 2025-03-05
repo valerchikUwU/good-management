@@ -13,7 +13,7 @@ export class MessageUpdateDto {
 
   @ApiProperty({
     description: 'Текст сообщения',
-    required: true,
+    required: false,
     example: 'Прывит',
   })
   @IsOptional()

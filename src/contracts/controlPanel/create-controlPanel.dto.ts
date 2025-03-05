@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength, Min } from "class-validator";
 import { Organization } from "src/domains/organization.entity";
 import { Post } from "src/domains/post.entity";
 
@@ -15,9 +15,11 @@ export class ControlPanelCreateDto {
         required: false,
         example: 'Панель новая',
     })
+    @IsOptional()
     @IsString()
+    @MaxLength(255, { message: 'Длина названия панели не более 255 символов!' })
     @IsNotEmpty({ message: 'Название панели не может быть пустым!' })
-    panelName: string;
+    panelName?: string;
 
     @ApiProperty({
         description: 'Порядковый номер панели (минимум 1)',
@@ -30,7 +32,7 @@ export class ControlPanelCreateDto {
 
     @ApiProperty({
         description: 'IDs статистик, которые связать с панелью',
-        required: true,
+        required: false,
         example: ['05339d16-b595-4344-9b3b-2c67ed649830'],
     })
     @IsOptional()

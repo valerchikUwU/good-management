@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
+  ArrayMaxSize,
   ArrayNotEmpty,
   IsArray,
   IsNotEmpty,
@@ -30,6 +31,7 @@ export class ObjectiveCreateDto {
   })
   @IsOptional()
   @IsArray({ message: 'Должен быть массив!' })
+  @ArrayMaxSize(2)
   @ArrayNotEmpty({ message: 'Заполните хотя бы один блок для содержания!' })
   content?: string[];
 

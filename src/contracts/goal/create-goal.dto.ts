@@ -15,13 +15,12 @@ import { User } from 'src/domains/user.entity';
 
 export class GoalCreateDto {
   @ApiProperty({
-    description: 'Текст цели',
+    description: 'Текст цели, состоящий из блоков',
     required: true,
     isArray: true,
     example: ['Контент цели', 'one more content'],
   })
   @IsArray()
-  @ArrayMaxSize(2)
   content: string[];
 
   @ApiProperty({

@@ -19,7 +19,7 @@ export class MessageCreateDto {
     example: 'Текст',
   })
   @IsString()
-  @MaxLength(4096)
+  @MaxLength(4096, {message: 'Сообщение не может быть больше 4096 символов'})
   @IsNotEmpty({ message: 'Текст сообщения не может быть пустым!' })
   content: string;
 

@@ -250,6 +250,56 @@ export class PostService {
   }
 
 
+    async findBulk(ids: string[]): Promise<PostReadDto[]> {
+      try {
+        const posts = await this.postRepository.find({
+          where: { id: In(ids) },
+        });
+        const foundIds = posts.map(post => post.id);
+        const missingIds = ids.filter(id => !foundIds.includes(id));
+        if (missingIds.length > 0) {
+          throw new NotFoundException(
+            `Не найдены посты с IDs: ${missingIds.join(', ')}`,
+          );
+        }
+        return posts.map((post) => ({
+          id: post.id,
+          postName: post.postName,
+          divisionName: post.divisionName,
+          divisionNumber: post.divisionNumber,
+          parentId: post.parentId,
+          product: post.product,
+          purpose: post.purpose,
+          createdAt: post.createdAt,
+          updatedAt: post.updatedAt,
+          targets: post.targets,
+          user: post.user,
+          policy: post.policy,
+          statistics: post.statistics,
+          organization: post.organization,
+          account: post.account,
+          convert: post.convert,
+          historiesUsersToPost: post.historiesUsersToPost,
+          targetHolders: post.targetHolders,
+          convertToPosts: post.convertToPosts,
+          messages: post.messages,
+          controlPanels: post.controlPanels
+        }));
+  
+      } catch (err) {
+        this.logger.error(err);
+        // Обработка специфичных исключений
+        if (err instanceof NotFoundException) {
+          throw err; // Пробрасываем исключение дальше
+        }
+  
+        // Обработка других ошибок
+        throw new InternalServerErrorException('Ошибка при получении статистик');
+      }
+    }
+  
+
+
 
   async findOneById(id: string, relations?: string[]): Promise<PostReadDto> {
     try {

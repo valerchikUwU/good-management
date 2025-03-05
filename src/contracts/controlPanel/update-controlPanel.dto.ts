@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength } from "class-validator";
 import { GraphType, PanelType } from "src/domains/controlPanel.entity";
 import { Organization } from "src/domains/organization.entity";
 
@@ -16,6 +16,7 @@ export class ControlPanelUpdateDto {
     })
     @IsOptional()
     @IsString()
+    @MaxLength(255, { message: 'Длина названия панели не более 255 символов!' })
     @IsNotEmpty({ message: 'Название панели не может быть пустым!' })
     panelName?: string;
 
@@ -23,7 +24,6 @@ export class ControlPanelUpdateDto {
     @ApiProperty({
         description: 'Тип панели',
         required: false,
-        default: PanelType.GLOBAL,
         example: 'Личная',
         examples: ['Личная', 'Глобальная'],
     })
@@ -36,9 +36,15 @@ export class ControlPanelUpdateDto {
     @ApiProperty({
         description: 'Тип отображения графика',
         required: false,
-        default: GraphType.DAY,
-        example: 'Ежедневные',
-        examples: ['13 недель', 'Месячные', 'Ежедневные'],
+        example: 'Ежедневный',
+        examples: [
+            GraphType.YEAR,
+            GraphType.WEEK_13,
+            GraphType.WEEK_26,
+            GraphType.WEEK_52,
+            GraphType.MONTH,
+            GraphType.DAY
+        ],
     })
     @IsOptional()
     @IsEnum(GraphType)

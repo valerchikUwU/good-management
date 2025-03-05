@@ -1,12 +1,10 @@
 import {
     Body,
     Controller,
-    ForbiddenException,
     Get,
     HttpStatus,
     Inject,
     Param,
-    Patch,
     Post,
     Query,
     Req,
@@ -25,9 +23,8 @@ import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { MessageService } from 'src/application/services/message/message.service';
-import { findAllConvertsExample, findOneConvertExample } from 'src/constants/swagger-examples/convert/convert-examples';
 import { MessageReadDto } from 'src/contracts/message/read-message.dto';
-import { findAllMessagesForConvertExample } from 'src/constants/swagger-examples/message/message-example';
+import { findSeenMessagesForConvertExample, findUnseenMessagesForConvertExample } from 'src/constants/swagger-examples/message/message-example';
 import { CustomParseIntPipe } from 'src/validators/pipes/customParseIntPipe';
 import { Request as ExpressRequest } from 'express'
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
@@ -47,12 +44,12 @@ export class MessageController {
         @Inject('winston') private readonly logger: Logger,
     ) { }
 
-    @Get(':convertId')
-    @ApiOperation({ summary: 'Все сообщения в чате с пагинацией' })
+    @Get(':convertId/seen')
+    @ApiOperation({ summary: 'Прочитанные сообщения в чате с пагинацией' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'ОК!',
-        example: findAllMessagesForConvertExample
+        example: findSeenMessagesForConvertExample
     })
     @ApiResponse({
         status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -70,11 +67,43 @@ export class MessageController {
         description: 'Отступ пагинации',
         example: 120,
     })
-    async findAllForConvert(
+    async findSeenForConvert(
         @Param('convertId') convertId: string, @Query('pagination', CustomParseIntPipe) pagination: number): Promise<MessageReadDto[]> {
-        const messages = await this.messageService.findAllForConvert(convertId, pagination, ['attachmentToMessages.attachment', 'sender.user']);
+        const messages = await this.messageService.findSeenOrUnseenForConvert(convertId, pagination, false, ['attachmentToMessages.attachment', 'sender.user']);
         return messages;
     }
+
+    @Get(':convertId/unseen')
+    @ApiOperation({ summary: 'Непрочитанные сообщения в чате с пагинацией' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'ОК!',
+        example: findUnseenMessagesForConvertExample
+    })
+    @ApiResponse({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        description: 'Ошибка сервера!',
+    })
+    @ApiParam({
+        name: 'convertId',
+        required: true,
+        description: 'Id конверта',
+        example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
+    })
+    @ApiQuery({
+        name: 'pagination',
+        required: false,
+        description: 'Отступ пагинации',
+        example: 120,
+    })
+    async findUnseenForConvert(
+        @Param('convertId') convertId: string, @Query('pagination', CustomParseIntPipe) pagination: number): Promise<MessageReadDto[]> {
+        const messages = await this.messageService.findSeenOrUnseenForConvert(convertId, pagination, true, ['attachmentToMessages.attachment', 'sender.user']);
+        return messages;
+    }
+
+
+
 
 
     @Post(':convertId/sendMessage')

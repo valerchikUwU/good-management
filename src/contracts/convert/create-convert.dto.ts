@@ -7,14 +7,13 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  MaxLength,
   ValidateNested,
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { PathConvert, TypeConvert } from 'src/domains/convert.entity';
 import { TargetCreateDto } from '../target/create-target.dto';
 import { Post } from 'src/domains/post.entity';
-import { MessageCreateDto } from '../message/create-message.dto';
-// import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
 
 export class ConvertCreateDto {
   @ApiProperty({
@@ -23,6 +22,7 @@ export class ConvertCreateDto {
     example: 'Тема'
   })
   @IsString()
+  @MaxLength(1024, {message: 'Тема конверта должна быть не более 1024 символа'})
   @IsNotEmpty({ message: 'Тема не может быть пустой!' })
   convertTheme: string;
 
@@ -55,7 +55,7 @@ export class ConvertCreateDto {
     examples: [PathConvert.DIRECT, PathConvert.COORDINATION, PathConvert.REQUEST],
   })
   @IsEnum(PathConvert)
-  @IsNotEmpty({ message: 'Тип конверта не может быть пустой!' })
+  @IsNotEmpty({ message: 'Тип маршрута конверта не может быть пустой!' })
   convertPath: PathConvert;
 
   @ApiProperty({
@@ -89,25 +89,11 @@ export class ConvertCreateDto {
   @ApiProperty({
     description: 'Текст для сообщения при convertType === Переписька или === Заявка',
     example: 'Заявка на трусы',
-    required: true,
+    required: false,
     nullable: true
   })
   @IsString()
-  @IsNotEmpty({ message: 'Текст сообщения не может быть пустой!' })
   messageContent: string | null;
-
-  // @ApiProperty({
-  //     description: 'IDs участников чата и их тип', example:
-  //     [
-  //         {
-  //             userType: 'Наблюдатель',
-  //             userId: '3b809c42-2824-46c1-9686-dd666403402a'
-  //         }
-  //     ]
-  // })
-  // @IsArray({ message: 'Должен быть массив' })
-  // @ArrayNotEmpty({ message: 'Добавьте хотя бы одного участника чата!' })
-  // convertToUserCreateDtos: ConvertToUserCreateDto[];
 
   @Exclude({ toPlainOnly: true })
   host: Post;

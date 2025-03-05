@@ -12,12 +12,11 @@ import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
 import { AttachmentToMessageService } from '../attachmentToMessage/attachmentToMessage.service';
-import { IsNull } from 'typeorm';
+import { IsNull, Not } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import Redis from 'ioredis';
 import { InjectRedis } from '@nestjs-modules/ioredis';
-// import { redis } from '../../../config/redis'
 
 @Injectable()
 export class MessageService {
@@ -32,12 +31,12 @@ export class MessageService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async findAllForConvert(convertId: string, pagination: number, relations?: string[]): Promise<MessageReadDto[]> {
+  async findSeenOrUnseenForConvert(convertId: string, pagination: number, unseenFlag: boolean, relations?: string[]): Promise<MessageReadDto[]> {
     try {
       const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}`)
       const messages = cachedMessages ??
         await this.messageRepository.find({
-          where: { convert: { id: convertId } },
+          where: { convert: { id: convertId }, timeSeen: unseenFlag ? Not(IsNull()) : IsNull() },
           relations: relations !== undefined ? relations : [],
           order: {
             createdAt: 'DESC'
@@ -62,7 +61,7 @@ export class MessageService {
     }
     catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при получении сообщений в конверте');
+      throw new InternalServerErrorException('Ошибка при получении прочитанных сообщений в конверте');
     }
   }
 
