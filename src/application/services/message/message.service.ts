@@ -89,7 +89,6 @@ export class MessageService {
           order: {
             createdAt: 'DESC'
           },
-          take: 30,
           skip: pagination
         });
       if (!cachedMessages && messages.length !== 0) {

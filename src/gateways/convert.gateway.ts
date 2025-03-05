@@ -208,6 +208,7 @@ export class ConvertGateway
       messageIds: string[];
     },
   ) {
+    const start = new Date()
     const updateMessagesPromises = payload.messageIds.map((id) => {
       const messageUpdateDto: MessageUpdateDto = {
         _id: id,
@@ -219,7 +220,8 @@ export class ConvertGateway
     await Promise.all(updateMessagesPromises); // Дожидаемся всех обновлений
 
     this.ws.to(payload.convertId).emit('messagesAreSeen', new Date());
-
+    const now = new Date();
+    console.log(now.getTime() - start.getTime())
     return true;
   }
 
