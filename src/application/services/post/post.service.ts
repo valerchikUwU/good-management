@@ -191,25 +191,21 @@ export class PostService {
   async findAllPostsWithConvertsForCurrentUser(userPostsIds: string[]): Promise<any[]> {
     try {
       const posts = await this.postRepository
-        .createQueryBuilder('post')
-        .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
-        .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
-        .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
-        .leftJoin(
-          qb =>
-            qb
-              .select('"m1".*')
-              .from('message', 'm1')
-              .where('"m1"."createdAt" = (SELECT MAX("m2"."createdAt") FROM "message" "m2" WHERE "m2"."convertId" = "m1"."convertId")'),
+      .createQueryBuilder('post')
+      .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
+      .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
+      .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
+      .leftJoin('c.messages', 'unreadMessages', '"unreadMessages"."timeSeen" IS NULL AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)')
+      .innerJoin('otherCtp.post', 'otherPost')  // получаем посты из этих связей
+      .innerJoin('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
+      .leftJoin(
+          'c.messages',
           'latestMessage',
-          '"latestMessage"."convertId" = c.id'
-        )
-        .leftJoin('c.messages', 'unreadMessages', '"unreadMessages"."timeSeen" IS NULL')
-        .innerJoin('otherCtp.post', 'otherPost')  // получаем посты из этих связей
-        .innerJoin('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
-        .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
-        .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
-        .select([
+          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")'
+      )
+      .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
+      .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
+      .select([
           'c.id AS "convertId"',
           'c.convertTheme AS "convertTheme"',
           '"latestMessage"."content" AS "latestMessageContent"',
@@ -236,9 +232,10 @@ export class PostService {
                   )
               )
           ) AS "postsAndUsers"`
-        ])
-        .groupBy('c.id, "latestMessage"."createdAt", "latestMessage"."content"')
-        .getRawMany();
+      ])
+      .groupBy('c.id, "latestMessage"."content", "latestMessage"."createdAt"')
+      .getRawMany();
+  
       return posts
     } catch (err) {
       this.logger.error(err);
