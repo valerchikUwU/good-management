@@ -34,7 +34,7 @@ export class File {
    * @example
    * 'photo.jpg'
    */
-  @Column({ nullable: false })
+  @Column({ nullable: false, length: 255 })
   fileName: string;
 
   /**

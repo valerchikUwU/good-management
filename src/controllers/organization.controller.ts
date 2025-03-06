@@ -47,12 +47,12 @@ export class OrganizationController {
     example: findAllOrganizationsExample
   })
   @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   async findAll(
     @Req() req: ExpressRequest
@@ -69,16 +69,16 @@ export class OrganizationController {
     example: { "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167" },
   })
   @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   @ApiParam({
     name: 'organizationId',
@@ -100,8 +100,8 @@ export class OrganizationController {
   @Post('new')
   @ApiOperation({ summary: 'Добавить организацию в аккаунт' })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
+    status: HttpStatus.CREATED,
+    description: 'CREATED!',
     example: { "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167" },
   })
   @ApiResponse({

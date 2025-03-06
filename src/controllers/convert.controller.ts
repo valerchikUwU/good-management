@@ -51,11 +51,15 @@ export class ConvertController {
   ) { }
 
   @Get()
-  @ApiOperation({ summary: 'Все чаты' })
+  @ApiOperation({ summary: 'Все конверты' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
     example: findAllConvertsExample
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -68,12 +72,12 @@ export class ConvertController {
     const postsWithConverts = await this.postService.findAllPostsWithConvertsForCurrentUser(userPostsIds);
     let c = new Date()
     let end = c.getTime() - start.getTime()
-    console.log(end)
+    console.log(`чаты ${end}`)
     return postsWithConverts;
   }
 
   @Get(':convertId')
-  @ApiOperation({ summary: 'Чат по id' })
+  @ApiOperation({ summary: 'Конверт по id' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
@@ -82,6 +86,18 @@ export class ConvertController {
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: `У вас нет доступа к этому чату!`
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: `Конверт не найден!`
   })
   @ApiParam({
     name: 'convertId',
@@ -102,11 +118,11 @@ export class ConvertController {
     const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id)
     if (userIdsInConvert.includes(user.id)) {
       const now = new Date()
-      console.log(now.getTime() - start.getTime());
+      console.log(`чат по id ${now.getTime() - start.getTime()}`);
       return convert;
     }
     else {
-      const err = new ForbiddenException('У вас нет доступа к этому чату!');
+      const err = new ForbiddenException('У вас нет доступа к этому конверту!');
       this.logger.error(err)
       throw err;
     }
@@ -122,10 +138,14 @@ export class ConvertController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'ОК!',
+    description: 'CREATED!',
     example: {
       id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
     },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -212,11 +232,15 @@ export class ConvertController {
   @Patch(':convertId/approve')
   @ApiOperation({ summary: 'Завершить конверт или продолжить его по pathOfPosts' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
+    status: HttpStatus.OK,
     description: 'ОК!',
     example: {
       id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
     },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,

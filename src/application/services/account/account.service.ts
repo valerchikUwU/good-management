@@ -98,15 +98,6 @@ export class AccountService {
 
   async create(accountCreateDto: AccountCreateDto): Promise<Account> {
     try {
-      if (!accountCreateDto.id) {
-        throw new BadRequestException('Id аккаунта не может быть пустой');
-      }
-      if (!accountCreateDto.accountName) {
-        throw new BadRequestException('Название аккаунта не может быть пустым');
-      }
-      if (!accountCreateDto.tenantId) {
-        throw new BadRequestException('tenantId аккаунта не может быть пустым');
-      }
       const account = new Account();
       account.id = accountCreateDto.id;
       account.accountName = accountCreateDto.accountName;
@@ -114,10 +105,6 @@ export class AccountService {
       return await this.accountRepository.save(account);
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException('Ошибка при создании аккаунта!');
     }
   }

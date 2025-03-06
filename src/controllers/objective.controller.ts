@@ -76,12 +76,12 @@ export class ObjectiveController {
     example: '0a2f6024-e6f7-49b9-a008-70665bd36881',
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,

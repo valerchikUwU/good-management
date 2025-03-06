@@ -171,7 +171,7 @@ export class AuthService {
       const isExpired = currentTime > session.expiresIn;
       if (isExpired) {
         await this.refreshService.remove(refreshTokenId);
-        throw new UnauthorizedException('Пожалуйста, войдите еще раз в свой аккаунт.');
+        throw new UnauthorizedException('Ваша сессия истекла, пожалуйста, войдите еще раз в свой аккаунт.');
       }
       const newSession: CreateRefreshSessionDto = {
         user_agent: session.user_agent,

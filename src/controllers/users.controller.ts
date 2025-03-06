@@ -141,7 +141,7 @@ export class UsersController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'ОК!',
+    description: 'CREATED!',
     example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
   })
   @ApiResponse({

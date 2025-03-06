@@ -86,12 +86,12 @@ export class GoalController {
     example: {"id": "7468bad1-a4b4-4600-8ac8-098f3e865b11"}
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -149,7 +149,7 @@ export class GoalController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'ОК!',
+    description: 'CREATED!',
     example: {"id": "da1787cb-a79a-4663-8232-c13cacfdb953"},
   })
   @ApiResponse({

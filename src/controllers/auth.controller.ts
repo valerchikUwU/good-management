@@ -159,9 +159,17 @@ export class AuthController {
     required: true,
   })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
+    status: HttpStatus.CREATED,
+    description: 'CREATED!',
     example: refreshTokensExample
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Войдите в свой аккаунт для дальнейшей работы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Ваша сессия истекла, пожалуйста, войдите еще раз в свой аккаунт.',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,

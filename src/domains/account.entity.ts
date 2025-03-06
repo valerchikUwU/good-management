@@ -42,12 +42,12 @@ export class Account {
    * Название аккаунта.
    * 
    * @remarks
-   * nullable: false.
+   * nullable: false, length: 120
    * 
    * @example
    * 'Академия'
    */
-  @Column({ nullable: false })
+  @Column({ nullable: false, length: 120 })
   accountName: string;
 
   /**
@@ -149,10 +149,7 @@ export class Account {
   /**
    * Связь с директориями политик (1:M PolicyDirectory).
    */
-  @OneToMany(
-    () => PolicyDirectory,
-    (policyDirectory) => policyDirectory.account,
-  )
+  @OneToMany(() => PolicyDirectory, (policyDirectory) => policyDirectory.account)
   policyDirectories: PolicyDirectory[];
 
   /**

@@ -101,12 +101,12 @@ export class PolicyController {
     example: {"id": "71ba1ba2-9e53-4238-9bb2-14a475460689"},
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -177,12 +177,12 @@ export class PolicyController {
     example: findOnePolicyExample
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -209,7 +209,7 @@ export class PolicyController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'ОК!',
+    description: 'CREATED!',
     example: {"id": "71ba1ba2-9e53-4238-9bb2-14a475460689"},
   })
   @ApiResponse({

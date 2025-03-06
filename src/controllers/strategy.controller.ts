@@ -60,8 +60,8 @@ export class StrategyController {
     example: findAllStrategiesExample
   })
   @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Ошибка валидации!',
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -93,12 +93,12 @@ export class StrategyController {
     example: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05',
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -167,6 +167,10 @@ export class StrategyController {
     description: 'Ошибка валидации!',
   })
   @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: `Стратегия не найдена!`,
   })
@@ -197,12 +201,12 @@ export class StrategyController {
     },
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,

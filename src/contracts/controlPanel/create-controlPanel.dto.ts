@@ -37,6 +37,7 @@ export class ControlPanelCreateDto {
     })
     @IsOptional()
     @IsArray({ message: 'Список Ids статистик должен быть массивом' })
+    @IsUUID('4', {each: true, message: 'Каждый элемент должен быть UUID v4'})
     statisticIds?: string[];
 
     @ApiProperty({

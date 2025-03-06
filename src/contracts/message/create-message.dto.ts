@@ -39,6 +39,7 @@ export class MessageCreateDto {
   })
   @IsOptional()
   @IsArray({message: 'Должен быть массив!'})
+  @IsUUID('4', {each: true, message: 'Каждый элемент должен быть UUID v4'})
   attachmentIds?: string[];
 
   @Exclude({ toPlainOnly: true })

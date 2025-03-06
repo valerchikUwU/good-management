@@ -214,7 +214,7 @@ export class ConvertGateway
 
     this.ws.to(payload.convertId).emit('messagesAreSeen', new Date());
     const now = new Date();
-    console.log(now.getTime() - start.getTime())
+    console.log(`все сообщения увидены ${now.getTime() - start.getTime()}`);
     return true;
   }
 

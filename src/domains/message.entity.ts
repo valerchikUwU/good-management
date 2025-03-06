@@ -19,8 +19,19 @@ export class Message {
   @Column({ type: 'text', nullable: false })
   content: string;
 
-  @Column({type: 'timestamp', nullable: true})
+  @Column({ type: 'timestamp', nullable: true })
   timeSeen: Date;
+
+
+  /**
+   * Порядковый номер сообщения в конверте.
+   * 
+   * @remarks
+   * Инркемент в БД.
+   */
+  @Column({ nullable: false })
+  messageNumber: number;
+
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

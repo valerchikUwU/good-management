@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    ForbiddenException,
     Get,
     HttpStatus,
     Inject,
@@ -31,6 +32,7 @@ import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { ConvertService } from 'src/application/services/convert/convert.service';
 import { ConvertGateway } from 'src/gateways/convert.gateway';
+import { ConvertToPost } from 'src/domains/convertToPost.entity';
 
 @ApiTags('Messages')
 @ApiBearerAuth('access-token')
@@ -50,6 +52,10 @@ export class MessageController {
         status: HttpStatus.OK,
         description: 'ОК!',
         example: findSeenMessagesForConvertExample
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'Вы не авторизованы!',
     })
     @ApiResponse({
         status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -84,6 +90,10 @@ export class MessageController {
         status: HttpStatus.OK,
         description: 'ОК!',
         example: findUnseenMessagesForConvertExample
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'Вы не авторизованы!',
     })
     @ApiResponse({
         status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -131,6 +141,14 @@ export class MessageController {
         },
     })
     @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Ошибка валидации!',
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'Вы не авторизованы!',
+    })
+    @ApiResponse({
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         description: 'Ошибка сервера!',
     })
@@ -142,6 +160,12 @@ export class MessageController {
         const user = req.user as ReadUserDto;
         const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId)
         const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user']);
+        const isPostInConvert = convert.convertToPosts.some(convertToPost => convertToPost.post.id === userSenderPost.id) // ВОЗОМОЖНО ВЫНЕСТИ В ГУАРД, ПОКА ПОХУЙ
+        if (!isPostInConvert) {
+            const err = new ForbiddenException('У вас нет доступа к этому конверту!');
+            this.logger.error(err)
+            throw err;
+        }
         const postIdsInConvert = convert.convertToPosts.map(convertToPost => {
             if (convertToPost.post.id !== userSenderPost.id)
                 return convertToPost.post.user.id

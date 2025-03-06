@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
+  IsArray,
   IsDate,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
@@ -28,6 +30,16 @@ export class ConvertCreateDto {
 
   @Exclude({ toPlainOnly: true })
   pathOfPosts: string[];
+
+  @ApiProperty({
+    description: 'Список ids постов, которые наблюдатели',
+    required: false,
+    example: ['323e4567-e89b-12d3-a456-426614174000', '750e8400-e29b-41d4-a716-446655440000'],
+  })
+  @IsOptional()
+  @IsUUID('4', {each: true})
+  @IsNotEmpty({ message: 'Массив наблюдателей не может быть пустым!' })
+  watcherIds?: string[];
 
   @ApiProperty({
     description: 'Длительность конверта',

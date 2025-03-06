@@ -13,7 +13,7 @@ import { Message } from './message.entity';
 @Entity()
 export class AttachmentToMessage {
   @PrimaryGeneratedColumn('uuid')
-  public id: string;
+  id: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

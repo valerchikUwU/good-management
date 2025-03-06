@@ -122,8 +122,8 @@ export class TargetController {
   @Post('new')
   @ApiOperation({ summary: 'Создать личную задачу' })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
+    status: HttpStatus.CREATED,
+    description: 'CREATED!',
     example: {
       "id": "614b9353-f432-4536-837f-a020249fd173"
     }
@@ -132,6 +132,10 @@ export class TargetController {
     description: 'ДТО для создания личной задачи',
     type: TargetCreateDto,
     required: true,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -179,12 +183,12 @@ export class TargetController {
     example: { id: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05' },
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -226,7 +230,7 @@ export class TargetController {
   @Delete(':targetId/remove')
   @ApiOperation({ summary: 'Удалить личную задачу' })
   @ApiResponse({
-    status: HttpStatus.CREATED,
+    status: HttpStatus.OK,
     description: 'ОК!',
     example: { "message": "Личная задача успешно удалена!" },
   })

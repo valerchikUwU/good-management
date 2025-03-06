@@ -37,7 +37,7 @@ export class Attachment {
      * @example
      * 'photo.jpg'
      */
-    @Column({ nullable: false })
+    @Column({ nullable: false, length: 255 })
     attachmentName: string;
 
     /**
@@ -81,7 +81,7 @@ export class Attachment {
      * Хеш файла.
      * 
      * @remarks
-     * для кеширования в redis
+     * для кеширования в redis (а уже и хуй знает зачем)
      * 
      * @example
      * 'image/jpg'

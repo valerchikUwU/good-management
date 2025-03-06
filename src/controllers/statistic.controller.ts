@@ -315,7 +315,7 @@ export class StatisticController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'ОК!',
+    description: 'CREATED!',
     example: { "id": "f35dc993-1c7e-4f55-9ddd-45d8841d4396" },
   })
   @ApiResponse({

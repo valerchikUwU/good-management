@@ -6,6 +6,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { PolicyToPolicyDirectory } from 'src/domains/policyToPolicyDirectories.entity';
@@ -27,6 +28,7 @@ export class PolicyDirectoryUpdateDto {
   })
   @IsOptional()
   @IsArray({ message: 'Должен быть массив!' })
+  @IsUUID('4', {each: true, message: 'Каждый элемент должен быть UUID v4'})
   @ArrayNotEmpty({ message: 'Выберите хотя бы одну политику!' })
   policyToPolicyDirectories?: string[];
 }

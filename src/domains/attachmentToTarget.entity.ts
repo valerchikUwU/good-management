@@ -16,7 +16,7 @@ import { Target } from './target.entity';
 @Entity()
 export class AttachmentToTarget {
   @PrimaryGeneratedColumn('uuid')
-  public id: string;
+  id: string;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

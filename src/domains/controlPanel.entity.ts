@@ -54,12 +54,12 @@ export class ControlPanel {
      * Имя файла.
      * 
      * @remarks
-     * nullable: false
+     * default: 'Панель №', nullable: false, length: 255
      * 
      * @example
      * 'photo.jpg'
      */
-    @Column({ default: 'Панель №', nullable: false })
+    @Column({ default: 'Панель №', nullable: false, length: 255 })
     panelName: string;
 
 

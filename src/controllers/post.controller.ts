@@ -135,12 +135,12 @@ export class PostController {
     },
   })
   @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -376,8 +376,8 @@ export class PostController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'ОК!',
-    example: '2420fabb-3e37-445f-87e6-652bfd5a050c',
+    description: 'CREATED!',
+    example: {id: '2420fabb-3e37-445f-87e6-652bfd5a050c'},
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,

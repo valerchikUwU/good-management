@@ -21,7 +21,7 @@ import { RoleService } from 'src/application/services/role/role.service';
 import { findeOneExample } from 'src/constants/swagger-examples/account/account-examples';
 
 @ApiTags('Account')
-@Controller(':userId/accounts')
+@Controller('accounts')
 export class AccountController {
   constructor(
     private readonly accountService: AccountService,
@@ -30,22 +30,6 @@ export class AccountController {
     private readonly roleService: RoleService,
   ) {}
 
-  @Get(':accountId')
-  @ApiOperation({ summary: 'Найти аккаунт по ID' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
-    example: findeOneExample,
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  async findUsersAccount(
-    @Param('id') id: string,
-  ): Promise<AccountReadDto | null> {
-    return this.accountService.findOneById(id);
-  }
 
   @Post('new')
   @ApiOperation({ summary: 'Создать аккаунт' })
@@ -55,14 +39,11 @@ export class AccountController {
     required: true,
   })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
+    status: HttpStatus.CREATED,
+    description: 'CREATED!',
     example: {
-      id: '1c64b108-5023-4a76-a3ba-2b1657ed0c9f',
-      accountName: 'ООО Группа',
-      createdAt: '1900-01-01 00:00:00',
-      updatedAt: '1900-01-01 00:00:00',
-    },
+      id: '1c64b108-5023-4a76-a3ba-2b1657ed0c9f'
+    }
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -70,10 +51,10 @@ export class AccountController {
   })
   async create(
     @Body() accountCreateDto: AccountCreateDto,
-  ): Promise<AccountCreateDto> {
+  ): Promise<string> {
     const newAccount = await this.accountService.create(accountCreateDto);
     const roles = await this.roleService.findAll();
     await this.roleSettingService.createAllForAccount(newAccount, roles);
-    return newAccount;
+    return newAccount.id;
   }
 }

@@ -52,17 +52,17 @@ export class FileUploadController {
     },
   })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
+    status: HttpStatus.CREATED,
+    description: 'CREATED!',
     example: {},
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -101,12 +101,28 @@ export class FileUploadController {
       },
     },
   })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'CREATED!',
+  })
   async uploadFiles(@UploadedFiles(new FileValidationPipe()) files: Array<Express.Multer.File>): Promise<Attachment[]> {
     console.log(files)
     const createdAttachments = await Promise.all(
       files.map(async (file) => {
         const fileHash = await this.attachmentService.calculateFileHash(file.path);
-        
+
         const attachmentCreateDto: AttachmentCreateDto = {
           attachmentName: file.filename,
           attachmentPath: file.path,

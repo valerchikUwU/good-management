@@ -46,7 +46,7 @@ export class ControlPanelController {
     @ApiOperation({ summary: 'Все панели в организации' })
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'ОК!',
+        description: 'OK!',
         example: findAllControlPanelsExample
     })
     @ApiResponse({
@@ -113,7 +113,7 @@ export class ControlPanelController {
     })
     @ApiResponse({
         status: HttpStatus.CREATED,
-        description: 'ОК!',
+        description: 'CREATED!',
         example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
     })
     @ApiResponse({
@@ -152,7 +152,7 @@ export class ControlPanelController {
         required: true,
     })
     @ApiResponse({
-        status: HttpStatus.CREATED,
+        status: HttpStatus.OK,
         description: 'ОК!',
         example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
     })
