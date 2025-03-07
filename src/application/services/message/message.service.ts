@@ -31,7 +31,7 @@ export class MessageService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async findSeenAndUsersForConvert(convertId: string, pagination: number, userPostIds: string[], relations?: string[]): Promise<MessageReadDto[]> {
+  async findSeenForConvert(convertId: string, pagination: number, userPostIds: string[], relations?: string[]): Promise<MessageReadDto[]> {
     try {
       const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:seen`)
       const messages = cachedMessages ??
@@ -74,9 +74,9 @@ export class MessageService {
     }
   }
 
-  async findUnseenForConvert(convertId: string, pagination: number, userPostIds: string[], relations?: string[]): Promise<MessageReadDto[]> {
+  async findUnseenForConvert(convertId: string, userPostIds: string[], relations?: string[]): Promise<MessageReadDto[]> {
     try {
-      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:unseen`)
+      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:unseen`)
       const messages = cachedMessages ??
         await this.messageRepository.find({
           where:
@@ -89,10 +89,9 @@ export class MessageService {
           order: {
             createdAt: 'DESC'
           },
-          skip: pagination
         });
       if (!cachedMessages && messages.length !== 0) {
-        await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}:unseen`, messages, 1860000);
+        await this.cacheService.set<Message[]>(`messages:${convertId}:unseen`, messages, 1860000);
       }
 
       return messages.map((message) => ({
@@ -204,12 +203,6 @@ export class MessageService {
 
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
-      }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении сообщения');
     }
   }

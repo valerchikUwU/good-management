@@ -1,9 +1,11 @@
+import { CorrelationType } from "src/domains/statisticData.entity";
+
 export class StatisticDataCreateEventDto {
   id: string;
   value: number;
   valueDate: Date;
   createdAt: Date;
-  isCorrelation: boolean;
+  correlationType: CorrelationType | null;
   statisticId: string;
   accountId: string;
 }

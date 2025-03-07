@@ -29,7 +29,7 @@ export class StatisticDataService {
       const statisticData = new StatisticData();
       statisticData.value = statisticDataCreateDto.value;
       statisticData.valueDate = statisticDataCreateDto.valueDate;
-      statisticData.isCorrelation = statisticDataCreateDto.isCorrelation;
+      statisticData.correlationType = statisticDataCreateDto.correlationType;
       statisticData.statistic = statisticDataCreateDto.statistic;
       const createdStatisticDataId =
         await this.statisticDataRepository.insert(statisticData);
@@ -60,12 +60,12 @@ export class StatisticDataService {
         statisticData.value = statisticDataUpdateDto.value;
       if (statisticDataUpdateDto.valueDate)
         statisticData.valueDate = statisticDataUpdateDto.valueDate;
-      if (statisticDataUpdateDto.isCorrelation !== undefined)
-        statisticData.isCorrelation = statisticDataUpdateDto.isCorrelation;
+      if (statisticDataUpdateDto.correlationType)
+        statisticData.correlationType = statisticDataUpdateDto.correlationType;
       await this.statisticDataRepository.update(statisticData.id, {
         value: statisticData.value,
         valueDate: statisticData.valueDate,
-        isCorrelation: statisticData.isCorrelation,
+        correlationType: statisticData.correlationType,
       });
       return statisticData.id;
     } catch (err) {

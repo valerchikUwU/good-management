@@ -80,7 +80,7 @@ export class MessageController {
     ): Promise<MessageReadDto[]> {
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findSeenAndUsersForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user']);
+        const messages = await this.messageService.findSeenForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user']);
         return messages;
     }
 
@@ -105,20 +105,16 @@ export class MessageController {
         description: 'Id конверта',
         example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
     })
-    @ApiQuery({
-        name: 'pagination',
-        required: false,
-        description: 'Отступ пагинации',
-        example: 120,
-    })
     async findUnseenForConvert(
         @Req() req: ExpressRequest,
         @Param('convertId') convertId: string,
-        @Query('pagination', CustomParseIntPipe) pagination: number
     ): Promise<MessageReadDto[]> {
+        const start = new Date();
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findUnseenForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user']);
+        const messages = await this.messageService.findUnseenForConvert(convertId, userPostIds, ['attachmentToMessages.attachment', 'sender.user']);
+        const now = new Date();
+        console.log(`непрочитанные ${now.getTime() - start.getTime()}`)
         return messages;
     }
 

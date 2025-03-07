@@ -9,6 +9,15 @@ import {
 import { Statistic } from './statistic.entity';
 
 /**
+ * Перечисление типов проектов.
+ */
+export enum CorrelationType {
+  MONTH = 'Месяц',
+  YEAR = 'Год',
+}
+
+
+/**
  * Сущность, представляющая Данные статистики (точки статистики).
  */
 @Entity()
@@ -51,8 +60,12 @@ export class StatisticData {
    * @remarks
    * default: false, nullable: false.
    */
-  @Column({ nullable: false, default: false })
-  isCorrelation: boolean;
+  @Column({
+    type: 'enum',
+    enum: CorrelationType,
+    nullable: true,
+  })
+  correlationType: CorrelationType;
 
   /**
    * Дата создания записи.
