@@ -212,7 +212,7 @@ export class ConvertGateway
     await this.messageService.updateBulk(payload.messageIds, payload.convertId); // Возвращаем промис напрямую
 
 
-    this.ws.to(payload.convertId).emit('messagesAreSeen', new Date());
+    this.ws.to(payload.convertId).emit('messagesAreSeen', {dateSeen: new Date(), messageIds: payload.messageIds});
     const now = new Date();
     console.log(`все сообщения увидены ${now.getTime() - start.getTime()}`);
     return true;
