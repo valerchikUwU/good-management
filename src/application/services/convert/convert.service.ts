@@ -36,6 +36,7 @@ export class ConvertService {
         id: convert.id,
         convertTheme: convert.convertTheme,
         pathOfPosts: convert.pathOfPosts,
+        watcherIds: convert.watcherIds,
         expirationTime: convert.expirationTime,
         convertType: convert.convertType,
         convertPath: convert.convertPath,
@@ -64,6 +65,7 @@ export class ConvertService {
       const convert = new Convert();
       convert.convertTheme = convertCreateDto.convertTheme;
       convert.pathOfPosts = convertCreateDto.pathOfPosts;
+      convert.watcherIds = convertCreateDto.watcherIds;
       convert.expirationTime = convertCreateDto.expirationTime;
       convert.convertType = convertCreateDto.convertType;
       convert.convertPath = convertCreateDto.convertPath;

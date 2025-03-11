@@ -205,9 +205,11 @@ export class PostService {
       )
       .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
       .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
+      .orWhere('c.watcherIds && ARRAY[:...userPostsIds]::uuid[]', { userPostsIds })
       .select([
           'c.id AS "convertId"',
           'c.convertTheme AS "convertTheme"',
+          'c.watcherIds AS "watcherIds"',
           '"latestMessage"."content" AS "latestMessageContent"',
           '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
           'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',

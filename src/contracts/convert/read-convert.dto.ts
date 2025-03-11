@@ -8,6 +8,7 @@ export class ConvertReadDto {
   id: string;
   convertTheme: string;
   pathOfPosts: string[];
+  watcherIds: string[];
   expirationTime: number;
   convertType: TypeConvert;
   convertPath: PathConvert;

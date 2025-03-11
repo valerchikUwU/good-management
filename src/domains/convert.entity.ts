@@ -84,17 +84,17 @@ export class Convert {
   @Column({ type: 'uuid', array: true, nullable: true })
   pathOfPosts: string[];
 
-  // /**
-  //  * Список ids постов, которые наблюдатели.
-  //  * 
-  //  * @remarks
-  //  * Поле содержит массив UUID постов.
-  //  * 
-  //  * @example
-  //  * ['323e4567-e89b-12d3-a456-426614174000', '750e8400-e29b-41d4-a716-446655440000']
-  //  */
-  // @Column({ type: 'uuid', array: true, nullable: true })
-  // watcherIds: string[];
+  /**
+   * Список ids постов, которые наблюдатели.
+   * 
+   * @remarks
+   * Поле содержит массив UUID постов.
+   * 
+   * @example
+   * ['323e4567-e89b-12d3-a456-426614174000', '750e8400-e29b-41d4-a716-446655440000']
+   */
+  @Column({ type: 'uuid', array: true, nullable: true })
+  watcherIds: string[]; 
 
   /**
    * Тип маршрута конверта.

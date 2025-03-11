@@ -9,6 +9,8 @@ export class MessageReadDto {
 
   timeSeen: Date;
 
+  messageNumber: number;
+
   createdAt: Date;
 
   updatedAt: Date;
