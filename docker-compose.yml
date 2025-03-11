@@ -26,6 +26,7 @@ services:
       - db
       - rabbitmq
       - redis
+      - prometheus
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
@@ -72,3 +73,12 @@ services:
     ports:
       - 6379:6379
     command: redis-server /usr/local/etc/redis/redis.conf  # Запуск Redis с конфигурационным файлом
+
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml

@@ -44,6 +44,12 @@ import { AttachmentModule } from './application/modules/attachment.module';
 import { AttachmentToMessageModule } from './application/modules/attachmentToMessage.module';
 import { AttachmentToTargetModule } from './application/modules/attachmentToTarget.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import {
+  PrometheusModule,
+  makeCounterProvider,
+  makeGaugeProvider
+} from "@willsoto/nestjs-prometheus";
+import { CustomMetricsMiddleware } from './middleware/metrics.middleware';
 
 dotenv.config();
 
@@ -57,13 +63,15 @@ dotenv.config();
       useFactory: async (configService: ConfigService) =>
         configService.get('database'),
     }),
+    PrometheusModule.register({
+      path: `${process.env.PROMETHEUS_PATH}`,
+    }),
     CacheModule.registerAsync({
       isGlobal: true,
       useFactory: async () => {
         return {
           stores: [
-            new KeyvRedis({url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`, username: `${process.env.REDIS_USERNAME}`, password: `${process.env.REDIS_PASSWORD}`}
-              ,
+            new KeyvRedis({ url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`, username: `${process.env.REDIS_USERNAME}`, password: `${process.env.REDIS_PASSWORD}` },
               {
                 namespace: 'goodmanagement',
               }
@@ -125,10 +133,23 @@ dotenv.config();
     AttachmentToMessageModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+
+    makeCounterProvider({
+      name: 'count',
+      help: 'metric_help',
+      labelNames: ['method', 'origin'] as string[],
+    }),
+    makeGaugeProvider({
+      name: 'gauge',
+      help: 'metric_help',
+    }),
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+    consumer.apply(CustomMetricsMiddleware).forRoutes('/api');
   }
 }
