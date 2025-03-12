@@ -111,12 +111,14 @@ export class ConvertController {
   ): Promise<ConvertReadDto> {
     const start = new Date()
     const user = req.user as ReadUserDto;
+    const userPostsIds = user.posts.map(post => post.id)
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
       'host',
     ]);
-    const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id)
-    if (userIdsInConvert.includes(user.id)) {
+    const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id);
+    const isWatcher = userPostsIds.filter(id => convert.watcherIds.includes(id)).length > 0 ? true : false
+    if (userIdsInConvert.includes(user.id) || isWatcher) {
       const now = new Date()
       console.log(`чат по id ${now.getTime() - start.getTime()}`);
       return convert;
@@ -156,7 +158,7 @@ export class ConvertController {
     @Body() convertCreateDto: ConvertCreateDto,
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
-    const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId)
+    const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId);
     const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
       await Promise.all([ // если DIRECT то первые два запроса не нужны
         convertCreateDto.convertPath === PathConvert.DIRECT ? [] : this.postService.getHierarchyToTop(convertCreateDto.senderPostId),

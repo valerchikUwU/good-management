@@ -154,10 +154,10 @@ export class MessageController {
         @Body() messageCreateDto: MessageCreateDto
     ): Promise<{ id: string }> {
         const user = req.user as ReadUserDto;
-        const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId)
+        const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId);
         const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user']);
         const isPostInConvert = convert.convertToPosts.some(convertToPost => convertToPost.post.id === userSenderPost.id) // ВОЗОМОЖНО ВЫНЕСТИ В ГУАРД, ПОКА ПОХУЙ
-        const isPostWatcher = convert.watcherIds !== null ? convert.watcherIds.some(watcherId => watcherId === userSenderPost.id) : false
+        const isPostWatcher = convert.watcherIds !== null ? convert.watcherIds.some(watcherId => watcherId === userSenderPost.id) : false;
         if (!isPostInConvert || isPostWatcher) {
             const err = new ForbiddenException('У вас нет доступа к отправке сообщений!');
             this.logger.error(err)
