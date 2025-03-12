@@ -44,12 +44,6 @@ import { AttachmentModule } from './application/modules/attachment.module';
 import { AttachmentToMessageModule } from './application/modules/attachmentToMessage.module';
 import { AttachmentToTargetModule } from './application/modules/attachmentToTarget.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
-import {
-  PrometheusModule,
-  makeCounterProvider,
-  makeGaugeProvider
-} from "@willsoto/nestjs-prometheus";
-import { CustomMetricsMiddleware } from './middleware/metrics.middleware';
 
 dotenv.config();
 
@@ -62,9 +56,6 @@ dotenv.config();
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) =>
         configService.get('database'),
-    }),
-    PrometheusModule.register({
-      path: `/${process.env.PROMETHEUS_PATH}`,
     }),
     CacheModule.registerAsync({
       isGlobal: true,
@@ -133,23 +124,10 @@ dotenv.config();
     AttachmentToMessageModule
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-
-    makeCounterProvider({
-      name: 'count',
-      help: 'metric_help',
-      labelNames: ['method', 'origin'] as string[],
-    }),
-    makeGaugeProvider({
-      name: 'gauge',
-      help: 'metric_help',
-    }),
-  ],
+  providers: [AppService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(RequestLoggerMiddleware).forRoutes('*');
-    consumer.apply(CustomMetricsMiddleware).forRoutes('/api');
   }
 }
