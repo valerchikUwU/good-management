@@ -125,7 +125,7 @@ export class FileUploadController {
 
         const attachmentCreateDto: AttachmentCreateDto = {
           attachmentName: file.filename,
-          attachmentPath: file.path,
+          attachmentPath: file.path.slice(1),
           attachmentSize: file.size,
           attachmentMimetype: file.mimetype,
           hash: fileHash,
