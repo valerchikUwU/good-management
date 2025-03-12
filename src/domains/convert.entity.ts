@@ -5,12 +5,15 @@ import {
   OneToMany,
   ManyToOne,
   CreateDateColumn,
+  JoinColumn,
+  OneToOne,
 } from 'typeorm';
 import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Message } from './message.entity';
 import { ConvertToPost } from './convertToPost.entity';
 import { Post } from './post.entity';
+import { Target } from './target.entity';
 
 /**
  * Перечисление типов конвертов.
@@ -94,7 +97,7 @@ export class Convert {
    * ['323e4567-e89b-12d3-a456-426614174000', '750e8400-e29b-41d4-a716-446655440000']
    */
   @Column({ type: 'uuid', array: true, nullable: true })
-  watcherIds: string[]; 
+  watcherIds: string[];
 
   /**
    * Тип маршрута конверта.
@@ -177,6 +180,12 @@ export class Convert {
    */
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
+
+  /**
+   * Связь с сущностью 1:1 Target.
+   */
+  @OneToOne(() => Target, (target) => target.convert)
+  target: Target;
 
   /**
    * Связь с сообщениями (1:M Message).

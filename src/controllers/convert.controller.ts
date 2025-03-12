@@ -196,14 +196,11 @@ export class ConvertController {
     }
 
 
-    const [targetId, createdConvert, activePost] =
+    const [createdConvert, activePost] =
       await Promise.all([
-        convertCreateDto.convertType === TypeConvert.ORDER ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
         this.convertService.create(convertCreateDto),
         this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user']),
       ]);
-
-
 
     const messageCreateDto: MessageCreateDto = {
       content: createdConvert.convertType === TypeConvert.ORDER ? convertCreateDto.targetCreateDto.content : convertCreateDto.messageContent,
@@ -211,7 +208,11 @@ export class ConvertController {
       convert: createdConvert,
       sender: userPost
     }
-    await this.messageService.create(messageCreateDto);
+    await Promise.all([
+      convertCreateDto.convertType === TypeConvert.ORDER ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
+      await this.messageService.create(messageCreateDto)
+    ]);
+
 
     // Если у поста есть юзер, то прокидывать сокет
     if (activePost.user !== null) {

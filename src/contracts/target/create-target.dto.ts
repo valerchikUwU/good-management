@@ -14,6 +14,7 @@ import {
   min,
 } from 'class-validator';
 import { Attachment } from 'src/domains/attachment.entity';
+import { Convert } from 'src/domains/convert.entity';
 import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
@@ -129,4 +130,7 @@ export class TargetCreateDto {
 
   @Exclude({ toPlainOnly: true })
   policy: Policy;
+
+  @Exclude({ toPlainOnly: true })
+  convert: Convert;
 }

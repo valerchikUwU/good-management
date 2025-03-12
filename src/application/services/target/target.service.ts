@@ -59,7 +59,8 @@ export class TargetService {
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
-        attachmentToTargets: target.attachmentToTargets
+        attachmentToTargets: target.attachmentToTargets,
+        convert: target.convert
       }));
     } catch (err) {
       this.logger.error(err);
@@ -103,7 +104,8 @@ export class TargetService {
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
-        attachmentToTargets: target.attachmentToTargets
+        attachmentToTargets: target.attachmentToTargets,
+        convert: target.convert
       }));
     } catch (err) {
       this.logger.error(err);
@@ -144,7 +146,8 @@ export class TargetService {
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
-        attachmentToTargets: target.attachmentToTargets
+        attachmentToTargets: target.attachmentToTargets,
+        convert: target.convert
       }));
     } catch (err) {
       this.logger.error(err);
@@ -169,6 +172,7 @@ export class TargetService {
       target.senderPost = targetCreateDto.senderPost;
       target.project = targetCreateDto.project;
       target.policy = targetCreateDto.policy;
+      target.convert = targetCreateDto.convert
       const createdTargetResult = await this.targetRepository.insert(target);
       const createdTarget = await this.targetRepository.findOne({
         where: { id: createdTargetResult.identifiers[0].id },

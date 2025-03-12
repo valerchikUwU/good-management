@@ -48,6 +48,7 @@ export class ConvertService {
         convertToPosts: convert.convertToPosts,
         host: convert.host,
         account: convert.account,
+        target: convert.target
       };
       return convertReadDto;
     } catch (err) {

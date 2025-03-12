@@ -15,6 +15,7 @@ import { Project } from './project.entity';
 import { Policy } from './policy.entity';
 import { Post } from './post.entity';
 import { AttachmentToTarget } from './attachmentToTarget.entity';
+import { Convert } from './convert.entity';
 
 /**
  * Перечисление типов задач.
@@ -162,6 +163,14 @@ export class Target {
    */
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+
+  /**
+   * Связь с сущностью 1:1 Convert.
+   */
+  @OneToOne(() => Convert, (convert) => convert.target, { nullable: true })
+  @JoinColumn()
+  convert: Convert;
 
 
   /**

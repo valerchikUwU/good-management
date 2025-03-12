@@ -191,22 +191,25 @@ export class PostService {
   async findAllPostsWithConvertsForCurrentUser(userPostsIds: string[]): Promise<any[]> {
     try {
       const posts = await this.postRepository
-      .createQueryBuilder('post')
-      .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
-      .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
-      .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
-      .leftJoin('c.messages', 'unreadMessages', '"unreadMessages"."timeSeen" IS NULL AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)')
-      .innerJoin('otherCtp.post', 'otherPost')  // получаем посты из этих связей
-      .innerJoin('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
-      .leftJoin(
+        .createQueryBuilder('post')
+        .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
+        .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
+        .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
+        .leftJoin('c.messages', 'unreadMessages', '"unreadMessages"."timeSeen" IS NULL AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)')
+        .leftJoin('c.target', 'target')
+        .leftJoin('c.host', 'host')
+        .leftJoin('host.user', 'hostUser')
+        .innerJoin('otherCtp.post', 'otherPost')  // получаем посты из этих связей
+        .innerJoin('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
+        .leftJoin(
           'c.messages',
           'latestMessage',
           '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")'
-      )
-      .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
-      .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
-      .orWhere('c.watcherIds && ARRAY[:...userPostsIds]::uuid[]', { userPostsIds })
-      .select([
+        )
+        .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
+        .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
+        .orWhere('c.watcherIds && ARRAY[:...userPostsIds]::uuid[]', { userPostsIds })
+        .select([
           'c.id AS "convertId"',
           'c.convertTheme AS "convertTheme"',
           'c.watcherIds AS "watcherIds"',
@@ -216,6 +219,31 @@ export class PostService {
           '"latestMessage"."content" AS "latestMessageContent"',
           '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
           'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
+          `jsonb_build_object(
+                  'id', target.id,
+                  'type', target.type,
+                  'targetState', target."targetState",
+                  'dateStart', target."dateStart",
+                  'deadline', target."deadline",
+                  'dateComplete', target."dateComplete"
+          ) AS "target"`,
+          `jsonb_build_object(
+            'id', host.id,
+            'postName', host.postName,
+            'divisionName', host.divisionName,
+            'divisionNumber', host.divisionNumber,
+            'parentId', host.parentId,
+            'createdAt', host.createdAt,
+            'updatedAt', host.updatedAt,
+            'hostUser', jsonb_build_object(
+                'id', "hostUser"."id",
+                'firstName', "hostUser"."firstName",
+                'lastName', "hostUser"."lastName",
+                'telegramId', "hostUser"."telegramId",
+                'telephoneNumber', "hostUser"."telephoneNumber",
+                'avatar', "hostUser"."avatar_url"
+            )
+          ) AS "host"`,
           `jsonb_agg(
               DISTINCT jsonb_build_object(
                   'postId', otherPost.id,
@@ -223,8 +251,6 @@ export class PostService {
                   'divisionName', otherPost.divisionName,
                   'divisionNumber', otherPost.divisionNumber,
                   'parentId', otherPost.parentId,
-                  'product', otherPost.product,
-                  'purpose', otherPost.purpose,
                   'createdAt', otherPost.createdAt,
                   'updatedAt', otherPost.updatedAt,
                   'user', jsonb_build_object(
@@ -237,10 +263,10 @@ export class PostService {
                   )
               )
           ) AS "postsAndUsers"`
-      ])
-      .groupBy('c.id, "latestMessage"."content", "latestMessage"."createdAt"')
-      .getRawMany();
-  
+        ])
+        .groupBy('c.id, "latestMessage"."content", "latestMessage"."createdAt", target.id, host.id, hostUser.id')
+        .getRawMany();
+
       return posts
     } catch (err) {
       this.logger.error(err);
@@ -252,54 +278,54 @@ export class PostService {
   }
 
 
-    async findBulk(ids: string[]): Promise<PostReadDto[]> {
-      try {
-        const posts = await this.postRepository.find({
-          where: { id: In(ids) },
-        });
-        const foundIds = posts.map(post => post.id);
-        const missingIds = ids.filter(id => !foundIds.includes(id));
-        if (missingIds.length > 0) {
-          throw new NotFoundException(
-            `Не найдены посты с IDs: ${missingIds.join(', ')}`,
-          );
-        }
-        return posts.map((post) => ({
-          id: post.id,
-          postName: post.postName,
-          divisionName: post.divisionName,
-          divisionNumber: post.divisionNumber,
-          parentId: post.parentId,
-          product: post.product,
-          purpose: post.purpose,
-          createdAt: post.createdAt,
-          updatedAt: post.updatedAt,
-          targets: post.targets,
-          user: post.user,
-          policy: post.policy,
-          statistics: post.statistics,
-          organization: post.organization,
-          account: post.account,
-          convert: post.convert,
-          historiesUsersToPost: post.historiesUsersToPost,
-          targetHolders: post.targetHolders,
-          convertToPosts: post.convertToPosts,
-          messages: post.messages,
-          controlPanels: post.controlPanels
-        }));
-  
-      } catch (err) {
-        this.logger.error(err);
-        // Обработка специфичных исключений
-        if (err instanceof NotFoundException) {
-          throw err; // Пробрасываем исключение дальше
-        }
-  
-        // Обработка других ошибок
-        throw new InternalServerErrorException('Ошибка при получении статистик');
+  async findBulk(ids: string[]): Promise<PostReadDto[]> {
+    try {
+      const posts = await this.postRepository.find({
+        where: { id: In(ids) },
+      });
+      const foundIds = posts.map(post => post.id);
+      const missingIds = ids.filter(id => !foundIds.includes(id));
+      if (missingIds.length > 0) {
+        throw new NotFoundException(
+          `Не найдены посты с IDs: ${missingIds.join(', ')}`,
+        );
       }
+      return posts.map((post) => ({
+        id: post.id,
+        postName: post.postName,
+        divisionName: post.divisionName,
+        divisionNumber: post.divisionNumber,
+        parentId: post.parentId,
+        product: post.product,
+        purpose: post.purpose,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+        targets: post.targets,
+        user: post.user,
+        policy: post.policy,
+        statistics: post.statistics,
+        organization: post.organization,
+        account: post.account,
+        convert: post.convert,
+        historiesUsersToPost: post.historiesUsersToPost,
+        targetHolders: post.targetHolders,
+        convertToPosts: post.convertToPosts,
+        messages: post.messages,
+        controlPanels: post.controlPanels
+      }));
+
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при получении статистик');
     }
-  
+  }
+
 
 
 
@@ -430,7 +456,7 @@ export class PostService {
       post.policy = postCreateDto.policy;
       post.account = postCreateDto.account;
       const createdPostId = await this.postRepository.insert(post);
-      if(postCreateDto.responsibleUserId){
+      if (postCreateDto.responsibleUserId) {
         await this.cacheService.del(`user:${postCreateDto.responsibleUserId}`)
       }
       return createdPostId.identifiers[0].id;
