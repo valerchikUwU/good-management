@@ -157,7 +157,7 @@ export class MessageController {
         const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId)
         const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user']);
         const isPostInConvert = convert.convertToPosts.some(convertToPost => convertToPost.post.id === userSenderPost.id) // ВОЗОМОЖНО ВЫНЕСТИ В ГУАРД, ПОКА ПОХУЙ
-        const isPostWatcher = convert.watcherIds.some(watcherId => watcherId === userSenderPost.id)
+        const isPostWatcher = convert.watcherIds !== null ? convert.watcherIds.some(watcherId => watcherId === userSenderPost.id) : false
         if (!isPostInConvert || isPostWatcher) {
             const err = new ForbiddenException('У вас нет доступа к отправке сообщений!');
             this.logger.error(err)
