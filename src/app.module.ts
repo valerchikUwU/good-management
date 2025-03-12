@@ -64,7 +64,7 @@ dotenv.config();
         configService.get('database'),
     }),
     PrometheusModule.register({
-      path: `${process.env.PROMETHEUS_PATH}`,
+      path: `/${process.env.PROMETHEUS_PATHz}`,
     }),
     CacheModule.registerAsync({
       isGlobal: true,
