@@ -26,7 +26,6 @@ services:
       - db
       - rabbitmq
       - redis
-      - prometheus
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
