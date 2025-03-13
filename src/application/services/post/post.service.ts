@@ -228,7 +228,7 @@ export class PostService {
                   'dateComplete', target."dateComplete"
           ) AS "target"`,
           `jsonb_build_object(
-            'id', host.id,
+            'postId', host.id,
             'postName', host.postName,
             'divisionName', host.divisionName,
             'divisionNumber', host.divisionNumber,
@@ -236,7 +236,7 @@ export class PostService {
             'createdAt', host.createdAt,
             'updatedAt', host.updatedAt,
             'hostUser', jsonb_build_object(
-                'id', "hostUser"."id",
+                'userId', "hostUser"."id",
                 'firstName', "hostUser"."firstName",
                 'lastName', "hostUser"."lastName",
                 'telegramId', "hostUser"."telegramId",
