@@ -72,3 +72,10 @@ services:
     ports:
       - 6379:6379
     command: redis-server /usr/local/etc/redis/redis.conf  # Запуск Redis с конфигурационным файлом
+
+  nginx-exporter:
+    build: ./nginx-exporter
+    volumes:
+      - /var/log/nginx:/var/log/nginx:ro
+    ports:
+    - "9113:9113"  # Порт, на котором работает nginx-exporter
