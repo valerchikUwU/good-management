@@ -78,4 +78,4 @@ services:
     volumes:
       - /var/log/nginx:/var/log/nginx:ro
     ports:
-    - "9113:9113"  # Порт, на котором работает nginx-exporter
+    - "4040:4040"  # Порт, на котором работает nginx-exporter
