@@ -219,7 +219,7 @@ export class ConvertGateway
   }
 
 
-  handleMessageCreationEvent(convertId: string, message: Message) {
+  handleMessageCreationEvent(convertId: string, message: MessageReadDto) {
     this.ws.to(convertId).emit('messageCreationEvent', message) // broadcast messages
     return true;
   }

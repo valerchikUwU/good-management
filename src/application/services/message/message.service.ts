@@ -113,6 +113,38 @@ export class MessageService {
     }
   }
 
+
+  async findOne(id: string, relations?: string[]): Promise<MessageReadDto> {
+    try {
+      const message = await this.messageRepository.findOne({
+        where: { id: id },
+        relations: relations ?? [],
+      });
+
+      if (!message) {
+        throw new NotFoundException(`Сообщение с ID ${id} не найдено`);
+      }
+
+
+      const messageReadDto: MessageReadDto = {
+        id: message.id,
+        content: message.content,
+        timeSeen: message.timeSeen,
+        messageNumber: message.messageNumber,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        convert: message.convert,
+        sender: message.sender,
+        attachmentToMessage: message.attachmentToMessages,
+      }
+      return messageReadDto
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении прочитанных сообщений в конверте');
+    }
+  }
+
   async findCountOfUnseenForConvert(convertId: string): Promise<number> {
     try {
       const messages = await this.messageRepository.count({
@@ -126,7 +158,7 @@ export class MessageService {
     }
   }
 
-  async create(messageCreateDto: MessageCreateDto): Promise<Message> {
+  async create(messageCreateDto: MessageCreateDto): Promise<string> {
     try {
       const createdMessage = await this.messageRepository.save(messageCreateDto);
       if (messageCreateDto.attachmentIds) {
@@ -139,7 +171,7 @@ export class MessageService {
         return pipeline.exec();
       });
 
-      return createdMessage;
+      return createdMessage.id;
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при создании сообщения');

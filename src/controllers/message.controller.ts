@@ -173,12 +173,13 @@ export class MessageController {
         });
         messageCreateDto.convert = convert;
         messageCreateDto.sender = userSenderPost;
-        const createdMessage = await this.messageService.create(messageCreateDto);
-        this.convertGateway.handleMessageCreationEvent(convertId, createdMessage);
+        const createdMessageId = await this.messageService.create(messageCreateDto);
+        const messageWithAttachments = await this.messageService.findOne(createdMessageId, ['attachmentToMessages.attachment'])
+        this.convertGateway.handleMessageCreationEvent(convertId, messageWithAttachments);
         this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, postIdsInConvert);
         this.logger.info(
             `${yellow('OK!')} - messageCreateDto: ${JSON.stringify(messageCreateDto)} - Создано новое сообщение!`,
         );
-        return { id: createdMessage.id };
+        return { id: createdMessageId };
     }
 }
