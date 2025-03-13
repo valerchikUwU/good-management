@@ -174,7 +174,7 @@ export class MessageController {
         messageCreateDto.convert = convert;
         messageCreateDto.sender = userSenderPost;
         const createdMessageId = await this.messageService.create(messageCreateDto);
-        const messageWithAttachments = await this.messageService.findOne(createdMessageId, ['attachmentToMessages.attachment'])
+        const messageWithAttachments = await this.messageService.findOne(createdMessageId, ['attachmentToMessages.attachment', 'sender.user'])
         this.convertGateway.handleMessageCreationEvent(convertId, messageWithAttachments);
         this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, postIdsInConvert);
         this.logger.info(
