@@ -55,7 +55,9 @@ function formatDate(date: Date): string {
   const minutes = String(date.getMinutes()).padStart(2, '0'); // Минуты (MM)
   const seconds = String(date.getSeconds()).padStart(2, '0'); // Секунды (SS)
 
-  return `${day}-${month}-${year}_${hours}-${minutes}-${seconds}`;
+  const milliseconds = String(date.getMilliseconds()).padStart(4, '0') // ms
+
+  return `${day}-${month}-${year}_${hours}-${minutes}-${seconds}-${milliseconds}`;
 }
 
 
