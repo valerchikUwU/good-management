@@ -13,6 +13,6 @@ namespace "nginx" {
 
   # источник логов
   source {
-    files = ["/var/log/nginx/gm.log"]
+    files = ["/var/log/nginx/*gm.log"]
   }
 }
