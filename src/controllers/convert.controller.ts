@@ -114,7 +114,7 @@ export class ConvertController {
     const userPostsIds = user.posts.map(post => post.id)
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
-      'host',
+      'host.user',
     ]);
     const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id);
     const isWatcher = userPostsIds.filter(id => {
