@@ -4,7 +4,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { FileModule } from './file.module';
 import { AttachmentModule } from './attachment.module';
-
+import { v4 as uuidv4 } from 'uuid';
 @Module({
   imports: [
     MulterModule.register({
@@ -18,21 +18,22 @@ import { AttachmentModule } from './attachment.module';
           const formattedDate = formatDate(currentDate);
           const lastDotIndex = file.originalname.lastIndexOf('.');
           const fileType = file.originalname.slice(lastDotIndex + 1);
+          const uniqueId = uuidv4(); // Генерация уникального идентификатора
           switch (mime) {
             case 'image':
-              filename = `photo_${formattedDate}.${fileType}`;
+              filename = `photo_${formattedDate}_${uniqueId}.${fileType}`;
               cb(null, filename);
               break;
             case 'application':
-              filename = `doc_${formattedDate}.${fileType}`;
+              filename = `doc_${formattedDate}_${uniqueId}.${fileType}`;
               cb(null, filename);
               break;
             case 'video':
-              filename = `video_${formattedDate}.${fileType}`;
+              filename = `video_${formattedDate}_${uniqueId}.${fileType}`;
               cb(null, filename);
               break;
             case 'text':
-              filename = `text_${formattedDate}.${fileType}`;
+              filename = `text_${formattedDate}_${uniqueId}.${fileType}`;
               cb(null, filename);
               break;
           }
@@ -55,9 +56,8 @@ function formatDate(date: Date): string {
   const minutes = String(date.getMinutes()).padStart(2, '0'); // Минуты (MM)
   const seconds = String(date.getSeconds()).padStart(2, '0'); // Секунды (SS)
 
-  const milliseconds = String(date.getMilliseconds()).padStart(8, '0') // ms
 
-  return `${day}-${month}-${year}_${hours}-${minutes}-${seconds}-${milliseconds}`;
+  return `${day}-${month}-${year}_${hours}-${minutes}-${seconds}`;
 }
 
 
