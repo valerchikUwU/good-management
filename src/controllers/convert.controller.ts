@@ -119,7 +119,7 @@ export class ConvertController {
     const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id);
     const isWatcher = userPostsIds.filter(id => {
       if(convert.watcherIds !== null) {
-        convert.watcherIds.includes(id)
+        return convert.watcherIds.includes(id)
       }
       else return false
     }).length > 0 ? true : false
