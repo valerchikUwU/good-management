@@ -22,7 +22,7 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: UsersRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAll(): Promise<ReadUserDto[]> {
     const users = await this.usersRepository.find();
@@ -144,7 +144,7 @@ export class UsersService {
         relations: relations ?? [],
       });
       if (!user) throw new NotFoundException(`Пользователь с ${id} не найден!`);
-      
+
       const readUserDto: ReadUserDto = {
         id: user.id,
         firstName: user.firstName,
@@ -360,7 +360,6 @@ export class UsersService {
       if (updateUserDto.firstName) user.firstName = updateUserDto.firstName;
       if (updateUserDto.lastName) user.lastName = updateUserDto.lastName;
       if (updateUserDto.middleName) user.middleName = updateUserDto.middleName;
-      if (updateUserDto.vk_id) user.vk_id = updateUserDto.vk_id;
       if (updateUserDto.telegramId) user.telegramId = updateUserDto.telegramId;
       if (updateUserDto.avatar_url) user.avatar_url = updateUserDto.avatar_url;
       if (updateUserDto.telephoneNumber) user.telephoneNumber = updateUserDto.telephoneNumber;
@@ -368,7 +367,6 @@ export class UsersService {
         firstName: updateUserDto.firstName,
         lastName: updateUserDto.lastName,
         middleName: updateUserDto.middleName,
-        vk_id: updateUserDto.vk_id,
         telegramId: updateUserDto.telegramId,
         avatar_url: updateUserDto.avatar_url,
         telephoneNumber: updateUserDto.telephoneNumber

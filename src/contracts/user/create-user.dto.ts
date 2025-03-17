@@ -50,17 +50,18 @@ export class CreateUserDto {
     required: true,
     example: '+79787878778',
   })
-  @IsMobilePhone('ru-RU', {strictMode: true})
-  @IsNotEmpty()
+  @IsMobilePhone('ru-RU', { strictMode: true })
+  @IsNotEmpty({ message: 'Телефон юзера не может быть пустым!' })
   telephoneNumber: string;
 
   @ApiProperty({
-    description: 'Путь к аватарке',
+    description: 'Аватарка юзера',
     required: false,
-    example: '/uploads/111.jpg',
+    example: 'app\\uploads\\photo_17-03-2025_09-35-58_dac4ebc6-90c3-491d-8c2f-6c936cb34a28.jpg',
   })
   @IsOptional()
   @IsString()
+  @IsNotEmpty({ message: 'Аватарка юзера не может быть пустой!' })
   avatar_url?: string;
 
   @ApiProperty({

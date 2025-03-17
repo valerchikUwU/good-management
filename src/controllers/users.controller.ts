@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Inject,
   UseGuards,
+  Patch,
 } from '@nestjs/common';
 import { UsersService } from 'src/application/services/users/users.service';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
@@ -30,6 +31,7 @@ import { OrganizationService } from 'src/application/services/organization/organ
 import { PostService } from 'src/application/services/post/post.service';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { beforeCreateUserExample, findAllUsersExample, findOneUserExample } from 'src/constants/swagger-examples/user/user-examples';
+import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
 
 @ApiTags('User')
 @ApiBearerAuth('access-token')
@@ -102,6 +104,44 @@ export class UsersController {
     return  {postsWithoutUser: postsWithoutUser, roles: roles}
   }
 
+
+
+
+  @Patch(':userId/update')
+  @ApiOperation({ summary: 'Обновить контакт' })
+  @ApiBody({
+    description: 'ДТО для обновления юзера',
+    type: UpdateUserDto,
+    required: true,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'OK!',
+    example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  async update(
+    @Param('userId') userId: string,
+    @Body() userUpdateDto: UpdateUserDto,
+  ): Promise<{ id: string }> {
+    const updatedUserId = await this.usersService.update(userId, userUpdateDto);
+    this.logger.info(
+      `${yellow('OK!')} - userUpdateDto: ${JSON.stringify(userUpdateDto)} - Обновлен контакт!`,
+    );
+    return { id: updatedUserId };
+  }
+
   @Get(':userId')
   @ApiOperation({ summary: 'Получить пользователя по Id' })
   @ApiResponse({
@@ -172,4 +212,6 @@ export class UsersController {
     );
     return { id: createdUserId };
   }
+
+
 }
