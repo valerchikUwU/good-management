@@ -195,7 +195,17 @@ export class PostService {
         .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
         .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
         .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
-        .leftJoin('c.messages', 'unreadMessages', '"unreadMessages"."timeSeen" IS NULL AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)')
+        .leftJoin(
+          'c.messages',
+          'unreadMessages',
+          `NOT EXISTS (
+            SELECT 1 FROM "message_seen_status" "mrs"
+            WHERE "mrs"."messageId" = "unreadMessages"."id"
+            AND "mrs".postId IN (:...userPostsIds)
+          ) 
+          AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
+        )
+        
         .leftJoin('c.target', 'target')
         .leftJoin('c.host', 'host')
         .leftJoin('host.user', 'hostUser')
