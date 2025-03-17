@@ -168,8 +168,8 @@ export class UsersController {
     description: 'Id пользователя',
     example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
-  async findOne(@Param('id') id: string): Promise<ReadUserDto> {
-    return await this.usersService.findOne(id);
+  async findOne(@Param('userId') userId: string): Promise<ReadUserDto> {
+    return await this.usersService.findOne(userId);
   }
 
   @Post('new')
