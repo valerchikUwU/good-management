@@ -201,7 +201,7 @@ export class PostService {
           `NOT EXISTS (
             SELECT 1 FROM "message_seen_status" "mrs"
             WHERE "mrs"."messageId" = "unreadMessages"."id"
-            AND "mrs".postId IN (:...userPostsIds)
+            AND "mrs"."postId" IN (:...userPostsIds)
           ) 
           AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
         )
