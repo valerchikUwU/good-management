@@ -244,12 +244,10 @@ export class TargetService {
       return target.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении задачи');
     }
   }
@@ -263,21 +261,20 @@ export class TargetService {
       if (!target) {
         throw new NotFoundException(`Личная задача с ID ${_id} не найдена`);
       }
-      if (target.type !== Type.PERSONAL)
+      if (target.type !== Type.PERSONAL){
         throw new BadRequestException('Удалять можно только личные задачи!')
+      }
 
       await this.targetRepository.remove(target);
     }
     catch (err) {
 
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-      // Обработка специфичных исключений
       if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err; 
       }
       throw new InternalServerErrorException('Ошибка при удалении панели управления')
     }

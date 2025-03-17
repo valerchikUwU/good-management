@@ -19,13 +19,4 @@ export class MessageUpdateDto {
   @IsOptional()
   @IsString()
   content?: string;
-
-  @ApiProperty({
-    description: 'Время прочтения',
-    required: false,
-    example: '2024-12-04 15:42:13.933625',
-  })
-  @IsOptional()
-  @IsDate()
-  timeSeen?: Date;
 }

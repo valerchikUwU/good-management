@@ -39,7 +39,7 @@ export class MessageService {
           where: [
             {
               convert: { id: convertId },
-              timeSeen: Not(IsNull())
+              seenStatuses: Not(IsNull())
             },
             {
               convert: { id: convertId },
@@ -60,13 +60,13 @@ export class MessageService {
       return messages.map((message) => ({
         id: message.id,
         content: message.content,
-        timeSeen: message.timeSeen,
         messageNumber: message.messageNumber,
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
         convert: message.convert,
         sender: message.sender,
-        attachmentToMessage: message.attachmentToMessages,
+        attachmentToMessages: message.attachmentToMessages,
+        seenStatuses: message.seenStatuses
       }));
     }
     catch (err) {
@@ -83,7 +83,7 @@ export class MessageService {
           where:
           {
             convert: { id: convertId },
-            timeSeen: IsNull(),
+            seenStatuses: IsNull(),
             sender: { id: Not(In(userPostIds)) }
           },
           relations: relations ?? [],
@@ -98,13 +98,13 @@ export class MessageService {
       return messages.map((message) => ({
         id: message.id,
         content: message.content,
-        timeSeen: message.timeSeen,
         messageNumber: message.messageNumber,
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
         convert: message.convert,
         sender: message.sender,
-        attachmentToMessage: message.attachmentToMessages,
+        attachmentToMessages: message.attachmentToMessages,
+        seenStatuses: message.seenStatuses
       }));
     }
     catch (err) {
@@ -129,13 +129,13 @@ export class MessageService {
       const messageReadDto: MessageReadDto = {
         id: message.id,
         content: message.content,
-        timeSeen: message.timeSeen,
         messageNumber: message.messageNumber,
         createdAt: message.createdAt,
         updatedAt: message.updatedAt,
         convert: message.convert,
         sender: message.sender,
-        attachmentToMessage: message.attachmentToMessages,
+        attachmentToMessages: message.attachmentToMessages,
+        seenStatuses: message.seenStatuses
       }
       return messageReadDto
     }
@@ -145,18 +145,6 @@ export class MessageService {
     }
   }
 
-  async findCountOfUnseenForConvert(convertId: string): Promise<number> {
-    try {
-      const messages = await this.messageRepository.count({
-        where: { convert: { id: convertId }, timeSeen: IsNull() },
-      });
-      return messages
-    }
-    catch (err) {
-      this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при получении кол-ва непрочитанных сообщений в конверте');
-    }
-  }
 
   async create(messageCreateDto: MessageCreateDto): Promise<string> {
     try {
@@ -191,8 +179,7 @@ export class MessageService {
         throw new NotFoundException(`Сообщение с ID ${_id} не найден`);
       }
       if (messageUpdateDto.content) message.content = messageUpdateDto.content;
-      if (messageUpdateDto.timeSeen) message.timeSeen = new Date();
-      await this.messageRepository.update(_id, { content: message.content, timeSeen: message.timeSeen });
+      await this.messageRepository.update(_id, { content: message.content });
 
       // Используем pipeline для выполнения удаления всех ключей одним запросом
       this.redis.keys(`undefined:messages:${message.convert.id}:*`).then((keys) => {
@@ -214,30 +201,39 @@ export class MessageService {
     }
   }
 
-
-  async updateBulk(
-    messageIds: string[],
-    convertId: string
-  ): Promise<void> {
-    try {
-
-      const updateDate = new Date();
-      await this.messageRepository.createQueryBuilder()
-        .update('message')
-        .set({ timeSeen: updateDate })
-        .where('id IN (:...ids)', { ids: messageIds })
-        .execute();
-
-      // Используем pipeline для выполнения удаления всех ключей одним запросом
-      this.redis.keys(`undefined:messages:${convertId}:*`).then((keys) => {
-        let pipeline = this.redis.pipeline();
-        pipeline.unlink(keys)
-        return pipeline.exec();
-      });
-
-    } catch (err) {
-      this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при обновлении сообщения');
+    async findBulk(ids: string[]): Promise<MessageReadDto[]> {
+      try {
+        const messages = await this.messageRepository.find({
+          where: { id: In(ids) },
+        });
+        const foundIds = messages.map(message => message.id);
+        const missingIds = ids.filter(id => !foundIds.includes(id));
+        if (missingIds.length > 0) {
+          throw new NotFoundException(
+            `Не найдены сообщения с IDs: ${missingIds.join(', ')}`,
+          );
+        }
+        return messages.map((message) => ({
+          id: message.id,
+          content: message.content,
+          messageNumber: message.messageNumber,
+          createdAt: message.createdAt,
+          updatedAt: message.updatedAt,
+          convert: message.convert,
+          sender: message.sender,
+          attachmentToMessages: message.attachmentToMessages,
+          seenStatuses: message.seenStatuses
+        }));
+  
+      } catch (err) {
+        this.logger.error(err);
+        // Обработка специфичных исключений
+        if (err instanceof NotFoundException) {
+          throw err; // Пробрасываем исключение дальше
+        }
+  
+        // Обработка других ошибок
+        throw new InternalServerErrorException('Ошибка при получении сообщений');
+      }
     }
-  }
 }

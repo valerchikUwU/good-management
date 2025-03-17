@@ -1,11 +1,10 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConvertGateway } from 'src/gateways/convert.gateway';
 import { EventsGateway } from 'src/gateways/events.gateway';
-import { ConvertModule } from './convert.module';
-import { MessageModule } from './message.module';
+import { MessageSeenStatusModule } from './messageSeenStatus.module';
 
 @Module({
-  imports: [MessageModule],
+  imports: [MessageSeenStatusModule],
   providers: [EventsGateway, ConvertGateway],
   exports: [EventsGateway, ConvertGateway],
 })

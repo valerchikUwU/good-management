@@ -32,7 +32,6 @@ import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { ConvertService } from 'src/application/services/convert/convert.service';
 import { ConvertGateway } from 'src/gateways/convert.gateway';
-import { ConvertToPost } from 'src/domains/convertToPost.entity';
 
 @ApiTags('Messages')
 @ApiBearerAuth('access-token')
@@ -80,7 +79,7 @@ export class MessageController {
     ): Promise<MessageReadDto[]> {
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findSeenForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user']);
+        const messages = await this.messageService.findSeenForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user', 'seenStatuses.post.user']);
         return messages;
     }
 
@@ -112,7 +111,7 @@ export class MessageController {
         const start = new Date();
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findUnseenForConvert(convertId, userPostIds, ['attachmentToMessages.attachment', 'sender.user']);
+        const messages = await this.messageService.findUnseenForConvert(convertId, userPostIds, ['attachmentToMessages.attachment', 'sender.user', 'seenStatuses.post.user']);
         const now = new Date();
         console.log(`непрочитанные ${now.getTime() - start.getTime()}`)
         return messages;

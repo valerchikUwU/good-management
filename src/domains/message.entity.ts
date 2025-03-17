@@ -10,6 +10,7 @@ import {
 import { Convert } from './convert.entity';
 import { Post } from './post.entity';
 import { AttachmentToMessage } from './attachmentToMessage.entity';
+import { MessageSeenStatus } from './messageSeenStatus.entity';
 
 @Entity()
 export class Message {
@@ -18,10 +19,6 @@ export class Message {
 
   @Column({ type: 'text', nullable: false })
   content: string;
-
-  @Column({ type: 'timestamp', nullable: true })
-  timeSeen: Date;
-
 
   /**
    * Порядковый номер сообщения в конверте.
@@ -50,4 +47,8 @@ export class Message {
    */
   @OneToMany(() => AttachmentToMessage, (attachmentToMessage) => attachmentToMessage.message)
   attachmentToMessages: AttachmentToMessage[];
+
+  @OneToMany(() => MessageSeenStatus, (seenStatus) => seenStatus.message)
+  seenStatuses: MessageSeenStatus[];
+
 }
