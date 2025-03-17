@@ -169,7 +169,7 @@ export class UsersController {
     example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async findOne(@Param('userId') userId: string): Promise<ReadUserDto> {
-    return await this.usersService.findOne(userId);
+    return await this.usersService.findOne(userId, ['posts']);
   }
 
   @Post('new')
