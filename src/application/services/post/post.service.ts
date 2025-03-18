@@ -226,6 +226,7 @@ export class PostService {
           'c.convertType AS "convertType"',
           'c.convertPath AS "convertPath"',
           'c.dateFinish AS "dateFinish"',
+          'c.createdAt AS "createdAt"',
           '"latestMessage"."content" AS "latestMessageContent"',
           '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
           'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
