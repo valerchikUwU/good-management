@@ -79,7 +79,7 @@ export class MessageController {
     ): Promise<MessageReadDto[]> {
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findSeenForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user', 'seenStatuses.post.user']);
+        const messages = await this.messageService.findSeenForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user', 'seenStatuses.reader.user']);
         return messages;
     }
 
@@ -111,7 +111,7 @@ export class MessageController {
         const start = new Date();
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findUnseenForConvert(convertId, userPostIds, ['attachmentToMessages.attachment', 'sender.user', 'seenStatuses.post.user']);
+        const messages = await this.messageService.findUnseenForConvert(convertId, userPostIds, ['attachmentToMessages.attachment', 'sender.user', 'seenStatuses.reader.user']);
         const now = new Date();
         console.log(`непрочитанные ${now.getTime() - start.getTime()}`)
         return messages;
