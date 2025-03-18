@@ -31,7 +31,7 @@ export class MessageService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  async findSeenForConvert(convertId: string, pagination: number, userPostIds: string[], relations?: string[]): Promise<MessageReadDto[]> {
+  async findSeenForConvert(convertId: string, pagination: number, userPostIds: string[]): Promise<MessageReadDto[]> {
     try {
       const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:seen`)
       const messages = cachedMessages ??

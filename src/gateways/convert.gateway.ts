@@ -207,11 +207,12 @@ export class ConvertGateway
       messageIds: string[];
     },
   ) {
-    const start = new Date()
-    await this.messageSeenStatusService.updateSeenStatuses(payload.messageIds, payload.convertId, payload.post);
+    const start = new Date();
+    const uniqueMessageIds: string[] = payload.messageIds.filter((item, i, ar) => { return ar.indexOf(item) === i; });
+    await this.messageSeenStatusService.updateSeenStatuses(uniqueMessageIds, payload.convertId, payload.post);
 
 
-    this.ws.to(payload.convertId).emit('messagesAreSeen', {dateSeen: new Date(), messageIds: payload.messageIds});
+    this.ws.to(payload.convertId).emit('messagesAreSeen', { dateSeen: new Date(), messageIds: payload.messageIds });
     const now = new Date();
     console.log(`все сообщения увидены ${now.getTime() - start.getTime()}`);
     return true;
