@@ -440,9 +440,9 @@ export class PostService {
 
   async getChildrenPosts(postId: string): Promise<PostReadDto[]> {
     const childrenPosts: PostReadDto[] = [];
-    const post = await this.postRepository.findOne({ where: { id: postId } })
+    const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['user'] })
     // Находим прямых потомков
-    const directChildren = await this.postRepository.find({ where: { parentId: post.id }, relations: ['user'] });
+    const directChildren = await this.postRepository.find({ where: { parentId: post.id, user: {id: Not(post.user.id)} }, relations: ['user'] });
     // Добавляем прямых потомков в результат
     childrenPosts.push(...directChildren);
     // Рекурсивно ищем потомков для каждого прямого потомка

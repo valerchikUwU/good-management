@@ -34,6 +34,7 @@ export class MessageSeenStatusService {
                     message: message,
                     reader: post
                 };
+                console.log(messageSeenStatus)
                 return messageSeenStatus
             })
             // Используем pipeline для выполнения удаления всех ключей одним запросом
