@@ -91,7 +91,7 @@ export class MessageService {
           .leftJoinAndSelect('message.sender', 'sender')
           .leftJoinAndSelect('sender.user', 'user')
           .where('message.convertId = :convertId', { convertId })
-          .andWhere('message.senderId NOT IN (:...userPostIds)', { userPostIds })
+          .andWhere('sender.id NOT IN (:...userPostIds)', { userPostIds })
           .groupBy('message.id, sender.id, user.id, attachmentToMessages.id, attachment.id, seenStatus.id, post.id, reader.id')
           .having(`COUNT(CASE WHEN seenStatus.postId IN (:...userPostIds) THEN 1 ELSE NULL END) = 0`)
           .orderBy('message.createdAt', 'DESC')
