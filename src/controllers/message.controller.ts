@@ -77,9 +77,12 @@ export class MessageController {
         @Param('convertId') convertId: string,
         @Query('pagination', CustomParseIntPipe) pagination: number
     ): Promise<MessageReadDto[]> {
+        const start = new Date();
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findSeenForConvert(convertId, pagination, userPostIds, ['attachmentToMessages.attachment', 'sender.user', 'seenStatuses.reader.user']);
+        const messages = await this.messageService.findSeenForConvert(convertId, pagination, userPostIds);
+        const now = new Date();
+        console.log(`прочитанные ${now.getTime() - start.getTime()}`)
         return messages;
     }
 
@@ -111,7 +114,7 @@ export class MessageController {
         const start = new Date();
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findUnseenForConvert(convertId, userPostIds, ['attachmentToMessages.attachment', 'sender.user', 'seenStatuses.reader.user']);
+        const messages = await this.messageService.findUnseenForConvert(convertId, userPostIds);
         const now = new Date();
         console.log(`непрочитанные ${now.getTime() - start.getTime()}`)
         return messages;

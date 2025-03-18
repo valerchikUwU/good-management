@@ -12,7 +12,7 @@ import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageUpdateDto } from 'src/contracts/message/update-message.dto';
 import { AttachmentToMessageService } from '../attachmentToMessage/attachmentToMessage.service';
-import { In, IsNull, Not } from 'typeorm';
+import { Brackets, In, IsNull, Not } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import Redis from 'ioredis';
@@ -35,24 +35,27 @@ export class MessageService {
     try {
       const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:seen`)
       const messages = cachedMessages ??
-        await this.messageRepository.find({
-          where: [
-            {
-              convert: { id: convertId },
-              seenStatuses: Not(IsNull())
-            },
-            {
-              convert: { id: convertId },
-              sender: { id: In(userPostIds) }
-            }
-          ],
-          relations: relations ?? [],
-          order: {
-            createdAt: 'DESC'
-          },
-          take: 30,
-          skip: pagination
-        });
+        await this.messageRepository.createQueryBuilder('message')
+          .leftJoinAndSelect('message.attachmentToMessages', 'attachmentToMessages')
+          .leftJoinAndSelect('attachmentToMessages.attachment', 'attachment')
+          .leftJoinAndSelect('message.seenStatuses', 'seenStatus')
+          .leftJoinAndSelect('seenStatus.post', 'post')
+          .leftJoinAndSelect('post.user', 'reader')
+          .leftJoinAndSelect('message.sender', 'sender')
+          .leftJoinAndSelect('sender.user', 'user')
+          .where('message.convertId = :convertId', { convertId })
+          .andWhere(
+            new Brackets(qb => {
+              qb.where('seenStatus.id IS NOT NULL') // Сообщение прочитано хотя бы одним человеком
+                .orWhere('sender.id IN (:...userPostIds)', { userPostIds }); // Сообщение отправлено текущим пользователем
+            })
+          )
+          .orderBy('message.createdAt', 'DESC')
+          .take(30)
+          .skip(pagination)
+          .getMany();
+
+
       if (!cachedMessages && messages.length !== 0) {
         await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}:seen`, messages, 1860000);
       }
@@ -75,22 +78,26 @@ export class MessageService {
     }
   }
 
-  async findUnseenForConvert(convertId: string, userPostIds: string[], relations?: string[]): Promise<MessageReadDto[]> {
+  async findUnseenForConvert(convertId: string, userPostIds: string[]): Promise<MessageReadDto[]> {
     try {
       const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:unseen`)
       const messages = cachedMessages ??
-        await this.messageRepository.find({
-          where:
-          {
-            convert: { id: convertId },
-            seenStatuses: IsNull(),
-            sender: { id: Not(In(userPostIds)) }
-          },
-          relations: relations ?? [],
-          order: {
-            createdAt: 'DESC'
-          },
-        });
+        await this.messageRepository.createQueryBuilder('message')
+          .leftJoinAndSelect('message.seenStatuses', 'seenStatus')
+          .leftJoinAndSelect('seenStatus.post', 'post')
+          .leftJoinAndSelect('post.user', 'reader')
+          .leftJoinAndSelect('message.attachmentToMessages', 'attachmentToMessages')
+          .leftJoinAndSelect('attachmentToMessages.attachment', 'attachment')
+          .leftJoinAndSelect('message.sender', 'sender')
+          .leftJoinAndSelect('sender.user', 'user')
+          .where('message.convertId = :convertId', { convertId })
+          .andWhere('message.senderId NOT IN (:...userPostIds)', { userPostIds })
+          .groupBy('message.id, sender.id, user.id, attachmentToMessages.id, attachment.id, seenStatus.id, post.id, reader.id')
+          .having(`COUNT(CASE WHEN seenStatus.postId IN (:...userPostIds) THEN 1 ELSE NULL END) = 0`)
+          .orderBy('message.createdAt', 'DESC')
+          .getMany();
+
+
       if (!cachedMessages && messages.length !== 0) {
         await this.cacheService.set<Message[]>(`messages:${convertId}:unseen`, messages, 1860000);
       }
@@ -201,39 +208,39 @@ export class MessageService {
     }
   }
 
-    async findBulk(ids: string[]): Promise<MessageReadDto[]> {
-      try {
-        const messages = await this.messageRepository.find({
-          where: { id: In(ids) },
-        });
-        const foundIds = messages.map(message => message.id);
-        const missingIds = ids.filter(id => !foundIds.includes(id));
-        if (missingIds.length > 0) {
-          throw new NotFoundException(
-            `Не найдены сообщения с IDs: ${missingIds.join(', ')}`,
-          );
-        }
-        return messages.map((message) => ({
-          id: message.id,
-          content: message.content,
-          messageNumber: message.messageNumber,
-          createdAt: message.createdAt,
-          updatedAt: message.updatedAt,
-          convert: message.convert,
-          sender: message.sender,
-          attachmentToMessages: message.attachmentToMessages,
-          seenStatuses: message.seenStatuses
-        }));
-  
-      } catch (err) {
-        this.logger.error(err);
-        // Обработка специфичных исключений
-        if (err instanceof NotFoundException) {
-          throw err; // Пробрасываем исключение дальше
-        }
-  
-        // Обработка других ошибок
-        throw new InternalServerErrorException('Ошибка при получении сообщений');
+  async findBulk(ids: string[]): Promise<MessageReadDto[]> {
+    try {
+      const messages = await this.messageRepository.find({
+        where: { id: In(ids) },
+      });
+      const foundIds = messages.map(message => message.id);
+      const missingIds = ids.filter(id => !foundIds.includes(id));
+      if (missingIds.length > 0) {
+        throw new NotFoundException(
+          `Не найдены сообщения с IDs: ${missingIds.join(', ')}`,
+        );
       }
+      return messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        messageNumber: message.messageNumber,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        convert: message.convert,
+        sender: message.sender,
+        attachmentToMessages: message.attachmentToMessages,
+        seenStatuses: message.seenStatuses
+      }));
+
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при получении сообщений');
     }
+  }
 }
