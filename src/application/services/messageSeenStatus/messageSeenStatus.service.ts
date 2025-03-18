@@ -32,7 +32,7 @@ export class MessageSeenStatusService {
                 const messageSeenStatus: MessageSeenStatusCreateDto = {
                     timeSeen: updateDate,
                     message: message,
-                    reader: post
+                    post: post
                 };
                 console.log(messageSeenStatus)
                 return messageSeenStatus

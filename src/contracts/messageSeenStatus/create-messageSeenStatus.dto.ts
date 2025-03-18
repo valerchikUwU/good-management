@@ -11,5 +11,5 @@ export class MessageSeenStatusCreateDto {
   message: Message;
 
   @Exclude({ toPlainOnly: true })
-  reader: Post;
+  post: Post;
 }
