@@ -12,6 +12,7 @@ import { Logger } from 'winston';
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertToPostService } from '../convertToPost/convertToPost.service';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
+import { WatchersToConvertService } from '../watchersToConvert/watchersToConvert.service';
 
 @Injectable()
 export class ConvertService {
@@ -19,6 +20,7 @@ export class ConvertService {
     @InjectRepository(Convert)
     private readonly convertRepository: ConvertRepository,
     private readonly convertToPostService: ConvertToPostService,
+    private readonly watchersToConvertService: WatchersToConvertService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -36,7 +38,6 @@ export class ConvertService {
         id: convert.id,
         convertTheme: convert.convertTheme,
         pathOfPosts: convert.pathOfPosts,
-        watcherIds: convert.watcherIds,
         expirationTime: convert.expirationTime,
         convertType: convert.convertType,
         convertPath: convert.convertPath,
@@ -48,7 +49,8 @@ export class ConvertService {
         convertToPosts: convert.convertToPosts,
         host: convert.host,
         account: convert.account,
-        target: convert.target
+        target: convert.target,
+        watchersToConvert: convert.watchersToConvert
       };
       return convertReadDto;
     } catch (err) {
@@ -66,7 +68,6 @@ export class ConvertService {
       const convert = new Convert();
       convert.convertTheme = convertCreateDto.convertTheme;
       convert.pathOfPosts = convertCreateDto.pathOfPosts;
-      convert.watcherIds = convertCreateDto.watcherIds;
       convert.expirationTime = convertCreateDto.expirationTime;
       convert.convertType = convertCreateDto.convertType;
       convert.convertPath = convertCreateDto.convertPath;
@@ -75,10 +76,10 @@ export class ConvertService {
       convert.host = convertCreateDto.host;
       convert.account = convertCreateDto.account;
       const createdConvert = await this.convertRepository.save(convert);
-      await this.convertToPostService.createSeveral(
-        createdConvert,
-        convertCreateDto.pathOfPosts.slice(0, 2),
-      );
+      await Promise.all([
+        convertCreateDto.watcherIds !== undefined ? this.watchersToConvertService.createSeveral(createdConvert, convertCreateDto.watcherIds) : null,
+        this.convertToPostService.createSeveral(createdConvert, convertCreateDto.pathOfPosts.slice(0, 2))
+      ])
       return createdConvert;
     } catch (err) {
       this.logger.error(err);

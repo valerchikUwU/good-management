@@ -44,6 +44,8 @@ import { AttachmentModule } from './application/modules/attachment.module';
 import { AttachmentToMessageModule } from './application/modules/attachmentToMessage.module';
 import { AttachmentToTargetModule } from './application/modules/attachmentToTarget.module';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { MessageSeenStatusModule } from './application/modules/messageSeenStatus.module';
+import { WatchersToConvertModule } from './application/modules/watchersToConvert.module';
 
 dotenv.config();
 
@@ -121,7 +123,9 @@ dotenv.config();
     PanelToStatisticModule,
     AttachmentModule,
     AttachmentToTargetModule,
-    AttachmentToMessageModule
+    AttachmentToMessageModule,
+    MessageSeenStatusModule,
+    WatchersToConvertModule
   ],
   controllers: [AppController],
   providers: [AppService],

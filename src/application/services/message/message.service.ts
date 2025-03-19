@@ -31,6 +31,94 @@ export class MessageService {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
+  async findSeenForWatcherForConvert(convertId: string, pagination: number, userPostIds: string[]): Promise<MessageReadDto[]> {
+    try {
+      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:seen:watcher`)
+      const messages = cachedMessages ??
+        await this.messageRepository.createQueryBuilder('message')
+          .leftJoinAndSelect('message.attachmentToMessages', 'attachmentToMessages')
+          .leftJoinAndSelect('attachmentToMessages.attachment', 'attachment')
+          .leftJoinAndSelect('message.sender', 'sender')
+          .leftJoinAndSelect('sender.user', 'user')
+          .leftJoin('message.convert', 'convert')
+          .leftJoin('convert.watchersToConvert', 'watchersToConvert')
+          .where('message.convertId = :convertId', { convertId })
+          .andWhere('watchersToConvert.postId IN (:...userPostIds)', { userPostIds }) 
+          .andWhere('message.messageNumber <= watchersToConvert.lastSeenNumber')
+          .orderBy('message.createdAt', 'DESC')
+          .take(30)
+          .skip(pagination)
+          .getMany();
+
+
+      if (!cachedMessages && messages.length !== 0) {
+        await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}:seen:watcher`, messages, 1860000);
+      }
+
+      return messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        messageNumber: message.messageNumber,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        convert: message.convert,
+        sender: message.sender,
+        attachmentToMessages: message.attachmentToMessages,
+        seenStatuses: message.seenStatuses
+      }));
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении прочитанных сообщений в конверте');
+    }
+  }
+
+
+  async findUnseenForWatcherForConvert(convertId: string, userPostIds: string[]): Promise<MessageReadDto[]> {
+    try {
+      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:unseen:watcher`)
+      const messages = cachedMessages ??
+        await this.messageRepository.createQueryBuilder('message')
+          .leftJoinAndSelect('message.attachmentToMessages', 'attachmentToMessages')
+          .leftJoinAndSelect('attachmentToMessages.attachment', 'attachment')
+          .leftJoinAndSelect('message.sender', 'sender')
+          .leftJoinAndSelect('sender.user', 'user')
+          .leftJoin('message.convert', 'convert')
+          .leftJoin('convert.watchersToConvert', 'watchersToConvert')
+          .where('message.convertId = :convertId', { convertId })
+          .andWhere('watchersToConvert.postId IN (:...userPostIds)', { userPostIds }) 
+          .andWhere(
+            new Brackets(qb => {
+              qb.where('message.messageNumber > watchersToConvert.lastSeenNumber')
+                .orWhere('watchersToConvert.lastSeenNumber IS NULL'); // Добавил обработку NULL значений
+            })
+          )
+          .orderBy('message.createdAt', 'DESC')
+          .getMany();
+
+
+      if (!cachedMessages && messages.length !== 0) {
+        await this.cacheService.set<Message[]>(`messages:${convertId}:unseen:watcher`, messages, 1860000);
+      }
+
+      return messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        messageNumber: message.messageNumber,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        convert: message.convert,
+        sender: message.sender,
+        attachmentToMessages: message.attachmentToMessages,
+        seenStatuses: message.seenStatuses
+      }));
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении прочитанных сообщений в конверте');
+    }
+  }
+
   async findSeenForConvert(convertId: string, pagination: number, userPostIds: string[]): Promise<MessageReadDto[]> {
     try {
       const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:seen`)

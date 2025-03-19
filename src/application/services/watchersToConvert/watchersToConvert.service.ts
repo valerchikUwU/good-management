@@ -1,0 +1,48 @@
+import { Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Logger } from "winston";
+import Redis from 'ioredis';
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { WatchersToConvert } from "src/domains/watchersToConvert.entity";
+import { WatchersToConvertRepository } from "./repository/watchersToConvert.repository";
+import { Convert } from "src/domains/convert.entity";
+import { PostService } from "../post/post.service";
+
+@Injectable()
+export class WatchersToConvertService {
+    constructor(
+        @InjectRepository(WatchersToConvert)
+        private readonly watchersToConvertRepository: WatchersToConvertRepository,
+        private readonly postService: PostService,
+        @InjectRedis()
+        private readonly redis: Redis,
+        @Inject('winston') private readonly logger: Logger,
+    ) { }
+
+
+      async createSeveral(convert: Convert, postIds: string[]): Promise<void> {
+        try {
+          const posts = await this.postService.findBulk(postIds);
+    
+          const watchersToConvert = posts.map(post => {
+            const watcherToConvert = new WatchersToConvert();
+            watcherToConvert.post = post;
+            watcherToConvert.convert = convert;
+            return watcherToConvert;
+          })
+    
+    
+          await this.watchersToConvertRepository.insert(watchersToConvert);
+        } catch (err) {
+          this.logger.error(err);
+    
+          throw new InternalServerErrorException(
+            'Ой, что - то пошло не так при добавлении участников к конверту!',
+          );
+        }
+      }
+}
+
+
+
+

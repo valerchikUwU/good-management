@@ -218,11 +218,9 @@ export class PostService {
         )
         .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
         .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
-        .orWhere('c.watcherIds && ARRAY[:...userPostsIds]::uuid[]', { userPostsIds })
         .select([
           'c.id AS "convertId"',
           'c.convertTheme AS "convertTheme"',
-          'c.watcherIds AS "watcherIds"',
           'c.convertType AS "convertType"',
           'c.convertPath AS "convertPath"',
           'c.dateFinish AS "dateFinish"',
@@ -442,7 +440,7 @@ export class PostService {
     const childrenPosts: PostReadDto[] = [];
     const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['user'] })
     // Находим прямых потомков
-    const directChildren = await this.postRepository.find({ where: { parentId: post.id, user: {id: Not(post.user.id)} }, relations: ['user'] });
+    const directChildren = await this.postRepository.find({ where: { parentId: post.id, user: { id: Not(post.user.id) } }, relations: ['user'] });
     // Добавляем прямых потомков в результат
     childrenPosts.push(...directChildren);
     // Рекурсивно ищем потомков для каждого прямого потомка
@@ -532,3 +530,38 @@ export class PostService {
     }
   }
 }
+
+
+        // .createQueryBuilder('post')
+        // .innerJoinAndSelect('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
+        // .innerJoinAndSelect('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
+        // .innerJoinAndSelect('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
+        // .leftJoin(
+        //   'c.messages',
+        //   'unreadMessages',
+        //   `NOT EXISTS (
+        //     SELECT 1 FROM "message_seen_status" "mrs"
+        //     WHERE "mrs"."messageId" = "unreadMessages"."id"
+        //     AND "mrs"."postId" IN (:...userPostsIds)
+        //   ) 
+        //   AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
+        // )
+        // .leftJoinAndSelect('c.target', 'target')
+        // .leftJoinAndSelect('c.host', 'host')
+        // .leftJoinAndSelect('host.user', 'hostUser')
+        // .innerJoinAndSelect('otherCtp.post', 'otherPost')  // получаем посты из этих связей
+        // .innerJoinAndSelect('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
+        // .leftJoinAndSelect(
+        //   'c.messages',
+        //   'latestMessage',
+        //   '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")'
+        // )
+        // .where('"post"."id" NOT IN (:...userPostsIds)', { userPostsIds })
+        // .andWhere(`EXISTS (
+        //         SELECT 1 FROM "convert_to_post" "sub_ctp"
+        //         INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
+        //         WHERE "sub_ctp"."convertId" = c.id
+        //         AND "sub_post"."id" IN (:...userPostsIds)
+        //     )`)
+        // .groupBy('post.id, ctp.id, c.id, otherCtp.id, target.id, host.id, hostUser.id, otherPost.id, otherUser.id, latestMessage.id')
+        // .getMany();

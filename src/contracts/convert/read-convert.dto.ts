@@ -4,12 +4,12 @@ import { ConvertToPost } from 'src/domains/convertToPost.entity';
 import { Message } from 'src/domains/message.entity';
 import { Post } from 'src/domains/post.entity';
 import { Target } from 'src/domains/target.entity';
+import { WatchersToConvert } from 'src/domains/watchersToConvert.entity';
 
 export class ConvertReadDto {
   id: string;
   convertTheme: string;
   pathOfPosts: string[];
-  watcherIds: string[];
   expirationTime: number;
   convertType: TypeConvert;
   convertPath: PathConvert;
@@ -22,4 +22,5 @@ export class ConvertReadDto {
   host: Post;
   account: Account;
   target: Target;
+  watchersToConvert: WatchersToConvert[];
 }

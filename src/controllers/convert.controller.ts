@@ -35,6 +35,7 @@ import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageService } from 'src/application/services/message/message.service';
 import { findAllConvertsExample, findOneConvertExample } from 'src/constants/swagger-examples/convert/convert-examples';
+import { ConvertsGuard } from 'src/guards/convert.guard';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -77,6 +78,7 @@ export class ConvertController {
   }
 
   @Get(':convertId')
+  @UseGuards(ConvertsGuard)
   @ApiOperation({ summary: 'Конверт по id' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -106,34 +108,16 @@ export class ConvertController {
     example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
   })
   async findOne(
-    @Req() req: ExpressRequest,
     @Param('convertId') convertId: string,
   ): Promise<ConvertReadDto> {
     const start = new Date()
-    const user = req.user as ReadUserDto;
-    const userPostsIds = user.posts.map(post => post.id)
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
       'host.user',
     ]);
-    const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id);
-    const isWatcher = userPostsIds.filter(id => {
-      if(convert.watcherIds !== null) {
-        return convert.watcherIds.includes(id)
-      }
-      else return false
-    }).length > 0 ? true : false
-    if (userIdsInConvert.includes(user.id) || isWatcher) {
-      const now = new Date()
-      console.log(`чат по id ${now.getTime() - start.getTime()}`);
-      return convert;
-    }
-    else {
-      const err = new ForbiddenException('У вас нет доступа к этому конверту!');
-      this.logger.error(err)
-      throw err;
-    }
-
+    const now = new Date()
+    console.log(`чат по id ${now.getTime() - start.getTime()}`);
+    return convert;
   }
 
   @Post('new')
