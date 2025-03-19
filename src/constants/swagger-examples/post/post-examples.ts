@@ -1,113 +1,33 @@
 export const findAllContactsExample = [
     {
-      "convertId": "07e28a10-0d1c-465b-9aa9-f234e21f4380",
-      "convertTheme": "Soglasovanie",
-      "watcherIds": null,
-      "convertType": "Заявка",
-      "convertPath": "Согласование",
-      "dateFinish": "2024-09-26T13:03:19.759Z",
-      "latestMessageContent": null,
-      "latestMessageCreatedAt": null,
-      "unseenMessagesCount": "0",
-      "target": {
-        "id": null,
-        "type": null,
-        "deadline": null,
-        "dateStart": null,
-        "targetState": null,
-        "dateComplete": null
-      },
-      "host": {
-        "id": "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
-        "hostUser": {
-          "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-          "avatar": "uploads\\photo_03-02-2025_16-45-43.png",
-          "lastName": "Ковальская",
-          "firstName": "Максим",
-          "telegramId": 453120600,
-          "telephoneNumber": "+79787513901"
-        },
-        "parentId": "fd923d3b-376a-4a97-b7d7-eb7f24e401a9",
-        "postName": "ДРОЧУН",
-        "createdAt": "2025-02-13T17:17:59.999945",
-        "updatedAt": "2025-02-28T15:25:21.883038",
-        "divisionName": "Подразделение №2",
-        "divisionNumber": 28
-      },
-      "postsAndUsers": [
-        {
-          "user": {
-            "avatar": null,
-            "userId": "0618825d-3564-4c3b-8a6a-cc245e766ea7",
-            "lastName": "Белописькин",
-            "firstName": "Илья",
-            "telegramId": 388089893,
-            "telephoneNumber": "+79787294592"
-          },
-          "postId": "88fd21e0-a67a-4edf-8cac-0be1e7011480",
-          "parentId": "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
-          "postName": "СЫН ДРОЧУНА11111111",
-          "createdAt": "2025-02-13T17:18:44.349418",
-          "updatedAt": "2025-03-11T15:59:37.891007",
-          "divisionName": "Подразделение №2",
-          "divisionNumber": 9
-        }
-      ]
+      "id": "88fd21e0-a67a-4edf-8cac-0be1e7011480",
+      "postName": "СЫН ДРОЧУНА11111111",
+      "divisionName": "Подразделение №2",
+      "createdAt": "2025-02-13T17:18:44.349Z",
+      "updatedAt": "2025-03-11T15:59:37.891Z",
+      "userId": "0618825d-3564-4c3b-8a6a-cc245e766ea7",
+      "userFirstName": "Илья",
+      "userLastName": "Белописькин",
+      "userTelegramId": 388089893,
+      "userTelephoneNumber": "+79787294592",
+      "userAvatar": "app/uploads/photo_17-03-2025_13-58-20_c9c78ff7-8b64-4f3d-99b9-e10a7d2b804c.jpg",
+      "watcherUnseenCount": "0",
+      "unseenMessagesCount": "1"
     },
     {
-      "convertId": "d6c8f917-f869-4a0b-9f9e-aa8f3f0d6414",
-      "convertTheme": "вагинальный пост",
-      "watcherIds": null,
-      "convertType": "Приказ",
-      "convertPath": "Прямой",
-      "dateFinish": "2024-09-26T13:03:19.759Z",
-      "latestMessageContent": "s",
-      "latestMessageCreatedAt": "2025-03-11T15:43:29.648Z",
-      "unseenMessagesCount": "0",
-      "target": {
-        "id": null,
-        "type": null,
-        "deadline": null,
-        "dateStart": null,
-        "targetState": null,
-        "dateComplete": null
-      },
-      "host": {
-        "id": "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
-        "hostUser": {
-          "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-          "avatar": "uploads\\photo_03-02-2025_16-45-43.png",
-          "lastName": "Ковальская",
-          "firstName": "Максим",
-          "telegramId": 453120600,
-          "telephoneNumber": "+79787513901"
-        },
-        "parentId": "fd923d3b-376a-4a97-b7d7-eb7f24e401a9",
-        "postName": "ДРОЧУН",
-        "createdAt": "2025-02-13T17:17:59.999945",
-        "updatedAt": "2025-02-28T15:25:21.883038",
-        "divisionName": "Подразделение №2",
-        "divisionNumber": 28
-      },
-      "postsAndUsers": [
-        {
-          "user": {
-            "avatar": null,
-            "userId": "0618825d-3564-4c3b-8a6a-cc245e766ea7",
-            "lastName": "Белописькин",
-            "firstName": "Илья",
-            "telegramId": 388089893,
-            "telephoneNumber": "+79787294592"
-          },
-          "postId": "88fd21e0-a67a-4edf-8cac-0be1e7011480",
-          "parentId": "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
-          "postName": "СЫН ДРОЧУНА11111111",
-          "createdAt": "2025-02-13T17:18:44.349418",
-          "updatedAt": "2025-03-11T15:59:37.891007",
-          "divisionName": "Подразделение №2",
-          "divisionNumber": 9
-        }
-      ]
+      "id": "5c848447-2431-4a28-b462-0747af5b92eb",
+      "postName": "Валера1111122222",
+      "divisionName": "Подразделение №3",
+      "createdAt": "2025-02-13T17:31:53.419Z",
+      "updatedAt": "2025-03-11T15:54:55.340Z",
+      "userId": "f76cac23-3f61-4e26-b3f7-9120e6ebd837",
+      "userFirstName": "Валера",
+      "userLastName": "Лысенко",
+      "userTelegramId": 803348257,
+      "userTelephoneNumber": "+79787512027",
+      "userAvatar": "app/uploads/photo_19-03-2025_13-40-38_fb349cf3-8348-43bc-b7e5-dce1319d0956.gif",
+      "watcherUnseenCount": null,
+      "unseenMessagesCount": "2"
     }
   ]
 

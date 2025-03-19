@@ -1,3 +1,47 @@
+export const findAllForContact = {
+    "convertsForContact": [
+      {
+        "id": "5e5d0f19-df8b-4e9e-856b-255b12e8e06a",
+        "dateFinish": "2025-03-19T00:00:00.000Z",
+        "createdAt": "2025-03-19T13:59:13.896Z",
+        "hostId": "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
+        "accountId": "40831786-941f-4028-a5a8-f7317b4ebf48",
+        "pathOfPosts": [
+          "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
+          "88fd21e0-a67a-4edf-8cac-0be1e7011480"
+        ],
+        "convertType": "Приказ",
+        "convertPath": "Прямой",
+        "convertStatus": true,
+        "activePostId": "88fd21e0-a67a-4edf-8cac-0be1e7011480",
+        "expirationTime": 999,
+        "convertTheme": "фыфки",
+        "unseenMessagesCount": "0"
+      },
+      {
+        "id": "6f7f9449-78fa-4d1a-be52-e954456e465c",
+        "dateFinish": "2025-03-15T00:00:00.000Z",
+        "createdAt": "2025-03-15T21:03:19.512Z",
+        "hostId": "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
+        "accountId": "40831786-941f-4028-a5a8-f7317b4ebf48",
+        "pathOfPosts": [
+          "5fc5ec49-d658-4fe1-b4c9-7dd01d38a652",
+          "88fd21e0-a67a-4edf-8cac-0be1e7011480"
+        ],
+        "convertType": "Приказ",
+        "convertPath": "Прямой",
+        "convertStatus": true,
+        "activePostId": "88fd21e0-a67a-4edf-8cac-0be1e7011480",
+        "expirationTime": 999,
+        "convertTheme": "отбить суджу",
+        "unseenMessagesCount": "0"
+      }
+    ],
+    "copiesForContact": []
+  }
+
+
+
 
 export const findOneConvertExample = {
     id: '27b360b3-7caf-48bd-a91a-5f7adef327de',

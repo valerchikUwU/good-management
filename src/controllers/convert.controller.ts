@@ -34,7 +34,7 @@ import { TargetService } from 'src/application/services/target/target.service';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageService } from 'src/application/services/message/message.service';
-import { findOneConvertExample } from 'src/constants/swagger-examples/convert/convert-examples';
+import { findAllForContact, findOneConvertExample } from 'src/constants/swagger-examples/convert/convert-examples';
 import { ConvertsGuard } from 'src/guards/convert.guard';
 
 @ApiTags('Converts')
@@ -56,7 +56,7 @@ export class ConvertController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {}
+    example: findAllForContact
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
