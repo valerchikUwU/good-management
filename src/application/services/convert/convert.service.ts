@@ -26,6 +26,77 @@ export class ConvertService {
 
 
 
+  async findAllForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
+    try {
+      const converts = await this.convertRepository
+      .createQueryBuilder('convert')
+      .innerJoin('convert.convertToPosts', 'convertToPost')
+      .innerJoin('convertToPost.post', 'post')
+      .leftJoin(
+        'convert.messages',
+        'unreadMessages',
+        `NOT EXISTS (
+          SELECT 1 FROM "message_seen_status" "mrs"
+          WHERE "mrs"."messageId" = "unreadMessages"."id"
+          AND "mrs"."postId" IN (:...userPostsIds)
+        ) 
+        AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
+      )
+      .where('post.id IN (:...userPostsIds)', { userPostsIds })
+      .andWhere(`EXISTS (
+        SELECT 1 FROM "convert_to_post" "sub_ctp"
+        INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
+        WHERE "sub_ctp"."convertId" = "convert"."id"
+        AND "sub_post"."id" = :contactId
+      )`, { contactId })
+      .select([
+        'convert.*',
+        'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
+      ])
+      .groupBy('convert.id')
+      .getRawMany();
+      return converts;
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Ошибка при получении конверта');
+    }
+  }
+
+
+  async findAllCopiesForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
+    try {
+      const converts = await this.convertRepository
+      .createQueryBuilder('convert')
+      .innerJoin('convert.convertToPosts', 'convertToPost')
+      .innerJoin('convertToPost.post', 'post')
+      .leftJoin('convert.watchersToConvert', 'wtc')
+      .leftJoin('wtc.post', 'watcher')
+      .where('watcher.id IN (:...userPostsIds)', { userPostsIds })
+      .andWhere(`EXISTS (
+        SELECT 1 FROM "convert_to_post" "sub_ctp"
+        INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
+        WHERE "sub_ctp"."convertId" = "convert"."id"
+        AND "sub_post"."id" = :contactId
+      )`, { contactId })
+      .getMany();
+      return converts;
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Ошибка при получении конверта');
+    }
+  }
+
+
+
+
   async findOneById(id: string, relations?: string[]): Promise<ConvertReadDto> {
     try {
       const convert = await this.convertRepository.findOne({

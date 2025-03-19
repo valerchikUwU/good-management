@@ -12,7 +12,7 @@ import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { PostCreateDto } from 'src/contracts/post/create-post.dto';
 import { Logger } from 'winston';
 import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
-import { FindOptionsWhere, In, IsNull, Not } from 'typeorm';
+import { Brackets, FindOptionsWhere, In, IsNull, Not } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
@@ -188,13 +188,15 @@ export class PostService {
     }
   }
 
-  async findAllPostsWithConvertsForCurrentUser(userPostsIds: string[]): Promise<any[]> {
+  async findAllContactsForCurrentUser(userPostsIds: string[]): Promise<any[]> {
     try {
       const posts = await this.postRepository
         .createQueryBuilder('post')
+        .leftJoin('post.user', 'user')
         .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
         .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
-        .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
+        .leftJoin('c.watchersToConvert', 'wtc')
+        .leftJoin('wtc.post', 'watcher')
         .leftJoin(
           'c.messages',
           'unreadMessages',
@@ -205,83 +207,123 @@ export class PostService {
           ) 
           AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
         )
-        
-        .leftJoin('c.target', 'target')
-        .leftJoin('c.host', 'host')
-        .leftJoin('host.user', 'hostUser')
-        .innerJoin('otherCtp.post', 'otherPost')  // получаем посты из этих связей
-        .innerJoin('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
-        .leftJoin(
-          'c.messages',
-          'latestMessage',
-          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")'
-        )
-        .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
-        .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
+        .where('"post"."id" NOT IN (:...userPostsIds)', { userPostsIds })
+        .andWhere(new Brackets((qb) => {
+          qb.where(`EXISTS (
+              SELECT 1 FROM "convert_to_post" "sub_ctp"
+              INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
+              WHERE "sub_ctp"."convertId" = c.id
+              AND "sub_post"."id" IN (:...userPostsIds)
+          )`).orWhere('watcher.id IN (:...userPostsIds)', { userPostsIds })
+        }))
         .select([
-          'c.id AS "convertId"',
-          'c.convertTheme AS "convertTheme"',
-          'c.convertType AS "convertType"',
-          'c.convertPath AS "convertPath"',
-          'c.dateFinish AS "dateFinish"',
-          'c.createdAt AS "createdAt"',
-          '"latestMessage"."content" AS "latestMessageContent"',
-          '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
+          'post.id AS "id"',
+          'post.postName AS "postName"',
+          'post.divisionName AS "divisionName"',
+          'post.createdAt AS "createdAt"',
+          'post.updatedAt AS "updatedAt"',
+          'user.id AS "userId"',
+          'user.firstName AS "userFirstName"',
+          'user.lastName AS "userLastName"',
+          'user.telegramId AS "userTelegramId"',
+          'user.telephoneNumber AS "userTelephoneNumber"',
+          'user.avatar_url AS "userAvatar"',
+          'SUM("wtc"."unreadMessagesCount") AS "watcherUnseenCount"',
           'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
-          `jsonb_build_object(
-                  'id', target.id,
-                  'type', target.type,
-                  'targetState', target."targetState",
-                  'dateStart', target."dateStart",
-                  'deadline', target."deadline",
-                  'dateComplete', target."dateComplete"
-          ) AS "target"`,
-          `jsonb_build_object(
-            'postId', host.id,
-            'postName', host.postName,
-            'divisionName', host.divisionName,
-            'divisionNumber', host.divisionNumber,
-            'parentId', host.parentId,
-            'createdAt', host.createdAt,
-            'updatedAt', host.updatedAt,
-            'hostUser', jsonb_build_object(
-                'userId', "hostUser"."id",
-                'firstName', "hostUser"."firstName",
-                'lastName', "hostUser"."lastName",
-                'telegramId', "hostUser"."telegramId",
-                'telephoneNumber', "hostUser"."telephoneNumber",
-                'avatar', "hostUser"."avatar_url"
-            )
-          ) AS "host"`,
-          `jsonb_agg(
-              DISTINCT jsonb_build_object(
-                  'postId', otherPost.id,
-                  'postName', otherPost.postName,
-                  'divisionName', otherPost.divisionName,
-                  'divisionNumber', otherPost.divisionNumber,
-                  'parentId', otherPost.parentId,
-                  'createdAt', otherPost.createdAt,
-                  'updatedAt', otherPost.updatedAt,
-                  'user', jsonb_build_object(
-                      'userId', "otherUser"."id",
-                      'firstName', "otherUser"."firstName",
-                      'lastName', "otherUser"."lastName",
-                      'telegramId', "otherUser"."telegramId",
-                      'telephoneNumber', "otherUser"."telephoneNumber",
-                      'avatar', "otherUser"."avatar_url"
-                  )
-              )
-          ) AS "postsAndUsers"`
         ])
-        .groupBy('c.id, "latestMessage"."content", "latestMessage"."createdAt", target.id, host.id, hostUser.id')
+        .groupBy('post.id, user.id')
         .getRawMany();
+      // .createQueryBuilder('post')
+      // .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
+      // .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
+      // .innerJoin('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
+      // .leftJoin(
+      //   'c.messages',
+      //   'unreadMessages',
+      //   `NOT EXISTS (
+      //     SELECT 1 FROM "message_seen_status" "mrs"
+      //     WHERE "mrs"."messageId" = "unreadMessages"."id"
+      //     AND "mrs"."postId" IN (:...userPostsIds)
+      //   ) 
+      //   AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
+      // )
+
+      // .leftJoin('c.target', 'target')
+      // .leftJoin('c.host', 'host')
+      // .leftJoin('host.user', 'hostUser')
+      // .innerJoin('otherCtp.post', 'otherPost')  // получаем посты из этих связей
+      // .innerJoin('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
+      // .leftJoin(
+      //   'c.messages',
+      //   'latestMessage',
+      //   '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")'
+      // )
+      // .where('ctp.postId IN (:...userPostsIds)', { userPostsIds })  // только посты текущего юзера
+      // .andWhere('otherPost.id NOT IN (:...userPostsIds)', { userPostsIds })  // исключаем посты текущего юзера
+      // .select([
+      //   'c.id AS "convertId"',
+      //   'c.convertTheme AS "convertTheme"',
+      //   'c.convertType AS "convertType"',
+      //   'c.convertPath AS "convertPath"',
+      //   'c.dateFinish AS "dateFinish"',
+      //   'c.createdAt AS "createdAt"',
+      //   '"latestMessage"."content" AS "latestMessageContent"',
+      //   '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
+      //   'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
+      //   `jsonb_build_object(
+      //           'id', target.id,
+      //           'type', target.type,
+      //           'targetState', target."targetState",
+      //           'dateStart', target."dateStart",
+      //           'deadline', target."deadline",
+      //           'dateComplete', target."dateComplete"
+      //   ) AS "target"`,
+      //   `jsonb_build_object(
+      //     'postId', host.id,
+      //     'postName', host.postName,
+      //     'divisionName', host.divisionName,
+      //     'divisionNumber', host.divisionNumber,
+      //     'parentId', host.parentId,
+      //     'createdAt', host.createdAt,
+      //     'updatedAt', host.updatedAt,
+      //     'hostUser', jsonb_build_object(
+      //         'userId', "hostUser"."id",
+      //         'firstName', "hostUser"."firstName",
+      //         'lastName', "hostUser"."lastName",
+      //         'telegramId', "hostUser"."telegramId",
+      //         'telephoneNumber', "hostUser"."telephoneNumber",
+      //         'avatar', "hostUser"."avatar_url"
+      //     )
+      //   ) AS "host"`,
+      //   `jsonb_agg(
+      //       DISTINCT jsonb_build_object(
+      //           'postId', otherPost.id,
+      //           'postName', otherPost.postName,
+      //           'divisionName', otherPost.divisionName,
+      //           'divisionNumber', otherPost.divisionNumber,
+      //           'parentId', otherPost.parentId,
+      //           'createdAt', otherPost.createdAt,
+      //           'updatedAt', otherPost.updatedAt,
+      //           'user', jsonb_build_object(
+      //               'userId', "otherUser"."id",
+      //               'firstName', "otherUser"."firstName",
+      //               'lastName', "otherUser"."lastName",
+      //               'telegramId', "otherUser"."telegramId",
+      //               'telephoneNumber', "otherUser"."telephoneNumber",
+      //               'avatar', "otherUser"."avatar_url"
+      //           )
+      //       )
+      //   ) AS "postsAndUsers"`
+      // ])
+      // .groupBy('c.id, "latestMessage"."content", "latestMessage"."createdAt", target.id, host.id, hostUser.id')
+      // .getRawMany();
 
       return posts
     } catch (err) {
       this.logger.error(err);
       // Обработка других ошибок
       throw new InternalServerErrorException(
-        'Ошибка при получении всех постов c чатами!',
+        'Ошибка при получении всех контактов!',
       );
     }
   }
@@ -530,38 +572,3 @@ export class PostService {
     }
   }
 }
-
-
-        // .createQueryBuilder('post')
-        // .innerJoinAndSelect('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
-        // .innerJoinAndSelect('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
-        // .innerJoinAndSelect('c.convertToPosts', 'otherCtp')  // все ConvertToPosts, связанные с этим чатом
-        // .leftJoin(
-        //   'c.messages',
-        //   'unreadMessages',
-        //   `NOT EXISTS (
-        //     SELECT 1 FROM "message_seen_status" "mrs"
-        //     WHERE "mrs"."messageId" = "unreadMessages"."id"
-        //     AND "mrs"."postId" IN (:...userPostsIds)
-        //   ) 
-        //   AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
-        // )
-        // .leftJoinAndSelect('c.target', 'target')
-        // .leftJoinAndSelect('c.host', 'host')
-        // .leftJoinAndSelect('host.user', 'hostUser')
-        // .innerJoinAndSelect('otherCtp.post', 'otherPost')  // получаем посты из этих связей
-        // .innerJoinAndSelect('otherPost.user', 'otherUser')  // добавляем юзера для каждого поста
-        // .leftJoinAndSelect(
-        //   'c.messages',
-        //   'latestMessage',
-        //   '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")'
-        // )
-        // .where('"post"."id" NOT IN (:...userPostsIds)', { userPostsIds })
-        // .andWhere(`EXISTS (
-        //         SELECT 1 FROM "convert_to_post" "sub_ctp"
-        //         INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
-        //         WHERE "sub_ctp"."convertId" = c.id
-        //         AND "sub_post"."id" IN (:...userPostsIds)
-        //     )`)
-        // .groupBy('post.id, ctp.id, c.id, otherCtp.id, target.id, host.id, hostUser.id, otherPost.id, otherUser.id, latestMessage.id')
-        // .getMany();

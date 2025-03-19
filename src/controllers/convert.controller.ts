@@ -34,7 +34,7 @@ import { TargetService } from 'src/application/services/target/target.service';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageService } from 'src/application/services/message/message.service';
-import { findAllConvertsExample, findOneConvertExample } from 'src/constants/swagger-examples/convert/convert-examples';
+import { findOneConvertExample } from 'src/constants/swagger-examples/convert/convert-examples';
 import { ConvertsGuard } from 'src/guards/convert.guard';
 
 @ApiTags('Converts')
@@ -51,12 +51,12 @@ export class ConvertController {
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  @Get()
+  @Get(':contactId/converts')
   @ApiOperation({ summary: 'Все конверты' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllConvertsExample
+    example: {}
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -66,15 +66,21 @@ export class ConvertController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  async findAll(@Req() req: ExpressRequest): Promise<any[]> {
+  async findAllForContact(
+    @Req() req: ExpressRequest,
+    @Param('contactId') contactId: string
+  ): Promise<any> {
     let start = new Date()
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map(post => post.id);
-    const postsWithConverts = await this.postService.findAllPostsWithConvertsForCurrentUser(userPostsIds);
+    const [convertsForContact, copiesForContact] = await Promise.all([
+      this.convertService.findAllForContact(userPostsIds, contactId),
+      this.convertService.findAllCopiesForContact(userPostsIds, contactId)
+    ]) 
     let c = new Date()
     let end = c.getTime() - start.getTime()
     console.log(`чаты ${end}`)
-    return postsWithConverts;
+    return { convertsForContact: convertsForContact, copiesForContact: copiesForContact};
   }
 
   @Get(':convertId')

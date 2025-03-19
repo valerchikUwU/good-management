@@ -41,7 +41,7 @@ import { HistoryUsersToPostService } from 'src/application/services/historyUsers
 import { HistoryUsersToPostCreateDto } from 'src/contracts/historyUsersToPost/create-historyUsersToPost.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
-import { beforeCreateExample, findAllMyPostsExample, findAllPostsExample, findAllUnderPostsExample, findOnePostExample } from 'src/constants/swagger-examples/post/post-examples';
+import { beforeCreateExample, findAllContactsExample, findAllMyPostsExample, findAllPostsExample, findAllUnderPostsExample, findOnePostExample } from 'src/constants/swagger-examples/post/post-examples';
 
 @ApiTags('Posts')
 @ApiBearerAuth('access-token')
@@ -82,6 +82,32 @@ export class PostController {
     return user.posts;
   }
 
+
+    @Get('contacts')
+    @ApiOperation({ summary: 'Все контакты' })
+    @ApiResponse({
+      status: HttpStatus.OK,
+      description: 'ОК!',
+      example: findAllContactsExample
+    })
+    @ApiResponse({
+      status: HttpStatus.UNAUTHORIZED,
+      description: 'Вы не авторизованы!',
+    })
+    @ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Ошибка сервера!',
+    })
+    async findAllContacts(@Req() req: ExpressRequest): Promise<any[]> {
+      let start = new Date()
+      const user = req.user as ReadUserDto;
+      const userPostsIds = user.posts.map(post => post.id);
+      const postsWithConverts = await this.postService.findAllContactsForCurrentUser(userPostsIds);
+      let c = new Date()
+      let end = c.getTime() - start.getTime()
+      console.log(`все контакты ${end}`)
+      return postsWithConverts;
+    }
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Все посты в организации' })
