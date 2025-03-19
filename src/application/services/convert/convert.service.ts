@@ -73,7 +73,7 @@ export class ConvertService {
       .createQueryBuilder('convert')
       .innerJoin('convert.convertToPosts', 'convertToPost')
       .innerJoin('convertToPost.post', 'post')
-      .leftJoin('convert.watchersToConvert', 'wtc')
+      .leftJoinAndSelect('convert.watchersToConvert', 'wtc')
       .leftJoin('wtc.post', 'watcher')
       .where('watcher.id IN (:...userPostsIds)', { userPostsIds })
       .andWhere(`EXISTS (
