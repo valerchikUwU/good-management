@@ -66,6 +66,12 @@ export class ConvertController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
+  @ApiParam({
+    name: 'contactId',
+    required: true,
+    description: 'Id контакта (поста)',
+    example: '5fc5ec49-d658-4fe1-b4c9-7dd01d38a652',
+  })
   async findAllForContact(
     @Req() req: ExpressRequest,
     @Param('contactId') contactId: string
@@ -73,14 +79,15 @@ export class ConvertController {
     let start = new Date()
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map(post => post.id);
-    const [convertsForContact, copiesForContact] = await Promise.all([
+    const [contact, convertsForContact, copiesForContact] = await Promise.all([
+      this.postService.findOneById(contactId, ['user']),
       this.convertService.findAllForContact(userPostsIds, contactId),
       this.convertService.findAllCopiesForContact(userPostsIds, contactId)
     ]) 
     let c = new Date()
     let end = c.getTime() - start.getTime()
     console.log(`чаты ${end}`)
-    return { convertsForContact: convertsForContact, copiesForContact: copiesForContact};
+    return { contact: contact, convertsForContact: convertsForContact, copiesForContact: copiesForContact};
   }
 
   @Get(':convertId')
