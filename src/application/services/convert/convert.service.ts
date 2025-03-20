@@ -13,6 +13,7 @@ import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertToPostService } from '../convertToPost/convertToPost.service';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { WatchersToConvertService } from '../watchersToConvert/watchersToConvert.service';
+import { Brackets } from 'typeorm';
 
 @Injectable()
 export class ConvertService {
@@ -48,12 +49,20 @@ export class ConvertService {
           '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")'
         )
         .where('post.id IN (:...userPostsIds)', { userPostsIds })
-        .andWhere(`EXISTS (
-        SELECT 1 FROM "convert_to_post" "sub_ctp"
-        INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
-        WHERE "sub_ctp"."convertId" = "convert"."id"
-        AND "sub_post"."id" = :contactId
-      )`, { contactId })
+        .andWhere(new Brackets((qb) => {
+          qb.where('"convert"."pathOfPosts"[1] IN (:...userPostsIds)', { userPostsIds })
+            .andWhere('"convert"."pathOfPosts"[array_length("convert"."pathOfPosts", 1)] = :contactId', { contactId })
+            .orWhere(new Brackets((qb) => {
+              qb.where(`EXISTS (
+                    SELECT 1 FROM "convert_to_post" "sub_ctp"
+                    INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
+                    WHERE "sub_ctp"."convertId" = convert.id
+                    AND "sub_post"."id" IN (:...userPostsIds)
+                )`
+              )
+                .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
+            }))
+        }))
         .select([
           'convert.*',
           '"latestMessage"."content" AS "latestMessageContent"',
@@ -83,12 +92,7 @@ export class ConvertService {
         .leftJoinAndSelect('convert.watchersToConvert', 'wtc')
         .leftJoin('wtc.post', 'watcher')
         .where('watcher.id IN (:...userPostsIds)', { userPostsIds })
-        .andWhere(`EXISTS (
-        SELECT 1 FROM "convert_to_post" "sub_ctp"
-        INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
-        WHERE "sub_ctp"."convertId" = "convert"."id"
-        AND "sub_post"."id" = :contactId
-      )`, { contactId })
+        .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
         .getMany();
       return converts;
     } catch (err) {
