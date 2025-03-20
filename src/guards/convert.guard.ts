@@ -13,10 +13,9 @@ export class ConvertsGuard implements CanActivate {
         const convertId = request.params.convertId;
         if (!convertId) {
             throw new BadRequestException('Не передан ID конверта');
-        }  
+        }
         const convert = await this.convertService.findOneById(convertId, [
             'convertToPosts.post.user',
-            'host.user',
             'watchersToConvert.post'
         ]);
 

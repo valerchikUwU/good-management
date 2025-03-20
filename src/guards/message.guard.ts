@@ -13,18 +13,14 @@ export class MessagesGuard implements CanActivate {
         const convertId = request.params.convertId;
         if (!convertId) {
             throw new BadRequestException('Не передан ID конверта');
-        }  
-        const convert = await this.convertService.findOneById(convertId, [
-            'convertToPosts.post.user',
-            'host.user',
-        ]);
-
-        // Получаем ID пользователей в конверте
-        const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id);
-
-        // Проверяем, является ли пользователь владельцем или наблюдателем
-
-        if (userIdsInConvert.includes(user.id)) {
+        }
+        const convert = await this.convertService.findOneById(convertId);
+        const postIdsInConvert = convert.pathOfPosts;
+        const userPostsIds = user.posts.map(post => post.id);
+        const ifPostSender = userPostsIds.includes(postIdsInConvert[0]);
+        const ifPostReciever = userPostsIds.includes(postIdsInConvert[postIdsInConvert.length - 1]);
+        const ifPostActive = userPostsIds.includes(convert.activePostId)
+        if (ifPostSender || ifPostReciever || ifPostActive) {
             return true;
         }
 

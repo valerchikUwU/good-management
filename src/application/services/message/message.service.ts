@@ -43,7 +43,7 @@ export class MessageService {
           .leftJoin('message.convert', 'convert')
           .leftJoin('convert.watchersToConvert', 'watchersToConvert')
           .where('message.convertId = :convertId', { convertId })
-          .andWhere('watchersToConvert.postId IN (:...userPostIds)', { userPostIds }) 
+          .andWhere('watchersToConvert.postId IN (:...userPostIds)', { userPostIds })
           .andWhere('message.messageNumber <= watchersToConvert.lastSeenNumber')
           .orderBy('message.createdAt', 'DESC')
           .take(30)
@@ -86,7 +86,7 @@ export class MessageService {
           .leftJoin('message.convert', 'convert')
           .leftJoin('convert.watchersToConvert', 'watchersToConvert')
           .where('message.convertId = :convertId', { convertId })
-          .andWhere('watchersToConvert.postId IN (:...userPostIds)', { userPostIds }) 
+          .andWhere('watchersToConvert.postId IN (:...userPostIds)', { userPostIds })
           .andWhere(
             new Brackets(qb => {
               qb.where('message.messageNumber > watchersToConvert.lastSeenNumber')
@@ -134,7 +134,7 @@ export class MessageService {
           .where('message.convertId = :convertId', { convertId })
           .andWhere(
             new Brackets(qb => {
-              qb.where('seenStatus.id IS NOT NULL') // Сообщение прочитано хотя бы одним человеком
+              qb.where('post.id IN (:...userPostsIds)', { userPostIds }) // Сообщение прочитано текущим пользователем
                 .orWhere('sender.id IN (:...userPostIds)', { userPostIds }); // Сообщение отправлено текущим пользователем
             })
           )
