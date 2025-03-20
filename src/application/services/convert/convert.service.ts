@@ -43,7 +43,7 @@ export class ConvertService {
         AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
         )
         .leftJoin(
-          'c.messages',
+          'convert.messages',
           'latestMessage',
           '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")'
         )
