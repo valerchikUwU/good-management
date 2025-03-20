@@ -127,6 +127,7 @@ export class ConvertController {
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
       'host.user',
+      'watchersToConvert.post.user'
     ]);
     const now = new Date()
     console.log(`чат по id ${now.getTime() - start.getTime()}`);

@@ -49,7 +49,7 @@ export class MessageController {
 
 
     @Get(':convertId/watcher/seen')
-    @ApiOperation({ summary: 'Прочитанные сообщения и сообщения ДЛЯ НАБЛЮДАТЕЛЯ в чате с пагинацией (отсортированы по createdAt DESC)' })
+    @ApiOperation({ summary: 'Прочитанные сообщения ДЛЯ НАБЛЮДАТЕЛЯ в чате с пагинацией (отсортированы по createdAt DESC)' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'ОК!',
@@ -83,9 +83,44 @@ export class MessageController {
         const start = new Date();
         const user = req.user as ReadUserDto;
         const userPostIds = user.posts.map(post => post.id)
-        const messages = await this.messageService.findSeenForConvert(convertId, pagination, userPostIds);
+        const messages = await this.messageService.findSeenForWatcherForConvert(convertId, pagination, userPostIds);
         const now = new Date();
-        console.log(`прочитанные ${now.getTime() - start.getTime()}`)
+        console.log(`прочитанные наблюдатель ${now.getTime() - start.getTime()}`)
+        return messages;
+    }
+
+
+    @Get(':convertId/watcher/unseen')
+    @ApiOperation({ summary: 'Непрочитанные сообщения ДЛЯ НАБЛЮДАТЕЛЯ в чате с пагинацией (отсортированы по createdAt DESC)' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'ОК!',
+        example: findSeenMessagesForConvertExample
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: 'Вы не авторизованы!',
+    })
+    @ApiResponse({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        description: 'Ошибка сервера!',
+    })
+    @ApiParam({
+        name: 'convertId',
+        required: true,
+        description: 'Id конверта',
+        example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
+    })
+    async findUnseenForWatcherForConvert(
+        @Req() req: ExpressRequest,
+        @Param('convertId') convertId: string,
+    ): Promise<MessageReadDto[]> {
+        const start = new Date();
+        const user = req.user as ReadUserDto;
+        const userPostIds = user.posts.map(post => post.id)
+        const messages = await this.messageService.findUnseenForWatcherForConvert(convertId, userPostIds);
+        const now = new Date();
+        console.log(`непрочитанные наблюдатель ${now.getTime() - start.getTime()}`)
         return messages;
     }
 

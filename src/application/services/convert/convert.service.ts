@@ -29,32 +29,39 @@ export class ConvertService {
   async findAllForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
     try {
       const converts = await this.convertRepository
-      .createQueryBuilder('convert')
-      .innerJoin('convert.convertToPosts', 'convertToPost')
-      .innerJoin('convertToPost.post', 'post')
-      .leftJoin(
-        'convert.messages',
-        'unreadMessages',
-        `NOT EXISTS (
+        .createQueryBuilder('convert')
+        .innerJoin('convert.convertToPosts', 'convertToPost')
+        .innerJoin('convertToPost.post', 'post')
+        .leftJoin(
+          'convert.messages',
+          'unreadMessages',
+          `NOT EXISTS (
           SELECT 1 FROM "message_seen_status" "mrs"
           WHERE "mrs"."messageId" = "unreadMessages"."id"
           AND "mrs"."postId" IN (:...userPostsIds)
         ) 
         AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
-      )
-      .where('post.id IN (:...userPostsIds)', { userPostsIds })
-      .andWhere(`EXISTS (
+        )
+        .leftJoin(
+          'c.messages',
+          'latestMessage',
+          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")'
+        )
+        .where('post.id IN (:...userPostsIds)', { userPostsIds })
+        .andWhere(`EXISTS (
         SELECT 1 FROM "convert_to_post" "sub_ctp"
         INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
         WHERE "sub_ctp"."convertId" = "convert"."id"
         AND "sub_post"."id" = :contactId
       )`, { contactId })
-      .select([
-        'convert.*',
-        'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
-      ])
-      .groupBy('convert.id')
-      .getRawMany();
+        .select([
+          'convert.*',
+          '"latestMessage"."content" AS "latestMessageContent"',
+          '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
+          'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
+        ])
+        .groupBy('convert.id , "latestMessage"."content", "latestMessage"."createdAt"')
+        .getRawMany();
       return converts;
     } catch (err) {
       this.logger.error(err);
@@ -70,19 +77,19 @@ export class ConvertService {
   async findAllCopiesForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
     try {
       const converts = await this.convertRepository
-      .createQueryBuilder('convert')
-      .innerJoin('convert.convertToPosts', 'convertToPost')
-      .innerJoin('convertToPost.post', 'post')
-      .leftJoinAndSelect('convert.watchersToConvert', 'wtc')
-      .leftJoin('wtc.post', 'watcher')
-      .where('watcher.id IN (:...userPostsIds)', { userPostsIds })
-      .andWhere(`EXISTS (
+        .createQueryBuilder('convert')
+        .innerJoin('convert.convertToPosts', 'convertToPost')
+        .innerJoin('convertToPost.post', 'post')
+        .leftJoinAndSelect('convert.watchersToConvert', 'wtc')
+        .leftJoin('wtc.post', 'watcher')
+        .where('watcher.id IN (:...userPostsIds)', { userPostsIds })
+        .andWhere(`EXISTS (
         SELECT 1 FROM "convert_to_post" "sub_ctp"
         INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
         WHERE "sub_ctp"."convertId" = "convert"."id"
         AND "sub_post"."id" = :contactId
       )`, { contactId })
-      .getMany();
+        .getMany();
       return converts;
     } catch (err) {
       this.logger.error(err);
