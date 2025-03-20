@@ -134,7 +134,7 @@ export class MessageService {
           .where('message.convertId = :convertId', { convertId })
           .andWhere(
             new Brackets(qb => {
-              qb.where('post.id IN (:...userPostsIds)', { userPostIds }) // Сообщение прочитано текущим пользователем
+              qb.where('post.id IN (:...userPostIds)', { userPostIds }) // Сообщение прочитано текущим пользователем
                 .orWhere('sender.id IN (:...userPostIds)', { userPostIds }); // Сообщение отправлено текущим пользователем
             })
           )
