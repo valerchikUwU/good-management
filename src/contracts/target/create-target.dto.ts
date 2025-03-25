@@ -111,7 +111,6 @@ export class TargetCreateDto {
   @ApiProperty({
     description: 'Дедлайн',
     required: false,
-    nullable: true,
     example: '2025-09-16 17:03:31.000111',
   })
   @IsOptional()

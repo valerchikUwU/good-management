@@ -32,23 +32,14 @@ export class ConvertCreateDto {
   pathOfPosts: string[];
 
   @ApiProperty({
-    description: 'Список ids постов, которые наблюдатели',
+    description: 'Дедлайн',
     required: false,
-    example: ['323e4567-e89b-12d3-a456-426614174000', '750e8400-e29b-41d4-a716-446655440000'],
+    example: '2025-09-16 17:03:31.000111',
   })
   @IsOptional()
-  @IsUUID('4', {each: true})
-  @IsNotEmpty({ message: 'Массив наблюдателей не может быть пустым!' })
-  watcherIds?: string[];
-
-  @ApiProperty({
-    description: 'Длительность конверта',
-    required: true,
-    example: 17828282,
-  })
-  @IsNumber()
-  @IsNotEmpty({ message: 'Длительность чата не может быть пустой!' })
-  expirationTime: number;
+  @Type(() => Date)
+  @IsDate()
+  deadline?: Date;
 
   @ApiProperty({
     description: 'Тип конверта',

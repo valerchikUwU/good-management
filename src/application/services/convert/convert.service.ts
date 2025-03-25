@@ -120,11 +120,12 @@ export class ConvertService {
         id: convert.id,
         convertTheme: convert.convertTheme,
         pathOfPosts: convert.pathOfPosts,
-        expirationTime: convert.expirationTime,
         convertType: convert.convertType,
         convertPath: convert.convertPath,
         convertStatus: convert.convertStatus,
         activePostId: convert.activePostId,
+        dateStart: convert.dateStart,
+        deadline: convert.deadline,
         dateFinish: convert.dateFinish,
         createdAt: convert.createdAt,
         messages: convert.messages,
@@ -150,7 +151,7 @@ export class ConvertService {
       const convert = new Convert();
       convert.convertTheme = convertCreateDto.convertTheme;
       convert.pathOfPosts = convertCreateDto.pathOfPosts;
-      convert.expirationTime = convertCreateDto.expirationTime;
+      convert.deadline = convertCreateDto.deadline;
       convert.convertType = convertCreateDto.convertType;
       convert.convertPath = convertCreateDto.convertPath;
       convert.activePostId = convertCreateDto.pathOfPosts[1];
@@ -158,10 +159,7 @@ export class ConvertService {
       convert.host = convertCreateDto.host;
       convert.account = convertCreateDto.account;
       const createdConvert = await this.convertRepository.save(convert);
-      await Promise.all([
-        convertCreateDto.watcherIds !== undefined ? this.watchersToConvertService.createSeveral(createdConvert, convertCreateDto.watcherIds) : null,
-        this.convertToPostService.createSeveral(createdConvert, convertCreateDto.pathOfPosts.slice(0, 2))
-      ])
+      await this.convertToPostService.createSeveral(createdConvert, convertCreateDto.pathOfPosts.slice(0, 2))
       return createdConvert;
     } catch (err) {
       this.logger.error(err);
@@ -182,6 +180,13 @@ export class ConvertService {
       }
       if (convertUpdateDto.convertStatus) {
         convert.convertStatus = convertUpdateDto.convertStatus;
+      }
+      if (convertUpdateDto.watcherIds !== null) {
+        await this.watchersToConvertService.remove(convert);
+        await this.watchersToConvertService.createSeveral(convert, convertUpdateDto.watcherIds)
+      }
+      else {
+        await this.watchersToConvertService.remove(convert);
       }
       if (convertUpdateDto.convertToPostIds) {
         await this.convertToPostService.remove(convert);

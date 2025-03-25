@@ -31,6 +31,13 @@ export class AttachmentReadDto {
     })
     attachmentMimetype: string;
 
+
+    @ApiProperty({
+        description: 'Оригинальное название',
+        example: 'original',
+    })
+    originalName: string;
+
     @ApiProperty({
         description: 'Хеш файла',
         example: '2sad2828dfs99sdg99s9df9s9d9dhh888',
@@ -38,7 +45,7 @@ export class AttachmentReadDto {
     hash: string;
 
     createdAt: Date;
-    
+
     updatedAt: Date;
 
     attachmentToTargets: AttachmentToTarget[];

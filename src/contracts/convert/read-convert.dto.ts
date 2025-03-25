@@ -10,11 +10,12 @@ export class ConvertReadDto {
   id: string;
   convertTheme: string;
   pathOfPosts: string[];
-  expirationTime: number;
   convertType: TypeConvert;
   convertPath: PathConvert;
   convertStatus: boolean;
   activePostId: string;
+  dateStart: Date;
+  deadline: Date;
   dateFinish: Date;
   createdAt: Date;
   messages: Message[];

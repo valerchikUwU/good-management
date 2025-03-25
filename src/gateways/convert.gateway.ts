@@ -12,6 +12,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { MessageSeenStatusService } from 'src/application/services/messageSeenStatus/messageSeenStatus.service';
+import { WatchersToConvertService } from 'src/application/services/watchersToConvert/watchersToConvert.service';
 import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { Logger } from 'winston';
@@ -21,6 +22,7 @@ export class ConvertGateway
   implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly messageSeenStatusService: MessageSeenStatusService,
+    private readonly watchersToConvertService: WatchersToConvertService,
     @Inject('winston') private readonly logger: Logger, // инъекция логгера
   ) { }
   private clients: Map<string, Socket> = new Map();
@@ -220,7 +222,30 @@ export class ConvertGateway
 
 
   handleMessageCreationEvent(convertId: string, message: MessageReadDto) {
-    this.ws.to(convertId).emit('messageCreationEvent', message) // broadcast messages
+    this.ws.to(convertId).emit('messageCreationEvent', message);
+    return true;
+  }
+
+
+  @SubscribeMessage('messagesSeenWatcher')
+  async handleMessagesSeenForWatcherEvent(
+    @MessageBody()
+    payload: {
+      convertId: string;
+      post: PostReadDto;
+      messageIds: string[];
+      lastSeenMessageNumber: number;
+    },
+  ){
+    const start = new Date();
+    const uniqueMessageIds: string[] = payload.messageIds.filter((item, i, ar) => { return ar.indexOf(item) === i; });
+    const messagesCount = uniqueMessageIds.length;
+    await this.watchersToConvertService.updateSeenStatuses(messagesCount, payload.convertId, payload.post);
+
+
+    this.ws.to(payload.convertId).emit('messagesAreSeen', { dateSeen: new Date(), messageIds: payload.messageIds });
+    const now = new Date();
+    console.log(`все сообщения увидены ${now.getTime() - start.getTime()}`);
     return true;
   }
 

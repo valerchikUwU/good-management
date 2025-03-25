@@ -40,6 +40,7 @@ export class AttachmentService {
         attachmentPath: attachment.attachmentPath,
         attachmentSize: attachment.attachmentSize,
         attachmentMimetype: attachment.attachmentMimetype,
+        originalName: attachment.originalName,
         hash: attachment.hash,
         createdAt: attachment.createdAt,
         updatedAt: attachment.updatedAt,
@@ -69,6 +70,7 @@ export class AttachmentService {
         attachmentPath: attachment.attachmentPath,
         attachmentSize: attachment.attachmentSize,
         attachmentMimetype: attachment.attachmentMimetype,
+        originalName: attachment.originalName,
         hash: attachment.hash,
         createdAt: attachment.createdAt,
         updatedAt: attachment.updatedAt,
@@ -92,6 +94,7 @@ export class AttachmentService {
       attachment.attachmentPath = attachmentCreateDto.attachmentPath;
       attachment.attachmentSize = attachmentCreateDto.attachmentSize;
       attachment.attachmentMimetype = attachmentCreateDto.attachmentMimetype;
+      attachment.originalName = attachmentCreateDto.originalName;
       attachment.hash = attachmentCreateDto.hash;
 
       return await this.attachmentRepository.save(attachment);

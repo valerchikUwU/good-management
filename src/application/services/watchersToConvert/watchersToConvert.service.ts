@@ -7,40 +7,77 @@ import { WatchersToConvert } from "src/domains/watchersToConvert.entity";
 import { WatchersToConvertRepository } from "./repository/watchersToConvert.repository";
 import { Convert } from "src/domains/convert.entity";
 import { PostService } from "../post/post.service";
+import { PostReadDto } from "src/contracts/post/read-post.dto";
+import { ConvertReadDto } from "src/contracts/convert/read-convert.dto";
 
 @Injectable()
 export class WatchersToConvertService {
-    constructor(
-        @InjectRepository(WatchersToConvert)
-        private readonly watchersToConvertRepository: WatchersToConvertRepository,
-        private readonly postService: PostService,
-        @InjectRedis()
-        private readonly redis: Redis,
-        @Inject('winston') private readonly logger: Logger,
-    ) { }
+  constructor(
+    @InjectRepository(WatchersToConvert)
+    private readonly watchersToConvertRepository: WatchersToConvertRepository,
+    private readonly postService: PostService,
+    @InjectRedis()
+    private readonly redis: Redis,
+    @Inject('winston') private readonly logger: Logger,
+  ) { }
 
 
-      async createSeveral(convert: Convert, postIds: string[]): Promise<void> {
-        try {
-          const posts = await this.postService.findBulk(postIds);
-    
-          const watchersToConvert = posts.map(post => {
-            const watcherToConvert = new WatchersToConvert();
-            watcherToConvert.post = post;
-            watcherToConvert.convert = convert;
-            return watcherToConvert;
-          })
-    
-    
-          await this.watchersToConvertRepository.insert(watchersToConvert);
-        } catch (err) {
-          this.logger.error(err);
-    
-          throw new InternalServerErrorException(
-            'Ой, что - то пошло не так при добавлении участников к конверту!',
-          );
-        }
+  async updateSeenStatuses(
+    lastSeenMessageNumber: number,
+    convertId: string,
+    post: PostReadDto
+  ): Promise<void> {
+    try {
+      const watcherToConvert = await this.watchersToConvertRepository.findOne({
+        where:
+        {
+          post: { id: post.id },
+          convert: { id: convertId }
+        },
+      });
+      const unreadMessageCount = watcherToConvert.unreadMessagesCount - lastSeenMessageNumber;
+      await this.watchersToConvertRepository.update(watcherToConvert.id, { lastSeenNumber: lastSeenMessageNumber, unreadMessagesCount: unreadMessageCount})
+    } catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при прочтении сообщений');
+    }
+  }
+
+
+  async createSeveral(convert: Convert, postIds: string[]): Promise<void> {
+    try {
+      const posts = await this.postService.findBulk(postIds);
+
+      const watchersToConvert = posts.map(post => {
+        const watcherToConvert = new WatchersToConvert();
+        watcherToConvert.post = post;
+        watcherToConvert.convert = convert;
+        return watcherToConvert;
+      })
+
+
+      await this.watchersToConvertRepository.insert(watchersToConvert);
+    } catch (err) {
+      this.logger.error(err);
+
+      throw new InternalServerErrorException(
+        'Ой, что - то пошло не так при добавлении участников к конверту!',
+      );
+    }
+  }
+
+    async remove(convert: ConvertReadDto): Promise<void> {
+      try {
+        await this.watchersToConvertRepository.delete({ convert: convert });
       }
+      catch (err) {
+        this.logger.error(err);
+  
+        throw new InternalServerErrorException(
+          'Ой, что - то пошло не так при удалении участников конверта!',
+        );
+      }
+    }
 }
 
 

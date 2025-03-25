@@ -43,6 +43,15 @@ export class AttachmentCreateDto {
     attachmentMimetype: string;
 
     @ApiProperty({
+        description: 'Оригинальное название',
+        required: true,
+        example: 'original',
+    })
+    @IsString()
+    @IsNotEmpty({message: 'Оригинальное названиe не может быть пустым!'})
+    originalName: string;
+
+    @ApiProperty({
         description: 'Хеш файла',
         required: true,
         example: '2sad2828dfs99sdg99s9df9s9d9dhh888',

@@ -84,11 +84,11 @@ export class ConvertController {
       this.postService.findOneById(contactId, ['user']),
       this.convertService.findAllForContact(userPostsIds, contactId),
       this.convertService.findAllCopiesForContact(userPostsIds, contactId)
-    ]) 
+    ])
     let c = new Date()
     let end = c.getTime() - start.getTime()
     console.log(`чаты ${end}`)
-    return { contact: contact, convertsForContact: convertsForContact, copiesForContact: copiesForContact};
+    return { contact: contact, convertsForContact: convertsForContact, copiesForContact: copiesForContact };
   }
 
   @Get(':convertId')
@@ -291,24 +291,42 @@ export class ConvertController {
   async finish(
     @Param('convertId') convertId: string,
   ): Promise<string> {
-    const convert = await this.convertService.findOneById(convertId);
     const convertUpdateDto: ConvertUpdateDto = {
-      _id: convert.id,
+      _id: convertId,
       convertStatus: false,
     };
     const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
 
     return finishedConvertId;
   }
+
+
+  @Patch(':convertId/update')
+  @UseGuards(FinishConvertGuard)
+  @ApiOperation({ summary: 'Обновить конверт' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: {
+      id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  async update(
+    @Param('convertId') convertId: string,
+    @Body() convertUpdateDto: ConvertUpdateDto
+  ): Promise<string> {
+    const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    return finishedConvertId;
+  }
 }
-
-
-  
-
-
-
-
-
 
 
 

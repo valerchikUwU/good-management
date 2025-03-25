@@ -89,6 +89,17 @@ export class Attachment {
     @Column({ nullable: false })
     hash: string;
 
+    /**
+     * Оригинальное имя файла.
+     * 
+     * @remarks
+     * nullable: false
+     * 
+     * @example
+     * 'originalName.jpg'
+     */
+    @Column({ nullable: false, default: 'OriginalName' })
+    originalName: string;
 
     /**
      * Дата создания записи.

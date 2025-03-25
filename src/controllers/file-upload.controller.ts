@@ -128,6 +128,7 @@ export class FileUploadController {
           attachmentPath: file.path.slice(1),
           attachmentSize: file.size,
           attachmentMimetype: file.mimetype,
+          originalName: file.originalname,
           hash: fileHash,
           target: null,
           message: null,

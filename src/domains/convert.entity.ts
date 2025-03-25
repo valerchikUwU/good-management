@@ -63,18 +63,6 @@ export class Convert {
   convertTheme: string;
 
   /**
-   * Срок действия конвертации.
-   * 
-   * @remarks
-   * nullable: false.
-   * 
-   * @example
-   * '2024-06-30T23:59:59Z'
-   */
-  @Column({ nullable: false })
-  expirationTime: number;
-
-  /**
    * Список постов, через которые должен пройти конверт.
    * 
    * @remarks
@@ -144,11 +132,34 @@ export class Convert {
   @Column({ type: 'uuid', nullable: true })
   activePostId: string;
 
+
   /**
-   * Дата завершения конвертации.
+   * Дата старта конверта.
    * 
    * @remarks
-   * Поле заполняется при завершении процесса конвертации.
+   * default: CURRENT_TIMESTAMP, nullable: false
+   */
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    nullable: false,
+  })
+  dateStart: Date;
+
+  /**
+   * Дедлайн конверта.
+   * 
+   * @remarks
+   * nullable: true
+   */
+  @Column({ type: 'timestamp', nullable: true })
+  deadline: Date;
+
+  /**
+   * Дата завершения конверта.
+   * 
+   * @remarks
+   * Поле заполняется при завершении конверта.
    * 
    * @example
    * '2024-06-10T08:15:30Z'

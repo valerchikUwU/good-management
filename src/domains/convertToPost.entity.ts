@@ -6,6 +6,7 @@ import {
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 import { Convert } from './convert.entity';
@@ -16,6 +17,7 @@ export enum UserType {
   RECIEVER = 'Получатель',
 }
 
+@Unique(['post', 'convert'])
 @Entity()
 export class ConvertToPost {
   @PrimaryGeneratedColumn('uuid')
@@ -27,18 +29,9 @@ export class ConvertToPost {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  // @Column({
-  //     type: 'enum',
-  //     enum: UserType,
-  //     nullable: false
-  // })
-  // userType: UserType;
-
   @ManyToOne(() => Post, (post) => post.convertToPosts)
-  @Index() // Добавляем индекс для поля policy
   post: Post;
 
   @ManyToOne(() => Convert, (convert) => convert.convertToPosts)
-  @Index() // Добавляем индекс для поля organization
   convert: Convert;
 }
