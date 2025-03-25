@@ -35,7 +35,8 @@ import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
 import { MessageService } from 'src/application/services/message/message.service';
 import { findAllForContact, findOneConvertExample } from 'src/constants/swagger-examples/convert/convert-examples';
-import { ConvertsGuard } from 'src/guards/convert.guard';
+import { GetConvertGuard } from 'src/guards/getConvert.guard';
+import { FinishConvertGuard } from 'src/guards/finishConvert.guard';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -91,7 +92,7 @@ export class ConvertController {
   }
 
   @Get(':convertId')
-  @UseGuards(ConvertsGuard)
+  @UseGuards(GetConvertGuard)
   @ApiOperation({ summary: 'Конверт по id' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -126,7 +127,7 @@ export class ConvertController {
     const start = new Date()
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
-      'host.user',
+      'host.user.organization',
       'watchersToConvert.post.user'
     ]);
     const now = new Date()
@@ -233,10 +234,8 @@ export class ConvertController {
     return { id: createdConvert.id };
   }
 
-
-  // хуй пойми как с согласованием и заявкой делать
-  @Patch(':convertId/approve')
-  @ApiOperation({ summary: 'Завершить конверт или продолжить его по pathOfPosts' })
+  @Patch(':convertId/approve') // в guard проверку на host.user.id и что activePostId не последний в массиве
+  @ApiOperation({ summary: 'Продолжить конверт (аппрувнуть) его по pathOfPosts' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
@@ -255,29 +254,56 @@ export class ConvertController {
   async approve(
     @Param('convertId') convertId: string,
   ): Promise<string> {
+    const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post']);
+    const postsInConvertIds = convert.convertToPosts.map(convertToPost => convertToPost.post.id);
+    const indexOfActivePostId = convert.pathOfPosts.indexOf(convert.activePostId);
+    const nextPost = await this.postService.findOneById(convert.pathOfPosts[indexOfActivePostId + 1]);
+    const newConvertToPostIds = postsInConvertIds.concat(nextPost.id);
+    const convertUpdateDto: ConvertUpdateDto = {
+      _id: convert.id,
+      activePostId: convert.pathOfPosts[indexOfActivePostId + 1],
+      convertToPostIds: newConvertToPostIds,
+    };
+    const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+
+    return finishedConvertId;
+  }
+
+
+  @Patch(':convertId/approve')
+  @UseGuards(FinishConvertGuard)
+  @ApiOperation({ summary: 'Завершить конверт' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: {
+      id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  async finish(
+    @Param('convertId') convertId: string,
+  ): Promise<string> {
     const convert = await this.convertService.findOneById(convertId);
     const convertUpdateDto: ConvertUpdateDto = {
       _id: convert.id,
       convertStatus: false,
     };
     const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+
     return finishedConvertId;
-    // const nextPost = await this.postService.findOneById(convert.pathOfPosts[indexOfActivePostId + 1]); // МОЖЕТ БЫТЬ NULL когда последний пост, соответственно аккуратно с nextPost.user.id
-    // const newConvertToPostIds = payload.convertToPostIds.concat(nextPost.id);
-    // const convertUpdateDto: ConvertUpdateDto = {
-    //   _id: convert.id,
-    //   convertToPostIds: newConvertToPostIds,
-    //   activePostId: nextPost.id,
-    // };
-    // await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
-
-    // return { success: true, message: 'Одобрение выполнено успешно' };
   }
-
-
-
-
 }
+
+
+  
 
 
 

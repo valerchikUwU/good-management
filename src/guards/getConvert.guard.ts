@@ -3,7 +3,7 @@ import { ConvertService } from "src/application/services/convert/convert.service
 import { ReadUserDto } from "src/contracts/user/read-user.dto";
 
 @Injectable()
-export class ConvertsGuard implements CanActivate {
+export class GetConvertGuard implements CanActivate {
     constructor(
         private readonly convertService: ConvertService,
     ) { }

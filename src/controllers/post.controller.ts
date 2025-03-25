@@ -83,31 +83,31 @@ export class PostController {
   }
 
 
-    @Get('contacts')
-    @ApiOperation({ summary: 'Все контакты' })
-    @ApiResponse({
-      status: HttpStatus.OK,
-      description: 'ОК!',
-      example: findAllContactsExample
-    })
-    @ApiResponse({
-      status: HttpStatus.UNAUTHORIZED,
-      description: 'Вы не авторизованы!',
-    })
-    @ApiResponse({
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
-      description: 'Ошибка сервера!',
-    })
-    async findAllContacts(@Req() req: ExpressRequest): Promise<any[]> {
-      let start = new Date()
-      const user = req.user as ReadUserDto;
-      const userPostsIds = user.posts.map(post => post.id);
-      const postsWithConverts = await this.postService.findAllContactsForCurrentUser(userPostsIds);
-      let c = new Date()
-      let end = c.getTime() - start.getTime()
-      console.log(`все контакты ${end}`)
-      return postsWithConverts;
-    }
+  @Get('contacts')
+  @ApiOperation({ summary: 'Все контакты' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: findAllContactsExample
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  async findAllContacts(@Req() req: ExpressRequest): Promise<any[]> {
+    let start = new Date()
+    const user = req.user as ReadUserDto;
+    const userPostsIds = user.posts.map(post => post.id);
+    const postsWithConverts = await this.postService.findAllContactsForCurrentUser(userPostsIds);
+    let c = new Date()
+    let end = c.getTime() - start.getTime()
+    console.log(`все контакты ${end}`)
+    return postsWithConverts;
+  }
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Все посты в организации' })
@@ -403,7 +403,7 @@ export class PostController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'CREATED!',
-    example: {id: '2420fabb-3e37-445f-87e6-652bfd5a050c'},
+    example: { id: '2420fabb-3e37-445f-87e6-652bfd5a050c' },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
