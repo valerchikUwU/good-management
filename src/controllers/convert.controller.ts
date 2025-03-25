@@ -251,6 +251,12 @@ export class ConvertController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
+  @ApiParam({
+    name: 'convertId',
+    required: true,
+    description: 'Id конверта',
+    example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
+  })
   async approve(
     @Param('convertId') convertId: string,
   ): Promise<string> {
@@ -288,6 +294,12 @@ export class ConvertController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
+  @ApiParam({
+    name: 'convertId',
+    required: true,
+    description: 'Id конверта',
+    example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
+  })
   async finish(
     @Param('convertId') convertId: string,
   ): Promise<string> {
@@ -304,6 +316,11 @@ export class ConvertController {
   @Patch(':convertId/update')
   @UseGuards(FinishConvertGuard)
   @ApiOperation({ summary: 'Обновить конверт' })
+  @ApiBody({
+    description: 'ДТО для обновления конверта',
+    type: ConvertUpdateDto,
+    required: true,
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
@@ -318,6 +335,12 @@ export class ConvertController {
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
+  })
+  @ApiParam({
+    name: 'convertId',
+    required: true,
+    description: 'Id конверта',
+    example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
   })
   async update(
     @Param('convertId') convertId: string,
