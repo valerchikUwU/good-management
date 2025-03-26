@@ -16,11 +16,11 @@ export class MessagesGuard implements CanActivate {
         }
         const convert = await this.convertService.findOneById(convertId);
         const userPostsIds = user.posts.map(post => post.id);
-        const isConvertFinished = convert.convertStatus;
-        const ifPostSender = userPostsIds.includes(convert.pathOfPosts[0]);
-        const ifPostReciever = userPostsIds.includes(convert.pathOfPosts[convert.pathOfPosts.length - 1]);
-        const ifPostActive = userPostsIds.includes(convert.activePostId)
-        if ((ifPostSender || ifPostReciever || ifPostActive) && isConvertFinished) {
+        const isConvertNotFinished = convert.convertStatus;
+        const isPostSender = userPostsIds.includes(convert.pathOfPosts[0]);
+        const isPostReciever = userPostsIds.includes(convert.pathOfPosts[convert.pathOfPosts.length - 1]);
+        const isPostActive = userPostsIds.includes(convert.activePostId)
+        if ((isPostSender || isPostReciever || isPostActive) && isConvertNotFinished) {
             return true;
         }
 

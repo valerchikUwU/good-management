@@ -24,6 +24,7 @@ export class WatchersToConvertService {
 
   async updateSeenStatuses(
     lastSeenMessageNumber: number,
+    messagesCount: number,
     convertId: string,
     post: PostReadDto
   ): Promise<void> {
@@ -35,11 +36,11 @@ export class WatchersToConvertService {
           convert: { id: convertId }
         },
       });
-      const unreadMessageCount = watcherToConvert.unreadMessagesCount - lastSeenMessageNumber;
+      const unreadMessageCount = watcherToConvert.unreadMessagesCount - messagesCount;
       await this.watchersToConvertRepository.update(watcherToConvert.id, { lastSeenNumber: lastSeenMessageNumber, unreadMessagesCount: unreadMessageCount})
     } catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при прочтении сообщений');
+      throw new InternalServerErrorException('Ошибка при прочтении сообщений наблюдателем');
     }
   }
 
@@ -61,7 +62,7 @@ export class WatchersToConvertService {
       this.logger.error(err);
 
       throw new InternalServerErrorException(
-        'Ой, что - то пошло не так при добавлении участников к конверту!',
+        'Ой, что - то пошло не так при добавлении наблюдателей к конверту!',
       );
     }
   }
@@ -74,7 +75,7 @@ export class WatchersToConvertService {
         this.logger.error(err);
   
         throw new InternalServerErrorException(
-          'Ой, что - то пошло не так при удалении участников конверта!',
+          'Ой, что - то пошло не так при удалении наблюдателей конверта!',
         );
       }
     }

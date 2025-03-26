@@ -240,10 +240,8 @@ export class ConvertGateway
     const start = new Date();
     const uniqueMessageIds: string[] = payload.messageIds.filter((item, i, ar) => { return ar.indexOf(item) === i; });
     const messagesCount = uniqueMessageIds.length;
-    await this.watchersToConvertService.updateSeenStatuses(messagesCount, payload.convertId, payload.post);
+    await this.watchersToConvertService.updateSeenStatuses(payload.lastSeenMessageNumber, messagesCount, payload.convertId, payload.post);
 
-
-    this.ws.to(payload.convertId).emit('messagesAreSeen', { dateSeen: new Date(), messageIds: payload.messageIds });
     const now = new Date();
     console.log(`все сообщения увидены ${now.getTime() - start.getTime()}`);
     return true;
