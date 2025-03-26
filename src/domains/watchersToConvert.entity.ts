@@ -22,6 +22,6 @@ export class WatchersToConvert {
   /**
    * Дата последнего просмотра чата.
    */
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', default: 0 })
   lastSeenNumber: number;
 }

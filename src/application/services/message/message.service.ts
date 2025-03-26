@@ -87,12 +87,7 @@ export class MessageService {
           .leftJoin('convert.watchersToConvert', 'watchersToConvert')
           .where('message.convertId = :convertId', { convertId })
           .andWhere('watchersToConvert.postId IN (:...userPostIds)', { userPostIds })
-          .andWhere(
-            new Brackets(qb => {
-              qb.where('message.messageNumber > watchersToConvert.lastSeenNumber')
-                .orWhere('watchersToConvert.lastSeenNumber IS NULL'); // Добавил обработку NULL значений
-            })
-          )
+          .andWhere('message.messageNumber > watchersToConvert.lastSeenNumber')
           .orderBy('message.createdAt', 'DESC')
           .getMany();
 
