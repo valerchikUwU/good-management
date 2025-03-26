@@ -37,7 +37,7 @@ export class WatchersToConvertService {
         },
       });
       const unreadMessageCount = watcherToConvert.unreadMessagesCount - messagesCount;
-      await this.watchersToConvertRepository.update(watcherToConvert.id, { lastSeenNumber: lastSeenMessageNumber, unreadMessagesCount: unreadMessageCount})
+      await this.watchersToConvertRepository.update(watcherToConvert.id, { lastSeenNumber: lastSeenMessageNumber, unreadMessagesCount: unreadMessageCount });
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при прочтении сообщений наблюдателем');
@@ -67,18 +67,18 @@ export class WatchersToConvertService {
     }
   }
 
-    async remove(convert: ConvertReadDto): Promise<void> {
-      try {
-        await this.watchersToConvertRepository.delete({ convert: convert });
-      }
-      catch (err) {
-        this.logger.error(err);
-  
-        throw new InternalServerErrorException(
-          'Ой, что - то пошло не так при удалении наблюдателей конверта!',
-        );
-      }
+  async remove(convert: ConvertReadDto): Promise<void> {
+    try {
+      await this.watchersToConvertRepository.delete({ convert: convert });
     }
+    catch (err) {
+      this.logger.error(err);
+
+      throw new InternalServerErrorException(
+        'Ой, что - то пошло не так при удалении наблюдателей конверта!',
+      );
+    }
+  }
 }
 
 

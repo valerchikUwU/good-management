@@ -33,8 +33,8 @@ export class MessageService {
 
   async findSeenForWatcherForConvert(convertId: string, pagination: number, userPostIds: string[]): Promise<MessageReadDto[]> {
     try {
-      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:seen:watcher`)
-      const messages = cachedMessages ??
+      // const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:seen:watcher`)
+      const messages = 
         await this.messageRepository.createQueryBuilder('message')
           .leftJoinAndSelect('message.attachmentToMessages', 'attachmentToMessages')
           .leftJoinAndSelect('attachmentToMessages.attachment', 'attachment')
@@ -51,9 +51,9 @@ export class MessageService {
           .getMany();
 
 
-      if (!cachedMessages && messages.length !== 0) {
-        await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}:seen:watcher`, messages, 1860000);
-      }
+      // if (!cachedMessages && messages.length !== 0) {
+      //   await this.cacheService.set<Message[]>(`messages:${convertId}:${pagination}:seen:watcher`, messages, 1860000);
+      // }
 
       return messages.map((message) => ({
         id: message.id,
@@ -76,8 +76,8 @@ export class MessageService {
 
   async findUnseenForWatcherForConvert(convertId: string, userPostIds: string[]): Promise<MessageReadDto[]> {
     try {
-      const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:unseen:watcher`)
-      const messages = cachedMessages ??
+      // const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:unseen:watcher`)
+      const messages = 
         await this.messageRepository.createQueryBuilder('message')
           .leftJoinAndSelect('message.attachmentToMessages', 'attachmentToMessages')
           .leftJoinAndSelect('attachmentToMessages.attachment', 'attachment')
@@ -92,9 +92,9 @@ export class MessageService {
           .getMany();
 
 
-      if (!cachedMessages && messages.length !== 0) {
-        await this.cacheService.set<Message[]>(`messages:${convertId}:unseen:watcher`, messages, 1860000);
-      }
+      // if (!cachedMessages && messages.length !== 0) {
+      //   await this.cacheService.set<Message[]>(`messages:${convertId}:unseen:watcher`, messages, 1860000);
+      // }
 
       return messages.map((message) => ({
         id: message.id,
@@ -272,7 +272,7 @@ export class MessageService {
       await this.messageRepository.update(_id, { content: message.content });
 
       // Используем pipeline для выполнения удаления всех ключей одним запросом
-      this.redis.keys(`undefined:messages:${message.convert.id}:*`).then((keys) => {
+      this.redis.keys(`undefined:messages:${message.convert.id}`).then((keys) => {
         let pipeline = this.redis.pipeline();
         pipeline.unlink(keys)
         return pipeline.exec();
