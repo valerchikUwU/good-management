@@ -45,7 +45,7 @@ export class WatchersToConvertService {
   }
 
 
-  async createSeveral(convert: Convert, postIds: string[]): Promise<void> {
+  async createSeveral(convert: Convert, postIds: string[], messageCount: number): Promise<void> {
     try {
       const posts = await this.postService.findBulk(postIds);
 
@@ -53,6 +53,7 @@ export class WatchersToConvertService {
         const watcherToConvert = new WatchersToConvert();
         watcherToConvert.post = post;
         watcherToConvert.convert = convert;
+        watcherToConvert.unreadMessagesCount = messageCount
         return watcherToConvert;
       })
 

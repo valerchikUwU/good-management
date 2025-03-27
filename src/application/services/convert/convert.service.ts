@@ -169,9 +169,12 @@ export class ConvertService {
 
   async update(_id: string, convertUpdateDto: ConvertUpdateDto): Promise<string> {
     try {
-      const convert = await this.convertRepository.findOne({
-        where: { id: _id },
-      });
+      const convert = await this.convertRepository
+        .createQueryBuilder('convert')
+        .leftJoinAndSelect('convert.messages', 'latestMessage', '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")')
+        .where('convert.id = :_id', { _id })
+        .getOne();
+
       if (!convert) {
         throw new NotFoundException(`Конверт с ID ${_id} не найден`);
       }
@@ -181,12 +184,9 @@ export class ConvertService {
       if (convertUpdateDto.convertStatus) {
         convert.convertStatus = convertUpdateDto.convertStatus;
       }
-      if (convertUpdateDto.watcherIds !== null) {
+      if (convertUpdateDto.watcherIds) {
         await this.watchersToConvertService.remove(convert);
-        await this.watchersToConvertService.createSeveral(convert, convertUpdateDto.watcherIds)
-      }
-      else {
-        await this.watchersToConvertService.remove(convert);
+        await this.watchersToConvertService.createSeveral(convert, convertUpdateDto.watcherIds, convert.messages[0].messageNumber)
       }
       if (convertUpdateDto.convertToPostIds) {
         await this.convertToPostService.remove(convert);
