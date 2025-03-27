@@ -27,6 +27,7 @@ export class ConvertUpdateDto {
     required: false,
     example: '27b360b3-7caf-48bd-a91a-5f7adef327de',
   })
+  @IsOptional()
   @IsUUID()
   @IsNotEmpty({ message: 'Id конверта не может быть пустым!' })
   activePostId?: string;
@@ -45,22 +46,9 @@ export class ConvertUpdateDto {
   @ApiProperty({
     description: 'Статус завершения конверта',
     required: false,
-    example: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+    example: true,
   })
   @IsOptional()
   @IsBoolean()
   convertStatus?: boolean;
-
-  // @ApiProperty({
-  //     description: 'IDs участников чата и их тип', example:
-  //     [
-  //         {
-  //             userType: 'Наблюдатель',
-  //             userId: '3b809c42-2824-46c1-9686-dd666403402a'
-  //         }
-  //     ]
-  // })
-  // @IsArray({ message: 'Должен быть массив' })
-  // @ArrayNotEmpty({ message: 'Добавьте хотя бы одного участника чата!' })
-  // convertToUserCreateDtos: ConvertToUserCreateDto[];
 }
