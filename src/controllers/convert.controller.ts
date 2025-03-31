@@ -279,7 +279,7 @@ export class ConvertController {
   }
 
 
-  @Patch(':convertId/approve')
+  @Patch(':convertId/finish')
   @UseGuards(FinishConvertGuard)
   @ApiOperation({ summary: 'Завершить конверт' })
   @ApiResponse({
