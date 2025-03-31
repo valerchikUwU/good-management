@@ -238,6 +238,7 @@ export class MessageController {
         @Param('convertId') convertId: string,
         @Body() messageCreateDto: MessageCreateDto
     ): Promise<{ id: string }> {
+        const start = new Date();
         const user = req.user as ReadUserDto;
         const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId);
         const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user', 'watchersToConvert']);
@@ -254,12 +255,14 @@ export class MessageController {
         const createdMessageId = await this.messageService.create(messageCreateDto);
         const messageWithAttachments = await this.messageService.findOne(createdMessageId, ['attachmentToMessages.attachment', 'sender.user']);
         const watcherIds = convert.watchersToConvert.map(watcher => watcher.id);
-        this.watcherToConvertService.updateWatchersCount(watcherIds);
+        await this.watcherToConvertService.updateWatchersCount(watcherIds);
         this.convertGateway.handleMessageCreationEvent(convertId, messageWithAttachments);
         this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, postIdsInConvert);
         this.logger.info(
             `${yellow('OK!')} - messageCreateDto: ${JSON.stringify(messageCreateDto)} - Создано новое сообщение!`,
         );
+        const now = new Date();
+        console.log(now.getTime() - start.getTime())
         return { id: createdMessageId };
     }
 }
