@@ -9,6 +9,7 @@ import { Convert } from "src/domains/convert.entity";
 import { PostService } from "../post/post.service";
 import { PostReadDto } from "src/contracts/post/read-post.dto";
 import { ConvertReadDto } from "src/contracts/convert/read-convert.dto";
+import { In } from "typeorm";
 
 @Injectable()
 export class WatchersToConvertService {
@@ -38,6 +39,23 @@ export class WatchersToConvertService {
       });
       const unreadMessageCount = watcherToConvert.unreadMessagesCount - messagesCount;
       await this.watchersToConvertRepository.update(watcherToConvert.id, { lastSeenNumber: lastSeenMessageNumber, unreadMessagesCount: unreadMessageCount });
+    } catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при прочтении сообщений наблюдателем');
+    }
+  }
+
+
+  async updateWatchersCount(
+    watcherIds: string[],
+  ): Promise<void> {
+    try {
+      // await this.watchersToConvertRepository.increment(watcherIds, 'unreadMessagesCount', 1 );
+      await this.watchersToConvertRepository.createQueryBuilder()
+        .update()
+        .set({ unreadMessagesCount: () => "unreadMessagesCount + 1" })
+        .where("id IN (:...watcherIds)", { watcherIds })
+        .execute();
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при прочтении сообщений наблюдателем');

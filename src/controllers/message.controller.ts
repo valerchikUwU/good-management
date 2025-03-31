@@ -33,6 +33,7 @@ import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { ConvertService } from 'src/application/services/convert/convert.service';
 import { ConvertGateway } from 'src/gateways/convert.gateway';
 import { MessagesGuard } from 'src/guards/message.guard';
+import { WatchersToConvertService } from 'src/application/services/watchersToConvert/watchersToConvert.service';
 
 @ApiTags('Messages')
 @ApiBearerAuth('access-token')
@@ -42,6 +43,7 @@ export class MessageController {
     constructor(
         private readonly messageService: MessageService,
         private readonly convertService: ConvertService,
+        private readonly watcherToConvertService: WatchersToConvertService,
         private readonly convertGateway: ConvertGateway,
         @Inject('winston') private readonly logger: Logger,
     ) { }
@@ -238,7 +240,7 @@ export class MessageController {
     ): Promise<{ id: string }> {
         const user = req.user as ReadUserDto;
         const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId);
-        const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user']);
+        const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user', 'watchersToConvert']);
         const postIdsInConvert = convert.convertToPosts.map(convertToPost => {
             if (convertToPost.post.id !== userSenderPost.id)
                 return convertToPost.post.user.id
@@ -250,7 +252,9 @@ export class MessageController {
         messageCreateDto.convert = convert;
         messageCreateDto.sender = userSenderPost;
         const createdMessageId = await this.messageService.create(messageCreateDto);
-        const messageWithAttachments = await this.messageService.findOne(createdMessageId, ['attachmentToMessages.attachment', 'sender.user'])
+        const messageWithAttachments = await this.messageService.findOne(createdMessageId, ['attachmentToMessages.attachment', 'sender.user']);
+        const watcherIds = convert.watchersToConvert.map(watcher => watcher.id);
+        this.watcherToConvertService.updateWatchersCount(watcherIds);
         this.convertGateway.handleMessageCreationEvent(convertId, messageWithAttachments);
         this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, postIdsInConvert);
         this.logger.info(
