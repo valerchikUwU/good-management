@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayNotEmpty, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsUUID } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import { ArrayMaxSize, ArrayMinSize, ArrayNotEmpty, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsUUID } from 'class-validator';
 // import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
 
 export class ConvertUpdateDto {
@@ -19,7 +20,7 @@ export class ConvertUpdateDto {
   })
   @IsOptional()
   @IsUUID('4', { each: true })
-  @ArrayNotEmpty({ message: 'Массив наблюдателей не может быть пустым!' })
+  @ArrayMinSize(2, { message: 'Участников должно быть не меньше двух!' })
   convertToPostIds?: string[];
 
   @ApiProperty({

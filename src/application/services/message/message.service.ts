@@ -34,7 +34,7 @@ export class MessageService {
   async findSeenForWatcherForConvert(convertId: string, pagination: number, userPostIds: string[]): Promise<MessageReadDto[]> {
     try {
       // const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:${pagination}:seen:watcher`)
-      const messages = 
+      const messages =
         await this.messageRepository.createQueryBuilder('message')
           .leftJoinAndSelect('message.attachmentToMessages', 'attachmentToMessages')
           .leftJoinAndSelect('attachmentToMessages.attachment', 'attachment')
@@ -77,7 +77,7 @@ export class MessageService {
   async findUnseenForWatcherForConvert(convertId: string, userPostIds: string[]): Promise<MessageReadDto[]> {
     try {
       // const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:unseen:watcher`)
-      const messages = 
+      const messages =
         await this.messageRepository.createQueryBuilder('message')
           .leftJoinAndSelect('message.attachmentToMessages', 'attachmentToMessages')
           .leftJoinAndSelect('attachmentToMessages.attachment', 'attachment')
@@ -236,6 +236,42 @@ export class MessageService {
   }
 
 
+  async findBulk(ids: string[]): Promise<MessageReadDto[]> {
+    try {
+      const messages = await this.messageRepository.find({
+        where: { id: In(ids) },
+      });
+      const foundIds = messages.map(message => message.id);
+      const missingIds = ids.filter(id => !foundIds.includes(id));
+      if (missingIds.length > 0) {
+        throw new NotFoundException(
+          `Не найдены сообщения с IDs: ${missingIds.join(', ')}`,
+        );
+      }
+      return messages.map((message) => ({
+        id: message.id,
+        content: message.content,
+        messageNumber: message.messageNumber,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        convert: message.convert,
+        sender: message.sender,
+        attachmentToMessages: message.attachmentToMessages,
+        seenStatuses: message.seenStatuses
+      }));
+
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при получении сообщений');
+    }
+  }
+
   async create(messageCreateDto: MessageCreateDto): Promise<string> {
     try {
       const createdMessage = await this.messageRepository.save(messageCreateDto);
@@ -288,42 +324,6 @@ export class MessageService {
 
       // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении сообщения');
-    }
-  }
-
-  async findBulk(ids: string[]): Promise<MessageReadDto[]> {
-    try {
-      const messages = await this.messageRepository.find({
-        where: { id: In(ids) },
-      });
-      const foundIds = messages.map(message => message.id);
-      const missingIds = ids.filter(id => !foundIds.includes(id));
-      if (missingIds.length > 0) {
-        throw new NotFoundException(
-          `Не найдены сообщения с IDs: ${missingIds.join(', ')}`,
-        );
-      }
-      return messages.map((message) => ({
-        id: message.id,
-        content: message.content,
-        messageNumber: message.messageNumber,
-        createdAt: message.createdAt,
-        updatedAt: message.updatedAt,
-        convert: message.convert,
-        sender: message.sender,
-        attachmentToMessages: message.attachmentToMessages,
-        seenStatuses: message.seenStatuses
-      }));
-
-    } catch (err) {
-      this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
-      }
-
-      // Обработка других ошибок
-      throw new InternalServerErrorException('Ошибка при получении сообщений');
     }
   }
 }

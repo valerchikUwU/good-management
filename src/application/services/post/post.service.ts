@@ -195,7 +195,7 @@ export class PostService {
         .leftJoin('post.user', 'user')
         .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
         .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
-        .leftJoin('c.watchersToConvert', 'wtc')
+        .leftJoin('c.watchersToConvert', 'wtc', 'wtc.postId IN (:...userPostsIds)', { userPostsIds })
         .leftJoin('wtc.post', 'watcher')
         .leftJoin(
           'c.messages',
@@ -212,15 +212,17 @@ export class PostService {
           qb.where('"c"."pathOfPosts"[1] IN (:...userPostsIds)', { userPostsIds })
             .andWhere('"c"."pathOfPosts"[array_length("c"."pathOfPosts", 1)] = "post"."id"')
             .orWhere(new Brackets((qb) => {
-              qb.where(`EXISTS (
-                  SELECT 1 FROM "convert_to_post" "sub_ctp"
-                  INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
-                  WHERE "sub_ctp"."convertId" = c.id
-                  AND "sub_post"."id" IN (:...userPostsIds)
-              )`)
-              .andWhere('"c"."pathOfPosts"[1] = "post"."id"')
+              qb.where('"c"."pathOfPosts"[1] = "post"."id"')
+                .andWhere(new Brackets((qb) => {
+                  qb.where(`EXISTS (
+                      SELECT 1 FROM "convert_to_post" "sub_ctp"
+                      INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
+                      WHERE "sub_ctp"."convertId" = c.id
+                      AND "sub_post"."id" IN (:...userPostsIds)
+                  )`)
+                    .orWhere('watcher.id IN (:...userPostsIds)', { userPostsIds })
+                }))
             }))
-            .orWhere('watcher.id IN (:...userPostsIds)', { userPostsIds })
         }))
         // .andWhere(new Brackets((qb) => {
         //   qb.where(`EXISTS (

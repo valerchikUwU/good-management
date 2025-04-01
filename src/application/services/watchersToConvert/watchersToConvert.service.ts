@@ -58,7 +58,7 @@ export class WatchersToConvertService {
         .execute();
     } catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при прочтении сообщений наблюдателем');
+      throw new InternalServerErrorException('Ошибка при обновлении счетчика непрочитанных сообщений для наблюдателя');
     }
   }
 

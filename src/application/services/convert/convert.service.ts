@@ -184,9 +184,12 @@ export class ConvertService {
       if (convertUpdateDto.convertStatus) {
         convert.convertStatus = convertUpdateDto.convertStatus;
       }
-      if (convertUpdateDto.watcherIds) {
+      if (convertUpdateDto.watcherIds !== null) {
         await this.watchersToConvertService.remove(convert);
         await this.watchersToConvertService.createSeveral(convert, convertUpdateDto.watcherIds, convert.messages[0].messageNumber)
+      }
+      else {
+        await this.watchersToConvertService.remove(convert);
       }
       if (convertUpdateDto.convertToPostIds) {
         await this.convertToPostService.remove(convert);
@@ -202,12 +205,9 @@ export class ConvertService {
       return convert.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении конверта');
     }
   }
