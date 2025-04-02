@@ -184,12 +184,9 @@ export class ConvertService {
       if (convertUpdateDto.convertStatus) {
         convert.convertStatus = convertUpdateDto.convertStatus;
       }
-      if (convertUpdateDto.watcherIds !== null) {
+      if (convertUpdateDto.watcherIds) {
         await this.watchersToConvertService.remove(convert);
         await this.watchersToConvertService.createSeveral(convert, convertUpdateDto.watcherIds, convert.messages[0].messageNumber)
-      }
-      else {
-        await this.watchersToConvertService.remove(convert);
       }
       if (convertUpdateDto.convertToPostIds) {
         await this.convertToPostService.remove(convert);
