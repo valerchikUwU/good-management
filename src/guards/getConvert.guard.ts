@@ -20,7 +20,7 @@ export class GetConvertGuard implements CanActivate {
         ]);
 
         // Получаем ID пользователей в конверте
-        const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id);
+        const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user?.id);
         const userPostsIds = user.posts.map(post => post.id);
 
         const watcherIdsInConvert = convert.watchersToConvert?.map(watcherToConvert => watcherToConvert.post.id);

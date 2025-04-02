@@ -18,11 +18,11 @@ export class ApproveConvertGuard implements CanActivate {
         const userPostsIds = user.posts.map(post => post.id);
 
 
-        const isConvertFinished = convert.convertStatus;
+        const isConvertActive = convert.convertStatus;
         const isUserPostActive = userPostsIds.includes(convert.activePostId);
         const isActiveLast = convert.activePostId === convert.pathOfPosts[convert.pathOfPosts.length] ? true : false;
         
-        if (isUserPostActive && !isActiveLast && !isConvertFinished){
+        if (isUserPostActive && !isActiveLast && isConvertActive){
             return true;
         }
         throw new ForbiddenException('Вы не можете одобрить данный конверт!');
