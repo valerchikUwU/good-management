@@ -275,9 +275,11 @@ export class ConvertController {
       activePostId: convert.pathOfPosts[indexOfActivePostId + 1],
       convertToPostIds: newConvertToPostIds,
     };
-    const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
-
-    return finishedConvertId;
+    const approvedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    this.logger.info(
+      `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт одобрен!`,
+    );
+    return approvedConvertId;
   }
 
 
@@ -313,7 +315,9 @@ export class ConvertController {
       convertStatus: false,
     };
     const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
-
+    this.logger.info(
+      `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт завершен!`,
+    );
     return finishedConvertId;
   }
 
