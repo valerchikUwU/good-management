@@ -37,6 +37,7 @@ import { MessageService } from 'src/application/services/message/message.service
 import { findAllForContact, findOneConvertExample } from 'src/constants/swagger-examples/convert/convert-examples';
 import { GetConvertGuard } from 'src/guards/getConvert.guard';
 import { FinishConvertGuard } from 'src/guards/finishConvert.guard';
+import { ApproveConvertGuard } from 'src/guards/approveConvert.guard';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -238,6 +239,7 @@ export class ConvertController {
   }
 
   @Patch(':convertId/approve') // в guard проверку на host.user.id и что activePostId не последний в массиве
+  @UseGuards(ApproveConvertGuard)
   @ApiOperation({ summary: 'Продолжить конверт (аппрувнуть) его по pathOfPosts' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -317,7 +319,6 @@ export class ConvertController {
 
 
   @Patch(':convertId/update')
-  @UseGuards(FinishConvertGuard)
   @ApiOperation({ summary: 'Обновить конверт' })
   @ApiBody({
     description: 'ДТО для обновления конверта',

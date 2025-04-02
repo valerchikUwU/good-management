@@ -21,12 +21,11 @@ export class GetConvertGuard implements CanActivate {
 
         // Получаем ID пользователей в конверте
         const userIdsInConvert = convert.convertToPosts.map(convertToPost => convertToPost.post.user.id);
-
-        const watcherIdsInConvert = convert.watchersToConvert.map(watcherToConvert => watcherToConvert.post.id);
         const userPostsIds = user.posts.map(post => post.id);
 
+        const watcherIdsInConvert = convert.watchersToConvert?.map(watcherToConvert => watcherToConvert.post.id);
         // Проверяем, является ли пользователь владельцем или наблюдателем
-        const isWatcher = watcherIdsInConvert.some(id => userPostsIds.includes(id)) ?? false;
+        const isWatcher = watcherIdsInConvert?.some(id => userPostsIds.includes(id)) ?? false;
 
         if (userIdsInConvert.includes(user.id) || isWatcher) {
             return true;
