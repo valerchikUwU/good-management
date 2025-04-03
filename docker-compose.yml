@@ -31,7 +31,7 @@ services:
       - ./uploads:/app/uploads
       - ./logs:/app/logs
       # - /root/gm_front_build/GM:/static/frontend/build  # Монтирование папки с фронтендом
-    user: "0:0"  # Замените на ваш UID и GID
+    user: "0:0"  
 
   pgadmin:
     image: dpage/pgadmin4

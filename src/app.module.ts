@@ -83,14 +83,14 @@ dotenv.config();
       rootPath: process.env.UPLOADS_PATH,
       serveRoot: process.env.NODE_ENV === 'prod' ? '/gm/app/uploads' : '/app/uploads',
     }),
-    ...(process.env.NODE_ENV === 'prod'
-      ? [
-        ServeStaticModule.forRoot({
-          rootPath: process.env.BUILD_PATH,
-          serveRoot: '/gm',
-        })
-      ]
-      : []),
+    // ...(process.env.NODE_ENV === 'prod'
+    //   ? [
+    //     ServeStaticModule.forRoot({
+    //       rootPath: process.env.BUILD_PATH,
+    //       serveRoot: '/gm',
+    //     })
+    //   ]
+    //   : []),
     WinstonModule.forRoot(winstonConfig),
     UsersModule,
     AuthModule,

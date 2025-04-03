@@ -205,7 +205,8 @@ export class PostService {
             WHERE "mrs"."messageId" = "unreadMessages"."id"
             AND "mrs"."postId" IN (:...userPostsIds)
           ) 
-          AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
+          AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)
+          AND "watcher"."id" NOT IN (:...userPostsIds)`
         )
         .where('"post"."id" NOT IN (:...userPostsIds)', { userPostsIds })
         .andWhere(new Brackets((qb) => {
@@ -224,16 +225,6 @@ export class PostService {
                 }))
             }))
         }))
-        // .andWhere(new Brackets((qb) => {
-        //   qb.where(`EXISTS (
-        //       SELECT 1 FROM "convert_to_post" "sub_ctp"
-        //       INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
-        //       WHERE "sub_ctp"."convertId" = c.id
-        //       AND "sub_post"."id" IN (:...userPostsIds)
-        //     )`
-        //   )
-        //   .orWhere('watcher.id IN (:...userPostsIds)', { userPostsIds })
-        // }))
         .select([
           'post.id AS "id"',
           'post.postName AS "postName"',

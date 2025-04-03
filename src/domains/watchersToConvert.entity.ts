@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Convert } from './convert.entity';
 import { Post } from './post.entity';
 
@@ -6,12 +6,6 @@ import { Post } from './post.entity';
 export class WatchersToConvert {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @ManyToOne(() => Convert, (convert) => convert.watchersToConvert, { nullable: false, onDelete: 'CASCADE' })
-  convert: Convert;
-
-  @ManyToOne(() => Post, { nullable: false, onDelete: 'CASCADE' })
-  post: Post;
 
   /**
    * Количество непрочитанных сообщений для данного наблюдателя.
@@ -24,4 +18,16 @@ export class WatchersToConvert {
    */
   @Column({ type: 'int', default: 0 })
   lastSeenNumber: number;
+
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  updatedAt: Date;
+
+  @ManyToOne(() => Convert, (convert) => convert.watchersToConvert, { nullable: false, onDelete: 'CASCADE' })
+  convert: Convert;
+
+  @ManyToOne(() => Post, { nullable: false, onDelete: 'CASCADE' })
+  post: Post;
 }

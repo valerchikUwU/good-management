@@ -253,6 +253,10 @@ export class ConvertController {
     description: 'Вы не авторизованы!',
   })
   @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Вы не можете одобрить данный конверт!',
+  })
+  @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
@@ -296,6 +300,10 @@ export class ConvertController {
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
     description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Вы не можете завершить данный конверт!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -355,6 +363,9 @@ export class ConvertController {
     @Body() convertUpdateDto: ConvertUpdateDto
   ): Promise<string> {
     const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    this.logger.info(
+      `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт обновлен!`,
+    );
     return finishedConvertId;
   }
 }
