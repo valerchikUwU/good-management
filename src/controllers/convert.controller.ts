@@ -38,6 +38,7 @@ import { findAllForContact, findOneConvertExample } from 'src/constants/swagger-
 import { GetConvertGuard } from 'src/guards/getConvert.guard';
 import { FinishConvertGuard } from 'src/guards/finishConvert.guard';
 import { ApproveConvertGuard } from 'src/guards/approveConvert.guard';
+import { PostReadDto } from 'src/contracts/post/read-post.dto';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -52,6 +53,47 @@ export class ConvertController {
     private readonly convertGateway: ConvertGateway,
     @Inject('winston') private readonly logger: Logger,
   ) { }
+
+
+
+
+  @Get(':contactId/converts/archive')
+  @ApiOperation({ summary: 'Все архивные конверты' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: findAllForContact
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({
+    name: 'contactId',
+    required: true,
+    description: 'Id контакта (поста)',
+    example: '5fc5ec49-d658-4fe1-b4c9-7dd01d38a652',
+  })
+  async findAllArchiveForContact(
+    @Req() req: ExpressRequest,
+    @Param('contactId') contactId: string
+  ): Promise<any> {
+    let start = new Date()
+    const user = req.user as ReadUserDto;
+    const userPostsIds = user.posts.map(post => post.id);
+    const [archiveConvertsForContact, archiveCopiesForContact] = await Promise.all([
+      this.convertService.findAllArchiveForContact(userPostsIds, contactId),
+      this.convertService.findAllArchiveCopiesForContact(userPostsIds, contactId)
+    ])
+    let c = new Date()
+    let end = c.getTime() - start.getTime()
+    console.log(`чаты ${end}`)
+    return { archiveConvertsForContact: archiveConvertsForContact, archiveCopiesForContact: archiveCopiesForContact };
+  }
 
   @Get(':contactId/converts')
   @ApiOperation({ summary: 'Все конверты' })
@@ -77,7 +119,7 @@ export class ConvertController {
   async findAllForContact(
     @Req() req: ExpressRequest,
     @Param('contactId') contactId: string
-  ): Promise<any> {
+  ): Promise<{ contact: PostReadDto; convertsForContact: any[]; copiesForContact: any[] }> {
     let start = new Date()
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map(post => post.id);
@@ -91,6 +133,8 @@ export class ConvertController {
     console.log(`чаты ${end}`)
     return { contact: contact, convertsForContact: convertsForContact, copiesForContact: copiesForContact };
   }
+
+
 
   @Get(':convertId')
   @UseGuards(GetConvertGuard)

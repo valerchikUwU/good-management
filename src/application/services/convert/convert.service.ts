@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Convert } from 'src/domains/convert.entity';
+import { Convert, PathConvert } from 'src/domains/convert.entity';
 import { ConvertRepository } from './repository/convert.repository';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { Logger } from 'winston';
@@ -24,6 +24,77 @@ export class ConvertService {
     private readonly watchersToConvertService: WatchersToConvertService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
+
+
+  async findAllArchiveForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
+    try {
+      const converts = await this.convertRepository
+        .createQueryBuilder('convert')
+        .innerJoin('convert.convertToPosts', 'convertToPost')
+        .innerJoin('convertToPost.post', 'post')
+        .leftJoin(
+          'convert.messages',
+          'latestMessage',
+          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")'
+        )
+        .where('post.id IN (:...userPostsIds)', { userPostsIds })
+        .andWhere(new Brackets((qb) => {
+          qb.where('"convert"."pathOfPosts"[1] IN (:...userPostsIds)', { userPostsIds })
+            .andWhere('"convert"."pathOfPosts"[array_length("convert"."pathOfPosts", 1)] = :contactId', { contactId })
+            .andWhere('convert.convertStatus = false')
+            .orWhere(new Brackets((qb) => {
+              qb.where(`EXISTS (
+                    SELECT 1 FROM "convert_to_post" "sub_ctp"
+                    INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
+                    WHERE "sub_ctp"."convertId" = convert.id
+                    AND "sub_post"."id" IN (:...userPostsIds)
+                )`
+              )
+                .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
+                .andWhere('"convert.convertPath != :directPath', { directPath: PathConvert.DIRECT })
+                .andWhere('"convert"."activePostId" NOT IN (:...userPostsIds)', { userPostsIds })
+            }))
+        }))
+        .select([
+          'convert.*',
+          '"latestMessage"."content" AS "latestMessageContent"',
+          '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
+        ])
+        .groupBy('convert.id , "latestMessage"."content", "latestMessage"."createdAt"')
+        .getRawMany();
+      return converts;
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Ошибка при получении конверта');
+    }
+  }
+
+  async findAllArchiveCopiesForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
+    try {
+      const converts = await this.convertRepository
+        .createQueryBuilder('convert')
+        .innerJoin('convert.convertToPosts', 'convertToPost')
+        .innerJoin('convertToPost.post', 'post')
+        .leftJoinAndSelect('convert.watchersToConvert', 'wtc')
+        .leftJoin('wtc.post', 'watcher')
+        .where('watcher.id IN (:...userPostsIds)', { userPostsIds })
+        .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
+        .andWhere('wtc.unreadMessagesCount = 0')
+        .getMany();
+      return converts;
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Ошибка при получении конверта');
+    }
+  }
 
 
 
@@ -52,6 +123,7 @@ export class ConvertService {
         .andWhere(new Brackets((qb) => {
           qb.where('"convert"."pathOfPosts"[1] IN (:...userPostsIds)', { userPostsIds })
             .andWhere('"convert"."pathOfPosts"[array_length("convert"."pathOfPosts", 1)] = :contactId', { contactId })
+            .andWhere('convert.convertStatus = true')
             .orWhere(new Brackets((qb) => {
               qb.where(`EXISTS (
                     SELECT 1 FROM "convert_to_post" "sub_ctp"
@@ -61,6 +133,8 @@ export class ConvertService {
                 )`
               )
                 .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
+                .andWhere('"convert.convertPath != :directPath', { directPath: PathConvert.DIRECT })
+                .andWhere('"convert"."activePostId" IN (:...userPostsIds)', { userPostsIds })
             }))
         }))
         .select([
@@ -93,6 +167,7 @@ export class ConvertService {
         .leftJoin('wtc.post', 'watcher')
         .where('watcher.id IN (:...userPostsIds)', { userPostsIds })
         .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
+        .andWhere('wtc.unreadMessagesCount > 0')
         .getMany();
       return converts;
     } catch (err) {
