@@ -166,17 +166,20 @@ export class MessageService {
       const cachedMessages = await this.cacheService.get<Message[]>(`messages:${convertId}:unseen`)
       const messages = cachedMessages ??
         await this.messageRepository.createQueryBuilder('message')
-          .leftJoinAndSelect('message.seenStatuses', 'seenStatus')
-          .leftJoinAndSelect('seenStatus.post', 'post')
-          .leftJoinAndSelect('post.user', 'reader')
+          .leftJoin('message.seenStatuses', 'seenStatus')
+          .leftJoin('seenStatus.post', 'post')
+          .leftJoin('post.user', 'reader')
           .leftJoinAndSelect('message.attachmentToMessages', 'attachmentToMessages')
           .leftJoinAndSelect('attachmentToMessages.attachment', 'attachment')
           .leftJoinAndSelect('message.sender', 'sender')
           .leftJoinAndSelect('sender.user', 'user')
           .where('message.convertId = :convertId', { convertId })
           .andWhere('sender.id NOT IN (:...userPostIds)', { userPostIds })
-          .groupBy('message.id, sender.id, user.id, attachmentToMessages.id, attachment.id, seenStatus.id, post.id, reader.id')
-          .having(`COUNT(CASE WHEN seenStatus.postId IN (:...userPostIds) THEN 1 ELSE NULL END) = 0`)
+          .andWhere(`NOT EXISTS (
+            SELECT 1 FROM "message_seen_status" "mrs"
+            WHERE "mrs"."messageId" = "message"."id"
+            AND "mrs"."postId" IN (:...userPostIds)
+          )`, { userPostIds })
           .orderBy('message.createdAt', 'DESC')
           .getMany();
 
@@ -199,7 +202,7 @@ export class MessageService {
     }
     catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при получении прочитанных сообщений в конверте');
+      throw new InternalServerErrorException('Ошибка при получении непрочитанных сообщений в конверте');
     }
   }
 
