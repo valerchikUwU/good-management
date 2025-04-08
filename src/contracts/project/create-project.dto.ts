@@ -15,12 +15,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Organization } from 'src/domains/organization.entity';
-import {
-  HasProductAndRegularTasksForProject,
-  HasProductTaskForProgram,
-  HasProjectIdsForProgram,
-  HasStrategyForProgram,
-} from 'src/validators/project-validator';
 
 export class ProjectCreateDto {
   @ApiProperty({
@@ -76,9 +70,6 @@ export class ProjectCreateDto {
     description: 'Id стратегии',
     required: false,
     example: 'd5eaa436-f93f-4743-854a-6f10a5d290a1',
-  })
-  @HasStrategyForProgram({
-    message: 'Для программы обязательно нужно выбрать стратегию!',
   })
   strategyId?: string;
 
@@ -143,13 +134,6 @@ export class ProjectCreateDto {
   @IsArray({ message: 'Должен быть массив!' })
   @ValidateNested()
   @Type(() => TargetCreateDto)
-  @HasProductTaskForProgram({
-    message: 'Для программы список задач должен содержать хотя бы одну задачу с типом "Продукт"!'
-  })
-  @HasProductAndRegularTasksForProject({
-    message:
-      'Список задач должен содержать хотя бы одну задачу с типом "Продукт" и одну с типом "Обычная".',
-  })
   targetCreateDtos: TargetCreateDto[];
 
   @ApiProperty({
@@ -158,10 +142,6 @@ export class ProjectCreateDto {
   })
   @IsOptional()
   @IsArray()
-  @HasProjectIdsForProgram({
-    message:
-      'Выберите хотя бы один проект для программы!',
-  })
   projectIds?: string[];
 }
 
