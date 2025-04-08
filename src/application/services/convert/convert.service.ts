@@ -133,7 +133,7 @@ export class ConvertService {
                 )`
               )
                 .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
-                .andWhere('"convert.convertPath != :directPath', { directPath: PathConvert.DIRECT })
+                .andWhere('"convert"."convertPath" != :directPath', { directPath: PathConvert.DIRECT })
                 .andWhere('"convert"."activePostId" IN (:...userPostsIds)', { userPostsIds })
             }))
         }))
