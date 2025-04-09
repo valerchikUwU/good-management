@@ -62,17 +62,6 @@ export class ConvertCreateDto {
   convertPath: PathConvert;
 
   @ApiProperty({
-    description: 'Дата окончания актуальности конверта',
-    required: true,
-    example: '2024-09-26T13:03:19.759Z',
-  })
-  @IsDate()
-  @Type(() => Date)
-  @IsNotEmpty({ message: 'Дата не может быть пустой!' })
-  dateFinish: Date;
-
-
-  @ApiProperty({
     description: 'Id поста отправителя',
     required: true,
   })
