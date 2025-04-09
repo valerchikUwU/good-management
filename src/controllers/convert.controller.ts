@@ -177,7 +177,7 @@ export class ConvertController {
       'watchersToConvert.post.user',
       'target'
     ]);
-    const allPostsInConvert = await this.postService.findBulk(convert.pathOfPosts)
+    const allPostsInConvert = await this.postService.findBulk(convert.pathOfPosts, ['user'])
     const now = new Date()
     console.log(`чат по id ${now.getTime() - start.getTime()}`);
     return {convert: convert, allPostsInConvert: allPostsInConvert};

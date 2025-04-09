@@ -213,8 +213,7 @@ export class PostService {
             WHERE "mrs"."messageId" = "unreadMessages"."id"
             AND "mrs"."postId" IN (:...userPostsIds)
           ) 
-          AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)
-          AND "watcher"."id" NOT IN (:...userPostsIds)`
+          AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
         )
         .where('"post"."id" NOT IN (:...userPostsIds)', { userPostsIds })
         .andWhere(new Brackets((qb) => {
@@ -261,10 +260,11 @@ export class PostService {
   }
 
 
-  async findBulk(ids: string[]): Promise<PostReadDto[]> {
+  async findBulk(ids: string[], relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: { id: In(ids) },
+        relations: relations ?? []
       });
       const foundIds = posts.map(post => post.id);
       const missingIds = ids.filter(id => !foundIds.includes(id));
