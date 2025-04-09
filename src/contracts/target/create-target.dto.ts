@@ -18,7 +18,7 @@ import { Convert } from 'src/domains/convert.entity';
 import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
-import { Type as TypeTarget } from 'src/domains/target.entity';
+import { State, Type as TypeTarget } from 'src/domains/target.entity';
 
 @ApiExtraModels()
 export class TargetCreateDto {
@@ -96,6 +96,16 @@ export class TargetCreateDto {
   @IsArray()
   @ArrayNotEmpty({ message: 'Ids файлов не может быть пустым' })
   attachmentIds?: string[];
+
+  @ApiProperty({
+    description: 'Состояние задачи',
+    required: false,
+    example: 'Отменена',
+    examples: ['Отменена', 'Завершена', 'Активная'],
+  })
+  @IsOptional()
+  @IsEnum(State)
+  targetState?: State;
 
   @ApiProperty({
     description: 'Дата начала выполнения (default: new Date())',

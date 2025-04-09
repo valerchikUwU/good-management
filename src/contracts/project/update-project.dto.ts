@@ -16,6 +16,7 @@ import { TargetUpdateDto } from '../target/update-target.dto';
 import { Exclude, Type } from 'class-transformer';
 import { Organization } from 'src/domains/organization.entity';
 import { Strategy } from 'src/domains/strategy.entity';
+import { HasCommonActiveOrFinished, HasProjectIdsForProgram } from 'src/validators/project-validator';
 
 export class ProjectUpdateDto {
   @ApiProperty({
@@ -131,6 +132,7 @@ export class ProjectUpdateDto {
   @IsArray({ message: 'Должен быть массив!' })
   @ValidateNested()
   @Type(() => TargetUpdateDto)
+  @HasCommonActiveOrFinished({message: 'Должна быть хотя бы одна задача с типом "Обычная" и статусом "Активная" или "Завершена"!'})
   targetUpdateDtos?: TargetUpdateDto[];
 
   @ApiProperty({
@@ -139,7 +141,9 @@ export class ProjectUpdateDto {
   })
   @IsOptional()
   @IsArray()
+  @HasProjectIdsForProgram({
+    message:
+      'Выберите хотя бы один проект для программы!',
+  })
   projectIds?: string[];
 }
-
-// не может быть активным пока нет 1 задачи "продукт" и 1 задачи "обычная"

@@ -21,8 +21,8 @@ import { Convert } from './convert.entity';
  * Перечисление типов задач.
  */
 export enum Type {
-  COMMON = 'Обычная',
-  STATISTIC = 'Статистика',
+  COMMON = 'Задача',
+  STATISTIC = 'Метрика',
   RULE = 'Правила',
   PRODUCT = 'Продукт',
   EVENT = 'Организационные мероприятия',
@@ -34,6 +34,7 @@ export enum Type {
  * Перечисление состояний задач.
  */
 export enum State {
+  DRAFT = 'Черновик',
   ACTIVE = 'Активная',
   REJECTED = 'Отменена',
   FINISHED = 'Завершена',
