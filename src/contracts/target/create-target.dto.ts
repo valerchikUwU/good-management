@@ -25,11 +25,11 @@ export class TargetCreateDto {
   @ApiProperty({
     description: 'Тип задачи',
     required: false,
-    default: 'Обычная',
-    example: 'Обычная',
+    default: 'Задача',
+    example: 'Задача',
     examples: [
-      'Обычная',
-      'Статистика',
+      'Задача',
+      'Метрика',
       'Правила',
       'Продукт',
       'Организационные мероприятия',
@@ -101,7 +101,8 @@ export class TargetCreateDto {
     description: 'Состояние задачи',
     required: false,
     example: 'Отменена',
-    examples: ['Отменена', 'Завершена', 'Активная'],
+    default: 'Черновик',
+    examples: ['Отменена', 'Завершена', 'Активная', 'Черновик'],
   })
   @IsOptional()
   @IsEnum(State)

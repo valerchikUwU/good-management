@@ -105,7 +105,7 @@ export class Target {
   @Column({
     type: 'enum',
     enum: State,
-    default: State.ACTIVE,
+    default: State.DRAFT,
     nullable: false,
   })
   targetState: State;
