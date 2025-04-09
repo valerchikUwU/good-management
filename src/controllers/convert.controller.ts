@@ -169,7 +169,7 @@ export class ConvertController {
   })
   async findOne(
     @Param('convertId') convertId: string,
-  ): Promise<ConvertReadDto> {
+  ): Promise<{convert: ConvertReadDto; allPostsInConvert: PostReadDto[]}> {
     const start = new Date()
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
@@ -177,9 +177,10 @@ export class ConvertController {
       'watchersToConvert.post.user',
       'target'
     ]);
+    const allPostsInConvert = await this.postService.findBulk(convert.pathOfPosts)
     const now = new Date()
     console.log(`чат по id ${now.getTime() - start.getTime()}`);
-    return convert;
+    return {convert: convert, allPostsInConvert: allPostsInConvert};
   }
 
   @Post('new')

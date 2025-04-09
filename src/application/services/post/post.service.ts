@@ -249,8 +249,7 @@ export class PostService {
           'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
         ])
         .groupBy('post.id, user.id')
-        .getSql();
-        console.log(posts)
+        .getRawMany();
       return posts
     } catch (err) {
       this.logger.error(err);
