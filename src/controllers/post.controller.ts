@@ -41,7 +41,16 @@ import { HistoryUsersToPostService } from 'src/application/services/historyUsers
 import { HistoryUsersToPostCreateDto } from 'src/contracts/historyUsersToPost/create-historyUsersToPost.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
-import { beforeCreateExample, findAllContactsExample, findAllMyPostsExample, findAllPostsExample, findAllUnderPostsExample, findOnePostExample } from 'src/constants/swagger-examples/post/post-examples';
+import { 
+  beforeCreateExample, 
+  findAllContactsExample, 
+  findAllMyPostsExample, 
+  findAllPostsExample, 
+  findAllUnderPostsExample, 
+  findOnePostExample 
+} from 'src/constants/swagger-examples/post/post-examples';
+import { RoleService } from 'src/application/services/role/role.service';
+import { RoleReadDto } from 'src/contracts/role/read-role.dto';
 
 @ApiTags('Posts')
 @ApiBearerAuth('access-token')
@@ -53,6 +62,7 @@ export class PostController {
     private readonly userService: UsersService,
     private readonly policyService: PolicyService,
     private readonly organizationService: OrganizationService,
+    private readonly roleService: RoleService,
     private readonly producerService: ProducerService,
     private readonly groupService: GroupService,
     private readonly historyUsersToPostService: HistoryUsersToPostService,
@@ -294,12 +304,14 @@ export class PostController {
     workers: ReadUserDto[];
     policies: PolicyReadDto[];
     posts: PostReadDto[];
+    roles: RoleReadDto[];
     maxDivisionNumber: number;
   }> {
-    const [policies, workers, posts, maxDivisionNumber] = await Promise.all([
+    const [policies, workers, posts, roles, maxDivisionNumber] = await Promise.all([
       this.policyService.findAllActiveForOrganization(organizationId),
       this.userService.findAllForOrganization(organizationId),
       this.postService.findAllForOrganization(organizationId, false),
+      this.roleService.findAll(),
       this.postService.findMaxDivisionNumber()
     ])
 
@@ -307,6 +319,7 @@ export class PostController {
       workers: workers,
       policies: policies,
       posts: posts,
+      roles: roles,
       maxDivisionNumber: maxDivisionNumber
     };
   }
@@ -453,6 +466,11 @@ export class PostController {
           postCreateDto.organization = organization;
         },
       ),
+      this.roleService.findOneById(postCreateDto.roleId).then(
+        role => {
+          postCreateDto.role = role;
+        },
+      )
     );
 
     // Выполняем все запросы параллельно
@@ -466,12 +484,7 @@ export class PostController {
         user: postCreateDto.user,
         post: createdPost
       }
-      this.historyUsersToPostService.create(historyUsersToPostCreateDto)
-        .catch((error) => {
-          this.logger.error(
-            `Failed to create historyUsersToPost: ${error.message}`,
-          );
-        });
+      await this.historyUsersToPostService.create(historyUsersToPostCreateDto);
     }
 
 

@@ -16,10 +16,6 @@ import { Policy } from './policy.entity';
 import { Strategy } from './strategy.entity';
 import { Account } from './account.entity';
 import { Project } from './project.entity';
-import { Role } from './role.entity';
-import { Convert } from './convert.entity';
-import { Message } from './message.entity';
-import { GroupToUser } from './groupToUser.entity';
 import { HistoryUsersToPost } from './historyUsersToPost.entity';
 
 /**
@@ -164,12 +160,6 @@ export class User {
   projects: Project[];
 
   /**
-   * Связь с сущностью 1:M GroupToUser.
-   */
-  @OneToMany(() => GroupToUser, (groupToUser) => groupToUser.user)
-  groupToUsers: GroupToUser[];
-
-  /**
    * Связь с сущностью 1:M HistoryUsersToPost.
    */
   @OneToMany(() => HistoryUsersToPost, (historyUsersToPost) => historyUsersToPost.user)
@@ -196,9 +186,5 @@ export class User {
   @Index() // Добавляем индекс на поле account
   account: Account;
 
-  /**
-   * Связь с сущностью М:1 Role
-   */
-  @ManyToOne(() => Role, (role) => role.users, { nullable: true })
-  role: Role;
+
 }

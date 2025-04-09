@@ -18,7 +18,6 @@ import {
 import { ProducerService } from 'src/application/services/producer/producer.service';
 import { RoleSettingService } from 'src/application/services/roleSetting/roleSetting.service';
 import { RoleService } from 'src/application/services/role/role.service';
-import { findeOneExample } from 'src/constants/swagger-examples/account/account-examples';
 
 @ApiTags('Account')
 @Controller('accounts')

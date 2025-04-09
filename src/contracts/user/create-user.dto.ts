@@ -64,14 +64,7 @@ export class CreateUserDto {
   @IsNotEmpty({ message: 'Аватарка юзера не может быть пустой!' })
   avatar_url?: string;
 
-  @ApiProperty({
-    description: 'ID роли',
-    required: false,
-    example: '675a797e-d0f2-4907-bad5-25733c3e2380',
-  })
-  @IsOptional()
-  @IsUUID()
-  roleId?: string;
+
 
   @ApiProperty({
     description: 'ID поста',
@@ -90,9 +83,6 @@ export class CreateUserDto {
   @IsOptional()
   @IsUUID()
   organizationId?: string;
-
-  @Exclude({ toPlainOnly: true })
-  role: Role;
 
   @Exclude({ toPlainOnly: true })
   organization?: Organization;

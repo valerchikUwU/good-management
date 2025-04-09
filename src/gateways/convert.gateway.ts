@@ -265,16 +265,36 @@ export class ConvertGateway
     return true;
   }
 
+  handleConvertApproveEvent(convertId: string, newActivePost: PostReadDto, pathOfPostsWithoutHostPost: string[]) {
+    this.ws.to(convertId).emit('convertApproveEvent', { newActivePost: newActivePost, pathOfPostsWithoutHostPost: pathOfPostsWithoutHostPost });
+    return true;
+  }
+
+  handleConvertFinishEvent(convertId: string, convertStatus: boolean, pathOfPosts: string[]) {
+    let socketsToNotify: Socket[] = [];
+    pathOfPosts.forEach(userId => {
+      const sockets = this.findKeysByValue(this.clients, userId);
+      socketsToNotify = socketsToNotify.concat(sockets);
+    });
+    socketsToNotify.forEach(socket => {
+      socket.join(`CFinE-${convertId}`);
+    });
+    this.ws.to(`CFinE-${convertId}`).emit('convertFinishEvent', { convertStatus: convertStatus });
+    socketsToNotify.forEach(socket => {
+      socket.leave(`CFinE-${convertId}`);
+    });
+    return true;
+  }
 
 
-  handleConvertExtensionEvent(convertId: string, host: PostReadDto, reciever: PostReadDto, pathOfPostsWithoutHostPost: string[]) {
+  handleConvertCreationEvent(convertId: string, host: PostReadDto, reciever: PostReadDto, pathOfPostsWithoutHostPost: string[]) {
     const socketsToNotify = this.findKeysByValue(this.clients, reciever.user.id);
     socketsToNotify.forEach(socket => {
-      socket.join(`CExtE-${convertId}`);
+      socket.join(`CCreE-${convertId}`);
     });
-    this.ws.to(`CExtE-${convertId}`).emit('convertCreationEvent', { host: host, reciever: reciever, pathOfPostsWithoutHostPost: pathOfPostsWithoutHostPost });
+    this.ws.to(`CCreE-${convertId}`).emit('convertCreationEvent', { host: host, reciever: reciever, pathOfPostsWithoutHostPost: pathOfPostsWithoutHostPost });
     socketsToNotify.forEach(socket => {
-      socket.leave(`CExtE-${convertId}`);
+      socket.leave(`CCreE-${convertId}`);
     });
     return true;
   }

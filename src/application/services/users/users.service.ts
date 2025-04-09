@@ -3,7 +3,6 @@ import {
   Inject,
   NotFoundException,
   InternalServerErrorException,
-  BadRequestException,
 } from '@nestjs/common';
 import { User } from '../../../domains/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,7 +12,6 @@ import { UsersRepository } from './Repository/users.repository';
 import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
-import { UpdateTgAuthUserDto } from 'src/contracts/user/update-tgauthUser.dto';
 import { UpdateVkAuthUserDto } from 'src/contracts/user/update-vkauthUser.dto';
 
 @Injectable()
@@ -45,11 +43,7 @@ export class UsersService {
       projects: user.projects,
       organization: user.organization,
       account: user.account,
-      role: user.role,
-      groupToUsers: user.groupToUsers,
       historiesUsersToPost: user.historiesUsersToPost
-
-      // Добавьте любые другие поля, которые должны быть включены в ответ
     }));
   }
 
@@ -81,11 +75,7 @@ export class UsersService {
         projects: user.projects,
         organization: user.organization,
         account: user.account,
-        role: user.role,
-        groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
-
-        // Добавьте любые другие поля, которые должны быть включены в ответ
       }));
     } catch (err) {
       this.logger.error(err);
@@ -123,11 +113,7 @@ export class UsersService {
         projects: user.projects,
         organization: user.organization,
         account: user.account,
-        role: user.role,
-        groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
-
-        // Добавьте любые другие поля, которые должны быть включены в ответ
       }));
     } catch (err) {
       this.logger.error(err);
@@ -164,21 +150,17 @@ export class UsersService {
         projects: user.projects,
         organization: user.organization,
         account: user.account,
-        role: user.role,
-        groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
       };
 
       return readUserDto;
     } catch (err) {
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
         this.logger.error(err);
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении пользователя',
       );
@@ -215,21 +197,17 @@ export class UsersService {
         projects: user.projects,
         organization: user.organization,
         account: user.account,
-        role: user.role,
-        groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
       };
 
       return readUserDto;
     } catch (err) {
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
         this.logger.error(err);
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении пользователя',
       );
@@ -262,8 +240,6 @@ export class UsersService {
         projects: user.projects,
         organization: user.organization,
         account: user.account,
-        role: user.role,
-        groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
       };
 
@@ -302,8 +278,6 @@ export class UsersService {
         projects: user.projects,
         organization: user.organization,
         account: user.account,
-        role: user.role,
-        groupToUsers: user.groupToUsers,
         historiesUsersToPost: user.historiesUsersToPost
       };
 
@@ -311,12 +285,9 @@ export class UsersService {
     } catch (err) {
       this.logger.error(err);
 
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении пользователя',
       );
@@ -336,14 +307,13 @@ export class UsersService {
       user.middleName = createUserDto.middleName;
       user.telephoneNumber = createUserDto.telephoneNumber;
       user.avatar_url = createUserDto.avatar_url;
-      user.role = createUserDto.role;
       user.organization = createUserDto.organization;
       user.account = createUserDto.account;
       const createdUserId = await this.usersRepository.insert(user);
       return createdUserId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при создании задачи');
+      throw new InternalServerErrorException('Ошибка при создании юзера');
     }
   }
 
@@ -364,23 +334,20 @@ export class UsersService {
       if (updateUserDto.avatar_url) user.avatar_url = updateUserDto.avatar_url;
       if (updateUserDto.telephoneNumber) user.telephoneNumber = updateUserDto.telephoneNumber;
       await this.usersRepository.update(_id, {
-        firstName: updateUserDto.firstName,
-        lastName: updateUserDto.lastName,
-        middleName: updateUserDto.middleName,
-        telegramId: updateUserDto.telegramId,
-        avatar_url: updateUserDto.avatar_url,
-        telephoneNumber: updateUserDto.telephoneNumber
+        firstName: user.firstName,
+        lastName: user.lastName,
+        middleName: user.middleName,
+        telegramId: user.telegramId,
+        avatar_url: user.avatar_url,
+        telephoneNumber: user.telephoneNumber
       });
 
       return user.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err; 
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении юзера');
     }
   }

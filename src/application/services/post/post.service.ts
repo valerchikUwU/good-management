@@ -58,6 +58,8 @@ export class PostService {
         convertToPosts: post.convertToPosts,
         messages: post.messages,
         controlPanels: post.controlPanels,
+        role: post.role,
+        groupToPosts: post.groupToPosts,
         underPosts: structure === true ? posts.filter(underPost => underPost.parentId === post.id) : null
       }));
     } catch (err) {
@@ -99,7 +101,9 @@ export class PostService {
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
-        controlPanels: post.controlPanels
+        controlPanels: post.controlPanels,
+        role: post.role,
+        groupToPosts: post.groupToPosts,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -138,7 +142,9 @@ export class PostService {
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
-        controlPanels: post.controlPanels
+        controlPanels: post.controlPanels,
+        role: post.role,
+        groupToPosts: post.groupToPosts,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -177,7 +183,9 @@ export class PostService {
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
-        controlPanels: post.controlPanels
+        controlPanels: post.controlPanels,
+        role: post.role,
+        groupToPosts: post.groupToPosts,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -371,7 +379,9 @@ export class PostService {
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
-        controlPanels: post.controlPanels
+        controlPanels: post.controlPanels,
+        role: post.role,
+        groupToPosts: post.groupToPosts,
       }));
 
     } catch (err) {
@@ -418,7 +428,9 @@ export class PostService {
         targetHolders: post.targetHolders,
         convertToPosts: post.convertToPosts,
         messages: post.messages,
-        controlPanels: post.controlPanels
+        controlPanels: post.controlPanels,
+        role: post.role,
+        groupToPosts: post.groupToPosts,
       };
 
       return postReadDto;
@@ -515,6 +527,7 @@ export class PostService {
       post.organization = postCreateDto.organization;
       post.policy = postCreateDto.policy;
       post.account = postCreateDto.account;
+      post.role = postCreateDto.role;
       const createdPostId = await this.postRepository.insert(post);
       if (postCreateDto.responsibleUserId) {
         await this.cacheService.del(`user:${postCreateDto.responsibleUserId}`)

@@ -4,7 +4,7 @@ import { UsersModule } from './users.module';
 import { GroupService } from '../services/group/group.service';
 import { GroupRepository } from '../services/group/repository/group.repository';
 import { Group } from 'src/domains/group.entity';
-import { GroupToUserModule } from './groupToUser.module';
+import { GroupToPostModule } from './groupToPost.module';
 import { GroupController } from 'src/controllers/group.controller';
 import { OrganizationModule } from './organization.module';
 
@@ -12,7 +12,7 @@ import { OrganizationModule } from './organization.module';
   imports: [
     TypeOrmModule.forFeature([Group]),
     forwardRef(() => UsersModule),
-    GroupToUserModule,
+    GroupToPostModule,
     OrganizationModule,
   ],
   controllers: [GroupController],

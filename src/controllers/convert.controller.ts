@@ -39,6 +39,7 @@ import { GetConvertGuard } from 'src/guards/getConvert.guard';
 import { FinishConvertGuard } from 'src/guards/finishConvert.guard';
 import { ApproveConvertGuard } from 'src/guards/approveConvert.guard';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
+import { ConvertFinishDto } from 'src/contracts/convert/finish-convert.dto';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -274,7 +275,7 @@ export class ConvertController {
       const pathOfPostsWithoutHostPost = createdConvert.pathOfPosts.splice(index, 1);
       createdConvert.host.user = user;
       createdConvert.host.user.posts = null;
-      this.convertGateway.handleConvertExtensionEvent(createdConvert.id, createdConvert.host, activePost, pathOfPostsWithoutHostPost)
+      this.convertGateway.handleConvertCreationEvent(createdConvert.id, createdConvert.host, activePost, pathOfPostsWithoutHostPost);
     }
     this.logger.info(
       `${yellow('OK!')} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый конверт!`,
@@ -324,6 +325,8 @@ export class ConvertController {
       convertToPostIds: newConvertToPostIds,
     };
     const approvedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    const pathOfPostsWithoutHostPost = postsInConvertIds.splice(0, 1);
+    this.convertGateway.handleConvertApproveEvent(approvedConvertId, nextPost, pathOfPostsWithoutHostPost);
     this.logger.info(
       `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт одобрен!`,
     );
@@ -361,12 +364,14 @@ export class ConvertController {
   })
   async finish(
     @Param('convertId') convertId: string,
+    @Body() convertFinishDto: ConvertFinishDto
   ): Promise<string> {
     const convertUpdateDto: ConvertUpdateDto = {
       _id: convertId,
       convertStatus: false,
     };
     const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    this.convertGateway.handleConvertFinishEvent(finishedConvertId, convertUpdateDto.convertStatus, convertFinishDto.pathOfUsers)
     this.logger.info(
       `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт завершен!`,
     );
@@ -406,11 +411,11 @@ export class ConvertController {
     @Param('convertId') convertId: string,
     @Body() convertUpdateDto: ConvertUpdateDto
   ): Promise<string> {
-    const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    const updatedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
     this.logger.info(
       `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт обновлен!`,
     );
-    return finishedConvertId;
+    return updatedConvertId;
   }
 }
 

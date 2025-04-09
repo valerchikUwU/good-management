@@ -7,13 +7,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Organization } from './organization.entity';
-import { Policy } from './policy.entity';
-import { User } from './user.entity';
 import { Group } from './group.entity';
+import { Post } from './post.entity';
 
 @Entity()
-export class GroupToUser {
+export class GroupToPost {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -22,11 +20,11 @@ export class GroupToUser {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.groupToUsers)
+  @ManyToOne(() => Post, (post) => post.groupToPosts)
   @Index() // Добавляем индекс для поля user
-  user: User;
+  post: Post;
 
-  @ManyToOne(() => Group, (group) => group.groupToUsers)
+  @ManyToOne(() => Group, (group) => group.groupToPosts)
   @Index() // Добавляем индекс для поля group
   group: Group;
 }

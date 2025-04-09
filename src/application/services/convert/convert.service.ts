@@ -38,20 +38,12 @@ export class ConvertService {
           '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")'
         )
         .where('post.id IN (:...userPostsIds)', { userPostsIds })
+        .andWhere('convert.convertStatus = false')
         .andWhere(new Brackets((qb) => {
           qb.where('"convert"."pathOfPosts"[1] IN (:...userPostsIds)', { userPostsIds })
             .andWhere('"convert"."pathOfPosts"[array_length("convert"."pathOfPosts", 1)] = :contactId', { contactId })
-            .andWhere('convert.convertStatus = false')
             .orWhere(new Brackets((qb) => {
-              qb.where(`EXISTS (
-                    SELECT 1 FROM "convert_to_post" "sub_ctp"
-                    INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
-                    WHERE "sub_ctp"."convertId" = convert.id
-                    AND "sub_post"."id" IN (:...userPostsIds)
-                )`
-              )
-                .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
-                .andWhere('"convert"."convertPath" != :directPath', { directPath: PathConvert.DIRECT })
+              qb.where('"convert"."pathOfPosts"[1] = :contactId', { contactId })
                 .andWhere('"convert"."activePostId" NOT IN (:...userPostsIds)', { userPostsIds })
             }))
         }))
@@ -120,20 +112,12 @@ export class ConvertService {
           '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")'
         )
         .where('post.id IN (:...userPostsIds)', { userPostsIds })
+        .andWhere('convert.convertStatus = true')
         .andWhere(new Brackets((qb) => {
           qb.where('"convert"."pathOfPosts"[1] IN (:...userPostsIds)', { userPostsIds })
             .andWhere('"convert"."pathOfPosts"[array_length("convert"."pathOfPosts", 1)] = :contactId', { contactId })
-            .andWhere('convert.convertStatus = true')
             .orWhere(new Brackets((qb) => {
-              qb.where(`EXISTS (
-                    SELECT 1 FROM "convert_to_post" "sub_ctp"
-                    INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
-                    WHERE "sub_ctp"."convertId" = convert.id
-                    AND "sub_post"."id" IN (:...userPostsIds)
-                )`
-              )
-                .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
-                .andWhere('"convert"."convertPath" != :directPath', { directPath: PathConvert.DIRECT })
+              qb.where('"convert"."pathOfPosts"[1] = :contactId', { contactId })
                 .andWhere('"convert"."activePostId" IN (:...userPostsIds)', { userPostsIds })
             }))
         }))
@@ -226,11 +210,11 @@ export class ConvertService {
       const convert = new Convert();
       convert.convertTheme = convertCreateDto.convertTheme;
       convert.pathOfPosts = convertCreateDto.pathOfPosts;
+      convert.dateStart = new Date();
       convert.deadline = convertCreateDto.deadline;
       convert.convertType = convertCreateDto.convertType;
       convert.convertPath = convertCreateDto.convertPath;
       convert.activePostId = convertCreateDto.pathOfPosts[1];
-      convert.dateFinish = convertCreateDto.dateFinish;
       convert.host = convertCreateDto.host;
       convert.account = convertCreateDto.account;
       const createdConvert = await this.convertRepository.save(convert);
@@ -258,6 +242,7 @@ export class ConvertService {
       }
       if (convertUpdateDto.convertStatus) {
         convert.convertStatus = convertUpdateDto.convertStatus;
+        convert.dateFinish = new Date();
       }
       if (convertUpdateDto.watcherIds) {
         await this.watchersToConvertService.remove(convert);

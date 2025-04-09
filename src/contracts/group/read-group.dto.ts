@@ -1,5 +1,5 @@
 import { Account } from 'src/domains/account.entity';
-import { GroupToUser } from 'src/domains/groupToUser.entity';
+import { GroupToPost } from 'src/domains/groupToPost.entity';
 
 export class GroupReadDto {
   id: string;
@@ -7,6 +7,6 @@ export class GroupReadDto {
   groupNumber: number;
   createdAt: Date;
   updatedAt: Date;
-  groupToUsers: GroupToUser[];
+  groupToPosts: GroupToPost[];
   account: Account;
 }

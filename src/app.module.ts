@@ -33,7 +33,7 @@ import { ConvertModule } from './application/modules/convert.module';
 import { ConvertToPostModule } from './application/modules/convertToPost.module';
 import { MessageModule } from './application/modules/message.module';
 import { GroupModule } from './application/modules/group.module';
-import { GroupToUserModule } from './application/modules/groupToUser.module';
+import { GroupToPostModule } from './application/modules/groupToPost.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import * as dotenv from 'dotenv';
 import { ControlPanelModule } from './application/modules/controlPanel.module';
@@ -118,7 +118,7 @@ dotenv.config();
     MessageModule,
     EventsModule,
     GroupModule,
-    GroupToUserModule,
+    GroupToPostModule,
     ControlPanelModule,
     PanelToStatisticModule,
     AttachmentModule,

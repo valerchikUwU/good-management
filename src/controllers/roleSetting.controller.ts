@@ -114,26 +114,17 @@ export class RoleSettingController {
     type: RoleSettingCreateDto,
     required: true,
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
-  })
   async create(
-    @Param('userId') userId: string,
     @Body() roleSettingCreateDto: RoleSettingCreateDto,
-    @Ip() ip: string,
-  ): Promise<RoleSetting> {
+  ): Promise<string> {
     const role = await this.roleService.findOneById(
       roleSettingCreateDto.roleId,
     );
     roleSettingCreateDto.role = role;
-    const createdRule =
-      await this.roleSettingService.create(roleSettingCreateDto);
+    const createdRuleId = await this.roleSettingService.create(roleSettingCreateDto);
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - roleSettingCreateDto: ${JSON.stringify(roleSettingCreateDto)} - Создана настройка!`,
+      `${yellow('OK!')} - roleSettingCreateDto: ${JSON.stringify(roleSettingCreateDto)} - Создана настройка!`,
     );
-    return createdRule;
+    return createdRuleId;
   }
 }

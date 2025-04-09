@@ -4,6 +4,7 @@ import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Policy } from 'src/domains/policy.entity';
+import { Role } from 'src/domains/role.entity';
 import { User } from 'src/domains/user.entity';
 
 export class PostCreateDto {
@@ -12,10 +13,10 @@ export class PostCreateDto {
   @IsNotEmpty()
   id?: string;
 
-  @ApiProperty({ 
-    description: 'Название поста', 
+  @ApiProperty({
+    description: 'Название поста',
     required: true,
-    example: 'Директор' 
+    example: 'Директор'
   })
   @IsString()
   @IsNotEmpty({ message: 'Название поста не может быть пустым!' })
@@ -41,10 +42,10 @@ export class PostCreateDto {
   @IsNotEmpty()
   parentId?: string;
 
-  @ApiProperty({ 
-    description: 'Продукт поста', 
-    required: true, 
-    example: 'Продукт' 
+  @ApiProperty({
+    description: 'Продукт поста',
+    required: true,
+    example: 'Продукт'
   })
   @IsString()
   @IsNotEmpty({ message: 'Продукт поста не может быть пустым!' })
@@ -59,17 +60,14 @@ export class PostCreateDto {
   @IsNotEmpty({ message: 'Предназначение поста не может быть пустым!' })
   purpose: string;
 
-  @Exclude({ toPlainOnly: true }) // nullable
-  user: User;
-
-  @Exclude({ toPlainOnly: true }) // nullable
-  organization: Organization;
-
-  @Exclude({ toPlainOnly: true })
-  policy: Policy;
-
-  @Exclude({ toPlainOnly: true })
-  account: Account;
+  @ApiProperty({
+    description: 'ID роли',
+    required: false,
+    example: '675a797e-d0f2-4907-bad5-25733c3e2380',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  roleId: string;
 
   @ApiProperty({
     description: 'ID ответственного, с которым связать пост',
@@ -99,4 +97,19 @@ export class PostCreateDto {
   @IsUUID()
   @IsNotEmpty({ message: 'Выберите организацию для поста!' })
   organizationId: string;
+
+  @Exclude({ toPlainOnly: true }) // nullable
+  user: User;
+
+  @Exclude({ toPlainOnly: true })
+  organization: Organization;
+
+  @Exclude({ toPlainOnly: true })
+  policy: Policy;
+
+  @Exclude({ toPlainOnly: true })
+  account: Account;
+
+  @Exclude({ toPlainOnly: true })
+  role: Role;
 }

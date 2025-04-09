@@ -4,13 +4,9 @@ import { Post } from 'src/domains/post.entity';
 import { Goal } from 'src/domains/goal.entity';
 import { Policy } from 'src/domains/policy.entity';
 import { Strategy } from 'src/domains/strategy.entity';
-import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Account } from 'src/domains/account.entity';
 import { Project } from 'src/domains/project.entity';
-import { Role } from 'src/domains/role.entity';
-import { Message } from 'src/domains/message.entity';
-import { GroupToUser } from 'src/domains/groupToUser.entity';
 import { HistoryUsersToPost } from 'src/domains/historyUsersToPost.entity';
 import { Type } from 'class-transformer';
 
@@ -58,7 +54,5 @@ export class ReadUserDto {
   projects: Project[];
   organization: Organization;
   account: Account;
-  role: Role;
-  groupToUsers: GroupToUser[];
   historiesUsersToPost: HistoryUsersToPost[]
 }

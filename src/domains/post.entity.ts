@@ -7,8 +7,6 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
-  Generated,
-  OneToOne,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
@@ -22,6 +20,8 @@ import { Convert } from './convert.entity';
 import { Message } from './message.entity';
 import { ControlPanel } from './controlPanel.entity';
 import { Target } from './target.entity';
+import { GroupToPost } from './groupToPost.entity';
+import { Role } from './role.entity';
 
 /**
  * Сущность, представляющая должность (пост).
@@ -208,4 +208,16 @@ export class Post {
    */
   @OneToMany(() => ControlPanel, (controlPanel) => controlPanel.post)
   controlPanels: ControlPanel[];
+
+  /**
+   * Связь с сущностью 1:M GroupToUser.
+   */
+  @OneToMany(() => GroupToPost, (groupToPost) => groupToPost.post)
+  groupToPosts: GroupToPost[];
+
+  /**
+   * Связь с сущностью М:1 Role
+   */
+  @ManyToOne(() => Role, (role) => role.posts, { nullable: true })
+  role: Role;
 }

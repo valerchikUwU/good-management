@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { IsBoolean, IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { Role } from 'src/domains/role.entity';
 import { Modules } from 'src/domains/roleSetting.entity';
@@ -18,10 +19,12 @@ export class RoleSettingCreateDto {
       'post',
       'statistic',
     ],
-  })
+  })  
+  @IsEnum(Modules)
   module: Modules;
 
   @ApiProperty({ description: 'Флаг на чтение', required: true, example: true })
+  @IsBoolean()
   can_read: boolean;
 
   @ApiProperty({
@@ -29,6 +32,7 @@ export class RoleSettingCreateDto {
     required: true,
     example: true,
   })
+  @IsBoolean()
   can_create: boolean;
 
   @ApiProperty({
@@ -36,6 +40,7 @@ export class RoleSettingCreateDto {
     required: true,
     example: true,
   })
+  @IsBoolean()
   can_update: boolean;
 
   @ApiProperty({
@@ -43,6 +48,7 @@ export class RoleSettingCreateDto {
     required: true,
     example: '8ae9e534-4617-4b70-95f4-16d4a984cae2',
   })
+  @IsUUID()
   roleId: string;
 
   @Exclude({ toPlainOnly: true })

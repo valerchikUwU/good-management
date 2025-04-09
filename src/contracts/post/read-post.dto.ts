@@ -2,10 +2,12 @@ import { Account } from 'src/domains/account.entity';
 import { ControlPanel } from 'src/domains/controlPanel.entity';
 import { Convert } from 'src/domains/convert.entity';
 import { ConvertToPost } from 'src/domains/convertToPost.entity';
+import { GroupToPost } from 'src/domains/groupToPost.entity';
 import { HistoryUsersToPost } from 'src/domains/historyUsersToPost.entity';
 import { Message } from 'src/domains/message.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Policy } from 'src/domains/policy.entity';
+import { Role } from 'src/domains/role.entity';
 import { Statistic } from 'src/domains/statistic.entity';
 import { Target } from 'src/domains/target.entity';
 import { TargetHolder } from 'src/domains/targetHolder.entity';
@@ -33,5 +35,7 @@ export class PostReadDto {
   convertToPosts: ConvertToPost[];
   messages: Message[];
   controlPanels: ControlPanel[];
+  role: Role;
+  groupToPosts: GroupToPost[];
   underPosts?: PostReadDto[];
 }

@@ -41,8 +41,6 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly organizationService: OrganizationService,
-    private readonly roleSettingService: RoleSettingService,
-    private readonly roleService: RoleService,
     private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
@@ -96,12 +94,11 @@ export class UsersController {
     description: 'Id организации',
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async beforeCreate(@Param('orgainizationId') orgainizationId: string): Promise<{postsWithoutUser: PostReadDto[], roles: RoleReadDto[]}> {
-    const [postsWithoutUser, roles] = await Promise.all([
+  async beforeCreate(@Param('orgainizationId') orgainizationId: string): Promise<PostReadDto[]> {
+    const [postsWithoutUser] = await Promise.all([
       this.postService.findAllWithoutUserForOrganization(orgainizationId),
-      this.roleService.findAll()
     ])
-    return  {postsWithoutUser: postsWithoutUser, roles: roles}
+    return postsWithoutUser;
   }
 
 
