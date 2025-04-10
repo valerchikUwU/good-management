@@ -1,4 +1,4 @@
-import { Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Logger } from "winston";
 import Redis from 'ioredis';
@@ -9,8 +9,7 @@ import { Convert } from "src/domains/convert.entity";
 import { PostService } from "../post/post.service";
 import { PostReadDto } from "src/contracts/post/read-post.dto";
 import { ConvertReadDto } from "src/contracts/convert/read-convert.dto";
-import { In } from "typeorm";
-
+import { DataSource } from 'typeorm';
 @Injectable()
 export class WatchersToConvertService {
   constructor(
@@ -20,6 +19,7 @@ export class WatchersToConvertService {
     @InjectRedis()
     private readonly redis: Redis,
     @Inject('winston') private readonly logger: Logger,
+    private dataSource: DataSource
   ) { }
 
 
@@ -30,17 +30,33 @@ export class WatchersToConvertService {
     post: PostReadDto
   ): Promise<void> {
     try {
-      const watcherToConvert = await this.watchersToConvertRepository.findOne({
-        where:
-        {
-          post: { id: post.id },
-          convert: { id: convertId }
-        },
+      await this.dataSource.transaction(async manager => {
+        const repo = manager.getRepository(WatchersToConvert);
+      
+        const watcherToConvert = await repo.findOne({
+          where: {
+            post: { id: post.id },
+            convert: { id: convertId }
+          },
+          lock: { mode: 'pessimistic_write' }
+        });
+      
+        const unreadMessageCount = watcherToConvert.unreadMessagesCount - messagesCount;
+      
+        if (unreadMessageCount < 0) {
+          throw new BadRequestException('Костыль');
+        }
+      
+        await repo.update(watcherToConvert.id, {
+          lastSeenNumber: lastSeenMessageNumber,
+          unreadMessagesCount: unreadMessageCount
+        });
       });
-      const unreadMessageCount = watcherToConvert.unreadMessagesCount - messagesCount;
-      await this.watchersToConvertRepository.update(watcherToConvert.id, { lastSeenNumber: lastSeenMessageNumber, unreadMessagesCount: unreadMessageCount });
     } catch (err) {
       this.logger.error(err);
+      if(err instanceof BadRequestException){
+        throw err
+      }
       throw new InternalServerErrorException('Ошибка при прочтении сообщений наблюдателем');
     }
   }

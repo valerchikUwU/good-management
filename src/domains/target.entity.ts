@@ -93,7 +93,7 @@ export class Target {
    * @remarks
    * UUID v4.0, nullable: false.
    */
-  @Column({ type: 'uuid', nullable: false })
+  @Column({ type: 'uuid', nullable: true })
   holderPostId: string;
 
   /**

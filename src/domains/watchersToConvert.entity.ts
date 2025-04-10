@@ -14,7 +14,7 @@ export class WatchersToConvert {
   unreadMessagesCount: number;
 
   /**
-   * Дата последнего просмотра чата.
+   * Номер последнего прочитанного сообщения.
    */
   @Column({ type: 'int', default: 0 })
   lastSeenNumber: number;
