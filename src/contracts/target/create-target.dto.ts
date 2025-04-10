@@ -63,9 +63,10 @@ export class TargetCreateDto {
     required: true,
     example: 'a065a77a-36b0-4aea-9af4-5b313e550c19',
   })
+  @IsOptional()
   @IsUUID()
   @IsNotEmpty({ message: 'Id ответственного поста не может быть пустым' })
-  holderPostId: string;
+  holderPostId?: string;
 
   @ApiProperty({
     description: 'Id поста отправителя приказа',
