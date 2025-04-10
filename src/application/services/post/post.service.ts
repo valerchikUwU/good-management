@@ -214,7 +214,7 @@ export class PostService {
             AND "mrs"."postId" IN (:...userPostsIds)
           ) 
           AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)
-          AND "watcher"."id" NOT IN (:..userPostsIds)`, { userPostsIds }
+          AND "watcher"."id" NOT IN (:...userPostsIds)`, { userPostsIds }
         )
         .where('"post"."id" NOT IN (:...userPostsIds)', { userPostsIds })
         .andWhere(new Brackets((qb) => {
