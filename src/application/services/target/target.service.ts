@@ -177,12 +177,13 @@ export class TargetService {
       const createdTarget = await this.targetRepository.findOne({
         where: { id: createdTargetResult.identifiers[0].id },
       });
-      const targetHolderCreateDto: TargetHolderCreateDto = {
-        target: createdTarget,
-        post: targetCreateDto.holderPost,
-      };
-      await this.targetHolderService.create(targetHolderCreateDto);
-      
+      if(targetCreateDto.holderPostId){
+        const targetHolderCreateDto: TargetHolderCreateDto = {
+          target: createdTarget,
+          post: targetCreateDto.holderPost,
+        };
+        await this.targetHolderService.create(targetHolderCreateDto);
+      }
       if(targetCreateDto.attachmentIds){
         await this.attachmentToTargetService.createSeveral(createdTarget, targetCreateDto.attachmentIds);
       }
