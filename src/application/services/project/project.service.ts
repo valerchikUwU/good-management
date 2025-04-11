@@ -303,7 +303,7 @@ export class ProjectService {
         const targetHolderCreateDtos: TargetHolderCreateDto[] = createdTargets.map(target => {
           return {
             target: target,
-            post: target.holderPost
+            post: target.holderPost ? holderPostMap.get(target.holderPostId) : null
           };
         })
         await transactionalEntityManager.insert(TargetHolder, targetHolderCreateDtos)
