@@ -10,18 +10,23 @@ import { Project, Type } from 'src/domains/project.entity';
 import { ProjectRepository } from './repository/project.repository';
 import { ProjectReadDto } from 'src/contracts/project/read-project.dto';
 import { ProjectCreateDto } from 'src/contracts/project/create-project.dto';
-import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
 import { ProjectUpdateDto } from 'src/contracts/project/update-project.dto';
-import { In, IsNull, Not } from 'typeorm';
-import { State, Type as TypeTarget } from 'src/domains/target.entity';
+import { DataSource, In, IsNull, Not } from 'typeorm';
+import { State, Target, Type as TypeTarget } from 'src/domains/target.entity';
+import { TargetService } from '../target/target.service';
+import { Post } from 'src/domains/post.entity';
+import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
+import { TargetHolder } from 'src/domains/targetHolder.entity';
 
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectRepository(Project)
     private readonly projectRepository: ProjectRepository,
+    private readonly targetService: TargetService,
     @Inject('winston') private readonly logger: Logger,
+    private dataSource: DataSource
   ) { }
 
   async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
@@ -130,8 +135,8 @@ export class ProjectService {
   async findOneById(id: string, relations?: string[]): Promise<ProjectReadDto> {
     try {
       const project = await this.projectRepository.findOne({
-        where: {id: id},
-        relations: relations ?? [] 
+        where: { id: id },
+        relations: relations ?? []
       })
 
       if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
@@ -227,7 +232,7 @@ export class ProjectService {
         .where('project.programId = :programId', { programId })
         .andWhere('target.type = :targetType', { targetType: TypeTarget.PRODUCT })
         .andWhere('target.targetState != :rejectedState', { rejectedState: State.REJECTED })
-        .andWhere('project.organization.id = :organizationId', {organizationId: organizationId})
+        .andWhere('project.organization.id = :organizationId', { organizationId: organizationId })
         .getMany();
       return projects.map((project) => ({
         id: project.id,
@@ -261,39 +266,51 @@ export class ProjectService {
 
   async create(projectCreateDto: ProjectCreateDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
+      const createdProjectId = await this.dataSource.transaction(async transactionalEntityManager => {
+        const project = new Project();
+        project.projectName = projectCreateDto.projectName;
+        project.programId = projectCreateDto.programId;
+        project.content = projectCreateDto.content;
+        project.type = projectCreateDto.type;
+        project.organization = projectCreateDto.organization;
+        project.user = projectCreateDto.user;
+        project.account = projectCreateDto.account;
+        project.strategy = projectCreateDto.strategy;
+        const createdProject = await transactionalEntityManager.save(Project, project);
+        if (projectCreateDto.type === Type.PROGRAM && projectCreateDto.projectIds && projectCreateDto.strategy) {
+          await transactionalEntityManager.update(
+            Project,
+            { id: In(projectCreateDto.projectIds) },
+            {
+              programId: createdProject.id,
+              strategy: projectCreateDto.strategy,
+            },
+          );
+        };
+        const holderPostIds = projectCreateDto.targetCreateDtos
+          .map(dto => dto.holderPostId)
+          .filter((holderPostId) => holderPostId != null);
+        const holderPosts = await transactionalEntityManager.findBy(Post, {
+          id: In(holderPostIds),
+        });
+        const holderPostMap = new Map(holderPosts.map(post => [post.id, post]));
+        const targetCreateDtos = projectCreateDto.targetCreateDtos.map(targetCreateDto => {
+          targetCreateDto.project = createdProject;
+          targetCreateDto.holderPost = targetCreateDto.holderPostId ? holderPostMap.get(targetCreateDto.holderPostId) : null;
+          return targetCreateDto;
+        });
+        const createdTargets = await transactionalEntityManager.save(Target, targetCreateDtos);
+        const targetHolderCreateDtos: TargetHolderCreateDto[] = createdTargets.map(target => {
+          return {
+            target: target,
+            post: target.holderPost
+          };
+        })
+        await transactionalEntityManager.insert(TargetHolder, targetHolderCreateDtos)
+        return createdProject.id
+      });
+      return createdProjectId
 
-      const project = new Project();
-      project.projectName = projectCreateDto.projectName;
-      project.programId = projectCreateDto.programId;
-      project.content = projectCreateDto.content;
-      project.type = projectCreateDto.type;
-      project.organization = projectCreateDto.organization;
-      project.user = projectCreateDto.user;
-      project.account = projectCreateDto.account;
-      project.strategy = projectCreateDto.strategy;
-      const projectCreatedId = await this.projectRepository.insert(project);
-      if (projectCreateDto.type === Type.PROGRAM) {
-        const projectsForProgram = await this.projectRepository
-          .createQueryBuilder('project')
-          .leftJoinAndSelect('project.targets', 'targets')
-          .where('project.programId = :programId', { programId: project.id })
-          .andWhere('targets.type = :type', { type: TypeTarget.PRODUCT })
-          .andWhere('targets.deadline > CURRENT_TIMESTAMP')
-          .getMany();
-        const projectIdsForProgram = projectsForProgram.map(
-          (project) => project.id,
-        );
-        projectCreateDto.projectIds.concat(projectIdsForProgram);
-        await this.projectRepository.update(
-          { id: In(projectCreateDto.projectIds) },
-          {
-            programId: projectCreatedId.identifiers[0].id,
-            strategy: projectCreateDto.strategy,
-          },
-        );
-      }
-      return projectCreatedId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
@@ -323,8 +340,8 @@ export class ProjectService {
       if (updateProjectDto.strategyId != null) {
         project.strategy = updateProjectDto.strategy;
       }
-      else if (updateProjectDto.strategyId === null){
-        project.strategy = null 
+      else if (updateProjectDto.strategyId === null) {
+        project.strategy = null
       }
 
       await this.projectRepository.update(project.id, {

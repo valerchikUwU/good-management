@@ -6,6 +6,7 @@ import { TargetCreateDto } from '../target/create-target.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsNotEmpty,
@@ -33,8 +34,7 @@ export class ProjectCreateDto {
     example: 'b6ed2664-9510-4a47-9117-6ce89903b4b5',
   })
   @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'ID программы не может быть пустым!' })
+  @IsUUID(undefined, { message: 'Неверный формат UUID!' })
   programId?: string;
 
   @ApiProperty({
@@ -57,13 +57,14 @@ export class ProjectCreateDto {
   @IsOptional()
   @IsEnum(TypeProject)
   @IsNotEmpty({ message: 'Выберите тип проекта!' })
-  type?: TypeProject; //default project
+  type?: TypeProject;
 
   @ApiProperty({
     description: 'ID организации, которую связать с проектом',
+    required: true,
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  @IsUUID(undefined, { message: 'Выберите организацию!' })
+  @IsUUID(undefined, { message: 'Неверный формат UUID!' })
   organizationId: string;
 
   @ApiProperty({
@@ -90,7 +91,7 @@ export class ProjectCreateDto {
 
   @ApiProperty({
     description: 'Список задач',
-    required: false,
+    required: true,
     example: [
       {
         type: 'Продукт',
@@ -101,10 +102,9 @@ export class ProjectCreateDto {
         deadline: '2024-09-18T14:59:47.010Z',
       },
       {
-        type: 'Обычная',
+        type: 'Задача',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderPostId: 'c92895e6-9496-4cb5-aa7b-e3c72c18934a',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -112,15 +112,13 @@ export class ProjectCreateDto {
         type: 'Правила',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderPostId: 'c92895e6-9496-4cb5-aa7b-e3c72c18934a',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
       {
-        type: 'Статистика',
+        type: 'Метрика',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderPostId: 'c92895e6-9496-4cb5-aa7b-e3c72c18934a',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -128,7 +126,6 @@ export class ProjectCreateDto {
         type: 'Организационные мероприятия',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderPostId: 'c92895e6-9496-4cb5-aa7b-e3c72c18934a',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -147,7 +144,8 @@ export class ProjectCreateDto {
     example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'],
   })
   @IsOptional()
-  @IsArray()
+  @IsUUID(undefined, { each: true, message: 'Неверный формат UUID' })
+  @ArrayNotEmpty({message: 'Массив не может быть пустым!'})
   projectIds?: string[];
 }
 

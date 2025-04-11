@@ -60,12 +60,11 @@ export class TargetCreateDto {
 
   @ApiProperty({
     description: 'Id ответственного поста',
-    required: true,
+    required: false,
     example: 'a065a77a-36b0-4aea-9af4-5b313e550c19',
   })
   @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'Id ответственного поста не может быть пустым' })
+  @IsUUID(undefined, {message: 'Неверный формат UUID'})
   holderPostId?: string;
 
   @ApiProperty({
@@ -74,8 +73,7 @@ export class TargetCreateDto {
     example: '261fcded-bb76-4956-a950-a19ab6e2c2fd',
   })
   @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'Id поста отправителя не может быть пустым' })
+  @IsUUID(undefined, { message: 'Id поста отправителя не может быть пустым' })
   senderPostId?: string;
 
   @ApiProperty({
@@ -84,8 +82,7 @@ export class TargetCreateDto {
     example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
   })
   @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'Id политики не может быть пустым' })
+  @IsUUID(undefined, { message: 'Неверный формат UUID' })
   policyId?: string;
 
   @ApiProperty({
