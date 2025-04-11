@@ -301,10 +301,12 @@ export class ProjectService {
         });
         const createdTargets = await transactionalEntityManager.save(Target, targetCreateDtos);
         const targetHolderCreateDtos: TargetHolderCreateDto[] = createdTargets.map(target => {
-          return {
-            target: target,
-            post: target.holderPost ? holderPostMap.get(target.holderPostId) : null
-          };
+          if(target.holderPost){
+            return {
+              target: target,
+              post: target.holderPost ? holderPostMap.get(target.holderPostId) : null
+            };
+          }
         })
         await transactionalEntityManager.insert(TargetHolder, targetHolderCreateDtos)
         return createdProject.id
