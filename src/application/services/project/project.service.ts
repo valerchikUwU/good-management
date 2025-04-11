@@ -299,16 +299,19 @@ export class ProjectService {
           targetCreateDto.holderPost = targetCreateDto.holderPostId ? holderPostMap.get(targetCreateDto.holderPostId) : null;
           return targetCreateDto;
         });
-        const createdTargets = await transactionalEntityManager.save(Target, targetCreateDtos);
-        const targetHolderCreateDtos: TargetHolderCreateDto[] = createdTargets.map(target => {
-          if(target.holderPost){
-            return {
+        const createdTargets: Target[] = await transactionalEntityManager.save(Target, targetCreateDtos);
+        const targetHolderCreateDtos: TargetHolderCreateDto[] = [];
+        createdTargets.forEach(target => {
+          if (target.holderPostId != null) {
+            targetHolderCreateDtos.push({
               target: target,
-              post: target.holderPost ? holderPostMap.get(target.holderPostId) : null
-            };
+              post: holderPostMap.get(target.holderPostId)
+            })
           }
         })
-        await transactionalEntityManager.insert(TargetHolder, targetHolderCreateDtos)
+        if (targetHolderCreateDtos.length > 0) {
+          await transactionalEntityManager.insert(TargetHolder, targetHolderCreateDtos)
+        }
         return createdProject.id
       });
       return createdProjectId
