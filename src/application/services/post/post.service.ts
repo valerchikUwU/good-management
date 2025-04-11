@@ -250,12 +250,11 @@ export class PostService {
           'user.telegramId AS "userTelegramId"',
           'user.telephoneNumber AS "userTelephoneNumber"',
           'user.avatar_url AS "userAvatar"',
-          '"latestMessage"."content" AS "latestMessageContent"',
-          '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
+          'MAX("latestMessage"."createdAt") AS "latestMessageCreatedAt"',
           'SUM("wtc"."unreadMessagesCount") AS "watcherUnseenCount"',
           'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
         ])
-        .groupBy('post.id, user.id, "latestMessage"."content", "latestMessage"."createdAt"')
+        .groupBy('post.id, user.id')
         .getRawMany();
       return posts
     } catch (err) {
