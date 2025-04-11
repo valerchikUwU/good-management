@@ -34,6 +34,7 @@ import { ConvertService } from 'src/application/services/convert/convert.service
 import { ConvertGateway } from 'src/gateways/convert.gateway';
 import { MessagesGuard } from 'src/guards/message.guard';
 import { WatchersToConvertService } from 'src/application/services/watchersToConvert/watchersToConvert.service';
+import { PostService } from 'src/application/services/post/post.service';
 
 @ApiTags('Messages')
 @ApiBearerAuth('access-token')
@@ -44,6 +45,7 @@ export class MessageController {
         private readonly messageService: MessageService,
         private readonly convertService: ConvertService,
         private readonly watcherToConvertService: WatchersToConvertService,
+        private readonly postService: PostService,
         private readonly convertGateway: ConvertGateway,
         @Inject('winston') private readonly logger: Logger,
     ) { }
@@ -241,25 +243,29 @@ export class MessageController {
         const start = new Date();
         const user = req.user as ReadUserDto;
         const userSenderPost = user.posts.find(post => post.id === messageCreateDto.postId);
-        const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user', 'watchersToConvert']);
-        const postIdsInConvert = convert.convertToPosts.map(convertToPost => {
-            if (convertToPost.post.id !== userSenderPost.id)
-                return convertToPost.post.user.id
+        const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post.user', 'watchersToConvert.post.user', 'host.user']);
+        const watcherUsersIdsInConvert = convert.watchersToConvert.map(watcherToConvert => {
+            if (watcherToConvert.post.id !== userSenderPost.id)
+                return watcherToConvert.post.user.id
         });
         const userIdsInConvert = convert.convertToPosts.map(convertToPost => {
             if (convertToPost.post.user && convertToPost.post.user.id !== user.id)
                 return convertToPost.post.user.id
         });
+        userIdsInConvert.concat(watcherUsersIdsInConvert)
         messageCreateDto.convert = convert;
         messageCreateDto.sender = userSenderPost;
         const createdMessageId = await this.messageService.create(messageCreateDto);
-        const messageWithAttachments = await this.messageService.findOne(createdMessageId, ['attachmentToMessages.attachment', 'sender.user']);
+        const [messageWithAttachments, lastPostInConvert] = await Promise.all([
+            this.messageService.findOne(createdMessageId, ['attachmentToMessages.attachment', 'sender.user']),
+            this.postService.findOneById(convert.pathOfPosts[convert.pathOfPosts.length - 1], ['user'])
+        ])
         const watcherIds = convert.watchersToConvert.map(watcher => watcher.id);
-        if (watcherIds.length > 0){
+        if (watcherIds.length > 0) {
             await this.watcherToConvertService.updateWatchersCount(watcherIds);
         }
         this.convertGateway.handleMessageCreationEvent(convertId, messageWithAttachments);
-        this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, postIdsInConvert);
+        this.convertGateway.handleMessageCountEvent(convertId, userIdsInConvert, convert.host, lastPostInConvert);
         this.logger.info(
             `${yellow('OK!')} - messageCreateDto: ${JSON.stringify(messageCreateDto)} - Создано новое сообщение!`,
         );

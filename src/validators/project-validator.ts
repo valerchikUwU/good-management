@@ -86,7 +86,6 @@ import { ProjectCreateDto } from 'src/contracts/project/create-project.dto';
               return true; // Пропускаем валидацию, если тип не PROGRAM
             }
   
-            // Проверка, что в targetCreateDtos есть задача типа "Продукт"
             const hasStrategy = dto.strategyId !== undefined ? true : false;
             return hasStrategy;
           },

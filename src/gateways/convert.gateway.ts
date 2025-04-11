@@ -124,7 +124,7 @@ export class ConvertGateway
   }
 
 
-  handleMessageCountEvent(convertId: string, userIdsInConvert: string[], postIdsInConvert: string[]) {
+  handleMessageCountEvent(convertId: string, userIdsInConvert: string[], host: PostReadDto, lastPostInConvert: PostReadDto) {
     let socketsToNotify: Socket[] = [];
     userIdsInConvert.forEach(userId => {
       const sockets = this.findKeysByValue(this.clients, userId);
@@ -134,7 +134,7 @@ export class ConvertGateway
     socketsToNotify.forEach(socket => {
       socket.join(`MCountE-${convertId}`);
     });
-    this.ws.to(`MCountE-${convertId}`).emit('messageCountEvent', { count: 1, postIdsInConvert: postIdsInConvert });
+    this.ws.to(`MCountE-${convertId}`).emit('messageCountEvent', { host: host,  lastPostInConvert: lastPostInConvert});
     socketsToNotify.forEach(socket => {
       socket.leave(`MCountE-${convertId}`);
     });

@@ -8,6 +8,7 @@ import { MessageController } from 'src/controllers/message.controller';
 import { EventsModule } from './events.module';
 import { ConvertModule } from './convert.module';
 import { WatchersToConvertModule } from './watchersToConvert.module';
+import { PostModule } from './post.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { WatchersToConvertModule } from './watchersToConvert.module';
     AttachmentToMessageModule,
     forwardRef(() => EventsModule),
     ConvertModule,
-    WatchersToConvertModule
+    WatchersToConvertModule,
+    PostModule
   ],
   providers: [MessageService, MessageRepository],
   controllers: [MessageController],

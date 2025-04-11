@@ -30,10 +30,8 @@ export class WatchersToConvertService {
     post: PostReadDto
   ): Promise<void> {
     try {
-      await this.dataSource.transaction(async manager => {
-        const repo = manager.getRepository(WatchersToConvert);
-      
-        const watcherToConvert = await repo.findOne({
+      await this.dataSource.transaction(async transactionalEntityManager => {
+        const watcherToConvert = await transactionalEntityManager.findOne(WatchersToConvert, {
           where: {
             post: { id: post.id },
             convert: { id: convertId }
@@ -44,10 +42,10 @@ export class WatchersToConvertService {
         const unreadMessageCount = watcherToConvert.unreadMessagesCount - messagesCount;
       
         if (unreadMessageCount < 0) {
-          throw new BadRequestException('Костыль');
+          throw new BadRequestException('Костыль в попе');
         }
       
-        await repo.update(watcherToConvert.id, {
+        await transactionalEntityManager.update(WatchersToConvert, watcherToConvert.id, {
           lastSeenNumber: lastSeenMessageNumber,
           unreadMessagesCount: unreadMessageCount
         });

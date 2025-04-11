@@ -215,6 +215,11 @@ export class PostService {
           ) 
           AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)
           AND "watcher"."id" IS NULL`, { userPostsIds }
+        )        
+        .leftJoin(
+          'c.messages',
+          'latestMessage',
+          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")'
         )
         .where('"post"."id" NOT IN (:...userPostsIds)', { userPostsIds })
         .andWhere(new Brackets((qb) => {
@@ -245,10 +250,12 @@ export class PostService {
           'user.telegramId AS "userTelegramId"',
           'user.telephoneNumber AS "userTelephoneNumber"',
           'user.avatar_url AS "userAvatar"',
+          '"latestMessage"."content" AS "latestMessageContent"',
+          '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
           'SUM("wtc"."unreadMessagesCount") AS "watcherUnseenCount"',
           'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
         ])
-        .groupBy('post.id, user.id')
+        .groupBy('post.id, user.id, "latestMessage"."content", "latestMessage"."createdAt"')
         .getRawMany();
       return posts
     } catch (err) {
