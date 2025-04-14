@@ -6,11 +6,9 @@ import { TargetCreateDto } from '../target/create-target.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
-  ArrayNotEmpty,
   IsArray,
   IsEnum,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsUUID,
   ValidateNested,
@@ -29,23 +27,13 @@ export class ProjectCreateDto {
   projectName: string;
 
   @ApiProperty({
-    description: 'Id программы',
-    required: false,
-    example: 'b6ed2664-9510-4a47-9117-6ce89903b4b5',
-  })
-  @IsOptional()
-  @IsUUID(undefined, { message: 'Неверный формат UUID!' })
-  programId?: string;
-
-  @ApiProperty({
     description: 'Содержание проекта',
     required: false,
     example: 'Контент проекта',
   })
-  @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'Проект не может быть пустым!' })
-  content?: string;
+  content: string;
 
   @ApiProperty({
     description: 'Тип проекта',
@@ -54,10 +42,9 @@ export class ProjectCreateDto {
     example: 'Проект',
     examples: ['Проект', 'Программа'],
   })
-  @IsOptional()
   @IsEnum(TypeProject)
   @IsNotEmpty({ message: 'Выберите тип проекта!' })
-  type?: TypeProject;
+  type: TypeProject;
 
   @ApiProperty({
     description: 'ID организации, которую связать с проектом',
@@ -78,7 +65,7 @@ export class ProjectCreateDto {
   strategyId?: string;
 
   @Exclude({ toPlainOnly: true })
-  strategy: Strategy; // nullable
+  strategy: Strategy; 
 
   @Exclude({ toPlainOnly: true })
   account: Account;
@@ -138,15 +125,4 @@ export class ProjectCreateDto {
     message: 'Список задач должен содержать хотя бы одну задачу с типом "Продукт"!'
   })
   targetCreateDtos: TargetCreateDto[];
-
-  @ApiProperty({
-    description: 'IDs проектов, которые привязать с програмой',
-    example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'],
-  })
-  @IsOptional()
-  @IsUUID(undefined, { each: true, message: 'Неверный формат UUID' })
-  @ArrayNotEmpty({message: 'Массив не может быть пустым!'})
-  projectIds?: string[];
 }
-
-// не может быть активным пока нет 1 задачи "продукт" и 1 задачи "обычная"

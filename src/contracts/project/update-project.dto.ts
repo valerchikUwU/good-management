@@ -45,7 +45,7 @@ export class ProjectUpdateDto {
   })
   @IsOptional()
   @IsUUID()
-  programId?: string | null;
+  programId?: string;
 
   @ApiProperty({
     description: 'Содержание проекта',
@@ -56,16 +56,6 @@ export class ProjectUpdateDto {
   @IsString()
   @IsNotEmpty({ message: 'Проект не может быть пустым!' })
   content?: string;
-
-  @ApiProperty({
-    description: 'Тип проекта',
-    required: false,
-    example: 'Проект',
-    examples: ['Проект', 'Программа'],
-  })
-  @IsOptional()
-  @IsEnum(TypeProject)
-  type?: TypeProject;
 
   @ApiProperty({
     description: 'ID стратегии, которую связать с проектом',
@@ -87,15 +77,15 @@ export class ProjectUpdateDto {
         type: 'Продукт',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderPostId: '53e0a8b0-bce4-4c81-b26f-7e5a4ad6e259',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
       {
-        type: 'Обычная',
+        type: 'Задача',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderPostId: '53e0a8b0-bce4-4c81-b26f-7e5a4ad6e259',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -103,7 +93,7 @@ export class ProjectUpdateDto {
         type: 'Правила',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderPostId: '53e0a8b0-bce4-4c81-b26f-7e5a4ad6e259',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },

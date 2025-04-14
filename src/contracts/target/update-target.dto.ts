@@ -116,4 +116,7 @@ export class TargetUpdateDto {
 
   @Exclude({ toPlainOnly: true })
   policy: Policy;
+
+  @Exclude({toPlainOnly: true})
+  dateComplete: Date;
 }

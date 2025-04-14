@@ -266,7 +266,7 @@ export class ConvertController {
     convertCreateDto.targetCreateDto.convert = createdConvert;
     await Promise.all([
       convertCreateDto.convertType === TypeConvert.ORDER ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
-      await this.messageService.create(messageCreateDto)
+      this.messageService.create(messageCreateDto)
     ]);
 
 

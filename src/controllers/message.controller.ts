@@ -248,11 +248,13 @@ export class MessageController {
             if (watcherToConvert.post.id !== userSenderPost.id)
                 return watcherToConvert.post.user.id
         });
-        const userIdsInConvert = convert.convertToPosts.map(convertToPost => {
+        const userIdsInConvert = convert.convertToPosts
+        .map(convertToPost => {
             if (convertToPost.post.user && convertToPost.post.user.id !== user.id)
                 return convertToPost.post.user.id
-        });
-        userIdsInConvert.concat(watcherUsersIdsInConvert)
+        })
+        .concat(watcherUsersIdsInConvert);
+        
         messageCreateDto.convert = convert;
         messageCreateDto.sender = userSenderPost;
         const createdMessageId = await this.messageService.create(messageCreateDto);

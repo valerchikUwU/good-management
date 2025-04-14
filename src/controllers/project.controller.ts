@@ -426,136 +426,43 @@ export class ProjectController {
     @Param('projectId') projectId: string,
     @Body() projectUpdateDto: ProjectUpdateDto,
   ): Promise<{ id: string }> {
-    const user = req.user as ReadUserDto;
-    const promises: Promise<void>[] = [];    // Условно добавляем запросы в массив промисов
-    console.log(projectUpdateDto.strategyId)
+    // const user = req.user as ReadUserDto;
+    const start = new Date();
     if (projectUpdateDto.strategyId != null) {
-      promises.push(
-        this.strategyService.findOneById(projectUpdateDto.strategyId).then(strategy => {
-          projectUpdateDto.strategy = strategy;
-        }),
-      );
+        const strategy = await this.strategyService.findOneById(projectUpdateDto.strategyId);
+        projectUpdateDto.strategy = strategy;
     }
-
-    // Выполняем все запросы параллельно
-    await Promise.all(promises);
-
-
     const updatedProjectId = await this.projectService.update(
       projectId,
       projectUpdateDto,
     );
-    const project = await this.projectService.findOneById(updatedProjectId);
 
-    const targetCreateEventDtos: TargetCreateEventDto[] = [];
-    const targetUpdateEventDtos: TargetUpdateEventDto[] = [];
-    if (projectUpdateDto.targetUpdateDtos !== undefined) {
-      const updateTargetsPromises = projectUpdateDto.targetUpdateDtos.map(
-        async (targetUpdateDto) => {
-          if (targetUpdateDto.holderPostId) {
-            const holderPost = await this.postService.findOneById(targetUpdateDto.holderPostId);
-            targetUpdateDto.holderPost = holderPost;
-          }
-          const updatedTargetId = await this.targetService.update(targetUpdateDto);
-          const targetUpdateEventDto: TargetUpdateEventDto = {
-            id: updatedTargetId,
-            orderNumber:
-              targetUpdateDto.orderNumber !== undefined
-                ? targetUpdateDto.orderNumber
-                : null,
-            content:
-              targetUpdateDto.content !== undefined
-                ? targetUpdateDto.content
-                : null,
-            updatedAt: new Date(),
-            holderPostId:
-              targetUpdateDto.holderPostId !== undefined
-                ? targetUpdateDto.holderPostId
-                : null,
-            targetState:
-              targetUpdateDto.targetState !== undefined
-                ? (targetUpdateDto.targetState as string)
-                : null,
-            dateStart:
-              targetUpdateDto.dateStart !== undefined
-                ? targetUpdateDto.dateStart
-                : null,
-            deadline:
-              targetUpdateDto.deadline !== undefined
-                ? targetUpdateDto.deadline
-                : null,
-            projectId: project.id,
-            accountId: user.account.id,
-          };
-          targetUpdateEventDtos.push(targetUpdateEventDto);
-          return updatedTargetId;
-        },
-      );
-      await Promise.all(updateTargetsPromises);
-    }
-
-    if (projectUpdateDto.targetCreateDtos !== undefined) {
-      const createTargetsPromises = projectUpdateDto.targetCreateDtos.map(
-        async (targetCreateDto) => {
-          targetCreateDto.project = project; // Присваиваем обновленный проект
-          const holderPost = await this.postService.findOneById(targetCreateDto.holderPostId);
-          targetCreateDto.holderPost = holderPost;
-          const createdTarget = await this.targetService.create(targetCreateDto);
-          const targetCreateEventDto: TargetCreateEventDto = {
-            id: createdTarget.id,
-            type:
-              targetCreateDto.type !== undefined
-                ? (targetCreateDto.type as string)
-                : (TypeTarget.COMMON as string), // TypeTarget alias for Type (target)
-            orderNumber: targetCreateDto.orderNumber,
-            content: targetCreateDto.content,
-            createdAt: new Date(),
-            holderPostId: targetCreateDto.holderPostId,
-            targetState: State.ACTIVE as string,
-            dateStart:
-              targetCreateDto.dateStart !== undefined
-                ? targetCreateDto.dateStart
-                : new Date(),
-            deadline:
-              targetCreateDto.deadline !== undefined
-                ? targetCreateDto.deadline
-                : null,
-            projectId: project.id,
-            accountId: user.account.id,
-          };
-          targetCreateEventDtos.push(targetCreateEventDto);
-          return createdTarget;
-        },
-      );
-      await Promise.all(createTargetsPromises);
-    }
-
-    const updatedEventProjectDto: ProjectUpdateEventDto = {
-      eventType: 'PROJECT_UPDATED',
-      id: project.id,
-      projectName:
-        projectUpdateDto.projectName !== undefined
-          ? projectUpdateDto.projectName
-          : null,
-      programId:
-        projectUpdateDto.programId !== undefined
-          ? projectUpdateDto.programId
-          : null,
-      content:
-        projectUpdateDto.content !== undefined
-          ? projectUpdateDto.content
-          : null,
-      updatedAt: new Date(),
-      strategyId:
-        projectUpdateDto.strategyId !== undefined
-          ? projectUpdateDto.strategyId
-          : null,
-      accountId: user.account.id,
-      targetUpdateDtos:
-        targetUpdateEventDtos.length > 0 ? targetUpdateEventDtos : null,
-      targetCreateDtos:
-        targetCreateEventDtos.length > 0 ? targetCreateEventDtos : null,
-    };
+    // const updatedEventProjectDto: ProjectUpdateEventDto = {
+    //   eventType: 'PROJECT_UPDATED',
+    //   id: project.id,
+    //   projectName:
+    //     projectUpdateDto.projectName !== undefined
+    //       ? projectUpdateDto.projectName
+    //       : null,
+    //   programId:
+    //     projectUpdateDto.programId !== undefined
+    //       ? projectUpdateDto.programId
+    //       : null,
+    //   content:
+    //     projectUpdateDto.content !== undefined
+    //       ? projectUpdateDto.content
+    //       : null,
+    //   updatedAt: new Date(),
+    //   strategyId:
+    //     projectUpdateDto.strategyId !== undefined
+    //       ? projectUpdateDto.strategyId
+    //       : null,
+    //   accountId: user.account.id,
+    //   targetUpdateDtos:
+    //     targetUpdateEventDtos.length > 0 ? targetUpdateEventDtos : null,
+    //   targetCreateDtos:
+    //     targetCreateEventDtos.length > 0 ? targetCreateEventDtos : null,
+    // };
     // try {
     //   await Promise.race([
     //     this.producerService.sendUpdatedProjectToQueue(updatedEventProjectDto),
@@ -575,6 +482,8 @@ export class ProjectController {
     this.logger.info(
       `${yellow('OK!')} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`,
     );
+    const now = new Date();
+    console.log(now.getTime() - start.getTime())
     return { id: updatedProjectId };
   }
 

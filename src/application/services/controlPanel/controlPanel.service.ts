@@ -112,7 +112,6 @@ export class ControlPanelService {
             if (!controlPanel) {
                 throw new NotFoundException(`Панель с ID ${_id} не найдена`);
             }
-            // Обновить свойства, если они указаны в DTO
             if (updateControlPanelDto.panelName){
                 controlPanel.panelName = updateControlPanelDto.panelName;
                 controlPanel.isNameChanged = true;

@@ -81,9 +81,8 @@ export class GoalService {
       return createdGoalId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
       throw new InternalServerErrorException('Ошибка при создании цели');
     }
@@ -95,18 +94,15 @@ export class GoalService {
       if (!goal) {
         throw new NotFoundException(`Цель с ID ${_id} не найдена`);
       }
-      // Обновить свойства, если они указаны в DTO
       if (updateGoalDto.content) goal.content = updateGoalDto.content;
       await this.goalRepository.update(goal.id, { content: goal.content });
       return goal.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err; 
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении цели');
     }
   }

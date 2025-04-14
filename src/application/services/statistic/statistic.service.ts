@@ -177,7 +177,6 @@ export class StatisticService {
       if (!statistic) {
         throw new NotFoundException(`Статистика с ID ${_id} не найдена`);
       }
-      // Обновить свойства, если они указаны в DTO
       if (statisticUpdateDto.type) statistic.type = statisticUpdateDto.type;
       if (statisticUpdateDto.name) statistic.name = statisticUpdateDto.name;
       if (statisticUpdateDto.description) statistic.description = statisticUpdateDto.description;
@@ -191,12 +190,9 @@ export class StatisticService {
       return statistic.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при обновлении статистики',
       );

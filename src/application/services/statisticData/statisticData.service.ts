@@ -37,10 +37,6 @@ export class StatisticDataService {
       return createdStatisticDataId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException('Ошибка при создании данных!');
     }
   }
@@ -55,7 +51,6 @@ export class StatisticDataService {
           `Данные с ID ${statisticDataUpdateDto._id} не найдены`,
         );
       }
-      // Обновить свойства, если они указаны в DTO
       if (statisticDataUpdateDto.value)
         statisticData.value = statisticDataUpdateDto.value;
       if (statisticDataUpdateDto.valueDate)
@@ -70,12 +65,9 @@ export class StatisticDataService {
       return statisticData.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err; 
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при обновлении данных статистики',
       );
