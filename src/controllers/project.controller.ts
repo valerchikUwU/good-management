@@ -95,7 +95,7 @@ export class ProjectController {
   async findAll(
     @Param('organizationId') organizationId: string,
   ): Promise<ProjectReadDto[]> {
-    return await this.projectService.findAllForOrganization(organizationId);
+    return await this.projectService.findAllForOrganization(organizationId, ['targets']);
   }
 
   @Get(':organizationId/program/new')
@@ -544,10 +544,6 @@ export class ProjectController {
       content:
         projectUpdateDto.content !== undefined
           ? projectUpdateDto.content
-          : null,
-      type:
-        projectUpdateDto.type !== undefined
-          ? (projectUpdateDto.type as string)
           : null,
       updatedAt: new Date(),
       strategyId:
