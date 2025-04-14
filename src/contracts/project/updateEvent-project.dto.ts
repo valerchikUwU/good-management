@@ -7,7 +7,6 @@ export class ProjectUpdateEventDto {
   projectName: string | null;
   programId: string | null;
   content: string | null;
-  type: string | null;
   updatedAt: Date;
   strategyId: string | null;
   targetUpdateDtos: TargetUpdateEventDto[] | null;
