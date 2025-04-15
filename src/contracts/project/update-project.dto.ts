@@ -126,7 +126,8 @@ export class ProjectUpdateDto {
   targetUpdateDtos?: TargetUpdateDto[];
 
   @ApiProperty({
-    description: 'IDs проектов, которые привязать с програмой',
+    description: 'IDs проектов, которые привязать с програмой (юзается только для программ)',
+    required: false,
     example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'],
   })
   @IsOptional()

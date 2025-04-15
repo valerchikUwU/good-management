@@ -28,7 +28,7 @@ export class ProjectCreateDto {
 
   @ApiProperty({
     description: 'Содержание проекта',
-    required: false,
+    required: true,
     example: 'Контент проекта',
   })
   @IsString()
@@ -37,7 +37,7 @@ export class ProjectCreateDto {
 
   @ApiProperty({
     description: 'Тип проекта',
-    required: false,
+    required: true,
     default: TypeProject.PROJECT,
     example: 'Проект',
     examples: ['Проект', 'Программа'],

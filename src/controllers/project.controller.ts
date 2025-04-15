@@ -26,24 +26,19 @@ import { StrategyService } from 'src/application/services/strategy/strategy.serv
 import { TargetService } from 'src/application/services/target/target.service';
 import { ProjectCreateDto } from 'src/contracts/project/create-project.dto';
 import { ProjectReadDto } from 'src/contracts/project/read-project.dto';
-import { Type as TypeProject } from 'src/domains/project.entity';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
 import { ProjectUpdateDto } from 'src/contracts/project/update-project.dto';
 import { StrategyReadDto } from 'src/contracts/strategy/read-strategy.dto';
-import { ProjectCreateEventDto } from 'src/contracts/project/createEvent-project.dto';
-import { TargetCreateEventDto } from 'src/contracts/target/createEvent-target.dto';
-import { State, Type as TypeTarget } from 'src/domains/target.entity';
 import { ProducerService } from 'src/application/services/producer/producer.service';
-import { TargetUpdateEventDto } from 'src/contracts/target/updateEvent-target.dto';
-import { ProjectUpdateEventDto } from 'src/contracts/project/updateEvent-project.dto';
 import { TimeoutError } from 'rxjs';
 import { Request as ExpressRequest } from 'express';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { PostService } from 'src/application/services/post/post.service';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
+import { beforeCreate, beforeCreateProgram, findAllExample, findOneExample, findOneProgramExample } from 'src/constants/swagger-examples/projects/project-examples';
 
 @ApiTags('Project')
 @ApiBearerAuth('access-token')
@@ -65,18 +60,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: [
-      {
-        "id": "26cc6162-8c3d-440f-8464-67561172bc32",
-        "projectNumber": 280,
-        "projectName": "НОвый",
-        "programId": null,
-        "content": "Контент проекта",
-        "type": "Проект",
-        "createdAt": "2024-12-20T12:21:09.823Z",
-        "updatedAt": "2024-12-20T12:21:09.823Z",
-      }
-    ]
+    example: findAllExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -103,45 +87,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "workers": [
-        {
-          "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-          "firstName": "Максим",
-          "lastName": "Ковальская",
-          "middleName": "Тимофеевич",
-          "telegramId": 453120600,
-          "telephoneNumber": "+79787513901",
-          "avatar_url": null,
-          "vk_id": null,
-          "createdAt": "2024-12-04T13:16:56.785Z",
-          "updatedAt": "2024-12-04T15:37:36.501Z"
-        }
-      ],
-      "strategies": [
-        {
-          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
-          "strategyNumber": 194,
-          "dateActive": null,
-          "content": "HTML текст",
-          "state": "Черновик",
-          "createdAt": "2024-12-20T12:15:04.395Z",
-          "updatedAt": "2024-12-20T12:15:04.395Z"
-        }
-      ],
-      "projects": [
-        {
-          "id": "26cc6162-8c3d-440f-8464-67561172bc32",
-          "projectNumber": 280,
-          "projectName": "НОвый",
-          "programId": null,
-          "content": "Контент проекта",
-          "type": "Проект",
-          "createdAt": "2024-12-20T12:21:09.823Z",
-          "updatedAt": "2024-12-20T12:21:09.823Z",
-        }
-      ]
-    }
+    example: beforeCreateProgram
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -179,54 +125,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "workers": [
-        {
-          "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-          "firstName": "Максим",
-          "lastName": "Ковальская",
-          "middleName": "Тимофеевич",
-          "telegramId": 453120600,
-          "telephoneNumber": "+79787513901",
-          "avatar_url": null,
-          "vk_id": null,
-          "createdAt": "2024-12-04T13:16:56.785Z",
-          "updatedAt": "2024-12-04T15:37:36.501Z"
-        }
-      ],
-      "strategies": [
-        {
-          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
-          "strategyNumber": 194,
-          "dateActive": null,
-          "content": "HTML текст",
-          "state": "Черновик",
-          "createdAt": "2024-12-20T12:15:04.395Z",
-          "updatedAt": "2024-12-20T12:15:04.395Z"
-        }
-      ],
-      "programs": [
-        {
-          "id": "3b6e9455-7435-4f6b-bef4-950d40aca37d",
-          "projectNumber": 281,
-          "projectName": "Программа",
-          "programId": null,
-          "content": "Контент проекта",
-          "type": "Программа",
-          "createdAt": "2024-12-20T12:25:21.715Z",
-          "updatedAt": "2024-12-20T12:25:21.715Z",
-          "strategy": {
-            "id": "c970f786-b785-49da-894c-b9c975ec0e26",
-            "strategyNumber": 194,
-            "dateActive": null,
-            "content": "HTML текст",
-            "state": "Черновик",
-            "createdAt": "2024-12-20T12:15:04.395Z",
-            "updatedAt": "2024-12-20T12:15:04.395Z"
-          }
-        }
-      ]
-    }
+    example: beforeCreate
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -414,7 +313,7 @@ export class ProjectController {
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: `Проект не найден!`,
+    description: `{Объект} не найден!`,
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -492,117 +391,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "program": {
-        "id": "3b6e9455-7435-4f6b-bef4-950d40aca37d",
-        "projectNumber": 281,
-        "projectName": "Программа",
-        "programId": null,
-        "content": "Контент проекта",
-        "type": "Программа",
-        "createdAt": "2024-12-20T12:25:21.715Z",
-        "updatedAt": "2024-12-20T12:25:21.715Z",
-        "organization": {
-          "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167",
-          "organizationName": "Калоеды",
-          "parentOrganizationId": null,
-          "reportDay": 2,
-          "createdAt": "2024-12-04T13:14:47.767Z",
-          "updatedAt": "2024-12-06T07:09:10.117Z"
-        },
-        "targets": [
-          {
-            "id": "b5b8527e-a753-4ca0-90cc-3bc6ad4375c7",
-            "type": "Продукт",
-            "orderNumber": 1,
-            "content": "Контент задачи",
-            "holderUserId": "bc807845-08a8-423e-9976-4f60df183ae2",
-            "targetState": "Активная",
-            "dateStart": "2024-12-20T12:25:21.576Z",
-            "deadline": "2024-09-18T14:59:47.010Z",
-            "dateComplete": null,
-            "createdAt": "2024-12-20T12:25:21.960Z",
-            "updatedAt": "2024-12-20T12:25:21.960Z",
-            "targetHolders": [
-              {
-                "id": "cc57610d-d428-43f2-a2d2-f102676fda2b",
-                "createdAt": "2024-12-20T12:25:22.059Z",
-                "updatedAt": "2024-12-20T12:25:22.059Z",
-                "user": {
-                  "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-                  "firstName": "Максим",
-                  "lastName": "Ковальская",
-                  "middleName": "Тимофеевич",
-                  "telegramId": 453120600,
-                  "telephoneNumber": "+79787513901",
-                  "avatar_url": null,
-                  "vk_id": null,
-                  "createdAt": "2024-12-04T13:16:56.785Z",
-                  "updatedAt": "2024-12-04T15:37:36.501Z"
-                }
-              }
-            ],
-            "isExpired": true
-          }
-        ],
-        "strategy": {
-          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
-          "strategyNumber": 194,
-          "dateActive": null,
-          "content": "HTML текст",
-          "state": "Черновик",
-          "createdAt": "2024-12-20T12:15:04.395Z",
-          "updatedAt": "2024-12-20T12:15:04.395Z"
-        }
-      },
-      "projects": [
-        {
-          "id": "26cc6162-8c3d-440f-8464-67561172bc32",
-          "projectNumber": 280,
-          "projectName": "НОвый",
-          "programId": "3b6e9455-7435-4f6b-bef4-950d40aca37d",
-          "content": "Контент проекта",
-          "type": "Проект",
-          "createdAt": "2024-12-20T12:21:09.823Z",
-          "updatedAt": "2024-12-20T12:25:21.811Z",
-          "targets": [
-            {
-              "id": "723b97dd-a8bc-45b5-be03-5c307adf852c",
-              "type": "Продукт",
-              "orderNumber": 1,
-              "content": "Контент задачи",
-              "holderUserId": "bc807845-08a8-423e-9976-4f60df183ae2",
-              "targetState": "Активная",
-              "dateStart": "2024-12-20T12:21:09.602Z",
-              "deadline": "2024-09-18T14:59:47.010Z",
-              "dateComplete": null,
-              "createdAt": "2024-12-20T12:21:09.980Z",
-              "updatedAt": "2024-12-20T12:21:09.980Z",
-              "targetHolders": [
-                {
-                  "id": "76760b9f-f548-48d7-a674-f4cd61212b43",
-                  "createdAt": "2024-12-20T12:21:10.077Z",
-                  "updatedAt": "2024-12-20T12:21:10.077Z",
-                  "user": {
-                    "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-                    "firstName": "Максим",
-                    "lastName": "Ковальская",
-                    "middleName": "Тимофеевич",
-                    "telegramId": 453120600,
-                    "telephoneNumber": "+79787513901",
-                    "avatar_url": null,
-                    "vk_id": null,
-                    "createdAt": "2024-12-04T13:16:56.785Z",
-                    "updatedAt": "2024-12-04T15:37:36.501Z"
-                  }
-                }
-              ],
-              "isExpired": true
-            }
-          ]
-        }
-      ]
-    }
+    example: findOneProgramExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -634,82 +423,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      "project": {
-        "id": "26cc6162-8c3d-440f-8464-67561172bc32",
-        "projectNumber": 280,
-        "projectName": "НОвый",
-        "programId": "3b6e9455-7435-4f6b-bef4-950d40aca37d",
-        "programNumber": 281,
-        "content": "Контент проекта",
-        "type": "Проект",
-        "createdAt": "2024-12-20T12:21:09.823Z",
-        "updatedAt": "2024-12-20T12:25:21.811Z",
-        "organization": {
-          "id": "2d1cea4c-7cea-4811-8cd5-078da7f20167",
-          "organizationName": "Калоеды",
-          "parentOrganizationId": null,
-          "reportDay": 2,
-          "createdAt": "2024-12-04T13:14:47.767Z",
-          "updatedAt": "2024-12-06T07:09:10.117Z"
-        },
-        "targets": [
-          {
-            "id": "723b97dd-a8bc-45b5-be03-5c307adf852c",
-            "type": "Продукт",
-            "orderNumber": 1,
-            "content": "Контент задачи",
-            "holderUserId": "bc807845-08a8-423e-9976-4f60df183ae2",
-            "targetState": "Активная",
-            "dateStart": "2024-12-20T12:21:09.602Z",
-            "deadline": "2024-09-18T14:59:47.010Z",
-            "dateComplete": null,
-            "createdAt": "2024-12-20T12:21:09.980Z",
-            "updatedAt": "2024-12-20T12:21:09.980Z",
-            "targetHolders": [
-              {
-                "id": "76760b9f-f548-48d7-a674-f4cd61212b43",
-                "createdAt": "2024-12-20T12:21:10.077Z",
-                "updatedAt": "2024-12-20T12:21:10.077Z",
-                "user": {
-                  "id": "bc807845-08a8-423e-9976-4f60df183ae2",
-                  "firstName": "Максим",
-                  "lastName": "Ковальская",
-                  "middleName": "Тимофеевич",
-                  "telegramId": 453120600,
-                  "telephoneNumber": "+79787513901",
-                  "avatar_url": null,
-                  "vk_id": null,
-                  "createdAt": "2024-12-04T13:16:56.785Z",
-                  "updatedAt": "2024-12-04T15:37:36.501Z"
-                }
-              }
-            ],
-            "isExpired": true
-          }
-        ],
-        "strategy": {
-          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
-          "strategyNumber": 194,
-          "dateActive": null,
-          "content": "HTML текст",
-          "state": "Черновик",
-          "createdAt": "2024-12-20T12:15:04.395Z",
-          "updatedAt": "2024-12-20T12:15:04.395Z"
-        }
-      },
-      "strategies": [
-        {
-          "id": "c970f786-b785-49da-894c-b9c975ec0e26",
-          "strategyNumber": 194,
-          "dateActive": null,
-          "content": "HTML текст",
-          "state": "Черновик",
-          "createdAt": "2024-12-20T12:15:04.395Z",
-          "updatedAt": "2024-12-20T12:15:04.395Z"
-        }
-      ]
-    }
+    example: findOneExample
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,

@@ -98,7 +98,7 @@ export class TargetCreateDto {
   @ApiProperty({
     description: 'Состояние задачи',
     required: false,
-    example: 'Отменена',
+    example: 'Черновик',
     default: 'Черновик',
     examples: ['Отменена', 'Завершена', 'Активная', 'Черновик'],
   })
