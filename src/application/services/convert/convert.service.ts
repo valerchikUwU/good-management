@@ -47,6 +47,12 @@ export class ConvertService {
                 .andWhere('"convert"."activePostId" NOT IN (:...userPostsIds)', { userPostsIds })
             }))
         }))
+        .orWhere(new Brackets((qb) => {
+          qb.where('convert.convertStatus = true')
+            .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
+            .andWhere('"convert"."activePostId" NOT IN (:...userPostsIds)', { userPostsIds })
+            .andWhere('"convert"."pathOfPosts" && ARRAY[:...userPostsIds]::uuid[]', { userPostsIds })
+        }))
         .select([
           'convert.*',
           '"latestMessage"."content" AS "latestMessageContent"',
