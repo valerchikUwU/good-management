@@ -240,7 +240,7 @@ export class ConvertService {
       if (convertUpdateDto.activePostId) {
         convert.activePostId = convertUpdateDto.activePostId;
       }
-      if (convertUpdateDto.convertStatus) {
+      if (convertUpdateDto.convertStatus !== undefined) {
         convert.convertStatus = convertUpdateDto.convertStatus;
         convert.dateFinish = new Date();
       }
@@ -257,7 +257,8 @@ export class ConvertService {
       }
       await this.convertRepository.update(convert.id, {
         activePostId: convert.activePostId,
-        convertStatus: convert.convertStatus
+        convertStatus: convert.convertStatus,
+        dateFinish: convert.dateFinish
       });
       return convert.id;
     } catch (err) {
