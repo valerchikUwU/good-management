@@ -54,7 +54,7 @@ export class ProjectUpdateDto {
   })
   @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'Проект не может быть пустым!' })
+  @IsNotEmpty({ message: 'Содержание проекта не может быть пустым!' })
   content?: string;
 
   @ApiProperty({

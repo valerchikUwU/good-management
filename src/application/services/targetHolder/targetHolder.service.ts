@@ -46,12 +46,7 @@ export class TargetHolderService {
 
   async createBulk(targetHolderCreateDtos: TargetHolderCreateDto[]): Promise<void> {
     try {
-      const targetHolders: TargetHolder[] = [];
-      targetHolderCreateDtos.forEach((targetHolderCreateDto, index) => {
-        targetHolders[index].target = targetHolderCreateDto.target;
-        targetHolders[index].post = targetHolderCreateDto.post;
-      })
-      await this.targetHolderRepository.insert(targetHolders);
+      await this.targetHolderRepository.insert(targetHolderCreateDtos);
     } catch (err) {
       throw new InternalServerErrorException(
         'Ошибка при создании ответственного за задачу',
