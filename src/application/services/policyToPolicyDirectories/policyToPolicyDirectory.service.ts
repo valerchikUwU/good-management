@@ -43,13 +43,20 @@ export class PolicyToPolicyDirectoryService {
     }
     catch (err) {
       this.logger.error(err);
+      throw new InternalServerErrorException('Ой что-то пошло не так при добавлении политики в папку!')
     }
 
   }
 
   async remove(policyDirectory: PolicyDirectoryReadDto): Promise<void> {
-    await this.policyToPolicyDirectoryRepository.delete({
-      policyDirectory: policyDirectory,
-    });
+    try {
+      await this.policyToPolicyDirectoryRepository.delete({
+        policyDirectory: policyDirectory,
+      });
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ой что-то пошло не так при удалении политик в папке!')
+    }
   }
 }

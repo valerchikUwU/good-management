@@ -16,6 +16,7 @@ import { TargetUpdateDto } from 'src/contracts/target/update-target.dto';
 import { Logger } from 'winston';
 import { And, Between, Equal, In, IsNull, LessThan, Not, Or } from 'typeorm';
 import { AttachmentToTargetService } from '../attachmentToTarget/attachmentToTarget.service';
+import { PostService } from '../post/post.service';
 
 @Injectable()
 export class TargetService {
@@ -24,6 +25,7 @@ export class TargetService {
     private readonly targetRepository: TargetRepository,
     private readonly targetHolderService: TargetHolderService,
     private readonly attachmentToTargetService: AttachmentToTargetService,
+    private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -177,17 +179,51 @@ export class TargetService {
       const createdTarget = await this.targetRepository.findOne({
         where: { id: createdTargetResult.identifiers[0].id },
       });
-      if(targetCreateDto.holderPostId){
+      if (targetCreateDto.holderPostId) {
         const targetHolderCreateDto: TargetHolderCreateDto = {
           target: createdTarget,
           post: targetCreateDto.holderPost,
         };
         await this.targetHolderService.create(targetHolderCreateDto);
       }
-      if(targetCreateDto.attachmentIds){
+      if (targetCreateDto.attachmentIds) {
         await this.attachmentToTargetService.createSeveral(createdTarget, targetCreateDto.attachmentIds);
       }
       return createdTarget;
+    } catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при создании задачи');
+    }
+  }
+
+  async createBulk(targetCreateDtos: TargetCreateDto[]): Promise<void> {
+    try {
+      const holderPostIds = targetCreateDtos
+        .map(dto => dto.holderPostId)
+        .filter((holderPostId) => holderPostId != null);
+      const holderPosts = await this.postService.findBulk(holderPostIds);
+      const holderPostMap = new Map(holderPosts.map(post => [post.id, post]));
+      targetCreateDtos.forEach(targetCreateDto => {
+        targetCreateDto.holderPost = targetCreateDto.holderPostId ? holderPostMap.get(targetCreateDto.holderPostId) : null;
+        return targetCreateDto;
+      });
+      const createdTargetsResult = await this.targetRepository.insert(targetCreateDtos);
+      const createdTargetsIds = createdTargetsResult.identifiers.map(obj => obj.id)
+      const createdTargets = await this.targetRepository.findBy({
+        id: In(createdTargetsIds)
+      });
+      const targetHolderCreateDtos: TargetHolderCreateDto[] = [];
+      createdTargets.forEach(target => {
+        if (target.holderPostId != null) {
+          targetHolderCreateDtos.push({
+            target: target,
+            post: holderPostMap.get(target.holderPostId)
+          })
+        }
+      });
+      if (targetHolderCreateDtos.length > 0) {
+        await this.targetHolderService.createBulk(targetHolderCreateDtos)
+      }
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при создании задачи');
@@ -204,7 +240,6 @@ export class TargetService {
           `Задача с ID ${updateTargetDto._id} не найдена`,
         );
       }
-      // Обновить свойства, если они указаны в DTO
       if (updateTargetDto.content) target.content = updateTargetDto.content;
       if (updateTargetDto.orderNumber) target.orderNumber = updateTargetDto.orderNumber;
       if (updateTargetDto.holderPost) {
@@ -222,14 +257,14 @@ export class TargetService {
       if (updateTargetDto.policy != null) {
         target.policy = updateTargetDto.policy;
       }
-      else if (updateTargetDto.policyId === null){
-        target.policy = null 
+      else if (updateTargetDto.policyId === null) {
+        target.policy = null
       }
       if (updateTargetDto.attachmentIds) {
         await this.attachmentToTargetService.remove(target);
         await this.attachmentToTargetService.createSeveral(target, updateTargetDto.attachmentIds);
       }
-      else if (updateTargetDto.attachmentIds === null){
+      else if (updateTargetDto.attachmentIds === null) {
         await this.attachmentToTargetService.remove(target);
       }
       await this.targetRepository.update(target.id, {
@@ -253,6 +288,60 @@ export class TargetService {
     }
   }
 
+  async updateBulk(updateTargetDtos: TargetUpdateDto[]): Promise<void> {
+    try {
+      const targetIds = updateTargetDtos.map(target => target._id)
+      const targets = await this.targetRepository.findBy({ id: In(targetIds) });
+      const foundIds = targets.map(target => target.id);
+      const missingIds = targetIds.filter(id => !foundIds.includes(id));
+      if (missingIds.length > 0) {
+        throw new NotFoundException(
+          `Не найдены задачи с IDs: ${missingIds.join(', ')}`,
+        );
+      }
+      const holderPostForUpdationIds = updateTargetDtos
+        .map(dto => dto.holderPostId)
+        .filter((holderPostId) => holderPostId != null);
+      const holderPostsForUpdation = await this.postService.findBulk(holderPostForUpdationIds);
+      const holderPostMapForUpdation = new Map(holderPostsForUpdation.map(post => [post.id, post]));
+      updateTargetDtos.forEach(updateTargetDto => {
+        updateTargetDto.holderPost = updateTargetDto.holderPostId ? holderPostMapForUpdation.get(updateTargetDto.holderPostId) : null;
+        if (updateTargetDto.targetState === State.FINISHED) updateTargetDto.dateComplete = new Date();
+      });
+      const updatedTargetsResult = await this.targetRepository.upsert(
+        updateTargetDtos.map(dto => ({
+          ...dto,
+          id: dto._id,  // Явно задаем соответствие `_id` → `id`
+        })),
+        {
+          conflictPaths: ["id"],
+          skipUpdateIfNoValuesChanged: true,
+          upsertType: "on-conflict-do-update"
+        }
+      );
+      const targetHolderCreateDtos: TargetHolderCreateDto[] = [];
+      updateTargetDtos.forEach(targetUpdateDto => {
+        if (targetUpdateDto.holderPostId != null) {
+          targetHolderCreateDtos.push({
+            target: targets.find(target => target.id === targetUpdateDto._id),
+            post: holderPostMapForUpdation.get(targetUpdateDto.holderPostId)
+          })
+        }
+      })
+      if (targetHolderCreateDtos.length > 0) {
+        await this.targetHolderService.createBulk(targetHolderCreateDtos)
+      }
+
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Ошибка при обновлении задачи');
+    }
+  }
+
 
   async remove(_id: string): Promise<void> {
     try {
@@ -262,7 +351,7 @@ export class TargetService {
       if (!target) {
         throw new NotFoundException(`Личная задача с ID ${_id} не найдена`);
       }
-      if (target.type !== Type.PERSONAL){
+      if (target.type !== Type.PERSONAL) {
         throw new BadRequestException('Удалять можно только личные задачи!')
       }
 
@@ -275,7 +364,7 @@ export class TargetService {
         throw err;
       }
       if (err instanceof BadRequestException) {
-        throw err; 
+        throw err;
       }
       throw new InternalServerErrorException('Ошибка при удалении панели управления')
     }

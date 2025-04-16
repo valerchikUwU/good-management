@@ -46,6 +46,7 @@ import { AttachmentToTargetModule } from './application/modules/attachmentToTarg
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { MessageSeenStatusModule } from './application/modules/messageSeenStatus.module';
 import { WatchersToConvertModule } from './application/modules/watchersToConvert.module';
+import { TransactionModule } from "nestjs-transaction";
 
 dotenv.config();
 
@@ -91,6 +92,7 @@ dotenv.config();
     //     })
     //   ]
     //   : []),
+    TransactionModule.forRoot(),
     WinstonModule.forRoot(winstonConfig),
     UsersModule,
     AuthModule,

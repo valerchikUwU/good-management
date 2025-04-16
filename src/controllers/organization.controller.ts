@@ -31,7 +31,7 @@ import { findAllOrganizationsExample, findOneOrganizationExample } from 'src/con
 
 @UseGuards(AccessTokenGuard)
 @ApiTags('Organization')
-@ApiBearerAuth('access-token') // Указывает использовать схему Bearer
+@ApiBearerAuth('access-token')
 @Controller('organizations')
 export class OrganizationController {
   constructor(
