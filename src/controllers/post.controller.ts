@@ -356,13 +356,15 @@ export class PostController {
     parentPost: PostReadDto;
     workers: ReadUserDto[];
     policiesActive: PolicyReadDto[];
+    roles: RoleReadDto[];
   }> {
     const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization', 'statistics']);
     const isHasBoss = currentPost.parentId !== null ? true : false
-    const [posts, workers, policiesActive] = await Promise.all([
+    const [posts, workers, policiesActive, roles] = await Promise.all([
       isHasBoss ? this.postService.getParentPosts(currentPost.id) : this.postService.findAllForOrganization(currentPost.organization.id, false, ['user']),
       this.userService.findAllForOrganization(currentPost.organization.id),
       this.policyService.findAllActiveForOrganization(currentPost.organization.id),
+      this.roleService.findAll(),
     ])
     const _posts = posts.filter((post) => post.id !== currentPost.id)
     const parentPost = posts.find((post) => post.id === currentPost.parentId);
@@ -373,7 +375,8 @@ export class PostController {
       posts: _posts,
       parentPost: parentPost,
       workers: workers,
-      policiesActive: policiesActive
+      policiesActive: policiesActive,
+      roles: roles
     };
   }
 
