@@ -169,7 +169,7 @@ export class TargetService {
       target.orderNumber = targetCreateDto.orderNumber;
       target.content = targetCreateDto.content;
       target.holderPostId = targetCreateDto.holderPostId;
-      target.dateStart = targetCreateDto.dateStart !== undefined ? targetCreateDto.dateStart : new Date();
+      target.dateStart = targetCreateDto.dateStart;
       target.deadline = targetCreateDto.deadline;
       target.senderPost = targetCreateDto.senderPost;
       target.project = targetCreateDto.project;

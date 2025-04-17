@@ -114,12 +114,11 @@ export class Target {
    * Дата старта задачи.
    * 
    * @remarks
-   * default: CURRENT_TIMESTAMP, nullable: false
+   * nullable: true
    */
   @Column({
     type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    nullable: false,
+    nullable: true,
   })
   dateStart: Date;
 

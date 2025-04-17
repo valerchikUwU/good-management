@@ -8,6 +8,7 @@ import { PanelToStatisticService } from "../panelToStatistic/panelToStatistic.se
 import { ControlPanelReadDto } from "src/contracts/controlPanel/read-controlPanel.dto";
 import { ControlPanelCreateDto } from "src/contracts/controlPanel/create-controlPanel.dto";
 import { ControlPanelUpdateDto } from "src/contracts/controlPanel/update-controlPanel.dto";
+import { Transactional } from "nestjs-transaction";
 
 
 
@@ -74,17 +75,15 @@ export class ControlPanelService {
         catch (err) {
 
             this.logger.error(err);
-            // Обработка специфичных исключений
             if (err instanceof NotFoundException) {
-                throw err; // Пробрасываем исключение дальше
+                throw err;
             }
-
-            // Обработка других ошибок
             throw new InternalServerErrorException('Ошибка при получении панели управленияв');
         }
 
     }
 
+    @Transactional()
     async create(controlPanelCreateDto: ControlPanelCreateDto): Promise<string> {
         try {
             const controlPanel = new ControlPanel();
@@ -105,7 +104,7 @@ export class ControlPanelService {
         }
     }
 
-
+    @Transactional()
     async update(_id: string, updateControlPanelDto: ControlPanelUpdateDto): Promise<string> {
         try {
             const controlPanel = await this.controlPanelRepository.findOne({ where: { id: _id } });
@@ -156,9 +155,8 @@ export class ControlPanelService {
         catch (err) {
 
             this.logger.error(err);
-            // Обработка специфичных исключений
             if (err instanceof NotFoundException) {
-                throw err; // Пробрасываем исключение дальше
+                throw err;
             }
             throw new InternalServerErrorException('Ошибка при удалении панели управления')
         }

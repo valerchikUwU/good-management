@@ -48,9 +48,7 @@ import { ConvertFinishDto } from 'src/contracts/convert/finish-convert.dto';
 export class ConvertController {
   constructor(
     private readonly convertService: ConvertService,
-    private readonly messageService: MessageService,
     private readonly postService: PostService,
-    private readonly targetService: TargetService,
     private readonly convertGateway: ConvertGateway,
     @Inject('winston') private readonly logger: Logger,
   ) { }
@@ -252,23 +250,9 @@ export class ConvertController {
 
     const [createdConvert, activePost] =
       await Promise.all([
-        this.convertService.create(convertCreateDto),
+        this.convertService.create(convertCreateDto, false),
         this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user']),
       ]);
-
-    const messageCreateDto: MessageCreateDto = {
-      content: createdConvert.convertType === TypeConvert.ORDER ? convertCreateDto.targetCreateDto.content : convertCreateDto.messageContent,
-      postId: convertCreateDto.senderPostId,
-      convert: createdConvert,
-      sender: userPost
-    }
-
-    convertCreateDto.targetCreateDto.convert = createdConvert;
-    await Promise.all([
-      convertCreateDto.convertType === TypeConvert.ORDER ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
-      this.messageService.create(messageCreateDto)
-    ]);
-
 
     // Если у поста есть юзер, то прокидывать сокет
     if (activePost.user !== null) {

@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Convert, PathConvert } from 'src/domains/convert.entity';
+import { Convert, PathConvert, TypeConvert } from 'src/domains/convert.entity';
 import { ConvertRepository } from './repository/convert.repository';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { Logger } from 'winston';
@@ -14,6 +14,10 @@ import { ConvertToPostService } from '../convertToPost/convertToPost.service';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { WatchersToConvertService } from '../watchersToConvert/watchersToConvert.service';
 import { Brackets } from 'typeorm';
+import { TargetService } from '../target/target.service';
+import { MessageService } from '../message/message.service';
+import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
+import { Transactional } from 'nestjs-transaction';
 
 @Injectable()
 export class ConvertService {
@@ -22,6 +26,8 @@ export class ConvertService {
     private readonly convertRepository: ConvertRepository,
     private readonly convertToPostService: ConvertToPostService,
     private readonly watchersToConvertService: WatchersToConvertService,
+    private readonly targetService: TargetService,
+    private readonly messageService: MessageService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -211,7 +217,8 @@ export class ConvertService {
     }
   }
 
-  async create(convertCreateDto: ConvertCreateDto): Promise<ConvertReadDto> {
+  @Transactional()
+  async create(convertCreateDto: ConvertCreateDto, isTargetFromProject: boolean): Promise<ConvertReadDto> {
     try {
       const convert = new Convert();
       convert.convertTheme = convertCreateDto.convertTheme;
@@ -224,7 +231,22 @@ export class ConvertService {
       convert.host = convertCreateDto.host;
       convert.account = convertCreateDto.account;
       const createdConvert = await this.convertRepository.save(convert);
-      await this.convertToPostService.createSeveral(createdConvert, convertCreateDto.pathOfPosts.slice(0, 2))
+
+      const messageCreateDto: MessageCreateDto = {
+        content: createdConvert.convertType === TypeConvert.ORDER ? convertCreateDto.targetCreateDto.content : convertCreateDto.messageContent,
+        postId: convertCreateDto.senderPostId,
+        convert: createdConvert,
+        sender: convert.host
+      }
+
+      convertCreateDto.targetCreateDto.convert = createdConvert;
+
+      const isTargetNeedToCreate = convertCreateDto.convertType === TypeConvert.ORDER && !isTargetFromProject
+      await Promise.all([
+        this.convertToPostService.createSeveral(createdConvert, convertCreateDto.pathOfPosts.slice(0, 2)),
+        isTargetNeedToCreate ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
+        this.messageService.create(messageCreateDto)
+      ])
       return createdConvert;
     } catch (err) {
       this.logger.error(err);
