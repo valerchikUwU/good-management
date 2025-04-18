@@ -18,6 +18,7 @@ import {
   ApiHeader,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -324,7 +325,16 @@ export class ProjectController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({ name: 'projectId', required: true, description: 'Id проекта' })
+  @ApiParam({ 
+    name: 'projectId', 
+    required: true, 
+    description: 'Id проекта' 
+  })
+  @ApiQuery({ 
+    name: 'holderProductPostId', 
+    required: false, 
+    description: 'Id поста ответственного за задачу с типом Продукт' 
+  })
   async update(
     @Req() req: ExpressRequest,
     @Param('projectId') projectId: string,
@@ -350,7 +360,6 @@ export class ProjectController {
             postIdsFromRecieverToTop.includes(postId),
           );
           const postIdsFromSenderToReciver: string[] = [];
-          console.log(isCommonDivision); // ___________________________LOG
           if (isCommonDivision) {
             postIdsFromSenderToReciver.push(
               ...createPathInOneDivision(
@@ -364,9 +373,6 @@ export class ProjectController {
               ...postIdsFromSenderToTop.concat(postIdsFromRecieverToTop),
             );
           }
-          console.log(postIdsFromSenderToTop); // ___________________________LOG
-          console.log(postIdsFromRecieverToTop); // ___________________________LOG
-          console.log(postIdsFromSenderToReciver); // ___________________________LOG
           if (!isCommonDivision) {
             convertCreateDto.convertPath = PathConvert.REQUEST
           }
@@ -399,7 +405,6 @@ export class ProjectController {
             postIdsFromRecieverToTop.includes(postId),
           );
           const postIdsFromSenderToReciver: string[] = [];
-          console.log(isCommonDivision); // ___________________________LOG
           if (isCommonDivision) {
             postIdsFromSenderToReciver.push(
               ...createPathInOneDivision(
@@ -413,9 +418,6 @@ export class ProjectController {
               ...postIdsFromSenderToTop.concat(postIdsFromRecieverToTop),
             );
           }
-          console.log(postIdsFromSenderToTop); // ___________________________LOG
-          console.log(postIdsFromRecieverToTop); // ___________________________LOG
-          console.log(postIdsFromSenderToReciver); // ___________________________LOG
           if (!isCommonDivision) {
             convertCreateDto.convertPath = PathConvert.REQUEST
           }

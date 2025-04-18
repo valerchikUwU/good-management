@@ -40,10 +40,6 @@ async function bootstrap() {
   );
   app.use(cookieParser());
 
-  if (process.env.NODE_ENV === 'prod') {
-    app.setGlobalPrefix('gm');
-  }
-
   const swaggerApi = new DocumentBuilder()
     .setTitle('Good-Management API')
     .setDescription(
