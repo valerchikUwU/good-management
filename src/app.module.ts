@@ -82,7 +82,7 @@ dotenv.config();
     }),
     ServeStaticModule.forRoot({
       rootPath: process.env.UPLOADS_PATH,
-      serveRoot: process.env.NODE_ENV === 'prod' ? '/gm/app/uploads' : '/app/uploads',
+      serveRoot: '/app/uploads',
     }),
     // ...(process.env.NODE_ENV === 'prod'
     //   ? [
