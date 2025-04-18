@@ -51,14 +51,7 @@ export class ConvertCreateDto {
   @IsNotEmpty({ message: 'Тип конверта не может быть пустой!' })
   convertType: TypeConvert;
 
-  @ApiProperty({
-    description: 'Тип маршрута',
-    required: true,
-    example: PathConvert.DIRECT,
-    examples: [PathConvert.DIRECT, PathConvert.COORDINATION, PathConvert.REQUEST],
-  })
-  @IsEnum(PathConvert)
-  @IsNotEmpty({ message: 'Тип маршрута конверта не может быть пустой!' })
+  @Exclude({ toPlainOnly: true })
   convertPath: PathConvert;
 
   @ApiProperty({

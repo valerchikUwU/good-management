@@ -43,6 +43,44 @@ export class ConvertToPostService {
     }
   }
 
+  // async createSeveralBulk(converts: Convert[]): Promise<void> {
+  //   try {
+  //     const allPostIds = converts
+  //       .map(convert => convert.pathOfPosts.slice(0, 2))
+  //       .flat();
+  //     const uniquePostIds = [...new Set(allPostIds)];
+
+  //     const posts = await this.postService.findBulk(uniquePostIds);
+  //     const postMap = new Map(posts.map(post => [post.id, post]));
+
+  //     const convertToPosts: ConvertToPost[] = [];
+
+  //     for (const convert of converts) {
+  //       const postIdsForConvert = convert.pathOfPosts.slice(0, 2);
+
+  //       for (const postId of postIdsForConvert) {
+  //         const post = postMap.get(postId);
+
+  //         if (!post) {
+  //           throw new NotFoundException(`Не найден пост с ID: ${postId} для конверта ${convert.id} `)
+  //         }
+
+  //         const convertToPost = new ConvertToPost();
+  //         convertToPost.post = post;
+  //         convertToPost.convert = convert;
+  //         convertToPosts.push(convertToPost);
+  //       }
+  //     }
+
+  //     await this.convertToPostRepository.insert(convertToPosts);
+  //   } catch (err) {
+  //     this.logger.error(err);
+  //     throw new InternalServerErrorException(
+  //       'Ой, что-то пошло не так при массовом добавлении участников к конвертам!',
+  //     );
+  //   }
+  // }
+
 
   async remove(convert: ConvertReadDto): Promise<void> {
     try {
@@ -51,6 +89,9 @@ export class ConvertToPostService {
     catch (err) {
       this.logger.error(err);
 
+      if (err instanceof NotFoundException) {
+        throw err
+      }
       throw new InternalServerErrorException(
         'Ой, что - то пошло не так при удалении конверта!',
       );

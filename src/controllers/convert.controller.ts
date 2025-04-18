@@ -40,6 +40,7 @@ import { FinishConvertGuard } from 'src/guards/finishConvert.guard';
 import { ApproveConvertGuard } from 'src/guards/approveConvert.guard';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { ConvertFinishDto } from 'src/contracts/convert/finish-convert.dto';
+import { createPathInOneDivision } from 'src/helpersFunc/createPathInOneDivision';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -210,9 +211,9 @@ export class ConvertController {
     const user = req.user as ReadUserDto;
     const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId);
     const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
-      await Promise.all([ // если DIRECT то первые два запроса не нужны
-        convertCreateDto.convertPath === PathConvert.DIRECT ? [] : this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
-        convertCreateDto.convertPath === PathConvert.DIRECT ? [] : this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
+      await Promise.all([
+        this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
+        this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
         this.postService.findOneById(convertCreateDto.reciverPostId),
       ]);
     const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
@@ -220,9 +221,7 @@ export class ConvertController {
     );
     const postIdsFromSenderToReciver: string[] = [];
     console.log(isCommonDivision); // ___________________________LOG
-    if (convertCreateDto.convertPath === PathConvert.DIRECT) {
-      postIdsFromSenderToReciver.push(convertCreateDto.senderPostId, convertCreateDto.reciverPostId);
-    } else if (isCommonDivision) {
+    if (isCommonDivision) {
       postIdsFromSenderToReciver.push(
         ...createPathInOneDivision(
           postIdsFromSenderToTop,
@@ -235,22 +234,29 @@ export class ConvertController {
         ...postIdsFromSenderToTop.concat(postIdsFromRecieverToTop),
       );
     }
-    // postIdsFromSenderToReciver.shift();
     console.log(postIdsFromSenderToTop); // ___________________________LOG
     console.log(postIdsFromRecieverToTop); // ___________________________LOG
     console.log(postIdsFromSenderToReciver); // ___________________________LOG
+    if(!isCommonDivision){
+      convertCreateDto.convertPath = PathConvert.REQUEST
+    }
+    else if(postIdsFromSenderToReciver.length > 2 && convertCreateDto.convertType !== TypeConvert.CHAT){
+      convertCreateDto.convertPath = PathConvert.COORDINATION
+    }
+    else {
+      convertCreateDto.convertPath = PathConvert.DIRECT
+    }
     convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
     convertCreateDto.host = userPost;
     convertCreateDto.account = user.account;
     if (convertCreateDto.convertType === TypeConvert.ORDER) {
       convertCreateDto.targetCreateDto.holderPost = targetHolderPost;
-      convertCreateDto.targetCreateDto.senderPost = userPost;
     }
 
 
     const [createdConvert, activePost] =
       await Promise.all([
-        this.convertService.create(convertCreateDto, false),
+        this.convertService.create(convertCreateDto),
         this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user']),
       ]);
 
@@ -402,29 +408,4 @@ export class ConvertController {
     );
     return updatedConvertId;
   }
-}
-
-
-
-
-function createPathInOneDivision(arr1: string[], arr2: string[]) {
-  // Элементы, которые есть в arr1, но нет в arr2
-  const uniqueInArr1 = arr1.filter((el) => !arr2.includes(el));
-
-  // Первый общий элемент в arr1 и arr2
-  const firstCommonElement = arr1.find((el) => arr2.includes(el));
-
-  // Элементы, которые есть в arr2, но нет в arr1, в реверсном порядке
-  const uniqueInArr2Reversed = arr2
-    .filter((el) => !arr1.includes(el))
-    .reverse();
-
-  // Формирование результирующего массива
-  const result = [...uniqueInArr1];
-  if (firstCommonElement !== undefined) {
-    result.push(firstCommonElement);
-  }
-  result.push(...uniqueInArr2Reversed);
-
-  return result;
 }

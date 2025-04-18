@@ -118,13 +118,6 @@ export class Post {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-
-  /**
-   * Связь с сущностью 1:1 Goal.
-   */
-  @OneToMany(() => Target, (target) => target.senderPost)
-  targets: Target[];
-
   /**
    * Связь с сущностью М:1 User.
    * 

@@ -12,6 +12,7 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
+import { Convert } from 'src/domains/convert.entity';
 import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { State, Type as TargetType } from 'src/domains/target.entity';
@@ -116,6 +117,9 @@ export class TargetUpdateDto {
 
   @Exclude({ toPlainOnly: true })
   policy: Policy;
+
+  @Exclude({ toPlainOnly: true })
+  convert: Convert;
 
   @Exclude({toPlainOnly: true})
   dateComplete: Date;

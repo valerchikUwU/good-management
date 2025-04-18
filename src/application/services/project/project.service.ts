@@ -19,6 +19,8 @@ import { Post } from 'src/domains/post.entity';
 import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
 import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { Transactional } from 'nestjs-transaction';
+import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
+import { ConvertService } from '../convert/convert.service';
 
 @Injectable()
 export class ProjectService {
@@ -26,6 +28,7 @@ export class ProjectService {
     @InjectRepository(Project)
     private readonly projectRepository: ProjectRepository,
     private readonly targetService: TargetService,
+    private readonly convertService: ConvertService,
     @Inject('winston') private readonly logger: Logger,
     private dataSource: DataSource
   ) { }
@@ -287,7 +290,7 @@ export class ProjectService {
   }
 
   @Transactional()
-  async update(_id: string, updateProjectDto: ProjectUpdateDto): Promise<string> {
+  async update(_id: string, updateProjectDto: ProjectUpdateDto, convertCreateDtos: ConvertCreateDto[]): Promise<string> {
     try {
       const project = await this.projectRepository.findOne({
         where: { id: _id },
@@ -396,15 +399,24 @@ export class ProjectService {
           );
         }
       }
-
+      // const createdConverts = convertCreateDtos?.length
+      //   ? await this.convertService.createBulkForProject(convertCreateDtos)
+      //   : [];
       if (updateProjectDto.targetCreateDtos) {
-        updateProjectDto.targetCreateDtos.forEach(targetCreateDto => {
+        updateProjectDto.targetCreateDtos.forEach(async (targetCreateDto, index) => {
+          const createdConvert = await this.convertService.create(convertCreateDtos[index])
           targetCreateDto.project = project;
+          targetCreateDto.convert = createdConvert;
         });
-        await this.targetService.createBulk(updateProjectDto.targetCreateDtos)
+
+        await this.targetService.createBulk(updateProjectDto.targetCreateDtos);
       }
       if (updateProjectDto.targetUpdateDtos) {
-        await this.targetService.updateBulk(updateProjectDto.targetUpdateDtos)
+        updateProjectDto.targetUpdateDtos.forEach(async (targetUpdateDto, index) => {
+          const createdConvert = await this.convertService.create(convertCreateDtos[index+ updateProjectDto?.targetCreateDtos.length]);
+          targetUpdateDto.convert = createdConvert;
+        });
+        await this.targetService.updateBulk(updateProjectDto.targetUpdateDtos);
       }
 
       return project.id;

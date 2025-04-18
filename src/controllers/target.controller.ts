@@ -74,7 +74,7 @@ export class TargetController {
     const userPostsIds = userPosts.map(post => post.id);
     const [personalTargets, orderTargets, projectTargets] = await Promise.all([
       this.targetService.findAllPersonalForUserPosts(userPostsIds, false, ['policy', 'attachmentToTargets.attachment']),
-      this.targetService.findAllOrdersForUserPosts(userPostsIds, false, ['senderPost', 'attachmentToTargets.attachment']),
+      this.targetService.findAllOrdersForUserPosts(userPostsIds, false, ['convert.host.user', 'attachmentToTargets.attachment']),
       this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false)
     ]);
     return { userPosts: userPosts, personalTargets: personalTargets, ordersTargets: orderTargets, projectTargets: projectTargets }
@@ -110,7 +110,7 @@ export class TargetController {
     const userPostsIds = userPosts.map(post => post.id)
     const [personalArchiveTargets, orderArchiveTargets, projectArchiveTargets] = await Promise.all([
       this.targetService.findAllPersonalForUserPosts(userPostsIds, false, ['policy', 'attachmentToTargets.attachment']),
-      this.targetService.findAllOrdersForUserPosts(userPostsIds, false, ['senderPost', 'attachmentToTargets.attachment']),
+      this.targetService.findAllOrdersForUserPosts(userPostsIds, false, ['convert.host.user', 'attachmentToTargets.attachment']),
       this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false)
     ]);
     return { userPosts: userPosts, personalArchiveTargets: personalArchiveTargets, ordersArchiveTargets: orderArchiveTargets, projectArchiveTargets: projectArchiveTargets };

@@ -57,7 +57,6 @@ export class TargetService {
         dateComplete: target.dateComplete,
         createdAt: target.createdAt,
         updatedAt: target.updatedAt,
-        senderPost: target.senderPost,
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
@@ -102,7 +101,6 @@ export class TargetService {
         dateComplete: target.dateComplete,
         createdAt: target.createdAt,
         updatedAt: target.updatedAt,
-        senderPost: target.senderPost,
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
@@ -144,7 +142,6 @@ export class TargetService {
         dateComplete: target.dateComplete,
         createdAt: target.createdAt,
         updatedAt: target.updatedAt,
-        senderPost: target.senderPost,
         targetHolders: target.targetHolders,
         project: target.project,
         policy: target.policy,
@@ -171,7 +168,6 @@ export class TargetService {
       target.holderPostId = targetCreateDto.holderPostId;
       target.dateStart = targetCreateDto.dateStart;
       target.deadline = targetCreateDto.deadline;
-      target.senderPost = targetCreateDto.senderPost;
       target.project = targetCreateDto.project;
       target.policy = targetCreateDto.policy;
       target.convert = targetCreateDto.convert

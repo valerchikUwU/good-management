@@ -46,7 +46,6 @@ export class PostService {
         purpose: post.purpose,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
-        targets: post.targets,
         user: post.user,
         policy: post.policy,
         statistics: post.statistics,
@@ -90,7 +89,6 @@ export class PostService {
         purpose: post.purpose,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
-        targets: post.targets,
         user: post.user,
         policy: post.policy,
         statistics: post.statistics,
@@ -131,7 +129,6 @@ export class PostService {
         purpose: post.purpose,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
-        targets: post.targets,
         user: post.user,
         policy: post.policy,
         statistics: post.statistics,
@@ -172,7 +169,6 @@ export class PostService {
         purpose: post.purpose,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
-        targets: post.targets,
         user: post.user,
         policy: post.policy,
         statistics: post.statistics,
@@ -214,7 +210,8 @@ export class PostService {
             AND "mrs"."postId" IN (:...userPostsIds)
           ) 
           AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)
-          AND "watcher"."id" IS NULL`, { userPostsIds }
+          AND "watcher"."id" IS NULL
+          AND ("c"."pathOfPosts"[1] IN (:...userPostsIds) OR "c"."activePostId" IN (:...userPostsIds))`, { userPostsIds }
         )        
         .leftJoin(
           'c.messages',
@@ -290,7 +287,6 @@ export class PostService {
         purpose: post.purpose,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
-        targets: post.targets,
         user: post.user,
         policy: post.policy,
         statistics: post.statistics,
@@ -339,7 +335,6 @@ export class PostService {
         purpose: post.purpose,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
-        targets: post.targets,
         user: post.user,
         policy: post.policy,
         statistics: post.statistics,

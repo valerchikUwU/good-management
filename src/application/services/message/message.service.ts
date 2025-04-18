@@ -295,6 +295,15 @@ export class MessageService {
     }
   }
 
+  // async createBulk(messageCreateDtos: MessageCreateDto[]): Promise<void> {
+  //   try {
+  //     await this.messageRepository.insert(messageCreateDtos);
+  //   } catch (err) {
+  //     this.logger.error(err);
+  //     throw new InternalServerErrorException('Ошибка при создании сообщения');
+  //   }
+  // }
+
   async update(
     _id: string,
     messageUpdateDto: MessageUpdateDto,

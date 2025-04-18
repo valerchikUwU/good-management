@@ -18,7 +18,6 @@ export class TargetReadDto {
   dateComplete: Date;
   createdAt: Date;
   updatedAt: Date;
-  senderPost: Post;
   targetHolders: TargetHolder[];
   project: Project;
   policy: Policy;

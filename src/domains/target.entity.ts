@@ -172,13 +172,6 @@ export class Target {
   @JoinColumn()
   convert: Convert;
 
-
-  /**
-   * Связь с сущностью M:1 Post.
-   */
-  @ManyToOne(() => Post, (post) => post.targets, { nullable: true })
-  senderPost: Post;
-
   /**
    * Связь с сущностью M:1 Project.
    * 

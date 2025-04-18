@@ -23,7 +23,6 @@ export class PostReadDto {
   purpose: string;
   createdAt: Date;
   updatedAt: Date;
-  targets: Target[];
   user: User;
   policy: Policy;
   statistics: Statistic[];

@@ -218,7 +218,7 @@ export class ConvertService {
   }
 
   @Transactional()
-  async create(convertCreateDto: ConvertCreateDto, isTargetFromProject: boolean): Promise<ConvertReadDto> {
+  async create(convertCreateDto: ConvertCreateDto): Promise<ConvertReadDto> {
     try {
       const convert = new Convert();
       convert.convertTheme = convertCreateDto.convertTheme;
@@ -231,21 +231,22 @@ export class ConvertService {
       convert.host = convertCreateDto.host;
       convert.account = convertCreateDto.account;
       const createdConvert = await this.convertRepository.save(convert);
+      
 
       const messageCreateDto: MessageCreateDto = {
-        content: createdConvert.convertType === TypeConvert.ORDER ? convertCreateDto.targetCreateDto.content : convertCreateDto.messageContent,
+        content: convertCreateDto.targetCreateDto !== undefined ? convertCreateDto.targetCreateDto.content : convertCreateDto.convertTheme,
         postId: convertCreateDto.senderPostId,
         convert: createdConvert,
         sender: convert.host
       }
 
-      convertCreateDto.targetCreateDto.convert = createdConvert;
 
-      const isTargetNeedToCreate = convertCreateDto.convertType === TypeConvert.ORDER && !isTargetFromProject
+
+      
       await Promise.all([
         this.convertToPostService.createSeveral(createdConvert, convertCreateDto.pathOfPosts.slice(0, 2)),
-        isTargetNeedToCreate ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
-        this.messageService.create(messageCreateDto)
+        convertCreateDto.targetCreateDto ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
+        convertCreateDto.convertType !== TypeConvert.CHAT ? this.messageService.create(messageCreateDto) : null
       ])
       return createdConvert;
     } catch (err) {
@@ -253,6 +254,35 @@ export class ConvertService {
       throw new InternalServerErrorException('Ошибка при создании конверта');
     }
   }
+
+  // async createBulkForProject(convertCreateDtos: ConvertCreateDto[]): Promise<Convert[]> {
+  //   try {
+
+  //     const createdConverts = await this.convertRepository.save(convertCreateDtos);
+
+  //     const messageCreateDtos: MessageCreateDto[] = [];
+  //     createdConverts.forEach(convert => {
+  //       const messageCreateDto = {
+  //           content: convert.convertTheme,
+  //           postId: convert.senderPostId,
+  //           convert: convert,
+  //           sender: convert.host
+  //         };
+  //         messageCreateDtos.push(messageCreateDto);
+  //     })
+
+
+      
+  //     await Promise.all([
+  //       this.convertToPostService.createSeveralBulk(createdConverts),
+  //       this.messageService.createBulk(messageCreateDtos)
+  //     ])
+  //     return createdConverts;
+  //   } catch (err) {
+  //     this.logger.error(err);
+  //     throw new InternalServerErrorException('Ошибка при создании конверта');
+  //   }
+  // }
 
   async update(_id: string, convertUpdateDto: ConvertUpdateDto): Promise<string> {
     try {
