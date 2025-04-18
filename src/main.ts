@@ -13,7 +13,7 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
-    cors: { 
+    cors: {
       origin: process.env.NODE_ENV === 'dev' ? true : false,
       credentials: true,
     },
@@ -58,11 +58,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, swaggerApi);
 
-  if (process.env.NODE_ENV === 'prod') {
-    SwaggerModule.setup('gm/api', app, document);
-  } else {
-    SwaggerModule.setup('api', app, document);
-  }
+  SwaggerModule.setup('api', app, document);
 
   // Добавляем маршрут для экспорта документации в формате JSON
   app.getHttpAdapter().get('/swagger-json', (req, res) => {
