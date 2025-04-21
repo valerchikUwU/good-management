@@ -19,7 +19,11 @@ import { Server, Socket } from 'socket.io';
 import { ClientCredentialsDto } from 'src/contracts/websockets/clientCredentials.dto';
 import { Logger } from 'winston';
 
-@WebSocketGateway({ namespace: 'auth', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST } })
+@WebSocketGateway({
+  // когда будет билд фронта поменять
+  namespace: 'auth', cors: process.env.NODE_ENV === 'prod' ? '*:*' : { origin: process.env.PROD_API_HOST }
+  // namespace: 'auth', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST }
+})
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @Inject('winston') private readonly logger: Logger, // инъекция логгера

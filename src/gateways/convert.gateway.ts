@@ -17,7 +17,11 @@ import { MessageReadDto } from 'src/contracts/message/read-message.dto';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { Logger } from 'winston';
 
-@WebSocketGateway({ namespace: 'convert', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST } })
+@WebSocketGateway({
+  // когда будет билд фронта поменять
+  namespace: 'convert', cors: process.env.NODE_ENV === 'prod' ? '*:*' : { origin: process.env.PROD_API_HOST }
+  // namespace: 'convert', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST }
+})
 export class ConvertGateway
   implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
@@ -112,7 +116,7 @@ export class ConvertGateway
       messageIds: string[];
       lastSeenMessageNumber: number;
     },
-  ){
+  ) {
     const start = new Date();
     const uniqueMessageIds: string[] = payload.messageIds.filter((item, i, ar) => { return ar.indexOf(item) === i; });
     const messagesCount = uniqueMessageIds.length;
@@ -134,7 +138,7 @@ export class ConvertGateway
     socketsToNotify.forEach(socket => {
       socket.join(`MCountE-${convertId}`);
     });
-    this.ws.to(`MCountE-${convertId}`).emit('messageCountEvent', { host: host,  lastPostInConvert: lastPostInConvert});
+    this.ws.to(`MCountE-${convertId}`).emit('messageCountEvent', { host: host, lastPostInConvert: lastPostInConvert });
     socketsToNotify.forEach(socket => {
       socket.leave(`MCountE-${convertId}`);
     });
