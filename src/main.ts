@@ -13,6 +13,7 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
+    // test for fetch fix
     cors: false
     // когда будет билд фронта поменять
 
