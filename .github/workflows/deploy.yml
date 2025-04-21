@@ -1,7 +1,7 @@
 name: Deploy Backend
 
 on:
-  merge:
+  push:
     branches: [ main ] # Или ваша основная ветка
 
 env:
