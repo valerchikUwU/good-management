@@ -13,12 +13,13 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
-    cors: {
-      // когда будет билд фронта поменять
-      origin: '*',
-      // origin: process.env.NODE_ENV === 'dev' ? true : false,
-      credentials: true,
-    },
+    cors: false
+    // когда будет билд фронта поменять
+
+    // {
+    // origin: process.env.NODE_ENV === 'dev' ? true : false,
+    // credentials: true,
+    // },
   });
   // const app = await NestFactory.create<NestFastifyApplication>(
   //   AppModule,
