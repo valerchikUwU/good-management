@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { notEqual } from 'assert';
 import { Exclude } from 'class-transformer';
-import { IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
-import { Account } from 'src/domains/account.entity';
-import { Organization } from 'src/domains/organization.entity';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { Policy } from 'src/domains/policy.entity';
 import { User } from 'src/domains/user.entity';
 
@@ -76,16 +73,6 @@ export class PostUpdateDto {
   responsibleUserId?: string | null;
 
   @ApiProperty({
-    description: 'ID организации, с которой связать пост',
-    required: false,
-    example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-  })
-  @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'ID организации не может быть пустым!' })
-  organizationId?: string;
-
-  @ApiProperty({
     description: 'ID политики, с которой связать пост',
     required: false,
     example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
@@ -94,11 +81,17 @@ export class PostUpdateDto {
   @IsUUID()
   policyId?: string | null;
 
-  @Exclude({ toPlainOnly: true })
-  user: User;
+  @ApiProperty({
+    description: 'Флаг дефолтного поста',
+    required: false,
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isDefault?: boolean;
 
   @Exclude({ toPlainOnly: true })
-  organization: Organization;
+  user: User;
 
   @Exclude({ toPlainOnly: true })
   policy: Policy;

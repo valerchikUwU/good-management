@@ -1,20 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
-  IsEmail,
-  IsInt,
+  IsMobilePhone,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
+import { Organization } from 'src/domains/organization.entity';
+import { Post } from 'src/domains/post.entity';
 import { Role } from 'src/domains/role.entity';
 
 export class CreateUserDto {
   @ApiProperty({
     description: 'ID юзера',
-    required: true,
+    required: false,
     example: '675a797e-d0f2-4907-bad5-25733c3e2380',
   })
   @IsOptional()
@@ -49,20 +50,42 @@ export class CreateUserDto {
     required: true,
     example: '+79787878778',
   })
-  @IsString()
-  @IsNotEmpty()
+  @IsMobilePhone('ru-RU', { strictMode: true })
+  @IsNotEmpty({ message: 'Телефон юзера не может быть пустым!' })
   telephoneNumber: string;
 
   @ApiProperty({
-    description: 'ID роли',
-    required: true,
+    description: 'Аватарка юзера',
+    required: false,
+    example: 'app\\uploads\\photo_17-03-2025_09-35-58_dac4ebc6-90c3-491d-8c2f-6c936cb34a28.jpg',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty({ message: 'Аватарка юзера не может быть пустой!' })
+  avatar_url?: string;
+
+
+
+  @ApiProperty({
+    description: 'ID поста',
+    required: false,
     example: '675a797e-d0f2-4907-bad5-25733c3e2380',
   })
+  @IsOptional()
   @IsUUID()
-  roleId?: string;
+  postId?: string;
+
+  @ApiProperty({
+    description: 'ID организации',
+    required: false,
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
+  })
+  @IsOptional()
+  @IsUUID()
+  organizationId?: string;
 
   @Exclude({ toPlainOnly: true })
-  role: Role;
+  organization?: Organization;
 
   @Exclude({ toPlainOnly: true })
   account: Account;

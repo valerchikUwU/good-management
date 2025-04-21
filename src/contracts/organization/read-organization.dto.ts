@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Account } from 'src/domains/account.entity';
+import { ControlPanel } from 'src/domains/controlPanel.entity';
 import { Goal } from 'src/domains/goal.entity';
 import { ReportDay } from 'src/domains/organization.entity';
 import { Policy } from 'src/domains/policy.entity';
@@ -20,6 +21,12 @@ export class OrganizationReadDto {
 
   @ApiProperty({ description: 'Отчетный день' })
   reportDay: ReportDay;
+
+  @ApiProperty({ description: 'Множество k=>v, где postId => colorCode' })
+  colorCodes: Record<string, string>;
+
+  @ApiProperty({ description: 'Код цвета организации' })
+  organizationColor: string;
 
   @ApiProperty({ description: 'Дата создания' })
   createdAt: Date;
@@ -59,6 +66,12 @@ export class OrganizationReadDto {
     isArray: true,
   })
   strategies: Strategy[];
+
+  @ApiProperty({
+    description: 'Список панелей управления, принадлежащих организации',
+    isArray: true,
+  })
+  controlPanels: ControlPanel[];
 
   @ApiProperty({ description: 'ID связанного аккаунта' })
   account: Account;

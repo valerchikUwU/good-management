@@ -1,6 +1,5 @@
 import {
   Entity,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
@@ -16,29 +15,72 @@ import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
 
+/**
+ * Перечисление типов проектов.
+ */
 export enum Type {
   PROJECT = 'Проект',
   PROGRAM = 'Программа',
 }
 
+/**
+ * Сущность, представляющая проект.
+ */
 @Entity()
 export class Project {
+
+  /**
+   * Уникальный идентификатор.
+   * 
+   * @remarks
+   * Поле автоматически генерируется в формате UUID v4.0.
+   */
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  @Generated('increment')
+
+  /**
+   * Порядковый номер проекта.
+   * 
+   * @remarks
+   * Инркемент в БД.
+   */
+  @Column({nullable: false})
   projectNumber: number;
 
-  @Column({ length: 50, default: 'Название проекта', nullable: false })
+  /**
+   * Название проекта.
+   * 
+   * @remarks
+   * Длина <= 50, default: "Проект", nullable: false.
+   */
+  @Column({ length: 50, default: 'Проект', nullable: false })
   projectName: string;
 
+  /**
+   * Id программы.
+   * 
+   * @remarks
+   * UUID v4.0, nullable: true.
+   */
   @Column({ type: 'uuid', nullable: true })
   programId: string;
 
+  /**
+   * Содержание проекта.
+   * 
+   * @remarks
+   * nullable: true.
+   */
   @Column({ type: 'text', nullable: true })
   content: string;
 
+  /**
+   * Тип проекта.
+   * 
+   * @remarks
+   * Используется перечисление `Type`. По умолчанию установлено значение проект(PROJECT). nullable: false
+   */
   @Column({
     type: 'enum',
     enum: Type,
@@ -47,27 +89,69 @@ export class Project {
   })
   type: Type;
 
+   /**
+   * Дата создания записи.
+   * 
+   * @remarks
+   * Поле автоматически заполняется при создании записи.
+   * 
+   * @example
+   * '2024-06-01T12:34:56Z'
+   */
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
+   /**
+   * Дата последнего обновления записи.
+   * 
+   * @remarks
+   * Поле автоматически обновляется при изменении записи.
+   * 
+   * @example
+   * '2024-06-01T12:34:56Z'
+   */
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
+  /**
+   * Связь с сущностью M:1 Organization.
+   */
   @ManyToOne(() => Organization, (organization) => organization.projects)
   organization: Organization;
 
+  /**
+   * Связь с сущностью 1:M Target.
+   */
   @OneToMany(() => Target, (target) => target.project)
   targets: Target[];
 
+  /**
+   * Связь с сущностью M:1 Strategy.
+   * 
+   * @remarks
+   * Установлен индекс, nullable: true
+   */
   @ManyToOne(() => Strategy, (strategy) => strategy.projects, {
     nullable: true,
   })
   @Index() // Добавляем индекс для поля strategy
   strategy: Strategy;
 
+  /**
+   * Связь с сущностью M:1 Account.
+   * 
+   * @remarks
+   * nullable: false
+   */
   @ManyToOne(() => Account, (account) => account.projects, { nullable: false })
   account: Account;
 
+  /**
+   * Связь с сущностью M:1 User.
+   * 
+   * @remarks
+   * nullable: false
+   */
   @ManyToOne(() => User, (user) => user.projects, { nullable: false })
   user: User;
 }

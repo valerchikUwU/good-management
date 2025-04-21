@@ -22,7 +22,7 @@ export class StatisticCreateDto {
   id?: string;
 
   @ApiProperty({
-    description: 'Значение',
+    description: 'Тип статистики',
     required: false,
     default: 'Прямая',
     example: 'Прямая',
@@ -73,12 +73,12 @@ export class StatisticCreateDto {
       {
         value: 4500,
         valueDate: '2024-09-26 15:54:37.211744',
-        isCorrelation: false,
+        correlationType: 'Год',
       },
       {
         value: 5000,
         valueDate: '2024-09-26 15:54:37.211744',
-        isCorrelation: false,
+        correlationType: null,
       },
     ],
   })

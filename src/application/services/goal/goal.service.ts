@@ -26,7 +26,7 @@ export class GoalService {
     try {
       const goals = await this.goalRepository.find({
         where: { account: { id: account.id } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       return goals.map((goal) => ({
         id: goal.id,
@@ -46,14 +46,14 @@ export class GoalService {
     }
   }
 
-  async findOneById(id: string, relations?: string[]): Promise<GoalReadDto> {
+  async findOneByOrganizationId(organizationId: string, relations?: string[]): Promise<GoalReadDto | null> {
     try {
       const goal = await this.goalRepository.findOne({
-        where: { id: id },
-        relations: relations !== undefined ? relations : [],
+        where: {organization: { id: organizationId }},
+        relations: relations ?? [],
       });
 
-      if (!goal) throw new NotFoundException(`Цель с ID: ${id} не найдена!`);
+      if (!goal) return null;
       const goalReadDto: GoalReadDto = {
         id: goal.id,
         content: goal.content,
@@ -64,12 +64,6 @@ export class GoalService {
       return goalReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
-      }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении цели');
     }
   }
@@ -87,9 +81,8 @@ export class GoalService {
       return createdGoalId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
       throw new InternalServerErrorException('Ошибка при создании цели');
     }
@@ -101,18 +94,15 @@ export class GoalService {
       if (!goal) {
         throw new NotFoundException(`Цель с ID ${_id} не найдена`);
       }
-      // Обновить свойства, если они указаны в DTO
       if (updateGoalDto.content) goal.content = updateGoalDto.content;
       await this.goalRepository.update(goal.id, { content: goal.content });
       return goal.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err; 
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении цели');
     }
   }

@@ -1,3 +1,7 @@
+import { AttachmentToTarget } from 'src/domains/attachmentToTarget.entity';
+import { Convert } from 'src/domains/convert.entity';
+import { Policy } from 'src/domains/policy.entity';
+import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
 import { State, Type } from 'src/domains/target.entity';
 import { TargetHolder } from 'src/domains/targetHolder.entity';
@@ -7,7 +11,7 @@ export class TargetReadDto {
   type: Type;
   orderNumber: number;
   content: string;
-  holderUserId: string;
+  holderPostId: string;
   targetState: State;
   dateStart: Date;
   deadline: Date;
@@ -16,4 +20,7 @@ export class TargetReadDto {
   updatedAt: Date;
   targetHolders: TargetHolder[];
   project: Project;
+  policy: Policy;
+  attachmentToTargets: AttachmentToTarget[];
+  convert: Convert;
 }

@@ -56,12 +56,16 @@ pids
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
-
-#database config
-src/config/database.ts
-
 #images
 uploads
 
 #tests
 test
+
+#docker volumes
+pgdata
+rabbit_data
+redis_data
+
+#redis_config
+src/config/users*

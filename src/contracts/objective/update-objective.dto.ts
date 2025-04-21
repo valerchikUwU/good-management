@@ -7,7 +7,6 @@ import {
   IsOptional,
   IsUUID,
 } from 'class-validator';
-import { Strategy } from 'src/domains/strategy.entity';
 
 export class ObjectiveUpdateDto {
   @ApiProperty({
@@ -53,17 +52,4 @@ export class ObjectiveUpdateDto {
     message: 'Заполните хотя бы один блок для коренной причины!',
   })
   rootCause?: string[];
-
-  @ApiProperty({
-    description: 'Id стратегии',
-    required: false,
-    example: '21dcf96d-1e6a-4c8c-bc12-c90589b40e93',
-  })
-  @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'ID стратегии не может быть пустым!' })
-  strategyId?: string;
-
-  @Exclude({ toPlainOnly: true })
-  strategy: Strategy;
 }

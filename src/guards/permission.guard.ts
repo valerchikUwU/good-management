@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RoleSettingService } from 'src/application/services/roleSetting/roleSetting.service';
-import { UsersService } from 'src/application/services/users/users.service';
 import { RoleSettingReadDto } from 'src/contracts/roleSetting/read-roleSetting.dto';
 import { Actions, Modules, RoleSetting } from 'src/domains/roleSetting.entity';
 
@@ -15,7 +14,6 @@ export class PermissionsGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly roleSettingService: RoleSettingService,
-    private readonly userService: UsersService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

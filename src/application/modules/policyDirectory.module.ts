@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users.module';
 import { PolicyDirectory } from 'src/domains/policyDirectory.entity';
 import { PolicyToPolicyDirectoryModule } from './policyToPolicyDirectory.module';
 import { PolicyDirectoryRepository } from '../services/policyDirectory/repository/policyDirectory.repository';
@@ -12,7 +11,6 @@ import { PolicyModule } from './policy.module';
   imports: [
     TypeOrmModule.forFeature([PolicyDirectory]),
     PolicyToPolicyDirectoryModule,
-    UsersModule,
     PolicyModule
   ],
   controllers: [PolicyDirectoryController],

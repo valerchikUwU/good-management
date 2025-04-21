@@ -1,6 +1,6 @@
+import { Post } from 'src/domains/post.entity';
 import { Roles } from 'src/domains/role.entity';
 import { RoleSetting } from 'src/domains/roleSetting.entity';
-import { User } from 'src/domains/user.entity';
 
 export class RoleReadDto {
   id: string;
@@ -8,5 +8,5 @@ export class RoleReadDto {
   createdAt: Date;
   updatedAt: Date;
   roleSettings: RoleSetting[];
-  users: User[];
+  posts: Post[];
 }

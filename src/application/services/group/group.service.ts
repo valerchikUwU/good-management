@@ -13,14 +13,14 @@ import { GroupReadDto } from 'src/contracts/group/read-group.dto';
 import { GroupRepository } from './repository/group.repository';
 import { GroupCreateDto } from 'src/contracts/group/create-group.dto';
 import { GroupUpdateDto } from 'src/contracts/group/update-group.dto';
-import { GroupToUserService } from '../groupToUser/groupToUser.service';
+import { GroupToPostService } from '../groupToPost/groupToPost.service';
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectRepository(Group)
     private readonly groupRepository: GroupRepository,
-    private readonly groupToUserService: GroupToUserService,
+    private readonly groupToPostService: GroupToPostService,
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
@@ -36,7 +36,7 @@ export class GroupService {
         groupNumber: group.groupNumber,
         createdAt: group.createdAt,
         updatedAt: group.updatedAt,
-        groupToUsers: group.groupToUsers,
+        groupToPosts: group.groupToPosts,
         account: group.account,
       }));
     } catch (err) {
@@ -61,7 +61,7 @@ export class GroupService {
         groupNumber: group.groupNumber,
         createdAt: group.createdAt,
         updatedAt: group.updatedAt,
-        groupToUsers: group.groupToUsers,
+        groupToPosts: group.groupToPosts,
         account: group.account,
       }));
     } catch (err) {
@@ -77,7 +77,7 @@ export class GroupService {
     try {
       const group = await this.groupRepository.findOne({
         where: { id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       if (!group) throw new NotFoundException(`Группа с ID: ${id} не найдена`);
       const groupReadDto: GroupReadDto = {
@@ -86,7 +86,7 @@ export class GroupService {
         groupNumber: group.groupNumber,
         createdAt: group.createdAt,
         updatedAt: group.updatedAt,
-        groupToUsers: group.groupToUsers,
+        groupToPosts: group.groupToPosts,
         account: group.account,
       };
 
@@ -117,7 +117,7 @@ export class GroupService {
       group.groupName = groupCreateDto.groupName;
       group.account = groupCreateDto.account;
       const createdGroup = await this.groupRepository.save(group);
-      await this.groupToUserService.createSeveral(
+      await this.groupToPostService.createSeveral(
         createdGroup,
         groupCreateDto.groupToUsers,
       );
@@ -142,11 +142,11 @@ export class GroupService {
       // Обновить свойства, если они указаны в DTO
       if (updateGroupDto.groupName) group.groupName = updateGroupDto.groupName;
 
-      if (updateGroupDto.groupToUsers) {
-        await this.groupToUserService.remove(group);
-        await this.groupToUserService.createSeveral(
+      if (updateGroupDto.postIds) {
+        await this.groupToPostService.remove(group);
+        await this.groupToPostService.createSeveral(
           group,
-          updateGroupDto.groupToUsers,
+          updateGroupDto.postIds,
         );
       }
       await this.groupRepository.update(group.id, {

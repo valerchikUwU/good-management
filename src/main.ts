@@ -13,6 +13,10 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
+    cors: {
+      origin: process.env.NODE_ENV === 'dev' ? true : false,
+      credentials: true,
+    },
   });
   // const app = await NestFactory.create<NestFastifyApplication>(
   //   AppModule,
@@ -35,14 +39,6 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
-  app.enableCors({ 
-    origin: true, // Замените на домен клиента
-    credentials: true,
-  });
-
-  if (process.env.NODE_ENV === 'prod') {
-    app.setGlobalPrefix('gm');
-  }
 
   const swaggerApi = new DocumentBuilder()
     .setTitle('Good-Management API')
@@ -50,15 +46,19 @@ async function bootstrap() {
       'The GM API description.\n\n[Export JSON](http://localhost:5000/swagger-json)',
     )
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT', // Указывает формат токена (опционально)
+      },
+      'access-token', // Название схемы (используется в декораторе @ApiBearerAuth)
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerApi);
 
-  if (process.env.NODE_ENV === 'prod') {
-    SwaggerModule.setup('gm/api', app, document);
-  } else {
-    SwaggerModule.setup('api', app, document);
-  }
+  SwaggerModule.setup('api', app, document);
 
   // Добавляем маршрут для экспорта документации в формате JSON
   app.getHttpAdapter().get('/swagger-json', (req, res) => {
@@ -66,9 +66,9 @@ async function bootstrap() {
   });
 
   const port = process.env.PORT || 5000;
-  const host = process.env.API_HOST;
+  const host = process.env.NODE_ENV === 'dev' ? process.env.API_HOST : process.env.PROD_API_HOST;
 
-  await app.listen(port, () => console.log(`${host}${port}/`));
+  await app.listen(port, () => console.log(`${host}/`));
 }
 
 bootstrap();

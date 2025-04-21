@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
+  ArrayMaxSize,
   ArrayNotEmpty,
   IsArray,
   IsInt,
@@ -14,7 +15,8 @@ import { User } from 'src/domains/user.entity';
 
 export class GoalCreateDto {
   @ApiProperty({
-    description: 'Текст цели',
+    description: 'Текст цели, состоящий из блоков',
+    required: true,
     isArray: true,
     example: ['Контент цели', 'one more content'],
   })
@@ -23,7 +25,8 @@ export class GoalCreateDto {
 
   @ApiProperty({
     description: 'ID организации, с которой связать цель',
-    example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
+    required: true,
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   @IsUUID()
   @IsNotEmpty({ message: 'ID организации не может быть пустой!' })

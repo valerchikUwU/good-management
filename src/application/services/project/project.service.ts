@@ -10,25 +10,34 @@ import { Project, Type } from 'src/domains/project.entity';
 import { ProjectRepository } from './repository/project.repository';
 import { ProjectReadDto } from 'src/contracts/project/read-project.dto';
 import { ProjectCreateDto } from 'src/contracts/project/create-project.dto';
-import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { Logger } from 'winston';
 import { ProjectUpdateDto } from 'src/contracts/project/update-project.dto';
-import { In, IsNull, Not } from 'typeorm';
-import { State, Type as TypeTarget } from 'src/domains/target.entity';
+import { DataSource, In, IsNull, Not } from 'typeorm';
+import { State, Target, Type as TypeTarget } from 'src/domains/target.entity';
+import { TargetService } from '../target/target.service';
+import { Post } from 'src/domains/post.entity';
+import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
+import { TargetHolder } from 'src/domains/targetHolder.entity';
+import { Transactional } from 'nestjs-transaction';
+import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
+import { ConvertService } from '../convert/convert.service';
 
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectRepository(Project)
     private readonly projectRepository: ProjectRepository,
+    private readonly targetService: TargetService,
+    private readonly convertService: ConvertService,
     @Inject('winston') private readonly logger: Logger,
+    private dataSource: DataSource
   ) { }
 
-  async findAllForOrganization(organizationId: string): Promise<ProjectReadDto[]> {
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
         where: { organization: { id: organizationId } },
-        relations: ['targets'],
+        relations: relations ?? [],
       });
 
       return projects.map((project) => ({
@@ -41,10 +50,7 @@ export class ProjectService {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         organization: project.organization,
-        targets: project.targets.map((target) => ({
-          ...target,
-          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
-        })),
+        targets: project.targets,
         strategy: project.strategy,
         account: project.account,
         user: project.user,
@@ -58,11 +64,11 @@ export class ProjectService {
     }
   }
 
-  async findAllProgramsForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
+  async findAllProgramsForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
     try {
       const programs = await this.projectRepository.find({
-        where: { type: Type.PROGRAM, account: { id: account.id } },
-        relations: ['organization', 'targets', 'strategy'],
+        where: { type: Type.PROGRAM, organization: { id: organizationId } },
+        relations: relations ?? [],
       });
 
       return programs.map((program) => ({
@@ -92,15 +98,15 @@ export class ProjectService {
     }
   }
 
-  async findAllProjectsWithoutProgramForAccount(account: AccountReadDto): Promise<ProjectReadDto[]> {
+  async findAllProjectsWithoutProgramForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
         where: {
           type: Type.PROJECT,
           programId: IsNull(),
-          account: { id: account.id },
+          organization: { id: organizationId },
         },
-        relations: ['organization', 'targets'],
+        relations: relations ?? [],
       });
 
       return projects.map((project) => ({
@@ -130,17 +136,12 @@ export class ProjectService {
     }
   }
 
-  async findOneById(id: string): Promise<ProjectReadDto> {
+  async findOneById(id: string, relations?: string[]): Promise<ProjectReadDto> {
     try {
-      const project = await this.projectRepository
-        .createQueryBuilder('project')
-        .leftJoinAndSelect('project.strategy', 'strategy')
-        .leftJoinAndSelect('project.targets', 'targets')
-        .leftJoinAndSelect('targets.targetHolders', 'targetHolders')
-        .leftJoinAndSelect('targetHolders.user', 'user')
-        .leftJoinAndSelect('project.organization', 'organization')
-        .where('project.id = :id', { id })
-        .getOne();
+      const project = await this.projectRepository.findOne({
+        where: { id: id },
+        relations: relations ?? []
+      })
 
       if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
 
@@ -152,11 +153,7 @@ export class ProjectService {
       } else {
         program = null;
       }
-      // Проверка просроченности для каждого объекта target
-      const targetsWithIsExpired = project.targets.map((target) => ({
-        ...target,
-        isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
-      }));
+
       const projectReadDto: ProjectReadDto = {
         id: project.id,
         projectNumber: project.projectNumber,
@@ -168,7 +165,10 @@ export class ProjectService {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         organization: project.organization,
-        targets: targetsWithIsExpired,
+        targets: relations !== undefined ? project.targets.map((target) => ({
+          ...target,
+          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
+        })) : project.targets,
         strategy: project.strategy,
         account: project.account,
         user: project.user,
@@ -191,7 +191,7 @@ export class ProjectService {
     try {
       const program = await this.projectRepository.findOne({
         where: { id: id },
-        relations: ['targets.targetHolders.user', 'organization', 'strategy'],
+        relations: ['targets.targetHolders.post', 'strategy', 'organization'],
       });
       if (!program) throw new NotFoundException(`Проект с ID: ${id} не найден`);
       const programReadDto: ProjectReadDto = {
@@ -226,18 +226,17 @@ export class ProjectService {
     }
   }
 
-  async findAllNotRejectedProjectsByProgramId(
-    programId: string,
-  ): Promise<ProjectReadDto[]> {
+  async findAllNotRejectedProjectsByProgramIdForOrganization(programId: string, organizationId: string): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository
         .createQueryBuilder('project')
         .leftJoinAndSelect('project.targets', 'target')
         .leftJoinAndSelect('target.targetHolders', 'targetHolder')
-        .leftJoinAndSelect('targetHolder.user', 'user')
+        .leftJoinAndSelect('targetHolder.post', 'post')
         .where('project.programId = :programId', { programId })
         .andWhere('target.type = :targetType', { targetType: TypeTarget.PRODUCT })
         .andWhere('target.targetState != :rejectedState', { rejectedState: State.REJECTED })
+        .andWhere('project.organization.id = :organizationId', { organizationId: organizationId })
         .getMany();
       return projects.map((project) => ({
         id: project.id,
@@ -259,62 +258,39 @@ export class ProjectService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении проекта');
     }
   }
 
+  @Transactional()
   async create(projectCreateDto: ProjectCreateDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
-
       const project = new Project();
       project.projectName = projectCreateDto.projectName;
-      project.programId = projectCreateDto.programId;
       project.content = projectCreateDto.content;
       project.type = projectCreateDto.type;
       project.organization = projectCreateDto.organization;
       project.user = projectCreateDto.user;
       project.account = projectCreateDto.account;
       project.strategy = projectCreateDto.strategy;
-      const projectCreatedId = await this.projectRepository.insert(project);
-      if (projectCreateDto.type === Type.PROGRAM) {
-        const projectsForProgram = await this.projectRepository
-          .createQueryBuilder('project')
-          .leftJoinAndSelect('project.targets', 'targets')
-          .where('project.programId = :programId', { programId: project.id })
-          .andWhere('targets.type = :type', { type: TypeTarget.PRODUCT })
-          .andWhere('targets.deadline > CURRENT_TIMESTAMP')
-          .getMany();
-        const projectIdsForProgram = projectsForProgram.map(
-          (project) => project.id,
-        );
-        projectCreateDto.projectIds.concat(projectIdsForProgram);
-        await this.projectRepository.update(
-          { id: In(projectCreateDto.projectIds) },
-          {
-            programId: projectCreatedId.identifiers[0].id,
-            strategy: projectCreateDto.strategy,
-          },
-        );
-      }
-      return projectCreatedId.identifiers[0].id;
+      const createdProject = await this.projectRepository.save(project);
+      projectCreateDto.targetCreateDtos.forEach(targetCreateDto => {
+        targetCreateDto.project = createdProject
+      })
+      await this.targetService.createBulk(projectCreateDto.targetCreateDtos)
+      return createdProject.id
+
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException('Ошибка при создании проекта');
     }
   }
 
-  async update(_id: string, updateProjectDto: ProjectUpdateDto): Promise<string> {
+  @Transactional()
+  async update(_id: string, updateProjectDto: ProjectUpdateDto, convertCreateDtos: ConvertCreateDto[]): Promise<string> {
     try {
       const project = await this.projectRepository.findOne({
         where: { id: _id },
@@ -323,32 +299,29 @@ export class ProjectService {
       if (!project) {
         throw new NotFoundException(`Проект с ID ${_id} не найден`);
       }
-      // Обновить свойства, если они указаны в DTO
       if (updateProjectDto.projectName)
         project.projectName = updateProjectDto.projectName;
       if (updateProjectDto.programId !== undefined)
         project.programId = updateProjectDto.programId;
-      if (updateProjectDto.content) project.content = updateProjectDto.content;
-      if (updateProjectDto.type) project.type = updateProjectDto.type;
-      if (updateProjectDto.organization)
-        project.organization = updateProjectDto.organization;
+      if (updateProjectDto.content)
+        project.content = updateProjectDto.content;
+
       if (updateProjectDto.strategyId != null) {
         project.strategy = updateProjectDto.strategy;
       }
-      else if (updateProjectDto.strategyId === null){
-        project.strategy = null 
+      else if (updateProjectDto.strategyId === null) {
+        project.strategy = null
       }
 
       await this.projectRepository.update(project.id, {
         projectName: project.projectName,
         programId: project.programId,
         content: project.content,
-        type: project.type,
         organization: project.organization,
         strategy: project.strategy,
       });
 
-      if (project.type === Type.PROGRAM) {
+      if (project.type === Type.PROGRAM && updateProjectDto.projectIds) {
         const projectsWithCurrentProgram = await this.projectRepository.createQueryBuilder('project')
           .leftJoinAndSelect('project.targets', 'targets')
           .where('project.programId = :programId', { programId: project.id })
@@ -426,15 +399,33 @@ export class ProjectService {
           );
         }
       }
+      // const createdConverts = convertCreateDtos?.length
+      //   ? await this.convertService.createBulkForProject(convertCreateDtos)
+      //   : [];
+      if (updateProjectDto.targetCreateDtos) {
+        updateProjectDto.targetCreateDtos.forEach(async (targetCreateDto, index) => {
+          const createdConvert = await this.convertService.create(convertCreateDtos[index])
+          targetCreateDto.project = project;
+          targetCreateDto.convert = createdConvert;
+        });
+
+        await this.targetService.createBulk(updateProjectDto.targetCreateDtos);
+      }
+      if (updateProjectDto.targetUpdateDtos) {
+        updateProjectDto.targetUpdateDtos.forEach(async (targetUpdateDto, index) => {
+          const createdConvert = await this.convertService.create(convertCreateDtos[index+ updateProjectDto?.targetCreateDtos.length]);
+          targetUpdateDto.convert = createdConvert;
+        });
+        await this.targetService.updateBulk(updateProjectDto.targetUpdateDtos);
+      }
+
       return project.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении проекта');
     }
   }

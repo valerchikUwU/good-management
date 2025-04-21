@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { GroupToUser } from './groupToUser.entity';
+import { GroupToPost } from './groupToPost.entity';
 import { Account } from './account.entity';
 
 @Entity()
@@ -26,14 +26,23 @@ export class Group {
   @Generated('increment')
   groupNumber: number;
 
+  /**
+   * Ссылка на аватарку из ВК.
+   * 
+   * @remarks
+   * nullable: true.
+   */
+  @Column({ nullable: true })
+  groupAvatarUrl: string;
+
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @OneToMany(() => GroupToUser, (groupToUser) => groupToUser.group)
-  groupToUsers: GroupToUser[];
+  @OneToMany(() => GroupToPost, (groupToPost) => groupToPost.group)
+  groupToPosts: GroupToPost[];
 
   @ManyToOne(() => Account, (account) => account.groups, { nullable: false })
   account: Account;

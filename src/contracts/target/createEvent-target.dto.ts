@@ -4,7 +4,7 @@ export class TargetCreateEventDto {
   orderNumber: number;
   content: string;
   createdAt: Date;
-  holderUserId: string;
+  holderPostId: string;
   targetState: string;
   dateStart: Date;
   deadline: Date | null;

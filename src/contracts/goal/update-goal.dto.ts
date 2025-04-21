@@ -1,11 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  ArrayNotEmpty,
+  ArrayMaxSize,
   IsArray,
-  IsInt,
   IsNotEmpty,
   IsOptional,
-  IsString,
   IsUUID,
 } from 'class-validator';
 
@@ -27,6 +25,5 @@ export class GoalUpdateDto {
   })
   @IsOptional()
   @IsArray()
-  @IsNotEmpty({ message: 'Содержание цели не может быть пустым!' })
   content?: string[];
 }

@@ -99,26 +99,8 @@ export class RoleSettingService {
 
   async create(
     roleSettingCreateDto: RoleSettingCreateDto,
-  ): Promise<RoleSetting> {
+  ): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!roleSettingCreateDto.module) {
-        throw new BadRequestException(
-          'Выберите модуль, права доступа которого вы хотите ограничить!',
-        );
-      }
-      if (roleSettingCreateDto.can_create === undefined) {
-        throw new BadRequestException('Валера галка не работает блять!');
-      }
-      if (roleSettingCreateDto.can_read === undefined) {
-        throw new BadRequestException('Валера галка не работает блять!');
-      }
-      if (roleSettingCreateDto.can_update === undefined) {
-        throw new BadRequestException('Валера галка не работает блять!');
-      }
-      if (!roleSettingCreateDto.role) {
-        throw new BadRequestException('Правила должны быть связаны с ролью!');
-      }
       const roleSetting = new RoleSetting();
       roleSetting.module = roleSettingCreateDto.module;
       roleSetting.can_create = roleSettingCreateDto.can_create;
@@ -126,8 +108,8 @@ export class RoleSettingService {
       roleSetting.can_update = roleSettingCreateDto.can_update;
       roleSetting.role = roleSettingCreateDto.role;
       roleSetting.account = roleSettingCreateDto.account;
-      // Присваиваем значения из DTO объекту пользователя
-      return await this.roleSettingRepository.save(roleSetting);
+      const createdRoleSettingId = await this.roleSettingRepository.insert(roleSetting);
+      return createdRoleSettingId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException(

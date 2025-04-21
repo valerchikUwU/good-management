@@ -1,26 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
-  ArrayNotEmpty,
   IsArray,
   IsDate,
-  IsEAN,
   IsEnum,
   IsNotEmpty,
-  IsObject,
+  IsNumber,
+  IsOptional,
   IsString,
   IsUUID,
+  MaxLength,
   ValidateNested,
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
-import { User } from 'src/domains/user.entity';
-import { MessageCreateDto } from '../message/create-message.dto';
-import { TypeConvert } from 'src/domains/convert.entity';
-// import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
+import { PathConvert, TypeConvert } from 'src/domains/convert.entity';
+import { TargetCreateDto } from '../target/create-target.dto';
+import { Post } from 'src/domains/post.entity';
 
 export class ConvertCreateDto {
-  @ApiProperty({ description: 'Тема конверта', example: 'Тема' })
+  @ApiProperty({
+    description: 'Тема конверта',
+    required: true,
+    example: 'Тема'
+  })
   @IsString()
+  @MaxLength(1024, {message: 'Тема конверта должна быть не более 1024 символа'})
   @IsNotEmpty({ message: 'Тема не может быть пустой!' })
   convertTheme: string;
 
@@ -28,64 +32,77 @@ export class ConvertCreateDto {
   pathOfPosts: string[];
 
   @ApiProperty({
-    description: 'Длительность конверта',
-    example: 'хз как еще реализовать',
+    description: 'Дедлайн',
+    required: false,
+    example: '2025-09-16 17:03:31.000111',
   })
-  @IsString()
-  @IsNotEmpty({ message: 'Длительность чата не может быть пустой!' })
-  expirationTime: string;
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  deadline?: Date;
 
   @ApiProperty({
     description: 'Тип конверта',
-    example: TypeConvert.DIRECT,
-    examples: [TypeConvert.DIRECT, TypeConvert.ORDER, TypeConvert.COORDINATION],
+    required: true,
+    example: TypeConvert.ORDER,
+    examples: [TypeConvert.CHAT, TypeConvert.ORDER, TypeConvert.PROPOSAL],
   })
   @IsEnum(TypeConvert)
   @IsNotEmpty({ message: 'Тип конверта не может быть пустой!' })
   convertType: TypeConvert;
 
-  @ApiProperty({
-    description: 'Дата окончания актуальности конверта',
-    example: '2024-09-26T13:03:19.759Z',
-  })
-  @IsDate()
-  @Type(() => Date)
-  @IsNotEmpty({ message: 'Дата не может быть пустой!' })
-  dateFinish: Date;
+  @Exclude({ toPlainOnly: true })
+  convertPath: PathConvert;
 
   @ApiProperty({
-    description: 'IDs участников конверта',
-    example: ['3b809c42-2824-46c1-9686-dd666403402a'],
+    description: 'Id поста отправителя',
+    required: true,
   })
-  @IsArray({ message: 'Должен быть массив' })
-  @ArrayNotEmpty({ message: 'Добавьте хотя бы одного участника чата!' })
-  userIds: string[];
+  @IsString()
+  @IsNotEmpty({ message: 'Id поста отправителя не может быть пустой!' })
+  senderPostId: string;
+
 
   @ApiProperty({
-    description: 'ДТО сообщения',
-    example: { content: 'Разрешите мне с Васей выйти в туалет?' },
+    description: 'Id поста получителя',
+    required: true
   })
-  @IsObject({ message: 'Должен быть объект' })
-  @ValidateNested()
-  @Type(() => MessageCreateDto)
-  messageCreateDto: MessageCreateDto;
+  @IsString()
+  @IsNotEmpty({ message: 'Id поста получителя не может быть пустой!' })
+  reciverPostId: string;
 
-  // @ApiProperty({
-  //     description: 'IDs участников чата и их тип', example:
-  //     [
-  //         {
-  //             userType: 'Наблюдатель',
-  //             userId: '3b809c42-2824-46c1-9686-dd666403402a'
-  //         }
-  //     ]
-  // })
-  // @IsArray({ message: 'Должен быть массив' })
-  // @ArrayNotEmpty({ message: 'Добавьте хотя бы одного участника чата!' })
-  // convertToUserCreateDtos: ConvertToUserCreateDto[];
+  @ApiProperty({
+    description: 'Текст для сообщения при convertType === Переписька или === Заявка',
+    example: 'Заявка на трусы',
+    required: false,
+    nullable: true
+  })
+  @IsString()
+  messageContent: string | null;
 
   @Exclude({ toPlainOnly: true })
-  host: User;
+  host: Post;
 
   @Exclude({ toPlainOnly: true })
   account: Account;
+
+
+  @ApiProperty({
+    description: 'Список задач',
+    required: false,
+    example: {
+      type: 'Приказ',
+      orderNumber: 1,
+      content: 'Контент задачи',
+      holderPostId: 'c92895e6-9496-4cb5-aa7b-e3c72c18934a',
+      attachmentIds: ['222895e6-9496-4cb5-aa7b-e3c72c18934a'],
+      dateStart: '2024-09-18T14:59:47.010Z',
+      deadline: '2024-09-18T14:59:47.010Z',
+    }
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TargetCreateDto)
+  targetCreateDto?: TargetCreateDto;
+
 }

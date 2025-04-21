@@ -70,7 +70,7 @@ export class GroupController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async findAll(
     @Param('userId') userId: string,
@@ -159,7 +159,7 @@ export class GroupController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async beforeCreate(
     @Param('userId') userId: string,
@@ -197,7 +197,7 @@ export class GroupController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   @ApiParam({ name: 'groupId', required: true, description: 'Id группы' })
   async update(
@@ -252,7 +252,7 @@ export class GroupController {
           createdAt: '2024-10-28T13:35:35.777Z',
           updatedAt: '2024-10-28T13:35:35.777Z',
           user: {
-            id: '3b809c42-2824-46c1-9686-dd666403402a',
+            id: 'bc807845-08a8-423e-9976-4f60df183ae2',
             firstName: 'Maxik',
             lastName: 'Koval',
             middleName: null,
@@ -279,7 +279,7 @@ export class GroupController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   @ApiParam({ name: 'groupId', required: true, description: 'Id группы' })
   async findOne(
@@ -320,7 +320,7 @@ export class GroupController {
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   async create(
     @Param('userId') userId: string,

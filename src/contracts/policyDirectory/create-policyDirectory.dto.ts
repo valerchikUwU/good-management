@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
-import { PolicyToPolicyDirectory } from 'src/domains/policyToPolicyDirectories.entity';
 
 export class PolicyDirectoryCreateDto {
   @ApiProperty({
@@ -15,6 +14,7 @@ export class PolicyDirectoryCreateDto {
 
   @ApiProperty({ description: 'Ids политик, которые добавить в папку' })
   @IsArray({ message: 'Должен быть массив!' })
+  @IsUUID('4', {each: true, message: 'Каждый элемент должен быть UUID v4'})
   @ArrayNotEmpty({ message: 'Выберите хотя бы одну политику!' })
   policyToPolicyDirectories: string[];
 

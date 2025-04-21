@@ -1,15 +1,18 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   HttpStatus,
   Inject,
-  Ip,
   Param,
+  Patch,
   Post,
-  Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -17,216 +20,208 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ConvertService } from 'src/application/services/convert/convert.service';
-import { UsersService } from 'src/application/services/users/users.service';
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { PostService } from 'src/application/services/post/post.service';
 import { ConvertGateway } from 'src/gateways/convert.gateway';
+import { PathConvert, TypeConvert } from 'src/domains/convert.entity';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { Request as ExpressRequest } from 'express'
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
+import { TargetService } from 'src/application/services/target/target.service';
+import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
-import { TypeConvert } from 'src/domains/convert.entity';
+import { MessageService } from 'src/application/services/message/message.service';
+import { findAllForContact, findOneConvertExample } from 'src/constants/swagger-examples/convert/convert-examples';
+import { GetConvertGuard } from 'src/guards/getConvert.guard';
+import { FinishConvertGuard } from 'src/guards/finishConvert.guard';
+import { ApproveConvertGuard } from 'src/guards/approveConvert.guard';
+import { PostReadDto } from 'src/contracts/post/read-post.dto';
+import { ConvertFinishDto } from 'src/contracts/convert/finish-convert.dto';
+import { createPathInOneDivision } from 'src/helpersFunc/createPathInOneDivision';
 
 @ApiTags('Converts')
-@Controller(':userId/converts')
+@ApiBearerAuth('access-token')
+@UseGuards(AccessTokenGuard)
+@Controller('converts')
 export class ConvertController {
   constructor(
     private readonly convertService: ConvertService,
-    private readonly userService: UsersService,
     private readonly postService: PostService,
     private readonly convertGateway: ConvertGateway,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
-  @Get()
-  @ApiOperation({ summary: 'Все чаты' })
+
+
+
+  @Get(':contactId/converts/archive')
+  @ApiOperation({ summary: 'Все архивные конверты' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: [
-      {
-        id: '222f1a02-d053-4885-99b6-f353eb277b6f',
-        convertTheme: 'Тема',
-        expirationTime: 'хз как еще реализовать',
-        dateFinish: '2024-09-26T13:03:19.759Z',
-        createdAt: '2024-10-21T13:10:51.781Z',
-      },
-    ],
+    example: findAllForContact
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'contactId',
     required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    description: 'Id контакта (поста)',
+    example: '5fc5ec49-d658-4fe1-b4c9-7dd01d38a652',
   })
-  async findAll(@Param('userId') userId: string): Promise<ConvertReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const converts = await this.convertService.findAll(user.account);
-    return converts;
+  async findAllArchiveForContact(
+    @Req() req: ExpressRequest,
+    @Param('contactId') contactId: string
+  ): Promise<any> {
+    let start = new Date()
+    const user = req.user as ReadUserDto;
+    const userPostsIds = user.posts.map(post => post.id);
+    const [archiveConvertsForContact, archiveCopiesForContact] = await Promise.all([
+      this.convertService.findAllArchiveForContact(userPostsIds, contactId),
+      this.convertService.findAllArchiveCopiesForContact(userPostsIds, contactId)
+    ])
+    let c = new Date()
+    let end = c.getTime() - start.getTime()
+    console.log(`чаты ${end}`)
+    return { archiveConvertsForContact: archiveConvertsForContact, archiveCopiesForContact: archiveCopiesForContact };
   }
 
-  @Get(':convertId')
-  @ApiOperation({ summary: 'Чат по id' })
+  @Get(':contactId/converts')
+  @ApiOperation({ summary: 'Все конверты' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
-      convertTheme:
-        'Разрешение на выделение курсанта для работ в другом корпусе',
-      pathOfPosts: [
-        'a4c907f0-cda3-4a95-9672-06ea07c70e54',
-        'bea36fdf-d1b1-4979-87eb-8c298a10d9ce',
-        '5bcd8e5d-e541-4360-9b8f-b0d7fb629174',
-      ],
-      expirationTime: 'пока похуй',
-      dateFinish: '2024-09-26T13:03:19.759Z',
-      reatedAt: '2024-11-05T12:23:24.463Z',
-      messages: [
-        {
-          id: '2621cfe3-db00-4e38-a229-eff8d61fa05c',
-          content: 'Разрешите мне с курсантом Лысенко выйти в туалет?',
-          createdAt: '2024-11-05T12:23:25.591Z',
-          updatedAt: '2024-11-05T12:23:25.591Z',
-          sender: {
-            id: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
-            firstName: 'Игорь',
-            lastName: 'Вихорьков',
-            middleName: 'Дмитрич',
-            telegramId: null,
-            telephoneNumber: '+79787878777',
-            avatar_url: null,
-            vk_id: null,
-            createdAt: '2024-11-04T10:06:29.775Z',
-            updatedAt: '2024-11-04T10:06:29.775Z',
-          },
-        },
-      ],
-      convertToUsers: [
-        {
-          id: 'c809248f-ae9c-4b7c-b681-d677dbd69887',
-          createdAt: '2024-11-05T12:23:25.185Z',
-          updatedAt: '2024-11-05T12:23:25.185Z',
-          user: {
-            id: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
-            firstName: 'Игорь',
-            lastName: 'Вихорьков',
-            middleName: 'Дмитрич',
-            telegramId: null,
-            telephoneNumber: '+79787878777',
-            avatar_url: null,
-            vk_id: null,
-            createdAt: '2024-11-04T10:06:29.775Z',
-            updatedAt: '2024-11-04T10:06:29.775Z',
-          },
-        },
-        {
-          id: 'd8852e4b-3629-4400-9213-1743ab58ed37',
-          createdAt: '2024-11-05T12:23:25.461Z',
-          updatedAt: '2024-11-05T12:23:25.461Z',
-          user: {
-            id: '3b809c42-2824-46c1-9686-dd666403402a',
-            firstName: 'Maxik',
-            lastName: 'Koval',
-            middleName: null,
-            telegramId: 453120600,
-            telephoneNumber: '+79787513901',
-            avatar_url: null,
-            vk_id: null,
-            createdAt: '2024-09-16T14:03:31.000Z',
-            updatedAt: '2024-10-09T09:25:39.735Z',
-          },
-        },
-      ],
-      host: {
-        id: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
-        firstName: 'Игорь',
-        lastName: 'Вихорьков',
-        middleName: 'Дмитрич',
-        telegramId: null,
-        telephoneNumber: '+79787878777',
-        avatar_url: null,
-        vk_id: null,
-        createdAt: '2024-11-04T10:06:29.775Z',
-        updatedAt: '2024-11-04T10:06:29.775Z',
-      },
-    },
+    example: findAllForContact
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'contactId',
     required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    description: 'Id контакта (поста)',
+    example: '5fc5ec49-d658-4fe1-b4c9-7dd01d38a652',
+  })
+  async findAllForContact(
+    @Req() req: ExpressRequest,
+    @Param('contactId') contactId: string
+  ): Promise<{ contact: PostReadDto; convertsForContact: any[]; copiesForContact: any[] }> {
+    let start = new Date()
+    const user = req.user as ReadUserDto;
+    const userPostsIds = user.posts.map(post => post.id);
+    const [contact, convertsForContact, copiesForContact] = await Promise.all([
+      this.postService.findOneById(contactId, ['user']),
+      this.convertService.findAllForContact(userPostsIds, contactId),
+      this.convertService.findAllCopiesForContact(userPostsIds, contactId)
+    ])
+    let c = new Date()
+    let end = c.getTime() - start.getTime()
+    console.log(`чаты ${end}`)
+    return { contact: contact, convertsForContact: convertsForContact, copiesForContact: copiesForContact };
+  }
+
+
+
+  @Get(':convertId')
+  @UseGuards(GetConvertGuard)
+  @ApiOperation({ summary: 'Конверт по id' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: findOneConvertExample
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: `У вас нет доступа к этому чату!`
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: `Конверт не найден!`
+  })
+  @ApiParam({
+    name: 'convertId',
+    required: true,
+    description: 'Id конверта',
+    example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
   })
   async findOne(
     @Param('convertId') convertId: string,
-    @Ip() ip: string,
-  ): Promise<ConvertReadDto> {
+  ): Promise<{convert: ConvertReadDto; allPostsInConvert: PostReadDto[]}> {
+    const start = new Date()
     const convert = await this.convertService.findOneById(convertId, [
-      'convertToUsers.user',
-      'host',
-      'messages.sender',
+      'convertToPosts.post.user',
+      'host.user.organization',
+      'watchersToConvert.post.user',
+      'target'
     ]);
-    const convertUserIds = convert.convertToUsers.map(
-      (convertToUser) => convertToUser.user.id,
-    );
-    console.log(convertUserIds);
-    return convert;
+    const allPostsInConvert = await this.postService.findBulk(convert.pathOfPosts, ['user'])
+    const now = new Date()
+    console.log(`чат по id ${now.getTime() - start.getTime()}`);
+    return {convert: convert, allPostsInConvert: allPostsInConvert};
   }
 
   @Post('new')
-  @ApiOperation({ summary: 'Создать чат' })
+  @ApiOperation({ summary: 'Создать конверт' })
   @ApiBody({
-    description: 'ДТО для создания чата',
+    description: 'ДТО для создания конверта',
     type: ConvertCreateDto,
     required: true,
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'ОК!',
+    description: 'CREATED!',
     example: {
       id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
     },
   })
   @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
   async create(
-    @Param('userId') userId: string,
-    @Query('userPostId') userPostId: string,
-    @Query('reciverPostId') reciverPostId: string,
+    @Req() req: ExpressRequest,
     @Body() convertCreateDto: ConvertCreateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const [user, postIdsFromSenderToTop, postIdsFromRecieverToTop] =
+    const user = req.user as ReadUserDto;
+    const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId);
+    const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
       await Promise.all([
-        await this.userService.findOne(userId, ['account']),
-        await this.postService.getHierarchyToTop(userPostId),
-        await this.postService.getHierarchyToTop(reciverPostId),
+        this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
+        this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
+        this.postService.findOneById(convertCreateDto.reciverPostId),
       ]);
     const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
       postIdsFromRecieverToTop.includes(postId),
     );
     const postIdsFromSenderToReciver: string[] = [];
-    console.log(isCommonDivision);
-    if (convertCreateDto.convertType === TypeConvert.DIRECT) {
-      postIdsFromSenderToReciver.push(userPostId, reciverPostId);
-    } else if (isCommonDivision) {
+    console.log(isCommonDivision); // ___________________________LOG
+    if (isCommonDivision) {
       postIdsFromSenderToReciver.push(
         ...createPathInOneDivision(
           postIdsFromSenderToTop,
@@ -239,57 +234,178 @@ export class ConvertController {
         ...postIdsFromSenderToTop.concat(postIdsFromRecieverToTop),
       );
     }
-    // postIdsFromSenderToReciver.shift();
-    console.log(postIdsFromSenderToTop);
-    console.log(postIdsFromRecieverToTop);
-    console.log(postIdsFromSenderToReciver);
-    const firstPost = await this.postService.findOneById(
-      postIdsFromSenderToReciver[1],
-      ['user'],
-    );
+    console.log(postIdsFromSenderToTop); // ___________________________LOG
+    console.log(postIdsFromRecieverToTop); // ___________________________LOG
+    console.log(postIdsFromSenderToReciver); // ___________________________LOG
+    if(!isCommonDivision){
+      convertCreateDto.convertPath = PathConvert.REQUEST
+    }
+    else if(postIdsFromSenderToReciver.length > 2 && convertCreateDto.convertType !== TypeConvert.CHAT){
+      convertCreateDto.convertPath = PathConvert.COORDINATION
+    }
+    else {
+      convertCreateDto.convertPath = PathConvert.DIRECT
+    }
     convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
-    convertCreateDto.host = user;
+    convertCreateDto.host = userPost;
     convertCreateDto.account = user.account;
+    if (convertCreateDto.convertType === TypeConvert.ORDER) {
+      convertCreateDto.targetCreateDto.holderPost = targetHolderPost;
+    }
 
-    const createdConvert = await this.convertService.create(convertCreateDto);
+
+    const [createdConvert, activePost] =
+      await Promise.all([
+        this.convertService.create(convertCreateDto),
+        this.postService.findOneById(convertCreateDto.pathOfPosts[1], ['user']),
+      ]);
+
+    // Если у поста есть юзер, то прокидывать сокет
+    if (activePost.user !== null) {
+      const index = createdConvert.pathOfPosts.indexOf(userPost.id);
+      const pathOfPostsWithoutHostPost = createdConvert.pathOfPosts.splice(index, 1);
+      createdConvert.host.user = user;
+      createdConvert.host.user.posts = null;
+      this.convertGateway.handleConvertCreationEvent(createdConvert.id, createdConvert.host, activePost, pathOfPostsWithoutHostPost);
+    }
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый чат!`,
+      `${yellow('OK!')} - convertCreateDto: ${JSON.stringify(convertCreateDto)} - Создан новый конверт!`,
     );
-    const createdConvertWithUsers = await this.convertService.findOneById(
-      createdConvert.id,
-      ['convertToUsers.user'],
-    );
-    convertCreateDto.messageCreateDto.sender = user;
-    convertCreateDto.messageCreateDto.convert = createdConvert;
-    await this.convertGateway.handleSendingConvert(
-      convertCreateDto.messageCreateDto,
-      user,
-      createdConvertWithUsers,
-      firstPost.user.id,
-    );
-
     return { id: createdConvert.id };
   }
-}
 
-function createPathInOneDivision(arr1: string[], arr2: string[]) {
-  // Элементы, которые есть в arr1, но нет в arr2
-  const uniqueInArr1 = arr1.filter((el) => !arr2.includes(el));
-
-  // Первый общий элемент в arr1 и arr2
-  const firstCommonElement = arr1.find((el) => arr2.includes(el));
-
-  // Элементы, которые есть в arr2, но нет в arr1, в реверсном порядке
-  const uniqueInArr2Reversed = arr2
-    .filter((el) => !arr1.includes(el))
-    .reverse();
-
-  // Формирование результирующего массива
-  const result = [...uniqueInArr1];
-  if (firstCommonElement !== undefined) {
-    result.push(firstCommonElement);
+  @Patch(':convertId/approve') // в guard проверку на host.user.id и что activePostId не последний в массиве
+  @UseGuards(ApproveConvertGuard)
+  @ApiOperation({ summary: 'Продолжить конверт (аппрувнуть) его по pathOfPosts' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: {
+      id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Вы не можете одобрить данный конверт!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({
+    name: 'convertId',
+    required: true,
+    description: 'Id конверта',
+    example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
+  })
+  async approve(
+    @Param('convertId') convertId: string,
+  ): Promise<string> {
+    const convert = await this.convertService.findOneById(convertId, ['convertToPosts.post']);
+    const postsInConvertIds = convert.convertToPosts.map(convertToPost => convertToPost.post.id);
+    const indexOfActivePostId = convert.pathOfPosts.indexOf(convert.activePostId);
+    const nextPost = await this.postService.findOneById(convert.pathOfPosts[indexOfActivePostId + 1]);
+    const newConvertToPostIds = postsInConvertIds.concat(nextPost.id);
+    const convertUpdateDto: ConvertUpdateDto = {
+      _id: convert.id,
+      activePostId: convert.pathOfPosts[indexOfActivePostId + 1],
+      convertToPostIds: newConvertToPostIds,
+    };
+    const approvedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    const pathOfPostsWithoutHostPost = postsInConvertIds.splice(0, 1);
+    this.convertGateway.handleConvertApproveEvent(approvedConvertId, nextPost, pathOfPostsWithoutHostPost);
+    this.logger.info(
+      `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт одобрен!`,
+    );
+    return approvedConvertId;
   }
-  result.push(...uniqueInArr2Reversed);
 
-  return result;
+
+  @Patch(':convertId/finish')
+  @UseGuards(FinishConvertGuard)
+  @ApiOperation({ summary: 'Завершить конверт' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: {
+      id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.FORBIDDEN,
+    description: 'Вы не можете завершить данный конверт!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({
+    name: 'convertId',
+    required: true,
+    description: 'Id конверта',
+    example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
+  })
+  async finish(
+    @Param('convertId') convertId: string,
+    @Body() convertFinishDto: ConvertFinishDto
+  ): Promise<string> {
+    const convertUpdateDto: ConvertUpdateDto = {
+      _id: convertId,
+      convertStatus: false,
+    };
+    const finishedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    this.convertGateway.handleConvertFinishEvent(finishedConvertId, convertUpdateDto.convertStatus, convertFinishDto.pathOfUsers)
+    this.logger.info(
+      `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт завершен!`,
+    );
+    return finishedConvertId;
+  }
+
+
+  @Patch(':convertId/update')
+  @ApiOperation({ summary: 'Обновить конверт' })
+  @ApiBody({
+    description: 'ДТО для обновления конверта',
+    type: ConvertUpdateDto,
+    required: true,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: {
+      id: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({
+    name: 'convertId',
+    required: true,
+    description: 'Id конверта',
+    example: 'bdebb8ec-2a05-477c-93a8-463f60f3d2b5',
+  })
+  async update(
+    @Param('convertId') convertId: string,
+    @Body() convertUpdateDto: ConvertUpdateDto
+  ): Promise<string> {
+    const updatedConvertId = await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
+    this.logger.info(
+      `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт обновлен!`,
+    );
+    return updatedConvertId;
+  }
 }

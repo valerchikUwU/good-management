@@ -7,15 +7,9 @@ import {
   Req,
   Ip,
   Res,
-  Header,
   Headers,
   UseGuards,
-  Get,
-  HttpCode,
-  Delete,
-  NotFoundException,
   HttpStatus,
-  InternalServerErrorException,
   UnauthorizedException,
   Inject,
   BadRequestException,
@@ -26,26 +20,21 @@ import { UserVkAuthDto } from '../contracts/user/user-vkauth-dto';
 import { AuthVK } from '../contracts/auth-vk.dto';
 import { AuthService } from '../application/services/auth/auth.service';
 import { UsersService } from '../application/services/users/users.service';
-import { CreateUserDto } from 'src/contracts/user/create-user.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
-import { RefreshTokenGuard } from 'src/guards/refreshToken.guard';
 import { EventsGateway } from 'src/gateways/events.gateway';
-import { JwtService } from '@nestjs/jwt';
 
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
-  ApiParam,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthTG } from 'src/contracts/tg-auth.dto';
+import { AuthTG } from 'src/contracts/auth-tg.dto';
 import { Logger } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
-import { profile } from 'console';
 import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
-import { UpdateTgAuthUserDto } from 'src/contracts/user/update-tgauthUser.dto';
 import { UpdateVkAuthUserDto } from 'src/contracts/user/update-vkauthUser.dto';
+import { refreshTokensExample } from 'src/constants/swagger-examples/auth/auth-examples';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -115,7 +104,10 @@ export class AuthController {
       );
       res.cookie('refresh-tokenId', authenticateResult.refreshTokenId, {
         httpOnly: true,
-        maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
+        path: '/',
+        secure: process.env.NODE_ENV === 'prod' ? true : false,
+        maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
+        sameSite: 'none' // только пока в разработке, потом strict
       });
       return authenticateResult._user;
     } else {
@@ -167,9 +159,17 @@ export class AuthController {
     required: true,
   })
   @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
-    example: {},
+    status: HttpStatus.CREATED,
+    description: 'CREATED!',
+    example: refreshTokensExample
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Войдите в свой аккаунт для дальнейшей работы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Ваша сессия истекла, пожалуйста, войдите еще раз в свой аккаунт.',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -187,7 +187,10 @@ export class AuthController {
     );
     res.cookie('refresh-tokenId', data.newRefreshTokenId, {
       httpOnly: true,
-      maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
+      path: '/',
+      secure: process.env.NODE_ENV === 'prod' ? true : false,
+      maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
+      sameSite: 'none' // только пока в разработке, потом strict
     });
     return { newAccessToken: data.newAccessToken };
   }
@@ -219,44 +222,40 @@ export class AuthController {
   }
 
   @Post('login/tg')
-  @ApiOperation({ summary: 'НЕ ЧИПАТЬ!' })
-  async tg(@Body() authTg: AuthTG, @Ip() ip: string): Promise<void> {
+  @ApiOperation({ summary: 'Запрос для телеграм бота, с помощью которого происходит аутентификация' })
+  @ApiBody({
+    description: 'ДТО данных для аутентификации',
+    type: AuthTG,
+    required: true,
+  })
+  async loginTG(@Body() authTg: AuthTG): Promise<void> {
     // Запрашиваем у клиента необходимую информацию
     const requiredInfo = ['fingerprint', 'userAgent', 'ip', 'token'];
-    const clientInfo = await this.eventsGateway.requestInfoFromClient(
-      authTg.clientId,
-      requiredInfo,
-    );
-    console.log(clientInfo.token);
+    const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo);
+
     if (clientInfo.token === authTg.token) {
-      const updateTgAuthUserDto: UpdateTgAuthUserDto = {
-        telegramId: authTg.telegramId,
-      };
-      const user = await this.userService.findOneByTelephoneNumber(
-        authTg.telephoneNumber,
-      );
-      let updateUser = user;
-      console.log(user.telegramId)
-      if (user.telegramId === null) {
-        updateUser = await this.userService.updateTgAuth(
-          user,
-          updateTgAuthUserDto,
-        );
+      console.log(authTg.user.telegramId)
+      if (authTg.user.telegramId === null) {
+        const updateTgAuthUserDto: UpdateUserDto = {
+          id: authTg.user.id,
+          telegramId: authTg.telegramId
+        };
+        await this.userService.update(authTg.user.id, updateTgAuthUserDto);
       }
       const authenticateResult = await this.authService.authenticateTG(
-        updateUser,
+        authTg.user.id,
         clientInfo.ip,
         clientInfo.userAgent,
         clientInfo.fingerprint,
       );
-      await this.eventsGateway.sendTokenToClient(
+      this.eventsGateway.sendTokenToClient(
         authTg.clientId,
         authenticateResult._user.id,
         authenticateResult._user.token,
         authenticateResult.refreshTokenId,
       );
     } else {
-      await this.eventsGateway.sendTokenToClient(
+      this.eventsGateway.sendTokenToClient(
         authTg.clientId,
         'false',
         null,
@@ -266,15 +265,34 @@ export class AuthController {
     }
   }
 
+  @UseGuards(AccessTokenGuard)
+  @ApiOperation({ summary: 'Установка куки' })
+  @ApiBearerAuth('access-token')
+  @ApiBody({
+    description: 'Данные для выхода',
+    type: String,
+    schema: {
+      type: 'object',
+      properties: {
+        fingerprint: {
+          type: 'string',
+          description: 'Уникальный идентификатор устройства',
+        },
+      },
+      required: ['fingerprint'],
+    },
+    required: true,
+  })
   @Post('set-cookie')
   setCookie(@Body('refreshTokenId') refreshTokenId: string, @Res({ passthrough: true }) res: ExpressResponse) {
-    console.log(refreshTokenId)
     res.cookie('refresh-tokenId', refreshTokenId, {
       httpOnly: true,
-      maxAge: Math.floor(Date.now() / 1000) + 60 * 24 * 60 * 60, // 60 дней
+      secure: process.env.NODE_ENV === 'prod' ? true : false,
+      path: '/',
+      maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
+      sameSite: 'none' // только пока в разработке, потом strict
     });
-    // Завершите обработку запроса
-    return { message: 'Cookie set successfully' };
+    return { message: 'Куки успешно установлены' };
   }
 
 }

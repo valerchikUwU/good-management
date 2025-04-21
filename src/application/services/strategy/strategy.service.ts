@@ -23,10 +23,10 @@ export class StrategyService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+  async findAllForOrganization(organizationId: string): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
-        where: { account: { id: account.id } },
+        where: { organization: { id: organizationId } },
       });
 
       return strategies.map((strategy) => ({
@@ -52,11 +52,11 @@ export class StrategyService {
     }
   }
 
-  async findAllActiveOrDraftWithoutObjectiveForAccount(account: AccountReadDto): Promise<StrategyReadDto[]> {
+  async findAllActiveOrDraftWithoutObjectiveForOrganization(organizationId: string): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: {
-          account: { id: account.id },
+          organization: { id: organizationId },
           state: In([State.ACTIVE, State.DRAFT]),
           objective: { id: IsNull() },
         },
@@ -86,14 +86,14 @@ export class StrategyService {
     }
   }
 
-  async findAllActiveForAccount(account: AccountReadDto, relations?: string[]): Promise<StrategyReadDto[]> {
+  async findAllActiveForOrganization(organizationId: string, relations?: string[]): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: {
-          account: { id: account.id },
+          organization: { id: organizationId },
           state: In([State.ACTIVE, State.DRAFT]), // Используем In для OR условия
         },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       return strategies.map((strategy) => ({
@@ -159,7 +159,7 @@ export class StrategyService {
     try {
       const strategy = await this.strategyRepository.findOne({
         where: { id: id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       if (!strategy)

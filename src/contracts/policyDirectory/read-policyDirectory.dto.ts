@@ -11,6 +11,10 @@ export class PolicyDirectoryReadDto {
   })
   directoryName: string;
 
+  createdAt: Date;
+
+  updatedAt: Date;
+
   @ApiProperty({ description: 'Связанные политики с папкой' })
   policyToPolicyDirectories: PolicyToPolicyDirectory[];
 }

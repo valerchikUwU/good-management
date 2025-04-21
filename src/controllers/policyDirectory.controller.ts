@@ -9,8 +9,11 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -18,179 +21,103 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { PolicyDirectoryService } from 'src/application/services/policyDirectory/policyDirectory.service';
-import { UsersService } from 'src/application/services/users/users.service';
 import { PolicyDirectoryCreateDto } from 'src/contracts/policyDirectory/create-policyDirectory.dto';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
-import { PolicyDirectory } from 'src/domains/policyDirectory.entity';
 import { PolicyDirectoryReadDto } from 'src/contracts/policyDirectory/read-policyDirectory.dto';
 import { PolicyDirectoryUpdateDto } from 'src/contracts/policyDirectory/update-policyDirectory.dto';
 import { PolicyService } from 'src/application/services/policy/policy.service';
 import { Type } from 'src/domains/policy.entity';
 import { PolicyReadDto } from 'src/contracts/policy/read-policy.dto';
+import { Request as ExpressRequest } from 'express';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { findAllPolicyDirectoriesExample, findOnePolicyDirectoryExample } from 'src/constants/swagger-examples/policyDirectory/policyDirectory-examples';
 
 @ApiTags('PolicyDirectories')
-@Controller(':userId/policyDirectory')
+@ApiBearerAuth('access-token')
+@UseGuards(AccessTokenGuard)
+@Controller('policyDirectory')
 export class PolicyDirectoryController {
   constructor(
     private readonly policyDirectoryService: PolicyDirectoryService,
-    private readonly userService: UsersService,
     private readonly policyService: PolicyService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
 
-  @Get()
-  @ApiOperation({ summary: 'Все папки' })
+  @Get(':organizationId')
+  @ApiOperation({ summary: 'Все папки в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: [
-      {
-        id: "678fb7ad-1fdc-4cb1-b37a-63e4c9c7c3bb",
-        directoryName: "iluxa",
-        policyToPolicyDirectories: [
-          {
-            id: "55bb6043-7abf-4a7d-a3b3-257d87554d7f",
-            createdAt: "2024-11-22T10:12:36.237Z",
-            updatedAt: "2024-11-22T10:12:36.237Z",
-            policy: {
-              id: "b86e3c85-c2ce-4918-be74-850e5ae3e2c2",
-              policyName: "Политика",
-              policyNumber: 112,
-              state: "Активный",
-              type: "Директива",
-              dateActive: "2024-11-20T11:35:38.352Z",
-              content: "HTML контент (любая строка пройдет)",
-              createdAt: "2024-11-20T09:33:48.863Z",
-              updatedAt: "2024-11-20T12:34:57.928Z"
-            }
-          },
-          {
-            id: "2538fe4d-8a8a-44ca-8ea8-629ebeba4108",
-            createdAt: "2024-11-22T10:12:36.503Z",
-            updatedAt: "2024-11-22T10:12:36.503Z",
-            policy: {
-              id: "6565c6df-a2eb-4f4f-9e7a-4f7aba3331a5",
-              policyName: "Инструкция 1",
-              policyNumber: 127,
-              state: "Активный",
-              type: "Инструкция",
-              dateActive: "2024-11-21T12:37:44.611Z",
-              content: "<p>Инструкция 1</p>\n",
-              createdAt: "2024-11-21T12:37:44.860Z",
-              updatedAt: "2024-11-21T12:37:44.860Z"
-            }
-          }
-        ]
-      },
-      {
-        id: "db0559ac-b28b-4cd7-a3d8-3f2887547277",
-        directoryName: "Папка №1",
-        policyToPolicyDirectories: []
-      }
-    ]
-  })  
+    example: findAllPolicyDirectoriesExample
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'organizationId',
     required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
   })
-  async findAll(@Param('userId') userId: string, @Ip() ip: string): Promise<PolicyDirectoryReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const policyDirectories = await this.policyDirectoryService.findAllForAccount(user.account, ['policyToPolicyDirectories.policy']);
+  async findAll(
+    @Param('organizationId') organizationId: string
+  ): Promise<PolicyDirectoryReadDto[]> {
+    const policyDirectories = await this.policyDirectoryService.findAllForOrganization(organizationId, ['policyToPolicyDirectories.policy']);
     return policyDirectories;
   }
 
 
-  
-  
-  @Get(':policyDirectoryId') // для мобилки
-  @ApiOperation({ summary: 'Получить папку по ID' })
+
+
+  @Get(':organizationId/:policyDirectoryId/policyDirectory') // для мобилки
+  @ApiOperation({ summary: 'Получить папку по ID (для мобильной версии)' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      policyDirectory: {
-        id: "2dd05cab-f048-4e3c-a728-7f2ba5d546d5",
-        directoryName: "Папка №2",
-        policyToPolicyDirectories: [
-          {
-            id: "a8a9906e-8638-41b7-9692-95820c962484",
-            createdAt: "2024-11-20T14:04:28.692Z",
-            updatedAt: "2024-11-20T14:04:28.692Z",
-            policy: {
-              id: "2c6a7bc4-4b7b-4822-af9f-5dfd0be46c49",
-              policyName: "Политика 2",
-              policyNumber: 113,
-              state: "Черновик",
-              type: "Директива",
-              dateActive: null,
-              content: "<p>Политика 2</p>\n",
-              createdAt: "2024-11-20T09:34:01.196Z",
-              updatedAt: "2024-11-20T09:34:01.196Z"
-            }
-          }
-        ]
-      },
-      instructions: [
-        {
-          id: "6565c6df-a2eb-4f4f-9e7a-4f7aba3331a5",
-          policyName: "Инструкция 1",
-          policyNumber: 127,
-          state: "Активный",
-          type: "Инструкция",
-          dateActive: "2024-11-21T12:37:44.611Z",
-          content: "<p>Инструкция 1</p>\n",
-          createdAt: "2024-11-21T12:37:44.860Z",
-          updatedAt: "2024-11-21T12:37:44.860Z"
-        }
-      ],
-      directives: [
-        {
-          id: "b86e3c85-c2ce-4918-be74-850e5ae3e2c2",
-          policyName: "Политика",
-          policyNumber: 112,
-          state: "Активный",
-          type: "Директива",
-          dateActive: "2024-11-20T11:35:38.352Z",
-          content: "HTML контент (любая строка пройдет)",
-          createdAt: "2024-11-20T09:33:48.863Z",
-          updatedAt: "2024-11-20T12:34:57.928Z"
-        }
-      ]
-    },
-  })  
+    example: findOnePolicyDirectoryExample
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: `Папка не найдена!`
+  })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
-  })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: `Папка не найдена!` })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
   })
   @ApiParam({
     name: 'policyDirectoryId',
     required: true,
     description: 'Id папки'
   })
-  async findOne(@Param('userId') userId: string, @Param('policyDirectoryId') policyDirectoryId: string, @Ip() ip: string): Promise<{policyDirectory: PolicyDirectoryReadDto, directives: PolicyReadDto[], instructions: PolicyReadDto[]}> {
-    const user = await this.userService.findOne(userId, ['account']);
+  @ApiParam({
+    name: 'organizationId',
+    required: true,
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
+  })
+  async findOne(
+    @Param('organizationId') organizationId: string,
+    @Param('policyDirectoryId') policyDirectoryId: string,
+  ): Promise<{ policyDirectory: PolicyDirectoryReadDto, directives: PolicyReadDto[], instructions: PolicyReadDto[] }> {
     const [policyDirectory, policiesActive] = await Promise.all([
       this.policyDirectoryService.findOneById(policyDirectoryId, ['policyToPolicyDirectories.policy']),
-      this.policyService.findAllActiveForAccount(user.account)
-    ]) 
+      this.policyService.findAllActiveForOrganization(organizationId)
+    ])
     const directives = policiesActive.filter((policy) => policy.type === Type.DIRECTIVE);
     const instructions = policiesActive.filter((policy) => policy.type === Type.INSTRUCTION);
-    return {policyDirectory: policyDirectory, instructions: instructions, directives: directives};
+    return { policyDirectory: policyDirectory, instructions: instructions, directives: directives };
   }
 
 
@@ -202,20 +129,34 @@ export class PolicyDirectoryController {
     type: PolicyDirectoryCreateDto,
     required: true,
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'CREATED!',
+    example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
   })
-  async create(@Param('userId') userId: string, @Body() policyDirectoryCreateDto: PolicyDirectoryCreateDto, @Ip() ip: string): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId, ['account']);
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  async create(
+    @Req() req: ExpressRequest,
+    @Body() policyDirectoryCreateDto: PolicyDirectoryCreateDto,
+  ): Promise<{ id: string }> {
+    const user = req.user as ReadUserDto;
     policyDirectoryCreateDto.account = user.account;
-    const createdPolicyDirectory = await this.policyDirectoryService.create(policyDirectoryCreateDto);
+    const createdPolicyDirectoryId = await this.policyDirectoryService.create(policyDirectoryCreateDto);
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - policyDirectoryCreateDto: ${JSON.stringify(policyDirectoryCreateDto)} - Создана новая папка!`,
+      `${yellow('OK!')} - policyDirectoryCreateDto: ${JSON.stringify(policyDirectoryCreateDto)} - Создана новая папка!`,
     );
-    return { id: createdPolicyDirectory.id };
+    return { id: createdPolicyDirectoryId };
   }
 
   @Patch(':policyDirectoryId/update')
@@ -225,11 +166,26 @@ export class PolicyDirectoryController {
     type: PolicyDirectoryUpdateDto,
     required: true,
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Папка не найдена!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   @ApiParam({
     name: 'policyDirectoryId',
@@ -240,25 +196,35 @@ export class PolicyDirectoryController {
   async update(
     @Param('policyDirectoryId') policyDirectoryId: string,
     @Body() policyDirectoryUpdateDto: PolicyDirectoryUpdateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const updatedPolicyDirectory = await this.policyDirectoryService.update(
+    const updatedPolicyDirectoryId = await this.policyDirectoryService.update(
       policyDirectoryId,
       policyDirectoryUpdateDto,
     );
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - UPDATED POLICYDIRECTORY: ${JSON.stringify(policyDirectoryUpdateDto)} - Папка успешно обновлена!`,
+      `${yellow('OK!')} - UPDATED POLICYDIRECTORY: ${JSON.stringify(policyDirectoryUpdateDto)} - Папка успешно обновлена!`,
     );
-    return { id: updatedPolicyDirectory.id };
+    return { id: updatedPolicyDirectoryId };
   }
 
   @Delete(':policyDirectoryId/remove')
-  @ApiOperation({ summary: 'Обновить папку для политик' })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+  @ApiOperation({ summary: 'Удалить папку' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'ОК!',
+    example: {"message": "Папка успешно удалена!" },
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Папка не найдена!',
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
   })
   @ApiParam({
     name: 'policyDirectoryId',
@@ -268,8 +234,8 @@ export class PolicyDirectoryController {
   })
   async remove(
     @Param('policyDirectoryId') policyDirectoryId: string,
-    @Ip() ip: string,
-  ): Promise<void> {
-    return await this.policyDirectoryService.remove(policyDirectoryId);
+  ) {
+    await this.policyDirectoryService.remove(policyDirectoryId);
+    return { message: "Папка успешно удалена!" }
   }
 }

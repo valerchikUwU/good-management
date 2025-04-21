@@ -12,6 +12,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { RoleSetting } from './roleSetting.entity';
+import { Post } from './post.entity';
 
 export enum Roles {
   OWNER = 'Собственник',
@@ -43,6 +44,6 @@ export class Role {
   @OneToMany(() => RoleSetting, (roleSetting) => roleSetting.role)
   roleSettings: RoleSetting[];
 
-  @OneToMany(() => User, (user) => user.role)
-  users: User[];
+  @OneToMany(() => Post, (post) => post.role)
+  posts: Post[];
 }

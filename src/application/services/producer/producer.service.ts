@@ -23,7 +23,7 @@ export class ProducerService {
     if (process.env.NODE_ENV === 'dev') {
       //
       // ДЛЯ ЛОКАЛЬНЫХ ТЕСТОВ
-      const connection = amqp.connect(['amqp://localhost']);
+      const connection = amqp.connect(['amqp://rabbitmq']);
       this.channelWrapper = connection.createChannel({
         setup: (channel: Channel) => {
           return channel.assertQueue('test_events', { durable: true });

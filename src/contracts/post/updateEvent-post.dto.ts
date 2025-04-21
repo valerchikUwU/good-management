@@ -9,6 +9,5 @@ export class PostUpdateEventDto {
   updatedAt: Date;
   policyId: string | null;
   responsibleUserId: string | null;
-  organizationId: string | null;
   accountId: string;
 }

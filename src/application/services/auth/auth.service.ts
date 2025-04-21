@@ -8,17 +8,18 @@ import {
 import { UsersService } from '../users/users.service';
 import { HttpService } from '@nestjs/axios';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
-import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { UserVkAuthDto } from 'src/contracts/user/user-vkauth-dto';
 import { JwtPayloadInterface } from 'src/utils/jwt-payload.interface';
 import { User } from 'src/domains/user.entity';
 import { CreateRefreshSessionDto } from 'src/contracts/refreshSession/create-refreshSession.dto';
 import { RefreshService } from '../refreshSession/refresh.service';
-import { InjectConfig, ConfigService } from 'nestjs-config';
-import { Session } from 'inspector';
 import { UserTgAuthDto } from 'src/contracts/user/user-tgauth-dto';
 import { Logger } from 'winston';
 import { AuthVK } from 'src/contracts/auth-vk.dto';
+import { yellow } from 'colorette';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -27,12 +28,18 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly refreshService: RefreshService,
-    @InjectConfig() private readonly config: ConfigService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
-  async validateUser(payload: JwtPayloadInterface): Promise<User | null> {
-    return await this.usersService.findOne(payload.id);
+  async validateUser(payload: JwtPayloadInterface): Promise<ReadUserDto> {
+    let user = await this.cacheService.get<ReadUserDto>(`user:${payload.id}`); 
+    if(user === null){
+      user = await this.usersService.findOne(payload.id, ['account', 'posts']);
+      await this.cacheService.set<ReadUserDto>(`user:${user.id}`, user, 1860000);
+    }
+    return user;
   }
 
   async authenticateVK(
@@ -61,7 +68,7 @@ export class AuthService {
         ),
         user: auth,
       };
-      const _newSession = await this.refreshService.create(newSession);
+      const _newSessionId = await this.refreshService.create(newSession);
       const _user: UserVkAuthDto = {
         id: user.id,
         vk_id: user.vk_id,
@@ -78,7 +85,7 @@ export class AuthService {
         ),
       };
 
-      return { _user: _user, refreshTokenId: _newSession.id };
+      return { _user: _user, refreshTokenId: _newSessionId };
     } catch (err) {
       this.logger.error(err);
       if (err instanceof BadRequestException) {
@@ -150,7 +157,12 @@ export class AuthService {
         String(refreshTokenId),
         String(fingerprint),
       );
+
       if (!session) {
+        this.logger.info(
+          `Попытка обновления токенов с fingerprint: ${fingerprint} и refreshTokenId: ${refreshTokenId}`,
+        );
+        await this.refreshService.remove(refreshTokenId);
         throw new UnauthorizedException(
           'Войдите в свой аккаунт для дальнейшей работы!',
         );
@@ -158,7 +170,8 @@ export class AuthService {
       const currentTime = Math.floor(Date.now() / 1000);
       const isExpired = currentTime > session.expiresIn;
       if (isExpired) {
-        throw new UnauthorizedException('TOKEN_EXPIRED');
+        await this.refreshService.remove(refreshTokenId);
+        throw new UnauthorizedException('Ваша сессия истекла, пожалуйста, войдите еще раз в свой аккаунт.');
       }
       const newSession: CreateRefreshSessionDto = {
         user_agent: session.user_agent,
@@ -177,9 +190,7 @@ export class AuthService {
 
       await this.refreshService.remove(session.id);
 
-      await this.refreshService.create(newSession);
-
-      const id = await this.refreshService.getId(newSession.refreshToken);
+      const newSessionId = await this.refreshService.create(newSession);
 
       const _newAccessToken = await this.jwtService.signAsync(
         { id: newSession.user.id },
@@ -188,7 +199,10 @@ export class AuthService {
           expiresIn: process.env.JWT_ACCESS_EXPIRESIN,
         },
       );
-      return { newRefreshTokenId: id, newAccessToken: _newAccessToken };
+      this.logger.info(
+        `${yellow('OK!')} - CREATED SESSION WITH ID: ${newSessionId} - Создана сессия!`,
+      );
+      return { newRefreshTokenId: newSessionId, newAccessToken: _newAccessToken };
     } catch (err) {
       this.logger.error(err);
       if (err instanceof UnauthorizedException) {
@@ -208,6 +222,7 @@ export class AuthService {
         String(fingerprint),
       );
       if (!session) {
+        await this.refreshService.remove(refreshTokenId);
         throw new UnauthorizedException(
           'Войдите в свой аккаунт для дальнейшей работы!',
         );
@@ -215,7 +230,7 @@ export class AuthService {
       const currentTime = Math.floor(Date.now() / 1000);
       const isExpired = currentTime > session.expiresIn;
       if (isExpired) {
-        throw new UnauthorizedException('TOKEN_EXPIRED');
+        throw new UnauthorizedException('Пожалуйста, войдите еще раз в свой аккаунт.');
       }
       await this.refreshService.remove(session.id);
     } catch (err) {
@@ -231,13 +246,13 @@ export class AuthService {
   }
 
   async authenticateTG(
-    auth: ReadUserDto,
+    userId: string,
     ip: string,
     user_agent: string,
     fingerprint: string,
   ): Promise<{ _user: UserTgAuthDto; refreshTokenId: string }> {
     try {
-      const user = await this.usersService.findOne(auth.id);
+      const user = await this.usersService.findOne(userId);
       if (!user) {
         throw new BadRequestException();
       }
@@ -254,16 +269,12 @@ export class AuthService {
             expiresIn: process.env.JWT_REFRESH_EXPIRESIN,
           },
         ),
-        user: auth,
+        user: user,
       };
       console.log(`${JSON.stringify(newSession)}`);
-      const _newSession = await this.refreshService.create(newSession);
+      const _newSessionId = await this.refreshService.create(newSession);
       const _user: UserTgAuthDto = {
         id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        telephoneNumber: user.telephoneNumber,
-        telegramId: user.telegramId,
         token: await this.jwtService.signAsync(
           { id: user.id },
           {
@@ -273,7 +284,7 @@ export class AuthService {
         ),
       };
 
-      return { _user: _user, refreshTokenId: _newSession.id };
+      return { _user: _user, refreshTokenId: _newSessionId };
     } catch (err) {
       this.logger.error(err);
       if (err instanceof BadRequestException) {
@@ -285,16 +296,17 @@ export class AuthService {
   }
 
 
-  async isSessionExpired(ip: string, fingerprint: string): Promise<{isExpired: boolean, userId: string}>{
-    const session = await this.refreshService.findOneByIpAndFingerprint(
-      String(ip),
+  async isSessionExpired(fingerprint: string, refreshTokenId: string): Promise<{ isExpired: boolean, userId: string }> {
+
+    const session = await this.refreshService.findOneByIdAndFingerprint(
+      String(refreshTokenId),
       String(fingerprint),
     );
     if (session === null) {
-      return {isExpired: true, userId: null};
+      return { isExpired: true, userId: null };
     }
     const currentTime = Math.floor(Date.now() / 1000);
     const isExpired = currentTime > session.expiresIn;
-    return {isExpired: isExpired, userId: session.user.id};
+    return { isExpired: isExpired, userId: session.user.id };
   }
 }

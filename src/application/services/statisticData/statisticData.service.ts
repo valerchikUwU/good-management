@@ -29,7 +29,7 @@ export class StatisticDataService {
       const statisticData = new StatisticData();
       statisticData.value = statisticDataCreateDto.value;
       statisticData.valueDate = statisticDataCreateDto.valueDate;
-      statisticData.isCorrelation = statisticDataCreateDto.isCorrelation;
+      statisticData.correlationType = statisticDataCreateDto.correlationType;
       statisticData.statistic = statisticDataCreateDto.statistic;
       const createdStatisticDataId =
         await this.statisticDataRepository.insert(statisticData);
@@ -37,10 +37,6 @@ export class StatisticDataService {
       return createdStatisticDataId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException('Ошибка при создании данных!');
     }
   }
@@ -55,27 +51,23 @@ export class StatisticDataService {
           `Данные с ID ${statisticDataUpdateDto._id} не найдены`,
         );
       }
-      // Обновить свойства, если они указаны в DTO
       if (statisticDataUpdateDto.value)
         statisticData.value = statisticDataUpdateDto.value;
       if (statisticDataUpdateDto.valueDate)
         statisticData.valueDate = statisticDataUpdateDto.valueDate;
-      if (statisticDataUpdateDto.isCorrelation !== undefined)
-        statisticData.isCorrelation = statisticDataUpdateDto.isCorrelation;
+      if (statisticDataUpdateDto.correlationType)
+        statisticData.correlationType = statisticDataUpdateDto.correlationType;
       await this.statisticDataRepository.update(statisticData.id, {
         value: statisticData.value,
         valueDate: statisticData.valueDate,
-        isCorrelation: statisticData.isCorrelation,
+        correlationType: statisticData.correlationType,
       });
       return statisticData.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err; 
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при обновлении данных статистики',
       );

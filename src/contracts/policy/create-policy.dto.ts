@@ -62,7 +62,7 @@ export class PolicyCreateDto {
 
   @ApiProperty({
     description: 'ID организации, к которой привязать политику',
-    example: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   @IsUUID()
   @IsNotEmpty({message: 'ID организации не может быть пустым!'})

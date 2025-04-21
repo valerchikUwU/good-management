@@ -4,30 +4,29 @@ import {
   Get,
   HttpStatus,
   Inject,
-  Ip,
   Param,
   Patch,
   Post,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 
 import {
+  ApiBearerAuth,
   ApiBody,
-  ApiHeader,
   ApiOperation,
   ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { UsersService } from 'src/application/services/users/users.service';
 import { StatisticService } from 'src/application/services/statistic/statistic.service';
 import { StatisticReadDto } from 'src/contracts/statistic/read-statistic.dto';
 import { StatisticCreateDto } from 'src/contracts/statistic/create-statistic.dto';
-import { Statistic, Type } from 'src/domains/statistic.entity';
+import { Type } from 'src/domains/statistic.entity';
 import { StatisticDataService } from 'src/application/services/statisticData/statisticData.service';
 import { PostService } from 'src/application/services/post/post.service';
-import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { Logger } from 'winston';
 import { blue, red, green, yellow, bold } from 'colorette';
 import { StatisticUpdateDto } from 'src/contracts/statistic/update-statistic.dto';
@@ -38,72 +37,63 @@ import { StatisticDataUpdateEventDto } from 'src/contracts/statisticData/updateE
 import { StatisticUpdateEventDto } from 'src/contracts/statistic/updateEvent-statistic.dto';
 import { TimeoutError } from 'rxjs';
 import { StatisticUpdateBulkDto } from 'src/contracts/statistic/updateBulk_statistic.dto';
+import { AccessTokenGuard } from 'src/guards/accessToken.guard';
+import { Request as ExpressRequest } from 'express';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
+import { findAllStatisticsExample, findOneStatisticExample } from 'src/constants/swagger-examples/statistic/statistic-examples';
 
+@UseGuards(AccessTokenGuard)
 @ApiTags('Statistic')
-@Controller(':userId/statistics')
+@ApiBearerAuth('access-token')
+@Controller('statistics')
 export class StatisticController {
   constructor(
     private readonly statisticService: StatisticService,
-    private readonly userService: UsersService,
     private readonly statisticDataService: StatisticDataService,
     private readonly postService: PostService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
-  @Get()
-  @ApiOperation({ summary: 'Все статистики' })
+  @Get(':organizationId')
+  @ApiOperation({ summary: 'Все статистики в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: [
-      {
-        id: 'f35dc993-1c7e-4f55-9ddd-45d8841d4396',
-        type: 'Прямая',
-        name: 'Название',
-        description: 'Описание',
-        createdAt: '2024-09-26T12:28:01.476Z',
-        updatedAt: '2024-09-26T12:28:01.476Z',
-        statisticDatas: [],
-        post: {
-          id: '2420fabb-3e37-445f-87e6-652bfd5a050c',
-          postName: 'Директор',
-          divisionName: 'Отдел продаж',
-          parentId: null,
-          product: 'Продукт',
-          purpose: 'Предназначение поста',
-          createdAt: '2024-09-20T15:09:14.997Z',
-          updatedAt: '2024-09-20T15:09:14.997Z',
-        },
-      },
-    ],
+    example: findAllStatisticsExample
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
+    name: 'organizationId',
     required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
   })
   @ApiQuery({
     name: 'statisticData',
-    required: true,
-    description: 'Флаг для отправки доп данных',
+    required: false,
+    description: 'Флаг для отправки доп. данных (точек)',
     example: true,
   })
-  async findAll(@Param('userId') userId: string, @Query('statisticData') statisticData: boolean): Promise<StatisticReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
+  async findAll(
+    @Query('statisticData') statisticData: boolean,
+    @Param('organizationId') organizationId: string
+  ): Promise<StatisticReadDto[]> {
     let relations: string[]
     if (statisticData) {
-      relations = ['statisticDatas', 'post.organization']
+      relations = ['statisticDatas', 'post']
     }
     else {
       relations = ['post']
     }
-    return await this.statisticService.findAllForAccount(user.account, relations);
+    return await this.statisticService.findAllForOrganization(organizationId, relations);
   }
 
   @Patch(':statisticId/update')
@@ -116,7 +106,15 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05',
+    example: { "id": "ed2dfe55-b678-4f7e-a82e-ccf395afae05" },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
@@ -127,23 +125,16 @@ export class StatisticController {
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
-  @ApiParam({
     name: 'statisticId',
     required: true,
     description: 'Id статистики',
   })
   async update(
+    @Req() req: ExpressRequest,
     @Param('statisticId') statisticId: string,
-    @Param('userId') userId: string,
     @Body() statisticUpdateDto: StatisticUpdateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
-    const user = await this.userService.findOne(userId, ['account']);
+    const user = req.user as ReadUserDto;
     const statisticDataCreateEventDtos: StatisticDataCreateEventDto[] = [];
     const statisticDataUpdateEventDtos: StatisticDataUpdateEventDto[] = [];
     const post =
@@ -172,9 +163,9 @@ export class StatisticController {
               statisticDataUpdateDto.valueDate !== undefined
                 ? statisticDataUpdateDto.valueDate
                 : null,
-            isCorrelation:
-              statisticDataUpdateDto.isCorrelation !== undefined
-                ? statisticDataUpdateDto.isCorrelation
+            correlationType:
+              statisticDataUpdateDto.correlationType !== undefined
+                ? statisticDataUpdateDto.correlationType
                 : null,
             updatedAt: new Date(),
             statisticId: statistic.id,
@@ -196,7 +187,7 @@ export class StatisticController {
             id: createdStatisticDataId,
             value: statisticDataCreateDto.value,
             valueDate: statisticDataCreateDto.valueDate,
-            isCorrelation: statisticDataCreateDto.isCorrelation,
+            correlationType: statisticDataCreateDto.correlationType,
             createdAt: new Date(),
             statisticId: statistic.id,
             accountId: user.account.id,
@@ -236,26 +227,26 @@ export class StatisticController {
           : null,
       accountId: user.account.id,
     };
-    try {
-      await Promise.race([
-        this.producerService.sendUpdatedStatisticToQueue(
-          statisticUpdateEventDto,
-        ),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendUpdatedStatisticToQueue(
+    //       statisticUpdateEventDto,
+    //     ),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - UPDATED STATISTIC: ${JSON.stringify(statisticUpdateDto)} - Статистика успешно обновлена!`,
+      `${yellow('OK!')} - UPDATED STATISTIC: ${JSON.stringify(statisticUpdateDto)} - Статистика успешно обновлена!`,
     );
     return { id: updatedStatisticId };
   }
@@ -273,18 +264,20 @@ export class StatisticController {
     example: 'Статистики успешно обновлены.',
   })
   @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Ресурс не найден!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
-  })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
   })
   @ApiParam({
     name: 'postId',
@@ -295,7 +288,6 @@ export class StatisticController {
   async updateBulk(
     @Param('postId') postId: string,
     @Body() statisticUpdateBulkDto: StatisticUpdateBulkDto,
-    @Ip() ip: string,
   ): Promise<{ message: string }> {
     const post = await this.postService.findOneById(postId)
     const updateStatisticPromises = statisticUpdateBulkDto.ids.map(
@@ -314,64 +306,6 @@ export class StatisticController {
     return { message: 'Статистики успешно обновлены.' };
   }
 
-  @Get('new')
-  @ApiOperation({ summary: 'Получить данные для создания новой статистики' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
-    example: [
-      {
-        id: '2420fabb-3e37-445f-87e6-652bfd5a050c',
-        postName: 'Директор',
-        divisionName: 'Отдел продаж',
-        parentId: null,
-        product: 'Продукт',
-        purpose: 'Предназначение поста',
-        createdAt: '2024-09-20T15:09:14.997Z',
-        updatedAt: '2024-09-20T15:09:14.997Z',
-        user: {
-          id: '3b809c42-2824-46c1-9686-dd666403402a',
-          firstName: 'Maxik',
-          lastName: 'Koval',
-          telegramId: 453120600,
-          telephoneNumber: null,
-          avatar_url: null,
-          vk_id: null,
-          createdAt: '2024-09-16T14:03:31.000Z',
-          updatedAt: '2024-09-16T14:03:31.000Z',
-        },
-        organization: {
-          id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          organizationName: 'soplya firma',
-          parentOrganizationId: null,
-          createdAt: '2024-09-16T14:24:33.841Z',
-          updatedAt: '2024-09-16T14:24:33.841Z',
-        },
-      },
-    ],
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
-  async beforeCreate(
-    @Param('userId') userId: string,
-    @Ip() ip: string,
-  ): Promise<PostReadDto[]> {
-    const user = await this.userService.findOne(userId, ['account']);
-    const posts = await this.postService.findAllForAccount(user.account, [
-      'user',
-      'organization',
-    ]);
-    return posts;
-  }
-
   @Post('new')
   @ApiOperation({ summary: 'Создать статистику' })
   @ApiBody({
@@ -381,35 +315,33 @@ export class StatisticController {
   })
   @ApiResponse({
     status: HttpStatus.CREATED,
-    description: 'ОК!',
-    example: 'f35dc993-1c7e-4f55-9ddd-45d8841d4396',
+    description: 'CREATED!',
+    example: { "id": "f35dc993-1c7e-4f55-9ddd-45d8841d4396" },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
-  })
   async create(
-    @Param('userId') userId: string,
+    @Req() req: ExpressRequest,
     @Body() statisticCreateDto: StatisticCreateDto,
-    @Ip() ip: string,
   ): Promise<{ id: string }> {
     const statisticDataCreateEventDtos: StatisticDataCreateEventDto[] = [];
-    const [user, post] = await Promise.all([
-      this.userService.findOne(userId, ['account']),
-      this.postService.findOneById(statisticCreateDto.postId),
-    ]);
+    const user = req.user as ReadUserDto;
+    const post = await this.postService.findOneById(statisticCreateDto.postId);
 
     statisticCreateDto.account = user.account;
     statisticCreateDto.post = post;
 
-    const createdStatistic =
-      await this.statisticService.create(statisticCreateDto);
+    const createdStatistic = await this.statisticService.create(statisticCreateDto);
 
     if (statisticCreateDto.statisticDataCreateDtos !== undefined) {
       const statisticDataCreatePromises =
@@ -422,7 +354,7 @@ export class StatisticController {
               id: createdStatisticDataId,
               value: statisticDataCreateDto.value,
               valueDate: statisticDataCreateDto.valueDate,
-              isCorrelation: statisticDataCreateDto.isCorrelation,
+              correlationType: statisticDataCreateDto.correlationType,
               createdAt: new Date(),
               statisticId: createdStatistic.id,
               accountId: user.account.id,
@@ -456,91 +388,54 @@ export class StatisticController {
           : null,
     };
 
-    try {
-      await Promise.race([
-        this.producerService.sendCreatedStatisticToQueue(
-          statisticCreateEventDto,
-        ),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new TimeoutError()), 5000),
-        ),
-      ]);
-    } catch (error) {
-      if (error instanceof TimeoutError) {
-        this.logger.error(
-          `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-        );
-      } else {
-        this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-      }
-    }
+    // try {
+    //   await Promise.race([
+    //     this.producerService.sendCreatedStatisticToQueue(
+    //       statisticCreateEventDto,
+    //     ),
+    //     new Promise((_, reject) =>
+    //       setTimeout(() => reject(new TimeoutError()), 5000),
+    //     ),
+    //   ]);
+    // } catch (error) {
+    //   if (error instanceof TimeoutError) {
+    //     this.logger.error(
+    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
+    //     );
+    //   } else {
+    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
+    //   }
+    // }
     this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - statisticCreateDto: ${JSON.stringify(statisticCreateDto)} - Создана новая статистика!`,
+      `${yellow('OK!')} - statisticCreateDto: ${JSON.stringify(statisticCreateDto)} - Создана новая статистика!`,
     );
     return { id: createdStatistic.id };
   }
 
-  @Get(':statisticId')
+  @Get(':statisticId/statistic')
   @ApiOperation({ summary: 'Получить статистику по ID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {
-      id: 'e954602d-9513-4998-bf3d-779b13a44cd8',
-      type: 'Прямая',
-      name: 'Название 7',
-      description: 'Описание',
-      createdAt: '2024-09-26T12:56:30.851Z',
-      updatedAt: '2024-09-26T12:56:30.851Z',
-      statisticDatas: [
-        {
-          id: 'ea993b7d-f98f-4c03-8f7a-d5894252782f',
-          createdAt: '2024-09-26T12:56:31.009Z',
-          updatedAt: '2024-09-26T12:56:31.009Z',
-          value: 44500,
-          valueDate: '2024-10-16T09:44:40.843Z',
-        },
-        {
-          id: '93a3c15a-1381-4a64-8ab1-8ad3679f8a02',
-          createdAt: '2024-09-26T12:56:31.156Z',
-          updatedAt: '2024-09-26T12:56:31.156Z',
-          value: 54000,
-          valueDate: '2024-10-16T09:44:40.843Z',
-        },
-      ],
-      post: {
-        id: '2420fabb-3e37-445f-87e6-652bfd5a050c',
-        postName: 'Чурка',
-        divisionName: 'Отдел дубней',
-        parentId: '87af2eb9-a17d-4e78-b847-9d512cb9a0c9',
-        product: 'Продукт1234',
-        purpose: 'asdasd',
-        createdAt: '2024-09-20T15:09:14.997Z',
-        updatedAt: '2024-10-04T14:57:24.294Z',
-        organization: {
-          id: '865a8a3f-8197-41ee-b4cf-ba432d7fd51f',
-          organizationName: 'soplya firma',
-          parentOrganizationId: null,
-          reportDay: 5,
-          createdAt: '2024-09-16T14:24:33.841Z',
-          updatedAt: '2024-09-16T14:24:33.841Z',
-        },
-      },
-    },
+    example: findOneStatisticExample
   })
   @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: `Статистика не найдена!`,
   })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
   @ApiParam({
     name: 'userId',
     required: true,
     description: 'Id пользователя',
-    example: '3b809c42-2824-46c1-9686-dd666403402a',
+    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
   })
   @ApiParam({
     name: 'statisticId',
@@ -549,15 +444,12 @@ export class StatisticController {
   })
   async findOne(
     @Param('statisticId') statisticId: string,
-    @Ip() ip: string,
   ): Promise<StatisticReadDto> {
+
     const statistic = await this.statisticService.findOneById(statisticId, [
       'statisticDatas',
-      'post.organization',
+      'post',
     ]);
-    this.logger.info(
-      `${yellow('OK!')} - ${red(ip)} - CURRENT STATISTIC: ${JSON.stringify(statistic)} - Получить статистику по ID!`,
-    );
     return statistic;
   }
 }

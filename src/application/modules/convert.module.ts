@@ -3,18 +3,23 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Convert } from 'src/domains/convert.entity';
 import { ConvertService } from '../services/convert/convert.service';
 import { ConvertRepository } from '../services/convert/repository/convert.repository';
-import { ConvertToUserModule } from './convertToUser.module';
+import { ConvertToPostModule } from './convertToPost.module';
 import { ConvertController } from 'src/controllers/convert.controller';
-import { UsersModule } from './users.module';
 import { PostModule } from './post.module';
 import { EventsModule } from './events.module';
+import { TargetModule } from './target.module';
+import { MessageModule } from './message.module';
+import { ConvertGateway } from 'src/gateways/convert.gateway';
+import { WatchersToConvertModule } from './watchersToConvert.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Convert]),
-    ConvertToUserModule,
-    UsersModule,
+    ConvertToPostModule,
     PostModule,
+    TargetModule,
+    WatchersToConvertModule,
+    forwardRef(() => MessageModule),
     forwardRef(() => EventsModule),
   ],
   controllers: [ConvertController],

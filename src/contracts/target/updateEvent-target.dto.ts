@@ -3,7 +3,7 @@ export class TargetUpdateEventDto {
   orderNumber: number | null;
   content: string | null;
   updatedAt: Date;
-  holderUserId: string | null;
+  holderPostId: string | null;
   targetState: string | null;
   dateStart: Date | null;
   deadline: Date | null;

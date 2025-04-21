@@ -1,8 +1,9 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsDate,
-  IsEmpty,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -12,22 +13,27 @@ import {
   Min,
   min,
 } from 'class-validator';
+import { Attachment } from 'src/domains/attachment.entity';
+import { Convert } from 'src/domains/convert.entity';
+import { Policy } from 'src/domains/policy.entity';
+import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
 import { State, Type as TypeTarget } from 'src/domains/target.entity';
-import { User } from 'src/domains/user.entity';
 
 @ApiExtraModels()
 export class TargetCreateDto {
   @ApiProperty({
     description: 'Тип задачи',
     required: false,
-    example: 'Обычная',
+    default: 'Задача',
+    example: 'Задача',
     examples: [
-      'Обычная',
-      'Статистика',
+      'Задача',
+      'Метрика',
       'Правила',
       'Продукт',
       'Организационные мероприятия',
+      'Приказ'
     ],
   })
   @IsOptional()
@@ -53,13 +59,43 @@ export class TargetCreateDto {
   content: string;
 
   @ApiProperty({
-    description: 'Id ответственного юзера',
-    required: true,
+    description: 'Id ответственного поста',
+    required: false,
+    example: 'a065a77a-36b0-4aea-9af4-5b313e550c19',
+  })
+  @IsOptional()
+  @IsUUID(undefined, {message: 'Неверный формат UUID'})
+  holderPostId?: string;
+
+  @ApiProperty({
+    description: 'Id политики',
+    required: false,
     example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
   })
-  @IsUUID()
-  @IsNotEmpty({ message: 'Id ответственного не может быть пустой' })
-  holderUserId: string;
+  @IsOptional()
+  @IsUUID(undefined, { message: 'Неверный формат UUID' })
+  policyId?: string;
+
+  @ApiProperty({
+    description: 'Ids файлов',
+    required: false,
+    example: ['0d081ac3-200f-4c7c-adc8-d11f1f66b20a'],
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty({ message: 'Ids файлов не может быть пустым' })
+  attachmentIds?: string[];
+
+  @ApiProperty({
+    description: 'Состояние задачи',
+    required: false,
+    example: 'Черновик',
+    default: 'Черновик',
+    examples: ['Отменена', 'Завершена', 'Активная', 'Черновик'],
+  })
+  @IsOptional()
+  @IsEnum(State)
+  targetState?: State;
 
   @ApiProperty({
     description: 'Дата начала выполнения (default: new Date())',
@@ -75,7 +111,6 @@ export class TargetCreateDto {
   @ApiProperty({
     description: 'Дедлайн',
     required: false,
-    nullable: true,
     example: '2025-09-16 17:03:31.000111',
   })
   @IsOptional()
@@ -84,7 +119,14 @@ export class TargetCreateDto {
   deadline?: Date;
 
   @Exclude({ toPlainOnly: true })
-  holderUser: User;
+  holderPost: Post;
+
   @Exclude({ toPlainOnly: true })
   project: Project;
+
+  @Exclude({ toPlainOnly: true })
+  policy: Policy;
+
+  @Exclude({ toPlainOnly: true })
+  convert: Convert;
 }

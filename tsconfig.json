@@ -17,5 +17,16 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false
+  },
+  "typedocOptions": {
+    "basePath": "src",
+    "entryPoints": [
+      "src/**/*.ts",
+      "src/contracts/*"
+    ],
+    "out": "docs/typedoc",
+    "exclude": [
+      "src/tests/**/*"
+    ]
   }
 }

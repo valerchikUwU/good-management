@@ -10,16 +10,18 @@ import { OrganizationModule } from './organization.module';
 import { QueueModule } from './queue.module';
 import { GroupModule } from './group.module';
 import { HistoryUsersToPostModule } from './historyUsersToPost.module';
+import { RoleModule } from './role.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post]),
-    UsersModule,
+    forwardRef(() => UsersModule),
     PolicyModule,
     OrganizationModule,
     forwardRef(() => QueueModule),
     GroupModule,
-    HistoryUsersToPostModule
+    HistoryUsersToPostModule, 
+    RoleModule
   ],
   controllers: [PostController],
   providers: [PostService, PostRepository],

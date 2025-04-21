@@ -1,20 +1,27 @@
 import { Account } from 'src/domains/account.entity';
-import { TypeConvert } from 'src/domains/convert.entity';
-import { ConvertToUser } from 'src/domains/convertToUser.entity';
+import { PathConvert, TypeConvert } from 'src/domains/convert.entity';
+import { ConvertToPost } from 'src/domains/convertToPost.entity';
 import { Message } from 'src/domains/message.entity';
-import { User } from 'src/domains/user.entity';
+import { Post } from 'src/domains/post.entity';
+import { Target } from 'src/domains/target.entity';
+import { WatchersToConvert } from 'src/domains/watchersToConvert.entity';
 
 export class ConvertReadDto {
   id: string;
   convertTheme: string;
   pathOfPosts: string[];
-  expirationTime: string;
   convertType: TypeConvert;
-  activeUserId: string;
+  convertPath: PathConvert;
+  convertStatus: boolean;
+  activePostId: string;
+  dateStart: Date;
+  deadline: Date;
   dateFinish: Date;
   createdAt: Date;
   messages: Message[];
-  convertToUsers: ConvertToUser[];
-  host: User;
+  convertToPosts: ConvertToPost[];
+  host: Post;
   account: Account;
+  target: Target;
+  watchersToConvert: WatchersToConvert[];
 }

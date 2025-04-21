@@ -45,7 +45,7 @@ export class ProjectUpdateDto {
   })
   @IsOptional()
   @IsUUID()
-  programId?: string | null;
+  programId?: string;
 
   @ApiProperty({
     description: 'Содержание проекта',
@@ -54,28 +54,8 @@ export class ProjectUpdateDto {
   })
   @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'Проект не может быть пустым!' })
+  @IsNotEmpty({ message: 'Содержание проекта не может быть пустым!' })
   content?: string;
-
-  @ApiProperty({
-    description: 'Тип проекта',
-    required: false,
-    example: 'Проект',
-    examples: ['Проект', 'Программа'],
-  })
-  @IsOptional()
-  @IsEnum(TypeProject)
-  type?: TypeProject;
-
-  @ApiProperty({
-    description: 'ID организации, с которой связать проект',
-    required: false,
-    example: '1f1cca9a-2633-489c-8f16-cddd411ff2d0',
-  })
-  @IsOptional()
-  @IsUUID()
-  @IsNotEmpty({ message: 'Выберите организацию!' })
-  organizationId?: string;
 
   @ApiProperty({
     description: 'ID стратегии, которую связать с проектом',
@@ -85,9 +65,6 @@ export class ProjectUpdateDto {
   @IsOptional()
   @IsUUID()
   strategyId?: string | null;
-
-  @Exclude({ toPlainOnly: true })
-  organization: Organization;
 
   @Exclude({ toPlainOnly: true })
   strategy: Strategy;
@@ -100,15 +77,15 @@ export class ProjectUpdateDto {
         type: 'Продукт',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderPostId: '53e0a8b0-bce4-4c81-b26f-7e5a4ad6e259',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
       {
-        type: 'Обычная',
+        type: 'Задача',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderPostId: '53e0a8b0-bce4-4c81-b26f-7e5a4ad6e259',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -116,7 +93,7 @@ export class ProjectUpdateDto {
         type: 'Правила',
         orderNumber: 1,
         content: 'Контент задачи',
-        holderUserId: '3b809c42-2824-46c1-9686-dd666403402a',
+        holderPostId: '53e0a8b0-bce4-4c81-b26f-7e5a4ad6e259',
         dateStart: '2024-09-18T14:59:47.010Z',
         deadline: '2024-09-18T14:59:47.010Z',
       },
@@ -145,11 +122,12 @@ export class ProjectUpdateDto {
   @IsArray({ message: 'Должен быть массив!' })
   @ValidateNested()
   @Type(() => TargetUpdateDto)
-  @HasCommonActiveOrFinished({message: 'Должна быть хотя бы одна задача с типом Обычная и статусом Активная или Завершена!'})
+  @HasCommonActiveOrFinished({message: 'Должна быть хотя бы одна задача с типом "Обычная" и статусом "Активная" или "Завершена"!'})
   targetUpdateDtos?: TargetUpdateDto[];
 
   @ApiProperty({
-    description: 'IDs проектов, которые привязать с програмой',
+    description: 'IDs проектов, которые привязать с програмой (юзается только для программ)',
+    required: false,
     example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'],
   })
   @IsOptional()
@@ -160,5 +138,3 @@ export class ProjectUpdateDto {
   })
   projectIds?: string[];
 }
-
-// не может быть активным пока нет 1 задачи "продукт" и 1 задачи "обычная"

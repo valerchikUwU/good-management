@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class MessageUpdateDto {
   @ApiProperty({
@@ -13,9 +13,10 @@ export class MessageUpdateDto {
 
   @ApiProperty({
     description: 'Текст сообщения',
-    required: true,
+    required: false,
     example: 'Прывит',
   })
+  @IsOptional()
   @IsString()
-  content: string;
+  content?: string;
 }

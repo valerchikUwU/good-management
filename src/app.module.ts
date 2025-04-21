@@ -30,15 +30,25 @@ import { QueueModule } from './application/modules/queue.module';
 import { PolicyToPolicyDirectoryModule } from './application/modules/policyToPolicyDirectory.module';
 import { PolicyDirectoryModule } from './application/modules/policyDirectory.module';
 import { ConvertModule } from './application/modules/convert.module';
-import { ConvertToUserModule } from './application/modules/convertToUser.module';
+import { ConvertToPostModule } from './application/modules/convertToPost.module';
 import { MessageModule } from './application/modules/message.module';
 import { GroupModule } from './application/modules/group.module';
-import { GroupToUserModule } from './application/modules/groupToUser.module';
+import { GroupToPostModule } from './application/modules/groupToPost.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
 import * as dotenv from 'dotenv';
-dotenv.config();
+import { ControlPanelModule } from './application/modules/controlPanel.module';
+import { PanelToStatisticModule } from './application/modules/panelToStatistic.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import KeyvRedis from '@keyv/redis';
+import { AttachmentModule } from './application/modules/attachment.module';
+import { AttachmentToMessageModule } from './application/modules/attachmentToMessage.module';
+import { AttachmentToTargetModule } from './application/modules/attachmentToTarget.module';
+import { RedisModule } from '@nestjs-modules/ioredis';
+import { MessageSeenStatusModule } from './application/modules/messageSeenStatus.module';
+import { WatchersToConvertModule } from './application/modules/watchersToConvert.module';
+import { TransactionModule } from "nestjs-transaction";
 
+dotenv.config();
 
 @Module({
   imports: [
@@ -50,38 +60,42 @@ dotenv.config();
       useFactory: async (configService: ConfigService) =>
         configService.get('database'),
     }),
-    ...(process.env.NODE_ENV === 'prod'
-      ? [
-        ServeStaticModule.forRoot({
-          rootPath: join(__dirname, '..', 'uploads'),
-          serveRoot: '/gm/uploads',
-        })
-      ] : [
-        ServeStaticModule.forRoot({
-          rootPath: join(__dirname, '..', 'uploads'),
-          serveRoot: 'uploads',
-        })
-      ]),
-    ...(process.env.NODE_ENV === 'prod'
-      ? [
-        ServeStaticModule.forRoot({
-          rootPath: join(__dirname, '../../../gm_front_build/GM'),
-          serveRoot: '/gm/mobile', // Фронтенд будет доступен по корню
-        }),
-      ]
-      : []),
-    ...(process.env.NODE_ENV === 'prod'
-      ? [
-        ServeStaticModule.forRoot({
-          rootPath: join(__dirname, '../../../gm_front_build/GMDesktop'),
-          serveRoot: '/gm/desktop', // Фронтенд будет доступен по корню
-        }),
-      ]
-      : []),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => {
+        return {
+          stores: [
+            new KeyvRedis({ url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`, username: `${process.env.REDIS_USERNAME}`, password: `${process.env.REDIS_PASSWORD}` },
+              {
+                namespace: 'goodmanagement',
+              }
+            ),
+          ],
+        };
+      },
+    }),
+    RedisModule.forRootAsync({
+      useFactory: () => ({
+        type: 'single',
+        url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
+      }),
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: process.env.UPLOADS_PATH,
+      serveRoot: '/app/uploads',
+    }),
+    // ...(process.env.NODE_ENV === 'prod'
+    //   ? [
+    //     ServeStaticModule.forRoot({
+    //       rootPath: process.env.BUILD_PATH,
+    //       serveRoot: '/gm',
+    //     })
+    //   ]
+    //   : []),
+    TransactionModule.forRoot(),
     WinstonModule.forRoot(winstonConfig),
     UsersModule,
     AuthModule,
-    EventsModule,
     TelegramModule,
     OrganizationModule,
     AccountModule,
@@ -102,10 +116,18 @@ dotenv.config();
     PolicyToPolicyDirectoryModule,
     PolicyDirectoryModule,
     ConvertModule,
-    ConvertToUserModule,
+    ConvertToPostModule,
     MessageModule,
+    EventsModule,
     GroupModule,
-    GroupToUserModule,
+    GroupToPostModule,
+    ControlPanelModule,
+    PanelToStatisticModule,
+    AttachmentModule,
+    AttachmentToTargetModule,
+    AttachmentToMessageModule,
+    MessageSeenStatusModule,
+    WatchersToConvertModule
   ],
   controllers: [AppController],
   providers: [AppService],

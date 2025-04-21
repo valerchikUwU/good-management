@@ -1,8 +1,5 @@
 import {
-  ForbiddenException,
   Inject,
-  InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
 import {
   SubscribeMessage,
@@ -11,31 +8,23 @@ import {
   OnGatewayDisconnect,
   WebSocketServer,
   MessageBody,
+  ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { ConvertService } from 'src/application/services/convert/convert.service';
-import { MessageService } from 'src/application/services/message/message.service';
-import { PostService } from 'src/application/services/post/post.service';
-import { UsersService } from 'src/application/services/users/users.service';
-import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
-import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
-import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
-import { MessageCreateDto } from 'src/contracts/message/create-message.dto';
-import { ReadUserDto } from 'src/contracts/user/read-user.dto';
-import { TypeConvert } from 'src/domains/convert.entity';
+import { MessageSeenStatusService } from 'src/application/services/messageSeenStatus/messageSeenStatus.service';
+import { WatchersToConvertService } from 'src/application/services/watchersToConvert/watchersToConvert.service';
+import { MessageReadDto } from 'src/contracts/message/read-message.dto';
+import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { Logger } from 'winston';
 
-@WebSocketGateway(5001, { namespace: 'chat', cors: '*:*' })
+@WebSocketGateway({ namespace: 'convert', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST } })
 export class ConvertGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
-    private readonly messageService: MessageService,
-    private readonly userService: UsersService,
-    private readonly convertService: ConvertService,
-    private readonly postService: PostService,
+    private readonly messageSeenStatusService: MessageSeenStatusService,
+    private readonly watchersToConvertService: WatchersToConvertService,
     @Inject('winston') private readonly logger: Logger, // инъекция логгера
-  ) {}
+  ) { }
   private clients: Map<string, Socket> = new Map();
   @WebSocketServer() ws: Server;
 
@@ -43,254 +32,161 @@ export class ConvertGateway
     this.logger.info(`WebSocket for chat initialized`);
   }
 
-  async handleSendingConvert(
-    message: MessageCreateDto,
-    sender: ReadUserDto,
-    convert: ConvertReadDto,
-    userIdOfFirstPost: string,
-  ) {
-    this.ws.to(convert.id).emit('convertEmit', message); // broadcast messages
-    const convertUserIds = convert.convertToUsers.map(
-      (convertToUser) => convertToUser.user.id,
-    );
-    convertUserIds.push(userIdOfFirstPost);
-    const convertUpdateDto: ConvertUpdateDto = {
-      _id: convert.id,
-      userIds: convertUserIds,
-      pathOfPosts: convert.pathOfPosts,
-      activeUserId: convert.pathOfPosts[1],
-    };
-    await this.convertService.update(convertUpdateDto._id, convertUpdateDto);
-    message.convert = convert;
-    message.sender = sender;
-    await this.messageService.create(message);
-    return true;
-  }
-
-  @SubscribeMessage('approve')
-  async handleApproval(
-    @MessageBody()
-    payload: {
-      isApproved: boolean;
-      message: MessageCreateDto;
-      sender: ReadUserDto;
-      convert: ConvertReadDto;
-    },
-  ) {
-    try {
-      const startTime = Date.now(); // Записываем начальное время
-      this.logger.info(JSON.stringify(payload));
-      const postOfSender = await this.postService.findOneById(
-        payload.convert.activeUserId,
-        ['user'],
-      );
-      console.log(JSON.stringify(postOfSender));
-      if (postOfSender.user.id === payload.sender.id) {
-        this.ws.to(payload.convert.id).emit('convertEmit', payload.message); // broadcast messages
-        payload.message.convert = payload.convert;
-        payload.message.sender = payload.sender;
-        await this.messageService.create(payload.message);
-        const indexOfActivePostId = payload.convert.pathOfPosts.indexOf(
-          payload.convert.activeUserId,
-        );
-        if (payload.isApproved) {
-          const convertUserIds = payload.convert.convertToUsers.map(
-            (convertToUser) => convertToUser.user.id,
-          );
-          console.log(indexOfActivePostId);
-          const nextPost = await this.postService.findOneById(
-            payload.convert.pathOfPosts[indexOfActivePostId + 1],
-            ['user'],
-          ); // МОЖЕТ БЫТЬ NULL когда последний пост, соответственно аккуратно с nextPost.user.id
-          convertUserIds.push(nextPost.user.id);
-          const convertUpdateDto: ConvertUpdateDto = {
-            _id: payload.convert.id,
-            userIds: convertUserIds,
-            activeUserId: nextPost.user.id,
-          };
-          await this.convertService.update(
-            convertUpdateDto._id,
-            convertUpdateDto,
-          );
-          this.ws.to(payload.convert.id).emit('convertEmit', payload.message); // НЕ ЯСНО НУЖНО ЛИ ДУБЛИРОВАТЬ СООБЩЕНИЕ С ЗАПРОСОМ
-
-          const endTime = Date.now(); // Записываем конечное время
-          const executionTime = endTime - startTime; // Рассчитываем время выполнения
-          console.log(executionTime);
-          return true;
-        } else if (payload.convert.convertType === TypeConvert.COORDINATION) {
-          const previousPost = await this.postService.findOneById(
-            payload.convert.pathOfPosts[indexOfActivePostId - 1],
-            ['user'],
-          );
-          const reversedPath = payload.convert.pathOfPosts.reverse();
-
-          const convertUpdateDto: ConvertUpdateDto = {
-            _id: payload.convert.id,
-            pathOfPosts: reversedPath,
-            activeUserId: previousPost.user.id,
-          };
-          await this.convertService.update(
-            convertUpdateDto._id,
-            convertUpdateDto,
-          );
-        }
-      } else
-        throw new ForbiddenException(
-          'У вас нет прав для работы с этим конвертом!',
-        );
-    } catch (err) {
-      this.logger.error(err);
-      if (err instanceof ForbiddenException) {
-        throw err;
-      }
-      throw new InternalServerErrorException('Ошибка при одобрении конверта!');
-    }
-  }
-
-  @SubscribeMessage('seen')
-  async handleSeenCoordination(
-    @MessageBody()
-    payload: {
-      message: MessageCreateDto;
-      sender: ReadUserDto;
-      convert: ConvertReadDto;
-    },
-  ) {
-    try {
-      const startTime = Date.now(); // Записываем начальное время
-      this.logger.info(JSON.stringify(payload));
-      const postOfSender = await this.postService.findOneById(
-        payload.convert.activeUserId,
-        ['user'],
-      );
-      console.log(JSON.stringify(postOfSender));
-      if (postOfSender.user.id === payload.sender.id) {
-        this.ws.to(payload.convert.id).emit('convertEmit', payload.message); // broadcast messages
-        payload.message.convert = payload.convert;
-        payload.message.sender = payload.sender;
-        await this.messageService.create(payload.message);
-        const indexOfActivePostId = payload.convert.pathOfPosts.indexOf(
-          payload.convert.activeUserId,
-        );
-        const convertUserIds = payload.convert.convertToUsers.map(
-          (convertToUser) => convertToUser.user.id,
-        );
-        const nextPost = await this.postService.findOneById(
-          payload.convert.pathOfPosts[indexOfActivePostId + 1],
-          ['user'],
-        );
-        convertUserIds.push(nextPost.user.id);
-        const convertUpdateDto: ConvertUpdateDto = {
-          _id: payload.convert.id,
-          userIds: convertUserIds,
-          activeUserId: nextPost.user.id,
-        };
-        await this.convertService.update(
-          convertUpdateDto._id,
-          convertUpdateDto,
-        );
-        this.ws.to(payload.convert.id).emit('convertEmit', payload.message); // НЕ ЯСНО НУЖНО ЛИ ДУБЛИРОВАТЬ СООБЩЕНИЕ С ЗАПРОСОМ
-
-        const endTime = Date.now(); // Записываем конечное время
-        const executionTime = endTime - startTime; // Рассчитываем время выполнения
-        console.log(executionTime);
-        return true;
-      } else
-        throw new ForbiddenException(
-          'У вас нет прав для работы с этим конвертом!',
-        );
-    } catch (err) {
-      this.logger.error(err);
-      if (err instanceof ForbiddenException) {
-        throw err;
-      }
-      throw new InternalServerErrorException('Ошибка при одобрении конверта!');
-    }
-  }
-
-  // @SubscribeMessage('chat')
-  // async handleChatEvent(
-  //     @MessageBody()
-  //     payload: {
-  //         convertId: string,
-  //         senderId: string,
-  //         message: MessageCreateDto
-  //     }
-  // ) {
-  //     this.logger.info(payload)
-  //     this.ws.to(payload.convertId).emit('chat', payload.message) // broadcast messages
-  //     const convert = await this.convertService.findOneById(payload.convertId);
-  //     const sender = await this.userService.findOne(payload.senderId)
-  //     payload.message.convert = convert;
-  //     payload.message.sender = sender;
-  //     return await this.messageService.create(payload.message);
-  // }
-
-  @SubscribeMessage('join_room')
-  async handleSetClientDataEvent(
-    @MessageBody()
-    payload: {
-      convertId: string;
-      userId: string;
-    },
-  ) {
-    try {
-      const compareId = async (payload: {
-        convertId: string;
-        userId: string;
-      }): Promise<boolean> => {
-        const convert = await this.convertService.findOneById(
-          payload.convertId,
-          ['convertToUsers.user'],
-        );
-        const convertToUsers = convert.convertToUsers;
-        for (const convertToUser of convertToUsers) {
-          if (convertToUser.user.id === payload.userId) {
-            return true; // Если ID совпадает, возвращаем true
-          }
-        }
-
-        return false; // Если не найдено совпадение, возвращаем false
-      };
-      // Важно! Ждем результат выполнения compareId с помощью await
-      const isUserInConvert = await compareId(payload);
-      if (isUserInConvert) {
-        this.logger.info(`${payload.userId} is joining ${payload.convertId}`);
-        const client = this.clients.get(payload.userId);
-        if (client) {
-          client.join(payload.convertId); // Теперь используем join, чтобы присоединить клиента к комнате
-        }
-        const sockets = await this.ws.in(payload.convertId).fetchSockets();
-        for (const socket of sockets) {
-          console.log(socket.id);
-          console.log(socket.rooms);
-        }
-      } else {
-        throw new ForbiddenException('У вас нет доступа к этому чату!');
-      }
-    } catch (err) {
-      this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof ForbiddenException) {
-        throw err; // Пробрасываем исключение дальше
-      }
-
-      // Обработка других ошибок
-      throw new InternalServerErrorException('Ошибка при получении чата');
-    }
-  }
-
   handleDisconnect(client: Socket) {
+    // Извлечение параметров из URL
     this.logger.info(`Client Disconnected: ${client.id}`);
     this.clients.delete(client.id);
+    this.clients.forEach((client) => {
+      this.logger.info(`Client ID: ${client.id}, Socket ID: ${JSON.stringify(client.data)}`);
+    });
   }
 
   handleConnection(client: Socket) {
     // Извлечение параметров из URL
-    const { userId } = client.handshake.query;
-    this.logger.info(`Client Connected: ${userId}`);
-    this.clients.set(userId as string, client);
+    const { userId } = client.handshake.auth;
+    client.data.userId = userId;
+    this.logger.info(`Client Connected: ${client.id}`);
+    this.clients.set(client.id, client);
     this.logger.info(`Number of connected clients: ${this.clients.size}`);
+    this.clients.forEach((client) => {
+      this.logger.info(`Client ID: ${client.id}, Socket ID: ${JSON.stringify(client.data)}`);
+    });
+    return { success: true }
+  }
+
+  @SubscribeMessage('join_convert')
+  async handleSetClientDataEvent(
+    @MessageBody()
+    payload: {
+      convertId: string;
+    },
+    @ConnectedSocket() connectedClient: Socket
+  ) {
+    const client = this.clients.get(connectedClient.id);
+    if (!client) {
+      return { success: false, message: 'Не удалось подключиться к чату!' };
+    }
+    client.join(payload.convertId); // Теперь используем join, чтобы присоединить клиента к комнате
+    this.logger.info(`${connectedClient.id} is joining ${payload.convertId}`);
+    const sockets = await this.ws.in(payload.convertId).fetchSockets();
+    for (const socket of sockets) {
+      console.log(socket.id);
+      console.log(socket.rooms);
+    }
+    return { success: true };
+  }
+
+  @SubscribeMessage('messagesSeen')
+  async handleMessagesSeenEvent(
+    @MessageBody()
+    payload: {
+      convertId: string;
+      post: PostReadDto;
+      messageIds: string[];
+    },
+  ) {
+    const start = new Date();
+    const uniqueMessageIds: string[] = payload.messageIds.filter((item, i, ar) => { return ar.indexOf(item) === i; });
+    await this.messageSeenStatusService.updateSeenStatuses(uniqueMessageIds, payload.convertId, payload.post);
+
+
+    this.ws.to(payload.convertId).emit('messagesAreSeen', { dateSeen: new Date(), messageIds: payload.messageIds });
+    const now = new Date();
+    console.log(`все сообщения увидены ${now.getTime() - start.getTime()}`);
+    return true;
+  }
+
+
+  handleMessageCreationEvent(convertId: string, message: MessageReadDto) {
+    this.ws.to(convertId).emit('messageCreationEvent', message);
+    return true;
+  }
+
+
+  @SubscribeMessage('messagesSeenWatcher')
+  async handleMessagesSeenForWatcherEvent(
+    @MessageBody()
+    payload: {
+      convertId: string;
+      post: PostReadDto;
+      messageIds: string[];
+      lastSeenMessageNumber: number;
+    },
+  ){
+    const start = new Date();
+    const uniqueMessageIds: string[] = payload.messageIds.filter((item, i, ar) => { return ar.indexOf(item) === i; });
+    const messagesCount = uniqueMessageIds.length;
+    await this.watchersToConvertService.updateSeenStatuses(payload.lastSeenMessageNumber, messagesCount, payload.convertId, payload.post);
+
+    const now = new Date();
+    console.log(`все сообщения увидены ${now.getTime() - start.getTime()}`);
+    return true;
+  }
+
+
+  handleMessageCountEvent(convertId: string, userIdsInConvert: string[], host: PostReadDto, lastPostInConvert: PostReadDto) {
+    let socketsToNotify: Socket[] = [];
+    userIdsInConvert.forEach(userId => {
+      const sockets = this.findKeysByValue(this.clients, userId);
+      socketsToNotify = socketsToNotify.concat(sockets);
+    });
+
+    socketsToNotify.forEach(socket => {
+      socket.join(`MCountE-${convertId}`);
+    });
+    this.ws.to(`MCountE-${convertId}`).emit('messageCountEvent', { host: host,  lastPostInConvert: lastPostInConvert});
+    socketsToNotify.forEach(socket => {
+      socket.leave(`MCountE-${convertId}`);
+    });
+    return true;
+  }
+
+  handleConvertApproveEvent(convertId: string, newActivePost: PostReadDto, pathOfPostsWithoutHostPost: string[]) {
+    this.ws.to(convertId).emit('convertApproveEvent', { newActivePost: newActivePost, pathOfPostsWithoutHostPost: pathOfPostsWithoutHostPost });
+    return true;
+  }
+
+  handleConvertFinishEvent(convertId: string, convertStatus: boolean, pathOfPosts: string[]) {
+    let socketsToNotify: Socket[] = [];
+    pathOfPosts.forEach(userId => {
+      const sockets = this.findKeysByValue(this.clients, userId);
+      socketsToNotify = socketsToNotify.concat(sockets);
+    });
+    socketsToNotify.forEach(socket => {
+      socket.join(`CFinE-${convertId}`);
+    });
+    this.ws.to(`CFinE-${convertId}`).emit('convertFinishEvent', { convertStatus: convertStatus });
+    socketsToNotify.forEach(socket => {
+      socket.leave(`CFinE-${convertId}`);
+    });
+    return true;
+  }
+
+
+  handleConvertCreationEvent(convertId: string, host: PostReadDto, reciever: PostReadDto, pathOfPostsWithoutHostPost: string[]) {
+    const socketsToNotify = this.findKeysByValue(this.clients, reciever.user.id);
+    socketsToNotify.forEach(socket => {
+      socket.join(`CCreE-${convertId}`);
+    });
+    this.ws.to(`CCreE-${convertId}`).emit('convertCreationEvent', { host: host, reciever: reciever, pathOfPostsWithoutHostPost: pathOfPostsWithoutHostPost });
+    socketsToNotify.forEach(socket => {
+      socket.leave(`CCreE-${convertId}`);
+    });
+    return true;
+  }
+
+  findKeysByValue(map: Map<string, Socket>, userId: string): Socket[] {
+    const matchingKeys: Socket[] = [];
+
+    map.forEach((value, key) => {
+      if (userId === value.data.userId) {
+        const client = this.clients.get(key);
+        matchingKeys.push(client);
+      }
+    });
+
+    return matchingKeys;
   }
 }
+
+

@@ -3,11 +3,13 @@ import { Exclude, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsDate,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
 } from 'class-validator';
 import { Statistic } from 'src/domains/statistic.entity';
+import { CorrelationType } from 'src/domains/statisticData.entity';
 
 export class StatisticDataCreateDto {
   @ApiProperty({ description: 'Значение', required: true, example: 3500 })
@@ -26,12 +28,14 @@ export class StatisticDataCreateDto {
   valueDate: Date;
 
   @ApiProperty({
-    description: 'Флаг корреляционного значения',
+    description: 'Тип корреляционного значения',
     required: false,
-    example: true,
+    example: 'Месяц',
+    examples: ['Месяц', 'Год'],
   })
-  @IsBoolean()
-  isCorrelation: boolean;
+  @IsOptional()
+  @IsEnum(CorrelationType)
+  correlationType?: CorrelationType;
 
   @Exclude({ toPlainOnly: true })
   statistic: Statistic;

@@ -5,6 +5,5 @@ export class ObjectiveUpdateEventDto {
   content: string[] | null;
   rootCause: string[] | null;
   updatedAt: Date;
-  strategyId: string | null;
   accountId: string;
 }

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {
+  ArrayMaxSize,
   ArrayNotEmpty,
   IsArray,
   IsNotEmpty,
@@ -30,6 +31,7 @@ export class ObjectiveCreateDto {
   })
   @IsOptional()
   @IsArray({ message: 'Должен быть массив!' })
+  @ArrayMaxSize(2)
   @ArrayNotEmpty({ message: 'Заполните хотя бы один блок для содержания!' })
   content?: string[];
 
@@ -48,6 +50,7 @@ export class ObjectiveCreateDto {
 
   @ApiProperty({
     description: 'Id стратегии, с которой связать краткосрочную цель',
+    required: true,
     example: '21dcf96d-1e6a-4c8c-bc12-c90589b40e93',
   })
   @IsUUID()

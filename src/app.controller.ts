@@ -1,19 +1,15 @@
 import {
   Headers,
-  Body,
   Controller,
   Get,
-  Ip,
   OnModuleInit,
   HttpStatus,
-  Inject,
   Query,
+  Req,
 } from '@nestjs/common';
-import { AppService } from './app.service';
 import * as crypto from 'crypto';
 import { TelegramService } from './application/services/telegram/telegram.service';
 import {
-  ApiBody,
   ApiHeader,
   ApiOperation,
   ApiQuery,
@@ -21,7 +17,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from './application/services/auth/auth.service';
-
+import { Request as ExpressRequest } from 'express';
+import { Response as ExpressResponse } from 'express';
 @ApiTags('Homepage')
 @Controller()
 export class AppController implements OnModuleInit {
@@ -59,22 +56,17 @@ export class AppController implements OnModuleInit {
     required: false,
     description: 'Отпечаток браузера',
     example: '123rewt235r3wefe',
-  })  
-  @ApiQuery({
-    name: 'ip',
-    required: false,
-    description: 'IP клиента',
-    example: '1.1.1.1',
   })
   async getToken(
+    @Req() req: ExpressRequest,
     @Headers('User-Agent') user_agent: string,
     @Query('fingerprint') fingerprint?: string,
-    @Query('ip') ip?: string
   ): Promise<object> {
     let isLogged = false;
     let userId = null;
-    if(ip && fingerprint){
-      const isLoggedResult = await this.authService.isSessionExpired(ip, fingerprint)
+    const refreshTokenId = req.cookies['refresh-tokenId'];
+    if(fingerprint && refreshTokenId){
+      const isLoggedResult = await this.authService.isSessionExpired(fingerprint, refreshTokenId)
       isLogged = isLoggedResult.isExpired ? false : true
       userId = isLogged ? isLoggedResult.userId : null;
     }
@@ -99,9 +91,9 @@ export class AppController implements OnModuleInit {
       userId
     };
   }
-
+  
   onModuleInit() {
-    if (process.env.NODE_ENV === 'prod') {
+      if (process.env.NODE_ENV === 'prod') {
       this.telegramBotService.startBot();
     }
   }

@@ -12,27 +12,27 @@ const infoFilter = format((info, opts) => {
   return info.level === 'info' ? info : false;
 });
 
-const combinedFileRotateTransport = new transports.DailyRotateFile({
-  filename: 'logs/combined-%DATE%.log',
-  datePattern: 'DD-MM-YYYY',
-  maxFiles: '10d',
-});
+// const combinedFileRotateTransport = new transports.DailyRotateFile({
+//   filename: '/app/logs/combined-%DATE%.log',
+//   datePattern: 'DD-MM-YYYY',
+//   maxFiles: '10d',
+// });
 
-const errorFileRotateTransport = new transports.DailyRotateFile({
-  filename: 'logs/app-error-%DATE%.log',
-  level: 'error',
-  datePattern: 'DD-MM-YYYY',
-  maxFiles: '10d',
-  format: combine(errors({ stack: true }), errorFilter(), timestamp(), json()),
-});
+// const errorFileRotateTransport = new transports.DailyRotateFile({
+//   filename: '/app/logs/app-error-%DATE%.log',
+//   level: 'error',
+//   datePattern: 'DD-MM-YYYY',
+//   maxFiles: '10d',
+//   format: combine(errors({ stack: true }), errorFilter(), timestamp(), json()),
+// });
 
-const infoFileRotateTransport = new transports.DailyRotateFile({
-  filename: 'logs/app-info-%DATE%.log',
-  level: 'info',
-  datePattern: 'DD-MM-YYYY',
-  maxFiles: '10d',
-  format: combine(infoFilter(), timestamp(), json()),
-});
+// const infoFileRotateTransport = new transports.DailyRotateFile({
+//   filename: '/app/logs/app-info-%DATE%.log',
+//   level: 'info',
+//   datePattern: 'DD-MM-YYYY',
+//   maxFiles: '10d',
+//   format: combine(infoFilter(), timestamp(), json()),
+// });
 
 export const winstonConfig = {
   exitOnError: false,
@@ -60,19 +60,16 @@ export const winstonConfig = {
                     ? 200
                     : 500,
               ),
-            )} - ${info.url ? info.url : ''} - ${
-              info.method ? info.method : ''
-            } - ${info.response_time ? info.response_time : ''} - ${
-              info.ip ? red(info.ip) : ''
-            } - ${info.message} ---------------- \n ${
-              info.stack ? info.stack : 'no stack trace'
+            )} - ${info.url ? info.url : ''} - ${info.method ? info.method : ''
+            } - ${info.response_time ? info.response_time : ''} - ${info.message} ---------------- \n 
+            ${info.stack ? info.stack : 'no stack trace'
             } \n`,
         ),
       ),
     }),
-    combinedFileRotateTransport,
-    errorFileRotateTransport,
-    infoFileRotateTransport,
+    // combinedFileRotateTransport,
+    // errorFileRotateTransport,
+    // infoFileRotateTransport,
   ],
   // exceptionHandlers: [
   //   new transports.File({ filename: "logs/exception.log" }),

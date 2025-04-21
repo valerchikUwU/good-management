@@ -1,27 +1,55 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayNotEmpty, IsArray, IsUUID } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import { ArrayMaxSize, ArrayMinSize, ArrayNotEmpty, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsUUID } from 'class-validator';
 // import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
 
 export class ConvertUpdateDto {
+  @ApiProperty({
+    description: 'Id обновляемого конверта',
+    required: true,
+    example: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+  })
   @IsUUID()
+  @IsNotEmpty({ message: 'Id конверта не может быть пустым!' })
   _id: string;
-  @IsArray()
-  userIds?: string[];
-  @IsArray()
-  pathOfPosts?: string[];
-  @IsUUID()
-  activeUserId?: string;
 
-  // @ApiProperty({
-  //     description: 'IDs участников чата и их тип', example:
-  //     [
-  //         {
-  //             userType: 'Наблюдатель',
-  //             userId: '3b809c42-2824-46c1-9686-dd666403402a'
-  //         }
-  //     ]
-  // })
-  // @IsArray({ message: 'Должен быть массив' })
-  // @ArrayNotEmpty({ message: 'Добавьте хотя бы одного участника чата!' })
-  // convertToUserCreateDtos: ConvertToUserCreateDto[];
+  @ApiProperty({
+    description: 'Список ids постов, которые участники',
+    required: false,
+    example: ['323e4567-e89b-12d3-a456-426614174000', '750e8400-e29b-41d4-a716-446655440000'],
+  })
+  @IsOptional()
+  @IsUUID('4', { each: true })
+  @ArrayMinSize(2, { message: 'Участников должно быть не меньше двух!' })
+  convertToPostIds?: string[];
+
+  @ApiProperty({
+    description: 'Id активного поста',
+    required: false,
+    example: '27b360b3-7caf-48bd-a91a-5f7adef327de',
+  })
+  @IsOptional()
+  @IsUUID()
+  @IsNotEmpty({ message: 'Id конверта не может быть пустым!' })
+  activePostId?: string;
+
+
+  @ApiProperty({
+    description: 'Список ids постов, которые наблюдатели',
+    required: false,
+    example: ['323e4567-e89b-12d3-a456-426614174000', '750e8400-e29b-41d4-a716-446655440000'],
+  })
+  @IsOptional()
+  @IsUUID('4', { each: true })
+  @IsNotEmpty({ message: 'Массив наблюдателей не может быть пустым!' })
+  watcherIds?: string[];
+
+  @ApiProperty({
+    description: 'Статус завершения конверта',
+    required: false,
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  convertStatus?: boolean;
 }

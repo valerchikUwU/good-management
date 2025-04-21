@@ -8,9 +8,10 @@ import {
 import { Telegraf } from 'telegraf';
 import { UsersService } from '../users/users.service';
 import { HttpService } from '@nestjs/axios';
-import { lastValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { ChatStorageService } from './chatStorage.service';
 import { Logger } from 'winston';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 @Injectable()
 export class TelegramService {
   constructor(
@@ -35,6 +36,7 @@ export class TelegramService {
           const chatId = ctx.update.message?.chat.id || '';
           // Извлекаем параметр после /start
           const match = ctx.message.text.match(/^\/start ([\w-]+)$/);
+          // console.log(match.length)
           if (match) {
             // Удаляем /start из начала строки
             const command = match[1].replace('/start', '');
@@ -50,8 +52,11 @@ export class TelegramService {
               const telegramId = ctx.message.from.id;
               const user = await this.usersService.findOneByTelegramId(telegramId);
               if (user !== null) {
+                await ctx.reply('Привет, я помощник Галя!')
+                await ctx.replyWithSticker('CAACAgIAAxkBAAENeNlngPAY6knFZm1PqHtxfwABMiDhSFIAArBLAAKGjalLo34TEjv98bk2BA')
+                await ctx.reply('Регистрирую вас на массажик)')
                 const authFlag = await this.authRequest(
-                  user.telephoneNumber,
+                  user,
                   telegramId,
                   token,
                   clientId,
@@ -90,6 +95,11 @@ export class TelegramService {
             );
           }
         }
+        else {
+          ctx.reply(
+            'Взаимодействие с ботом возможно только через ссылку на главном экране приложения!',
+          );
+        }
       }
       catch (err) {
         this.logger.error(err)
@@ -99,9 +109,7 @@ export class TelegramService {
     this.bot.on('contact', async (ctx) => {
       try {
         const chatId = ctx.update.message?.chat.id;
-        const telephoneNumber = this.formatPhoneNumber(
-          ctx.message.contact.phone_number,
-        );
+        const telephoneNumber = this.formatPhoneNumber(ctx.message.contact.phone_number);
         const telegramId = Number(ctx.message.contact.user_id);
         const chat = this.chatStorageService.getChatInfo(chatId);
         if (chat.token) {
@@ -114,7 +122,7 @@ export class TelegramService {
             });
           if (user !== null) {
             const authFlag = await this.authRequest(
-              telephoneNumber,
+              user,
               telegramId,
               chat.token,
               chat.clientId,
@@ -153,18 +161,18 @@ export class TelegramService {
   }
 
   async authRequest(
-    phoneNumber: string,
+    user: ReadUserDto,
     telegramId: number,
     token: string,
     clientId: string,
     ctx: any,
   ): Promise<any> {
     try {
-      const response = await lastValueFrom(
+      const response = await firstValueFrom(
         this.httpService.post(
-          `${process.env.API_HOST}/auth/login/tg`,
+          process.env.NODE_ENV === 'dev' ? `${process.env.API_HOST}/auth/login/tg` : `${process.env.PROD_API_HOST}/auth/login/tg`,
           {
-            telephoneNumber: phoneNumber,
+            user: user,
             telegramId: telegramId,
             clientId: clientId,
             token: token,
@@ -173,17 +181,11 @@ export class TelegramService {
       );
       return true;
     } catch (error) {
-      if (error.response && error.response.status === 401) {
-        this.logger.error(error);
+      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
         ctx.reply('Попробуйте войти еще раз!');
-      } else if (error.response && error.response.status === 404) {
-        this.logger.error(error);
-        ctx.reply('Ой, что - то пошло не так!');
-      } else if (error.response && error.response.status === 500) {
-        this.logger.error(error);
+      } else if (error.response && (error.response.status === 404 || error.response.status === 500)) {
         ctx.reply('Ой, что - то пошло не так!');
       }
     }
   }
-  // Другие методы для управления ботом...
 }

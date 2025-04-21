@@ -1,19 +1,16 @@
 import {
   Entity,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   Column,
-  OneToMany,
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToOne,
-  JoinColumn,
-  Index,
+  OneToMany,
 } from 'typeorm';
-import { Account } from './account.entity';
-import { User } from './user.entity';
 import { Convert } from './convert.entity';
+import { Post } from './post.entity';
+import { AttachmentToMessage } from './attachmentToMessage.entity';
+import { MessageSeenStatus } from './messageSeenStatus.entity';
 
 @Entity()
 export class Message {
@@ -22,6 +19,16 @@ export class Message {
 
   @Column({ type: 'text', nullable: false })
   content: string;
+
+  /**
+   * Порядковый номер сообщения в конверте.
+   * 
+   * @remarks
+   * Инркемент в БД.
+   */
+  @Column({ nullable: false })
+  messageNumber: number;
+
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -32,6 +39,16 @@ export class Message {
   @ManyToOne(() => Convert, (convert) => convert.messages, { nullable: false })
   convert: Convert;
 
-  @ManyToOne(() => User, (user) => user.messages, { nullable: false })
-  sender: User;
+  @ManyToOne(() => Post, (post) => post.messages, { nullable: false })
+  sender: Post;
+
+  /**
+   * Связь с вложениями сообщения (1:M AttachmentToMessage).
+   */
+  @OneToMany(() => AttachmentToMessage, (attachmentToMessage) => attachmentToMessage.message)
+  attachmentToMessages: AttachmentToMessage[];
+
+  @OneToMany(() => MessageSeenStatus, (seenStatus) => seenStatus.message)
+  seenStatuses: MessageSeenStatus[];
+
 }

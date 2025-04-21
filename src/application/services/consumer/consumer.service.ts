@@ -15,7 +15,6 @@ import { PolicyService } from '../policy/policy.service';
 import { StatisticService } from '../statistic/statistic.service';
 import { StatisticCreateDto } from 'src/contracts/statistic/create-statistic.dto';
 import { Type } from 'src/domains/statistic.entity';
-import { StatisticDataUpdateDto } from 'src/contracts/statisticData/update-statisticData.dto';
 import { StatisticDataService } from '../statisticData/statisticData.service';
 import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
 
@@ -36,7 +35,7 @@ export class ConsumerService implements OnModuleInit {
   ) {
     // Подключение к RabbitMQ с правильными учетными данными
     if (process.env.NODE_ENV === 'dev') {
-      const connection = amqp.connect(['amqp://localhost']);
+      const connection = amqp.connect(['amqp://rabbitmq']);
       this.channelWrapper = connection.createChannel();
     } else {
       const connection = amqp.connect([
@@ -83,12 +82,12 @@ export class ConsumerService implements OnModuleInit {
                 case 'TENANT_CREATED':
                   await this.handleTenantCreatedEvent(event);
                   break;
-                case 'ORGANIZATION_CREATED':
-                  await this.handleOrganizationCreatedEvent(event);
-                  break;
-                case 'POST_CREATED':
-                  await this.handlePostCreatedEvent(event);
-                  break;
+                // case 'ORGANIZATION_CREATED':
+                //   await this.handleOrganizationCreatedEvent(event);
+                //   break;
+                // case 'POST_CREATED':
+                //   await this.handlePostCreatedEvent(event);
+                //   break;
                 case 'STATISTICS_CREATED':
                   await this.handleStatisticsCreatedEvent(event);
                   break;
@@ -127,133 +126,126 @@ export class ConsumerService implements OnModuleInit {
         tenantId: payload.company.tenantId,
       };
       const createdAccount = await this.accountService.create(accountCreateDto);
-      const ownerRole = await this.roleService.findOneByName(Roles.OWNER);
       const userCreateDto: CreateUserDto = {
         id: payload.id,
         firstName: payload.firstName,
         lastName: payload.lastName,
         middleName: payload.middleName,
         telephoneNumber: payload.phone,
-        role: ownerRole,
         account: createdAccount,
       };
       await this.userService.create(userCreateDto);
-      // Здесь можно реализовать сохранение данных или другую логику
     }
     catch (err) {
       this.logger.error(err);
-      
     }
 
   }
 
   // Обработка события OrganizationCreatedEvent
-  private async handleOrganizationCreatedEvent(event: any) {
-    try {
-      const payload = event.payload;
-      this.logger.log(
-        `Handling OrganizationCreatedEvent: ${JSON.stringify(payload)}`,
-      );
-      const account = await this.accountService.findOneById(event.accountId);
-      const organizationCreateDto: OrganizationCreateDto = {
-        id: payload.id,
-        organizationName: payload.name,
-        parentOrganizationId: payload.parentId,
-        account: account,
-      };
-      const createdOrganizationId = await this.organizationService.create(
-        organizationCreateDto,
-      );
-      const createdOrganization = await this.organizationService.findOneById(
-        createdOrganizationId,
-      );
-      const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
+  // private async handleOrganizationCreatedEvent(event: any) {
+  //   try {
+  //     const payload = event.payload;
+  //     this.logger.log(
+  //       `Handling OrganizationCreatedEvent: ${JSON.stringify(payload)}`,
+  //     );
+  //     const account = await this.accountService.findOneById(event.accountId);
+  //     const organizationCreateDto: OrganizationCreateDto = {
+  //       id: payload.id,
+  //       organizationName: payload.name,
+  //       parentOrganizationId: payload.parentId,
+  //       organizationColor: payload.organizationColor,
+  //       account: account,
+  //     };
+  //     const createdOrganizationId = await this.organizationService.create(
+  //       organizationCreateDto,
+  //     );
+  //     const createdOrganization = await this.organizationService.findOneById(
+  //       createdOrganizationId,
+  //     );
+  //     const createEmployeesPromises = payload.users.map(async (user: any) => {
+  //       const userCreateDto: CreateUserDto = {
+  //         id: user.id,
+  //         firstName: user.firstName,
+  //         lastName: user.lastName,
+  //         middleName: user.middleName,
+  //         telephoneNumber: user.phone,
+  //         account: account,
+  //       };
+  //       return await this.userService.create(userCreateDto);
+  //     });
+  //     await Promise.all(createEmployeesPromises);
 
-      const createEmployeesPromises = payload.users.map(async (user: any) => {
-        const userCreateDto: CreateUserDto = {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          middleName: user.middleName,
-          telephoneNumber: user.phone,
-          role: employeeRole,
-          account: account,
-        };
-        return await this.userService.create(userCreateDto);
-      });
-      await Promise.all(createEmployeesPromises);
-
-      const createPostsPromises = payload.posts.map(async (post: any) => {
-        const responsibleUser =
-          post.userId !== null
-            ? await this.userService.findOne(post.userId)
-            : null;
-        const policy =
-          post.policyId !== null
-            ? await this.policyService.findOneById(post.policyId)
-            : null;
-        const postCreateDto: PostCreateDto = {
-          id: post.id,
-          postName: post.name,
-          divisionName: post.divisionName,
-          parentId: post.parentId,
-          product: post.valuableEndProduct,
-          purpose: post.perfectPicture,
-          user: responsibleUser,
-          organizationId: createdOrganization.id,
-          organization: createdOrganization,
-          policy: policy,
-          account: account,
-        };
-        return await this.postService.create(postCreateDto);
-      });
-      await Promise.all(createPostsPromises);
-      // Здесь можно реализовать сохранение данных или другую логику
-    }
-    catch (err) {
-      this.logger.error(err);
+  //     const createPostsPromises = payload.posts.map(async (post: any) => {
+  //       const responsibleUser =
+  //         post.userId !== null
+  //           ? await this.userService.findOne(post.userId)
+  //           : null;
+  //       const policy =
+  //         post.policyId !== null
+  //           ? await this.policyService.findOneById(post.policyId)
+  //           : null;
+  //       const postCreateDto: PostCreateDto = {
+  //         id: post.id,
+  //         postName: post.name,
+  //         divisionName: post.divisionName,
+  //         parentId: post.parentId,
+  //         product: post.valuableEndProduct,
+  //         purpose: post.perfectPicture,
+  //         user: responsibleUser,
+  //         organizationId: createdOrganization.id,
+  //         organization: createdOrganization,
+  //         policy: policy,
+  //         account: account,
+  //       };
+  //       return await this.postService.create(postCreateDto);
+  //     });
+  //     await Promise.all(createPostsPromises);
+  //     // Здесь можно реализовать сохранение данных или другую логику
+  //   }
+  //   catch (err) {
+  //     this.logger.error(err);
       
-    }
-  }
+  //   }
+  // }
 
   // Обработка события PostCreatedEvent
-  private async handlePostCreatedEvent(event: any) {
-    try {
-      const payload = event.payload;
-      this.logger.log(`Handling PostCreatedEvent: ${JSON.stringify(payload)}`);
+  // private async handlePostCreatedEvent(event: any) {
+  //   try {
+  //     const payload = event.payload;
+  //     this.logger.log(`Handling PostCreatedEvent: ${JSON.stringify(payload)}`);
 
-      const account = await this.accountService.findOneById(event.accountId);
-      const responsibleUser =
-        payload.userId !== null
-          ? await this.userService.findOne(payload.userId)
-          : null;
-      const policy =
-        payload.policyId !== null
-          ? await this.policyService.findOneById(payload.policyId)
-          : null;
-      const organization = await this.organizationService.findOneById(
-        payload.organizationId,
-      );
-      const postCreateDto: PostCreateDto = {
-        id: payload.id,
-        postName: payload.name,
-        divisionName: payload.divisionName,
-        parentId: payload.parentId,
-        product: payload.valuableEndProduct,
-        purpose: payload.perfectPicture,
-        user: responsibleUser,
-        organizationId: organization.id,
-        organization: organization,
-        policy: policy,
-        account: account,
-      };
-      return await this.postService.create(postCreateDto);
-    }
-    catch (err) {
-      this.logger.error(err);
-      
-    }
-  }
+  //     const account = await this.accountService.findOneById(event.accountId);
+  //     const responsibleUser =
+  //       payload.userId !== null
+  //         ? await this.userService.findOne(payload.userId)
+  //         : null;
+  //     const policy =
+  //       payload.policyId !== null
+  //         ? await this.policyService.findOneById(payload.policyId)
+  //         : null;
+  //     const organization = await this.organizationService.findOneById(
+  //       payload.organizationId,
+  //     );
+  //     const postCreateDto: PostCreateDto = {
+  //       id: payload.id,
+  //       postName: payload.name,
+  //       divisionName: payload.divisionName,
+  //       parentId: payload.parentId,
+  //       product: payload.valuableEndProduct,
+  //       purpose: payload.perfectPicture,
+  //       user: responsibleUser,
+  //       organizationId: organization.id,
+  //       organization: organization,
+  //       policy: policy,
+  //       account: account,
+  //     };
+  //     return await this.postService.create(postCreateDto);
+  //   }
+  //   catch (err) {
+  //     this.logger.error(err);
+  //   }
+  // }
 
   // Обработка события StatisticsCreatedEvent
   private async handleStatisticsCreatedEvent(event: any) {
@@ -304,16 +296,12 @@ export class ConsumerService implements OnModuleInit {
         `Handling EmployeeCreatedEvent: ${JSON.stringify(payload)}`,
       );
       const account = await this.accountService.findOneById(event.accountId);
-
-      const employeeRole = await this.roleService.findOneByName(Roles.EMPLOYEE);
-
       const userCreateDto: CreateUserDto = {
         id: payload.id,
         firstName: payload.firstName,
         lastName: payload.lastName,
         middleName: payload.middleName,
         telephoneNumber: payload.phone,
-        role: employeeRole,
         account: account,
       };
       return await this.userService.create(userCreateDto);

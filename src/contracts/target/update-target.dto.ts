@@ -1,6 +1,8 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsDate,
   IsEnum,
   IsNotEmpty,
@@ -10,8 +12,10 @@ import {
   IsUUID,
   Min,
 } from 'class-validator';
+import { Convert } from 'src/domains/convert.entity';
+import { Policy } from 'src/domains/policy.entity';
+import { Post } from 'src/domains/post.entity';
 import { State, Type as TargetType } from 'src/domains/target.entity';
-import { User } from 'src/domains/user.entity';
 
 @ApiExtraModels()
 export class TargetUpdateDto {
@@ -45,14 +49,33 @@ export class TargetUpdateDto {
   orderNumber?: number;
 
   @ApiProperty({
-    description: 'Id ответственного юзера',
+    description: 'Id ответственного поста',
     required: false,
     example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
   })
   @IsOptional()
   @IsUUID()
-  @IsNotEmpty({ message: 'Id ответственного не может быть пустой' })
-  holderUserId?: string;
+  @IsNotEmpty({ message: 'Id ответственного поста не может быть пустым' })
+  holderPostId?: string;
+
+  @ApiProperty({
+    description: 'Id политики',
+    required: false,
+    example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
+  })
+  @IsOptional()
+  @IsUUID()
+  @IsNotEmpty({ message: 'Id политики не может быть пустым' })
+  policyId?: string;
+
+  @ApiProperty({
+    description: 'Ids файлов',
+    required: false,
+    example: ['0d081ac3-200f-4c7c-adc8-d11f1f66b20a'],
+  })
+  @IsOptional()
+  @IsArray()
+  attachmentIds?: string[];
 
   @ApiProperty({
     description: 'Состояние задачи',
@@ -90,5 +113,14 @@ export class TargetUpdateDto {
   deadline?: Date;
 
   @Exclude({ toPlainOnly: true })
-  holderUser: User;
+  holderPost: Post;
+
+  @Exclude({ toPlainOnly: true })
+  policy: Policy;
+
+  @Exclude({ toPlainOnly: true })
+  convert: Convert;
+
+  @Exclude({toPlainOnly: true})
+  dateComplete: Date;
 }

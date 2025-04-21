@@ -18,21 +18,27 @@ export class RoleService {
     @InjectRepository(Role)
     private readonly roleRepository: RoleRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAll(): Promise<RoleReadDto[]> {
-    const roles = await this.roleRepository.find({
-      where: { roleName: Not(Roles.OWNER) },
-    });
-    return roles.map((role) => ({
-      id: role.id,
-      roleName: role.roleName,
-      createdAt: role.createdAt,
-      updatedAt: role.updatedAt,
-      roleSettings: role.roleSettings,
-      users: role.users,
-      // Добавьте любые другие поля, которые должны быть включены в ответ
-    }));
+    try {
+      const roles = await this.roleRepository.find({
+        where: { roleName: Not(Roles.OWNER) },
+      });
+      return roles.map((role) => ({
+        id: role.id,
+        roleName: role.roleName,
+        createdAt: role.createdAt,
+        updatedAt: role.updatedAt,
+        roleSettings: role.roleSettings,
+        posts: role.posts,
+      }));
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении ролей');
+    }
+
   }
 
   async findOneById(id: string): Promise<RoleReadDto> {
@@ -46,18 +52,15 @@ export class RoleService {
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
         roleSettings: role.roleSettings,
-        users: role.users,
+        posts: role.posts,
       };
 
       return roleReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении роли');
     }
   }
@@ -68,25 +71,21 @@ export class RoleService {
         where: { roleName: roleName },
       });
 
-      if (!role) throw new NotFoundException(`Роль с OWNER не найдена`);
+      if (!role) throw new NotFoundException(`Роль c названием ${roleName} не найдена`);
       const roleReadDto: RoleReadDto = {
         id: role.id,
         roleName: role.roleName,
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
         roleSettings: role.roleSettings,
-        users: role.users,
+        posts: role.posts,
       };
-
       return roleReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении роли');
     }
   }

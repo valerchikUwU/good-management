@@ -13,7 +13,7 @@ import { PolicyCreateDto } from 'src/contracts/policy/create-policy.dto';
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { PolicyUpdateDto } from 'src/contracts/policy/update-policy.dto';
 import { Logger } from 'winston';
-import { IsNull } from 'typeorm';
+import { In, IsNull } from 'typeorm';
 
 @Injectable()
 export class PolicyService {
@@ -44,6 +44,7 @@ export class PolicyService {
         user: policy.user,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
       }));
     } catch (err) {
       this.logger.error(err);
@@ -54,13 +55,46 @@ export class PolicyService {
     }
   }
 
-  async findAllActiveForAccount(
-    account: AccountReadDto,
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PolicyReadDto[]> {
+    try {
+      const policies = await this.policyRepository.find({
+        where: { organization: { id: organizationId } },
+        relations: relations ?? [],
+      });
+
+      return policies.map((policy) => ({
+        id: policy.id,
+        policyName: policy.policyName,
+        policyNumber: policy.policyNumber,
+        state: policy.state,
+        type: policy.type,
+        dateActive: policy.dateActive,
+        content: policy.content,
+        createdAt: policy.createdAt,
+        updatedAt: policy.updatedAt,
+        posts: policy.posts,
+        organization: policy.organization,
+        user: policy.user,
+        account: policy.account,
+        policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех политик!',
+      );
+    }
+  }
+
+  async findAllActiveForOrganization(
+    organizationId: string,
   ): Promise<PolicyReadDto[]> {
     try {
       const policies = await this.policyRepository.find({
         where: {
-          account: { id: account.id },
+          organization: { id: organizationId },
           state: State.ACTIVE
         }
       });
@@ -80,6 +114,7 @@ export class PolicyService {
         user: policy.user,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
       }));
     } catch (err) {
       this.logger.error(err);
@@ -97,7 +132,7 @@ export class PolicyService {
     try {
       const policy = await this.policyRepository.findOne({
         where: { id },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
       if (!policy)
         throw new NotFoundException(`Политика с ID: ${id} не найдена`);
@@ -116,6 +151,7 @@ export class PolicyService {
         user: policy.user,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
       };
 
       return policyReadDto;
@@ -128,6 +164,49 @@ export class PolicyService {
 
       // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении политики');
+    }
+  }
+
+
+  async findBulk(ids: string[]): Promise<PolicyReadDto[]> {
+    try {
+      const policies = await this.policyRepository.find({
+        where: { id: In(ids) },
+      });
+      const foundPolicyIds = policies.map(policy => policy.id);
+      const missingPolicyIds = ids.filter(id => !foundPolicyIds.includes(id));
+      if (missingPolicyIds.length > 0) {
+        throw new NotFoundException(
+          `Не найдены политики с IDs: ${missingPolicyIds.join(', ')}`,
+        );
+      }
+      return policies.map((policy) => ({
+        id: policy.id,
+        policyName: policy.policyName,
+        policyNumber: policy.policyNumber,
+        state: policy.state,
+        type: policy.type,
+        dateActive: policy.dateActive,
+        content: policy.content,
+        createdAt: policy.createdAt,
+        updatedAt: policy.updatedAt,
+        posts: policy.posts,
+        organization: policy.organization,
+        user: policy.user,
+        account: policy.account,
+        policyToPolicyDirectories: policy.policyToPolicyDirectories,
+        targets: policy.targets
+      }));
+
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка специфичных исключений
+      if (err instanceof NotFoundException) {
+        throw err; // Пробрасываем исключение дальше
+      }
+
+      // Обработка других ошибок
+      throw new InternalServerErrorException('Ошибка при получении политик');
     }
   }
 
@@ -200,17 +279,12 @@ export class PolicyService {
       if (updatePolicyDto.content) policy.content = updatePolicyDto.content;
       if (updatePolicyDto.state === State.ACTIVE)
         policy.dateActive = new Date();
-
-      if (updatePolicyDto.organization !== null) {
-        policy.organization = updatePolicyDto.organization;
-      }
       await this.policyRepository.update(policy.id, {
         policyName: policy.policyName,
         state: policy.state,
         type: policy.type,
         content: policy.content,
         dateActive: policy.dateActive,
-        organization: policy.organization
       });
       return policy.id;
     } catch (err) {

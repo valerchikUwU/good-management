@@ -25,7 +25,33 @@ export class ObjectiveService {
   async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<ObjectiveReadDto[]> {
     try {
       const objectives = await this.objectiveRepository.find({
-        where: { account: { id: account.id } }, relations: relations !== undefined ? relations : []
+        where: { account: { id: account.id } }, relations: relations ?? []
+      });
+
+      return objectives.map((objective) => ({
+        id: objective.id,
+        situation: objective.situation,
+        content: objective.content,
+        rootCause: objective.rootCause,
+        createdAt: objective.createdAt,
+        updatedAt: objective.updatedAt,
+        strategy: objective.strategy,
+        account: objective.account,
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      // Обработка других ошибок
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех краткосрочных целей!',
+      );
+    }
+  }
+
+
+  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ObjectiveReadDto[]> {
+    try {
+      const objectives = await this.objectiveRepository.find({
+        where: { strategy: {organization: { id: organizationId } }}, relations: relations ?? []
       });
 
       return objectives.map((objective) => ({
@@ -88,7 +114,7 @@ export class ObjectiveService {
     try {
       const objective = await this.objectiveRepository.findOne({
         where: { strategy: { id: strategyId } },
-        relations: relations !== undefined ? relations : [],
+        relations: relations ?? [],
       });
 
       if (!objective)
@@ -123,13 +149,6 @@ export class ObjectiveService {
 
   async create(objectiveCreateDto: ObjectiveCreateDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
-      if (!objectiveCreateDto.strategyId) {
-        throw new BadRequestException(
-          'Выберите стратегию для краткосрочной цели!',
-        );
-      }
-
       const objective = new Objective();
       objective.situation = objectiveCreateDto.situation;
       objective.content = objectiveCreateDto.content;
@@ -170,13 +189,10 @@ export class ObjectiveService {
         objective.content = updateObjectiveDto.content;
       if (updateObjectiveDto.rootCause)
         objective.rootCause = updateObjectiveDto.rootCause;
-      if (updateObjectiveDto.strategy)
-        objective.strategy = updateObjectiveDto.strategy;
       await this.objectiveRepository.update(objective.id, {
         situation: objective.situation,
         content: objective.content,
         rootCause: objective.rootCause,
-        strategy: objective.strategy,
       });
       return objective.id;
     } catch (err) {

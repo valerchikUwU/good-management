@@ -13,6 +13,11 @@ import { Statistic } from 'src/domains/statistic.entity';
 import { Strategy } from 'src/domains/strategy.entity';
 import { User } from 'src/domains/user.entity';
 
+/**
+ * DTO для чтения данных аккаунта.
+ *
+ * {@link Account | Account}
+ */
 export class AccountReadDto {
   @ApiProperty({
     description: 'ID аккаунта',
