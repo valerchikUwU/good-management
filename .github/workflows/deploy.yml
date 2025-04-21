@@ -2,7 +2,7 @@ name: Deploy Backend
 
 on:
   push:
-    branches: [main] # Или ваша основная ветка
+    branches: [ main ] # Или ваша основная ветка
 
 env:
   DOCKER_COMPOSE_VERSION: '3.5'
@@ -26,5 +26,4 @@ jobs:
             git reset --hard origin/main
             git clean -fd
             docker compose down
-            docker compose build --no-cache
-            docker compose up -d
+            docker compose up --build -d
