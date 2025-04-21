@@ -14,7 +14,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
     cors: {
-      origin: process.env.NODE_ENV === 'dev' ? true : false,
+      // когда будет билд фронта поменять
+      origin: '*',
+      // origin: process.env.NODE_ENV === 'dev' ? true : false,
       credentials: true,
     },
   });
