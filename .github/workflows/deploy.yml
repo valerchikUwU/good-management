@@ -2,7 +2,7 @@ name: Deploy Backend
 
 on:
   push:
-    branches: [ main ] # Или ваша основная ветка
+    branches: [main] # Или ваша основная ветка
 
 env:
   DOCKER_COMPOSE_VERSION: '3.5'
