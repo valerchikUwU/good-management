@@ -347,7 +347,7 @@ export class ProjectController {
     const convertCreateDtos: ConvertCreateDto[] = [];
     if (holderProductPostId) {
       let senderPost = await this.postService.findOneById(holderProductPostId);
-      if (projectUpdateDto.targetCreateDtos.length > 0) {
+      if (projectUpdateDto.targetCreateDtos) {
 
         const convertCreationForTargetCreatePromises = projectUpdateDto.targetCreateDtos.map(async (target) => {
           const convertCreateDto = new ConvertCreateDto();
@@ -392,7 +392,7 @@ export class ProjectController {
         });
         await Promise.all(convertCreationForTargetCreatePromises)
       }
-      if (projectUpdateDto.targetUpdateDtos.length > 0) {
+      if (projectUpdateDto.targetUpdateDtos) {
         const convertCreationForTargetUpdatePromises = projectUpdateDto.targetUpdateDtos.map(async (target) => {
           const isProductTarget = target.type === TargetType.PRODUCT
           const convertCreateDto = new ConvertCreateDto();

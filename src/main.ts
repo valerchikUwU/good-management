@@ -44,10 +44,17 @@ async function bootstrap() {
   );
   app.use(cookieParser());
 
+  if (process.env.NODE_ENV === 'prod') {
+    app.setGlobalPrefix('gm');
+  }
+
+  const port = process.env.PORT || 5000;
+  const host = process.env.NODE_ENV === 'dev' ? process.env.API_HOST : process.env.PROD_API_HOST;
+
   const swaggerApi = new DocumentBuilder()
     .setTitle('Good-Management API')
     .setDescription(
-      'The GM API description.\n\n[Export JSON](http://localhost:5000/swagger-json)',
+      `The GM API description.\n\n[Export JSON](${host}/swagger-json)`,
     )
     .setVersion('1.0')
     .addBearerAuth(
@@ -62,15 +69,14 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, swaggerApi);
 
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('gm/api', app, document);
 
   // Добавляем маршрут для экспорта документации в формате JSON
   app.getHttpAdapter().get('/swagger-json', (req, res) => {
     res.json(document); // Возвращаем JSON-документ
   });
 
-  const port = process.env.PORT || 5000;
-  const host = process.env.NODE_ENV === 'dev' ? process.env.API_HOST : process.env.PROD_API_HOST;
+
 
   await app.listen(port, () => console.log(`${host}/`));
 }
