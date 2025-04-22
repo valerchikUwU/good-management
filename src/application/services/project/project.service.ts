@@ -404,18 +404,22 @@ export class ProjectService {
       //   : [];
       if (updateProjectDto.targetCreateDtos) {
         updateProjectDto.targetCreateDtos.forEach(async (targetCreateDto, index) => {
-          const createdConvert = await this.convertService.create(convertCreateDtos[index])
+          if (convertCreateDtos.length > 0) {
+            const createdConvert = await this.convertService.create(convertCreateDtos[index]);
+            targetCreateDto.convert = createdConvert;
+          }
           targetCreateDto.project = project;
-          targetCreateDto.convert = createdConvert;
         });
 
         await this.targetService.createBulk(updateProjectDto.targetCreateDtos);
       }
       if (updateProjectDto.targetUpdateDtos) {
-        updateProjectDto.targetUpdateDtos.forEach(async (targetUpdateDto, index) => {
-          const createdConvert = await this.convertService.create(convertCreateDtos[index+ updateProjectDto?.targetCreateDtos.length]);
-          targetUpdateDto.convert = createdConvert;
-        });
+        if (convertCreateDtos.length > 0) {
+          updateProjectDto.targetUpdateDtos.forEach(async (targetUpdateDto, index) => {
+            const createdConvert = await this.convertService.create(convertCreateDtos[index + updateProjectDto?.targetCreateDtos.length]);
+            targetUpdateDto.convert = createdConvert;
+          });
+        }
         await this.targetService.updateBulk(updateProjectDto.targetUpdateDtos);
       }
 
