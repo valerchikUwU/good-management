@@ -22,7 +22,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /root/gm/good-management
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
             git clean -fd
             docker compose down
             docker compose up --build -d

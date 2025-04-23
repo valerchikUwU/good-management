@@ -82,16 +82,8 @@ dotenv.config();
     }),
     ServeStaticModule.forRoot({
       rootPath: process.env.UPLOADS_PATH,
-      serveRoot: '/gm/app/uploads',
+      serveRoot: '/app/uploads',
     }),
-    // ...(process.env.NODE_ENV === 'prod'
-    //   ? [
-    //     ServeStaticModule.forRoot({
-    //       rootPath: process.env.BUILD_PATH,
-    //       serveRoot: '/gm',
-    //     })
-    //   ]
-    //   : []),
     TransactionModule.forRoot(),
     WinstonModule.forRoot(winstonConfig),
     UsersModule,
