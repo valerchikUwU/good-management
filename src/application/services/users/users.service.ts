@@ -3,6 +3,7 @@ import {
   Inject,
   NotFoundException,
   InternalServerErrorException,
+  BadRequestException,
 } from '@nestjs/common';
 import { User } from '../../../domains/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -300,6 +301,10 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<string> {
     try {
+      const userWithDtoTelephoneNumber = await this.usersRepository.findOneBy({ telephoneNumber: createUserDto.telephoneNumber })
+      if (userWithDtoTelephoneNumber != null) {
+        throw new BadRequestException('Пользователь с таким номером уже существует!')
+      }
       const user = new User();
       if (user.id) user.id = createUserDto.id;
       user.firstName = createUserDto.firstName;
@@ -313,6 +318,9 @@ export class UsersService {
       return createdUserId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
+      if (err instanceof BadRequestException) {
+        throw err;
+      }
       throw new InternalServerErrorException('Ошибка при создании юзера');
     }
   }
@@ -346,7 +354,7 @@ export class UsersService {
     } catch (err) {
       this.logger.error(err);
       if (err instanceof NotFoundException) {
-        throw err; 
+        throw err;
       }
       throw new InternalServerErrorException('Ошибка при обновлении юзера');
     }
