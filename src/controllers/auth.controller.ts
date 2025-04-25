@@ -106,7 +106,7 @@ export class AuthController {
         httpOnly: true,
         path: '/',
         secure: process.env.NODE_ENV === 'prod' ? true : false,
-        maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
+        maxAge: Number(process.env.COOKIE_EXPIRESIN),
         sameSite: 'none' // только пока в разработке, потом strict
       });
       return authenticateResult._user;
@@ -189,7 +189,7 @@ export class AuthController {
       httpOnly: true,
       path: '/',
       secure: process.env.NODE_ENV === 'prod' ? true : false,
-      maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
+      maxAge: Number(process.env.COOKIE_EXPIRESIN),
       sameSite: 'none' // только пока в разработке, потом strict
     });
     return { newAccessToken: data.newAccessToken };
@@ -213,12 +213,26 @@ export class AuthController {
     },
     required: true,
   })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: { response: 'Вы вышли из аккаунта!' }
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
   async logout(
     @Body() fingerprint: string,
     @Req() req: ExpressRequest,
-  ): Promise<void> {
+  ): Promise<{ response: string }> {
     const refreshTokenId = req.cookies['refresh-tokenId'];
     await this.authService.logout(req.body.fingerprint, refreshTokenId);
+    return { response: 'Вы вышли из аккаунта!' }
   }
 
   @Post('login/tg')
@@ -289,7 +303,7 @@ export class AuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod' ? true : false,
       path: '/',
-      maxAge: Number(process.env.COOKIE_EXPIRESIN), // 60 дней
+      maxAge: Number(process.env.COOKIE_EXPIRESIN),
       sameSite: 'none' // только пока в разработке, потом strict
     });
     return { message: 'Куки успешно установлены' };
