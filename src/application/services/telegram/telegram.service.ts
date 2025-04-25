@@ -53,6 +53,7 @@ export class TelegramService {
               const user = await this.usersService.findOneByTelegramId(telegramId);
               if (user !== null) {
                 await ctx.reply('Привет, я бот для регистрации в GoodManagement!')
+                await ctx.replyWithSticker('CAACAgIAAxkBAAEOSMBn-X2yVR9aaUuQNGLXHeQfoQEXJQACAQEAAladvQoivp8OuMLmNDYE')
                 const authFlag = await this.authRequest(
                   user,
                   telegramId,
