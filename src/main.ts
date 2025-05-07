@@ -65,7 +65,7 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, swaggerApi);
 
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('swagger', app, document);
 
   // Добавляем маршрут для экспорта документации в формате JSON
   app.getHttpAdapter().get('/swagger-json', (req, res) => {
