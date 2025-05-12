@@ -71,7 +71,9 @@ export class GoalService {
 
   async create(goalCreateDto: GoalCreateDto): Promise<string> {
     try {
-
+      if(!goalCreateDto.postCreator){
+        throw new BadRequestException('Вы должны быть закреплены хотя бы за одним постом!')
+      }
       const goal = new Goal();
       goal.content = goalCreateDto.content;
       goal.postCreator = goalCreateDto.postCreator;

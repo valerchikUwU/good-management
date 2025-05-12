@@ -212,7 +212,9 @@ export class PolicyService {
 
   async create(policyCreateDto: PolicyCreateDto): Promise<string> {
     try {
-
+      if(!policyCreateDto.postCreator){
+        throw new BadRequestException('Вы должны быть закреплены хотя бы за одним постом!')
+      }
       const policy = new Policy();
       policy.policyName = policyCreateDto.policyName;
       policy.content = policyCreateDto.content;

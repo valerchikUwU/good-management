@@ -473,7 +473,8 @@ export class PostService {
       post.policy = postCreateDto.policy;
       post.account = postCreateDto.account;
       post.role = postCreateDto.role;
-      if(postCreateDto.user.posts == null){
+      console.log(postCreateDto.user.posts)
+      if(postCreateDto.user.posts.length < 1){
         post.isDefault = true;
       }
       const createdPostId = await this.postRepository.insert(post);

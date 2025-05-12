@@ -218,7 +218,8 @@ export class StrategyController {
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
     const organization = await this.organizationService.findOneById(strategyCreateDto.organizationId);
-    strategyCreateDto.postCreator = user.posts.find(post => post.isDefault);
+    const postCreator = user.posts.find(post => post.isDefault);
+    strategyCreateDto.postCreator = postCreator
     strategyCreateDto.account = user.account;
     strategyCreateDto.organization = organization;
     const createdStrategyId = await this.strategyService.create(strategyCreateDto);

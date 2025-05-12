@@ -444,7 +444,6 @@ export class PostController {
     const user = req.user as ReadUserDto;
     const promises: Promise<void>[] = [];
 
-    // Условно добавляем запросы в массив промисов
     if (postCreateDto.policyId) {
       promises.push(
         this.policyService.findOneById(postCreateDto.policyId).then(policy => {

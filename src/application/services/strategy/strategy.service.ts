@@ -191,7 +191,9 @@ export class StrategyService {
 
   async create(strategyCreateDto: StrategyCreateDto): Promise<string> {
     try {
-
+      if(!strategyCreateDto.postCreator){
+        throw new BadRequestException('Вы должны быть закреплены хотя бы за одним постом!')
+      }
       const strategy = new Strategy();
       strategy.content = strategyCreateDto.content;
       strategy.postCreator = strategyCreateDto.postCreator;
