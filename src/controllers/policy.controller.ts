@@ -229,9 +229,10 @@ export class PolicyController {
     @Body() policyCreateDto: PolicyCreateDto,
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
-    const organization = await this.organizationService.findOneById(policyCreateDto.organizationId)
+    const organization = await this.organizationService.findOneById(policyCreateDto.organizationId);
+    const postCreator = user.posts.find(post => post.isDefault);
     policyCreateDto.organization = organization;
-    policyCreateDto.postCreator = user.posts.find(post => post.isDefault);
+    policyCreateDto.postCreator = postCreator
     policyCreateDto.account = user.account;
     const createdPolicyId = await this.policyService.create(policyCreateDto);
     // const createdEventPolicyDto: PolicyCreateEventDto = {

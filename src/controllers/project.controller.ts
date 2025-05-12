@@ -198,8 +198,9 @@ export class ProjectController {
     const [organization, strategy] = await Promise.all([
       this.organizationService.findOneById(projectCreateDto.organizationId),
       projectCreateDto.strategyId !== undefined ? await this.strategyService.findOneById(projectCreateDto.strategyId) : undefined
-    ])
-    projectCreateDto.postCreator = user.posts.find(post => post.isDefault);
+    ]);
+    const postCreator = user.posts.find(post => post.isDefault);
+    projectCreateDto.postCreator = postCreator
     projectCreateDto.account = user.account;
     projectCreateDto.organization = organization;
     projectCreateDto.strategy = strategy;

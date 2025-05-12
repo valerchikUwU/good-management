@@ -264,6 +264,10 @@ export class ProjectService {
   @Transactional()
   async create(projectCreateDto: ProjectCreateDto): Promise<string> {
     try {
+      if(!projectCreateDto.postCreator){
+        throw new BadRequestException('Вы должны быть закреплены хотя бы за одним постом!')
+      }
+
       const project = new Project();
       project.projectName = projectCreateDto.projectName;
       project.content = projectCreateDto.content;
@@ -281,6 +285,9 @@ export class ProjectService {
 
     } catch (err) {
       this.logger.error(err);
+      if (err instanceof BadRequestException) {
+        throw err;
+      }
       throw new InternalServerErrorException('Ошибка при создании проекта');
     }
   }
