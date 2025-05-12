@@ -12,6 +12,7 @@ import {
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
 import { Account } from './account.entity';
+import { Post } from './post.entity';
 
 /**
  * Сущность цели.
@@ -65,12 +66,12 @@ export class Goal {
   updatedAt: Date;
 
   /**
-   * Связь с сущностью M:1 User.
+   * Связь с сущностью M:1 Post.
    * @remarks
    * nullable: false.
    */
-  @ManyToOne(() => User, (user) => user.goals, { nullable: false })
-  user: User;
+  @ManyToOne(() => Post, (postCreator) => postCreator.goals, { nullable: false })
+  postCreator: Post;
 
   /**
    * Связь с сущностью M:1 Account.

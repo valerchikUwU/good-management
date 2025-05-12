@@ -136,30 +136,6 @@ export class User {
   refreshSessions: RefreshSession[];
 
   /**
-   * Связь с сущностью 1:M Goal.
-   */
-  @OneToMany(() => Goal, (goal) => goal.user)
-  goals: Goal[];
-
-  /**
-   * Связь с сущностью 1:M Policy.
-   */
-  @OneToMany(() => Policy, (policy) => policy.user)
-  policies: Policy[];
-
-  /**
-   * Связь с сущностью 1:M Strategy.
-   */
-  @OneToMany(() => Strategy, (strategy) => strategy.user)
-  strategies: Strategy[];
-
-  /**
-   * Связь с сущностью 1:M Project.
-   */
-  @OneToMany(() => Project, (project) => project.user)
-  projects: Project[];
-
-  /**
    * Связь с сущностью 1:M HistoryUsersToPost.
    */
   @OneToMany(() => HistoryUsersToPost, (historyUsersToPost) => historyUsersToPost.user)

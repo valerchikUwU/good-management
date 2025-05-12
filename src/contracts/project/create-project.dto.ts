@@ -15,6 +15,7 @@ import {
 } from 'class-validator';
 import { Organization } from 'src/domains/organization.entity';
 import { HasProductTask, HasStrategyForProgram } from 'src/validators/project-validator';
+import { Post } from 'src/domains/post.entity';
 
 export class ProjectCreateDto {
   @ApiProperty({
@@ -74,7 +75,7 @@ export class ProjectCreateDto {
   organization: Organization;
 
   @Exclude({ toPlainOnly: true })
-  user: User;
+  postCreator: Post;
 
   @ApiProperty({
     description: 'Список задач',

@@ -21,11 +21,11 @@ export class AttachmentToMessage {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @ManyToOne(() => Attachment, (attachment) => attachment.attachmentToMessages)
+  @ManyToOne(() => Attachment, (attachment) => attachment.attachmentToMessages, {onDelete: 'CASCADE'})
   @Index()
   attachment: Attachment;
 
-  @ManyToOne(() => Message, (message) => message.attachmentToMessages)
+  @ManyToOne(() => Message, (message) => message.attachmentToMessages, {onDelete: 'CASCADE'})
   @Index()
   message: Message;
 }

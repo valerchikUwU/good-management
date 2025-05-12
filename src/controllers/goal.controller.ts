@@ -170,7 +170,7 @@ export class GoalController {
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
     const organization = await this.organizationService.findOneById(goalCreateDto.organizationId);
-    goalCreateDto.user = user;
+    goalCreateDto.postCreator = user.posts.find(post => post.isDefault);
     goalCreateDto.account = user.account;
     goalCreateDto.organization = organization;
     const createdGoalId = await this.goalService.create(goalCreateDto);

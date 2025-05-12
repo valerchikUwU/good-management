@@ -181,8 +181,10 @@ export class TelegramService {
       return true;
     } catch (error) {
       if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+        this.logger.error(error);
         ctx.reply('Попробуйте войти еще раз!');
       } else if (error.response && (error.response.status === 404 || error.response.status === 500)) {
+        this.logger.error(error);
         ctx.reply('Ой, что - то пошло не так!');
       }
     }

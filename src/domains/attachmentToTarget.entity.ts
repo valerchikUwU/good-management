@@ -24,7 +24,7 @@ export class AttachmentToTarget {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @ManyToOne(() => Attachment, (attachment) => attachment.attachmentToTargets)
+  @ManyToOne(() => Attachment, (attachment) => attachment.attachmentToTargets, {onDelete: 'CASCADE'})
   @Index() 
   attachment: Attachment;
 

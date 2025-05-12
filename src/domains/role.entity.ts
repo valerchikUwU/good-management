@@ -10,7 +10,6 @@ import {
   JoinColumn,
   OneToOne,
 } from 'typeorm';
-import { User } from './user.entity';
 import { RoleSetting } from './roleSetting.entity';
 import { Post } from './post.entity';
 

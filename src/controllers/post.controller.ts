@@ -51,6 +51,7 @@ import {
 } from 'src/constants/swagger-examples/post/post-examples';
 import { RoleService } from 'src/application/services/role/role.service';
 import { RoleReadDto } from 'src/contracts/role/read-role.dto';
+import { PostUpdateDefaultDto } from 'src/contracts/post/updateDefault-post.dto';
 
 @ApiTags('Posts')
 @ApiBearerAuth('access-token')
@@ -196,7 +197,6 @@ export class PostController {
 
     const promises: Promise<void>[] = [];
 
-    // Условно добавляем запросы в массив промисов
     if (postUpdateDto.policyId !== null) {
       promises.push(
         this.policyService.findOneById(postUpdateDto.policyId).then(policy => {
@@ -213,8 +213,6 @@ export class PostController {
       );
     }
 
-
-    // Выполняем все запросы параллельно
     await Promise.all(promises);
 
     const updatedPostId = await this.postService.update(postId, postUpdateDto);
@@ -312,7 +310,7 @@ export class PostController {
       this.userService.findAllForOrganization(organizationId),
       this.postService.findAllForOrganization(organizationId, false),
       this.roleService.findAll(),
-      this.postService.findMaxDivisionNumber()
+      this.postService.findMaxDivisionNumber(organizationId)
     ])
 
     return {
@@ -457,7 +455,7 @@ export class PostController {
 
     if (postCreateDto.responsibleUserId) {
       promises.push(
-        this.userService.findOne(postCreateDto.responsibleUserId).then(user => {
+        this.userService.findOne(postCreateDto.responsibleUserId, ['posts']).then(user => {
           postCreateDto.user = user;
         }),
       );
@@ -476,7 +474,6 @@ export class PostController {
       )
     );
 
-    // Выполняем все запросы параллельно
     await Promise.all(promises);
 
     postCreateDto.account = user.account;
@@ -549,5 +546,52 @@ export class PostController {
       `${yellow('OK!')} - postCreateDto: ${JSON.stringify(postCreateDto)} - Создан новый пост!`,
     );
     return { id: createdPostId };
+  }
+
+
+
+  @Patch(':postId/changeDefaultPost')
+  @ApiOperation({ summary: 'Сменить дефолтный пост для себя' })
+  @ApiBody({
+    description: 'ДТО для обновления поста',
+    type: PostUpdateDefaultDto,
+    required: true,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: {
+      id: '7730b6c2-c037-4c45-9dcc-603d7035d6a3',
+    },
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Ошибка валидации!',
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: `Пост не найден!`,
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({ name: 'postId', required: true, description: 'Id поста' })
+  async updateDefaultPost(
+    @Req() req: ExpressRequest,
+    @Param('postId') postId: string,
+    @Body() postUpdateDefaultDto: PostUpdateDefaultDto,
+  ): Promise<{ id: string }> {
+    const user = req.user as ReadUserDto;
+
+    const updatedPostId = await this.postService.updateDefaultPost(postId, postUpdateDefaultDto);
+    this.logger.info(
+      `${yellow('OK!')} - UPDATED POST: ${JSON.stringify(postUpdateDefaultDto)} - Пост успешно обновлен!`,
+    );
+    return { id: updatedPostId };
   }
 }

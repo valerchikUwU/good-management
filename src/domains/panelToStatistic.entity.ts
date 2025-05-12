@@ -73,6 +73,6 @@ export class PanelToStatistic {
   /**
    * Связь с сущностью М:1 Statistic.
    */
-  @ManyToOne(() => Statistic, (statistic) => statistic.panelToStatistics, { nullable: false })
+  @ManyToOne(() => Statistic, (statistic) => statistic.panelToStatistics, { nullable: false, onDelete: 'CASCADE' })
   statistic: Statistic;
 }

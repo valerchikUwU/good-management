@@ -38,6 +38,9 @@ export enum Type {
 
   /** Политика является инструкцией. */
   INSTRUCTION = 'Инструкция',
+
+  /** Политика является распоряжением. */
+  DISPOSAL = 'Распоряжение'
 }
 
 /**
@@ -110,6 +113,12 @@ export class Policy {
   dateActive: Date;
 
   /**
+   * Дедлайн для распоряжения.
+   */
+  @Column({ type: 'timestamp', nullable: true })
+  deadline: Date;
+
+  /**
    * Содержание политики в текстовом формате.
    * 
    * @remarks
@@ -164,12 +173,12 @@ export class Policy {
   policyToPolicyDirectories: PolicyToPolicyDirectory[];
 
   /**
-   * Связь с сущностью M:1 User.
+   * Связь с сущностью M:1 Post.
    * @remarks
    * nullable: false
    */
-  @ManyToOne(() => User, (user) => user.policies, { nullable: false })
-  user: User;
+  @ManyToOne(() => Post, (postCreator) => postCreator.policies, { nullable: false })
+  postCreator: Post;
 
   /**
    * Связь с сущностью M:1 Organization.

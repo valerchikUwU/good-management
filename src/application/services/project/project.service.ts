@@ -53,11 +53,10 @@ export class ProjectService {
         targets: project.targets,
         strategy: project.strategy,
         account: project.account,
-        user: project.user,
+        postCreator: project.postCreator,
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех проектов!',
       );
@@ -87,11 +86,10 @@ export class ProjectService {
         })),
         strategy: program.strategy,
         account: program.account,
-        user: program.user,
+        postCreator: program.postCreator,
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех програм!',
       );
@@ -125,7 +123,7 @@ export class ProjectService {
         })),
         strategy: project.strategy,
         account: project.account,
-        user: project.user,
+        postCreator: project.postCreator,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -171,7 +169,7 @@ export class ProjectService {
         })) : project.targets,
         strategy: project.strategy,
         account: project.account,
-        user: project.user,
+        postCreator: project.postCreator,
       };
       return projectReadDto;
     } catch (err) {
@@ -210,18 +208,16 @@ export class ProjectService {
         })),
         strategy: program.strategy,
         account: program.account,
-        user: program.user,
+        postCreator: program.postCreator,
       };
 
       return programReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении проекта');
     }
   }
@@ -254,7 +250,7 @@ export class ProjectService {
         })),
         strategy: project.strategy,
         account: project.account,
-        user: project.user,
+        postCreator: project.postCreator,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -273,7 +269,7 @@ export class ProjectService {
       project.content = projectCreateDto.content;
       project.type = projectCreateDto.type;
       project.organization = projectCreateDto.organization;
-      project.user = projectCreateDto.user;
+      project.postCreator = projectCreateDto.postCreator;
       project.account = projectCreateDto.account;
       project.strategy = projectCreateDto.strategy;
       const createdProject = await this.projectRepository.save(project);
@@ -419,8 +415,10 @@ export class ProjectService {
           for (let i = 0; i < updateProjectDto.targetUpdateDtos.length; i++) {
             const targetUpdateDto = updateProjectDto.targetUpdateDtos[i];
             const convertIndex = i + (updateProjectDto?.targetCreateDtos?.length || 0);
-            const createdConvert = await this.convertService.create(convertCreateDtos[convertIndex]);
-            targetUpdateDto.convert = createdConvert;
+            if(targetUpdateDto.targetState === State.ACTIVE) {
+              const createdConvert = await this.convertService.create(convertCreateDtos[convertIndex]);
+              targetUpdateDto.convert = createdConvert;
+            }
           }
         }
         await this.targetService.updateBulk(updateProjectDto.targetUpdateDtos);

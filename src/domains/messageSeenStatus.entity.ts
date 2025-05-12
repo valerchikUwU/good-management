@@ -19,7 +19,7 @@ export class MessageSeenStatus {
     @ManyToOne(() => Message, (message) => message.seenStatuses, { nullable: false, onDelete: 'CASCADE' })
     message: Message;
 
-    @ManyToOne(() => Post, { nullable: false })
+    @ManyToOne(() => Post, { nullable: false, onDelete: 'CASCADE' })
     post: Post;
 
 }

@@ -33,7 +33,7 @@ export class GoalService {
         content: goal.content,
         createdAt: goal.createdAt,
         updatedAt: goal.updatedAt,
-        user: goal.user,
+        postCreator: goal.postCreator,
         account: goal.account,
         organization: goal.organization,
       }));
@@ -60,6 +60,7 @@ export class GoalService {
         createdAt: goal.createdAt,
         updatedAt: goal.updatedAt,
         organization: goal.organization,
+        postCreator: goal.postCreator,
       };
       return goalReadDto;
     } catch (err) {
@@ -70,11 +71,10 @@ export class GoalService {
 
   async create(goalCreateDto: GoalCreateDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
 
       const goal = new Goal();
       goal.content = goalCreateDto.content;
-      goal.user = goalCreateDto.user;
+      goal.postCreator = goalCreateDto.postCreator;
       goal.account = goalCreateDto.account;
       goal.organization = goalCreateDto.organization;
       const createdGoalId = await this.goalRepository.insert(goal);
@@ -90,13 +90,19 @@ export class GoalService {
 
   async update(_id: string, updateGoalDto: GoalUpdateDto): Promise<string> {
     try {
+      
       const goal = await this.goalRepository.findOne({ where: { id: _id } });
+
       if (!goal) {
         throw new NotFoundException(`Цель с ID ${_id} не найдена`);
       }
+
       if (updateGoalDto.content) goal.content = updateGoalDto.content;
+      
       await this.goalRepository.update(goal.id, { content: goal.content });
+
       return goal.id;
+
     } catch (err) {
       this.logger.error(err);
       if (err instanceof NotFoundException) {

@@ -199,7 +199,7 @@ export class ProjectController {
       this.organizationService.findOneById(projectCreateDto.organizationId),
       projectCreateDto.strategyId !== undefined ? await this.strategyService.findOneById(projectCreateDto.strategyId) : undefined
     ])
-    projectCreateDto.user = user;
+    projectCreateDto.postCreator = user.posts.find(post => post.isDefault);
     projectCreateDto.account = user.account;
     projectCreateDto.organization = organization;
     projectCreateDto.strategy = strategy;
@@ -558,7 +558,7 @@ export class ProjectController {
   async findOne(
     @Param('projectId') projectId: string,
   ): Promise<{ project: ProjectReadDto; strategies: StrategyReadDto[] }> {
-    const project = await this.projectService.findOneById(projectId, ['strategy', 'targets.targetHolders.post', 'organization']);
+    const project = await this.projectService.findOneById(projectId, ['strategy', 'targets.targetHolders.post', 'targets.convert', 'organization']);
     const strategies = await this.strategyService.findAllActiveForOrganization(project.organization.id);
     return { project: project, strategies: strategies };
   }

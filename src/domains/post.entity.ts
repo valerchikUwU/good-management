@@ -19,9 +19,11 @@ import { ConvertToPost } from './convertToPost.entity';
 import { Convert } from './convert.entity';
 import { Message } from './message.entity';
 import { ControlPanel } from './controlPanel.entity';
-import { Target } from './target.entity';
 import { GroupToPost } from './groupToPost.entity';
 import { Role } from './role.entity';
+import { Goal } from './goal.entity';
+import { Project } from './project.entity';
+import { Strategy } from './strategy.entity';
 
 /**
  * Сущность, представляющая должность (пост).
@@ -92,6 +94,16 @@ export class Post {
    */
   @Column({ type: 'text', nullable: false })
   purpose: string;
+
+  /**
+   * Флаг дефолтного поста.
+   * 
+   * @remarks
+   * type: 'boolean', default: false, nullable: false 
+   */
+  @Column({ type: 'boolean', default: false })
+  isDefault: boolean;
+
 
   /**
    * Дата создания записи.
@@ -207,6 +219,30 @@ export class Post {
    */
   @OneToMany(() => GroupToPost, (groupToPost) => groupToPost.post)
   groupToPosts: GroupToPost[];
+
+  /**
+   * Связь с сущностью 1:M Goal.
+   */
+  @OneToMany(() => Goal, (goal) => goal.postCreator)
+  goals: Goal[];
+
+  /**
+   * Связь с сущностью 1:M Project.
+   */
+  @OneToMany(() => Project, (project) => project.postCreator)
+  projects: Project[];
+
+  /**
+   * Связь с сущностью 1:M Strategy.
+   */
+  @OneToMany(() => Strategy, (strategy) => strategy.postCreator)
+  strategies: Strategy[];
+
+  /**
+   * Связь с сущностью 1:M Policy.
+   */
+  @OneToMany(() => Policy, (policy) => policy.postCreator)
+  policies: Policy[];
 
   /**
    * Связь с сущностью М:1 Role

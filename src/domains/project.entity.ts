@@ -14,6 +14,7 @@ import { Strategy } from './strategy.entity';
 import { Account } from './account.entity';
 import { User } from './user.entity';
 import { Organization } from './organization.entity';
+import { Post } from './post.entity';
 
 /**
  * Перечисление типов проектов.
@@ -147,13 +148,13 @@ export class Project {
   account: Account;
 
   /**
-   * Связь с сущностью M:1 User.
+   * Связь с сущностью M:1 Post.
    * 
    * @remarks
    * nullable: false
    */
-  @ManyToOne(() => User, (user) => user.projects, { nullable: false })
-  user: User;
+  @ManyToOne(() => Post, (postCreator) => postCreator.projects, { nullable: false })
+  postCreator: Post;
 }
 
 // добавить state

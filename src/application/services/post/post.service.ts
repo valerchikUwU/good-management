@@ -15,6 +15,7 @@ import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
 import { Brackets, FindOptionsWhere, In, IsNull, Not } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { PostUpdateDefaultDto } from 'src/contracts/post/updateDefault-post.dto';
 
 @Injectable()
 export class PostService {
@@ -44,6 +45,7 @@ export class PostService {
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
+        isDefault: post.isDefault,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -59,6 +61,10 @@ export class PostService {
         controlPanels: post.controlPanels,
         role: post.role,
         groupToPosts: post.groupToPosts,
+        goals: post.goals,
+        policies: post.policies,
+        strategies: post.strategies,
+        projects: post.projects,
         underPosts: structure === true ? posts.filter(underPost => underPost.parentId === post.id) : null
       }));
     } catch (err) {
@@ -87,6 +93,7 @@ export class PostService {
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
+        isDefault: post.isDefault,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -101,6 +108,10 @@ export class PostService {
         messages: post.messages,
         controlPanels: post.controlPanels,
         role: post.role,
+        goals: post.goals,
+        policies: post.policies,
+        strategies: post.strategies,
+        projects: post.projects,
         groupToPosts: post.groupToPosts,
       }));
     } catch (err) {
@@ -127,6 +138,7 @@ export class PostService {
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
+        isDefault: post.isDefault,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -141,6 +153,10 @@ export class PostService {
         messages: post.messages,
         controlPanels: post.controlPanels,
         role: post.role,
+        goals: post.goals,
+        policies: post.policies,
+        strategies: post.strategies,
+        projects: post.projects,
         groupToPosts: post.groupToPosts,
       }));
     } catch (err) {
@@ -167,6 +183,7 @@ export class PostService {
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
+        isDefault: post.isDefault,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -181,6 +198,10 @@ export class PostService {
         messages: post.messages,
         controlPanels: post.controlPanels,
         role: post.role,
+        goals: post.goals,
+        policies: post.policies,
+        strategies: post.strategies,
+        projects: post.projects,
         groupToPosts: post.groupToPosts,
       }));
     } catch (err) {
@@ -285,6 +306,7 @@ export class PostService {
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
+        isDefault: post.isDefault,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -299,6 +321,10 @@ export class PostService {
         messages: post.messages,
         controlPanels: post.controlPanels,
         role: post.role,
+        goals: post.goals,
+        policies: post.policies,
+        strategies: post.strategies,
+        projects: post.projects,
         groupToPosts: post.groupToPosts,
       }));
 
@@ -333,6 +359,7 @@ export class PostService {
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
+        isDefault: post.isDefault,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -347,6 +374,10 @@ export class PostService {
         messages: post.messages,
         controlPanels: post.controlPanels,
         role: post.role,
+        goals: post.goals,
+        policies: post.policies,
+        strategies: post.strategies,
+        projects: post.projects,
         groupToPosts: post.groupToPosts,
       };
 
@@ -363,19 +394,16 @@ export class PostService {
     }
   }
 
-  async findMaxDivisionNumber(): Promise<number> {
+  async findMaxDivisionNumber(organizationId: string): Promise<number> {
     try {
-      const maxDivisionNumber = await this.postRepository.maximum('divisionNumber')
+      const maxDivisionNumber = await this.postRepository.maximum('divisionNumber', {organization: {id: organizationId}})
       if (!maxDivisionNumber) return 1;
       return maxDivisionNumber;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении поста');
     }
   }
@@ -445,6 +473,9 @@ export class PostService {
       post.policy = postCreateDto.policy;
       post.account = postCreateDto.account;
       post.role = postCreateDto.role;
+      if(postCreateDto.user.posts == null){
+        post.isDefault = true;
+      }
       const createdPostId = await this.postRepository.insert(post);
       if (postCreateDto.responsibleUserId) {
         await this.cacheService.del(`user:${postCreateDto.responsibleUserId}`)
@@ -462,7 +493,6 @@ export class PostService {
       if (!post) {
         throw new NotFoundException(`Пост с ID ${_id} не найден`);
       }
-      // Обновить свойства, если они указаны в DTO
       if (updatePostDto.postName) post.postName = updatePostDto.postName;
       if (updatePostDto.divisionName) post.divisionName = updatePostDto.divisionName;
       if (updatePostDto.parentId !== null) {
@@ -501,13 +531,35 @@ export class PostService {
       return post.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении поста');
+    }
+  }
+
+
+  async updateDefaultPost(_id: string, postUpdateDefaultDto: PostUpdateDefaultDto): Promise<string> {
+    try {
+      const post = await this.postRepository.findOne({ where: { id: _id } });
+      const newDefaultPost = await this.postRepository.findOne({ where: { id: postUpdateDefaultDto.newDefaultPostId } });
+      if (!post) {
+        throw new NotFoundException(`Пост с ID ${_id} не найден`);
+      }
+      if (!newDefaultPost) {
+        throw new NotFoundException(`Пост с ID ${postUpdateDefaultDto.newDefaultPostId} не найден`);
+      }
+      await Promise.all([
+        await this.postRepository.update(post.id, { isDefault: false }),
+        await this.postRepository.update(postUpdateDefaultDto.newDefaultPostId, { isDefault: true })
+      ])
+      return newDefaultPost.id;
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('Ошибка при смене поста по умолчанию');
     }
   }
 }
