@@ -56,7 +56,7 @@ export class HistoryUsersToPost {
    * Поле связывает запись истории с конкретной должностью. 
    * Добавлен индекс для ускорения поиска по полю `post`.
    */
-  @ManyToOne(() => Post, (post) => post.historiesUsersToPost)
+  @ManyToOne(() => Post, (post) => post.historiesUsersToPost, {onDelete: 'CASCADE'})
   @Index() // Добавляем индекс для поля policy
   post: Post;
 
@@ -66,6 +66,6 @@ export class HistoryUsersToPost {
    * @remarks
    * Поле связывает запись истории с конкретным пользователем.
    */
-  @ManyToOne(() => User, (user) => user.historiesUsersToPost)
+  @ManyToOne(() => User, (user) => user.historiesUsersToPost, {onDelete: 'CASCADE'})
   user: User;
 }

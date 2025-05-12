@@ -14,7 +14,7 @@ import { Post } from './post.entity';
  * Сущность, представляющая ответственных за задачу.
  */
 @Entity()
-// @Index(['target', 'user'], { unique: true }) шо то я запутался надо чи нет
+// @Index(['target', 'post'], { unique: true }) шо то я запутался надо чи нет
 export class TargetHolder {
 
   /**
@@ -66,7 +66,7 @@ export class TargetHolder {
    * @remarks
    * Установлен индекс, nullable: false
    */
-  @Index() // Добавляем индекс для поля user
+  @Index() // Добавляем индекс для поля post
   @ManyToOne(() => Post, (post) => post.targetHolders, { nullable: false })
   post: Post;
 }

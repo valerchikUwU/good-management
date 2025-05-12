@@ -1,16 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
+  IsDate,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
 } from 'class-validator';
+import { Account } from 'src/domains/account.entity';
 import { Organization } from 'src/domains/organization.entity';
-import { State, Type } from 'src/domains/policy.entity';
+import { State, Type as PolicyType } from 'src/domains/policy.entity';
+import { User } from 'src/domains/user.entity';
 
 export class PolicyUpdateDto {
   @ApiProperty({
@@ -45,12 +48,12 @@ export class PolicyUpdateDto {
   @ApiProperty({
     description: 'Тип политики',
     required: false,
-    example: 'Директива',
-    examples: ['Директива', 'Инструкция'],
+    example: PolicyType.DIRECTIVE,
+    examples: ['Директива', 'Инструкция', 'Распоряжение'],
   })
   @IsOptional()
   @IsEnum(Type)
-  type?: Type;
+  type?: PolicyType;
 
   @ApiProperty({
     description: 'HTML контент политики',
@@ -61,4 +64,15 @@ export class PolicyUpdateDto {
   @IsString()
   @IsNotEmpty({ message: 'Содержание политики не может быть пустым!' })
   content?: string;
+
+  @ApiProperty({
+    description: 'Дедлайн распоряжения',
+    required: false,
+    example: '2025-09-16 17:03:31.000111',
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  deadline?: Date;
+
 }

@@ -231,27 +231,27 @@ export class PolicyController {
     const user = req.user as ReadUserDto;
     const organization = await this.organizationService.findOneById(policyCreateDto.organizationId)
     policyCreateDto.organization = organization;
-    policyCreateDto.user = user;
+    policyCreateDto.postCreator = user.posts.find(post => post.isDefault);
     policyCreateDto.account = user.account;
     const createdPolicyId = await this.policyService.create(policyCreateDto);
-    const createdEventPolicyDto: PolicyCreateEventDto = {
-      eventType: 'POLICY_CREATED',
-      id: createdPolicyId,
-      policyName: policyCreateDto.policyName,
-      state:
-        policyCreateDto.state !== undefined
-          ? (policyCreateDto.state as string)
-          : (State.DRAFT as string),
-      type:
-        policyCreateDto.type !== undefined
-          ? (policyCreateDto.type as string)
-          : (Type.DIRECTIVE as string),
-      content: policyCreateDto.content,
-      createdAt: new Date(),
-      userId: user.id,
-      accountId: user.account.id,
-      organizationId: policyCreateDto.organizationId,
-    };
+    // const createdEventPolicyDto: PolicyCreateEventDto = {
+    //   eventType: 'POLICY_CREATED',
+    //   id: createdPolicyId,
+    //   policyName: policyCreateDto.policyName,
+    //   state:
+    //     policyCreateDto.state !== undefined
+    //       ? (policyCreateDto.state as string)
+    //       : (State.DRAFT as string),
+    //   type:
+    //     policyCreateDto.type !== undefined
+    //       ? (policyCreateDto.type as string)
+    //       : (Type.DIRECTIVE as string),
+    //   content: policyCreateDto.content,
+    //   createdAt: new Date(),
+    //   userId: user.id,
+    //   accountId: user.account.id,
+    //   organizationId: policyCreateDto.organizationId,
+    // };
     // try {
     //   await Promise.race([
     //     this.producerService.sendCreatedPolicyToQueue(createdEventPolicyDto),

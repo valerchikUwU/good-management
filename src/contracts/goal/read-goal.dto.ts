@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Account } from 'src/domains/account.entity';
 import { Organization } from 'src/domains/organization.entity';
+import { Post } from 'src/domains/post.entity';
 import { User } from 'src/domains/user.entity';
 
 export class GoalReadDto {
@@ -16,8 +17,8 @@ export class GoalReadDto {
   @ApiProperty({ description: 'Дата последнего обновления' })
   updatedAt: Date;
 
-  @ApiProperty({ description: 'Id связанного юзера' })
-  user?: User;
+  @ApiProperty({ description: 'Пост создатель' })
+  postCreator?: Post;
 
   @ApiProperty({ description: 'Id связанного аккаунта' })
   account?: Account;

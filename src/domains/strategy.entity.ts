@@ -14,6 +14,7 @@ import { Objective } from './objective.entity';
 import { Project } from './project.entity';
 import { Account } from './account.entity';
 import { Organization } from './organization.entity';
+import { Post } from './post.entity';
 
 /**
  * Перечисление состояний стратегий.
@@ -106,13 +107,13 @@ export class Strategy {
   updatedAt: Date;
 
   /**
-   * Связь с сущностью M:1 User.
+   * Связь с сущностью M:1 Post.
    * 
    * @remarks
    * nullable: false
    */
-  @ManyToOne(() => User, (user) => user.strategies, { nullable: false })
-  user: User;
+  @ManyToOne(() => Post, (postCreator) => postCreator.strategies, { nullable: false })
+  postCreator: Post;
 
   /**
    * Связь с сущностью M:1 Account.

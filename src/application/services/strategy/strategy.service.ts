@@ -37,7 +37,7 @@ export class StrategyService {
         state: strategy.state,
         createdAt: strategy.createdAt,
         updatedAt: strategy.updatedAt,
-        user: strategy.user,
+        postCreator: strategy.postCreator,
         account: strategy.account,
         organization: strategy.organization,
         objective: strategy.objective,
@@ -71,7 +71,7 @@ export class StrategyService {
         state: strategy.state,
         createdAt: strategy.createdAt,
         updatedAt: strategy.updatedAt,
-        user: strategy.user,
+        postCreator: strategy.postCreator,
         account: strategy.account,
         organization: strategy.organization,
         objective: strategy.objective,
@@ -104,7 +104,7 @@ export class StrategyService {
         state: strategy.state,
         createdAt: strategy.createdAt,
         updatedAt: strategy.updatedAt,
-        user: strategy.user,
+        postCreator: strategy.postCreator,
         account: strategy.account,
         organization: strategy.organization,
         objective: strategy.objective,
@@ -140,7 +140,7 @@ export class StrategyService {
         state: strategy.state,
         createdAt: strategy.createdAt,
         updatedAt: strategy.updatedAt,
-        user: strategy.user,
+        postCreator: strategy.postCreator,
         account: strategy.account,
         organization: strategy.organization,
         objective: strategy.objective,
@@ -148,7 +148,6 @@ export class StrategyService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех стратегий!',
       );
@@ -172,7 +171,7 @@ export class StrategyService {
         state: strategy.state,
         createdAt: strategy.createdAt,
         updatedAt: strategy.updatedAt,
-        user: strategy.user,
+        postCreator: strategy.postCreator,
         account: strategy.account,
         organization: strategy.organization,
         objective: strategy.objective,
@@ -182,28 +181,20 @@ export class StrategyService {
       return strategyReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении стратегии');
     }
   }
 
   async create(strategyCreateDto: StrategyCreateDto): Promise<string> {
     try {
-      if (!strategyCreateDto.content) {
-        throw new BadRequestException('Стратегия не может быть пустой!');
-      }
-      if (!strategyCreateDto.organizationId) {
-        throw new BadRequestException('Выберите организацию для стратегии!');
-      }
 
       const strategy = new Strategy();
       strategy.content = strategyCreateDto.content;
-      strategy.user = strategyCreateDto.user;
+      strategy.postCreator = strategyCreateDto.postCreator;
       strategy.account = strategyCreateDto.account;
       strategy.organization = strategyCreateDto.organization;
       const existingDraftStrategy = await this.strategyRepository.findOne({
@@ -222,9 +213,8 @@ export class StrategyService {
       return createdStrategyId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
       throw new InternalServerErrorException('Ошибка при создании стратегии');
     }
@@ -239,7 +229,6 @@ export class StrategyService {
       if (!strategy) {
         throw new NotFoundException(`Стратегия с ID ${_id} не найдена`);
       }
-      // Обновить свойства, если они указаны в DTO
       if (updateStrategyDto.content)
         strategy.content = updateStrategyDto.content;
       if (updateStrategyDto.state) {

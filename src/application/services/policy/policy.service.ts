@@ -39,9 +39,10 @@ export class PolicyService {
         content: policy.content,
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
+        deadline: policy.deadline,
         posts: policy.posts,
         organization: policy.organization,
-        user: policy.user,
+        postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
         targets: policy.targets
@@ -72,9 +73,10 @@ export class PolicyService {
         content: policy.content,
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
+        deadline: policy.deadline,
         posts: policy.posts,
         organization: policy.organization,
-        user: policy.user,
+        postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
         targets: policy.targets
@@ -109,9 +111,10 @@ export class PolicyService {
         content: policy.content,
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
+        deadline: policy.deadline,
         posts: policy.posts,
         organization: policy.organization,
-        user: policy.user,
+        postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
         targets: policy.targets
@@ -146,9 +149,10 @@ export class PolicyService {
         content: policy.content,
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
+        deadline: policy.deadline,
         posts: policy.posts,
         organization: policy.organization,
-        user: policy.user,
+        postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
         targets: policy.targets
@@ -157,12 +161,9 @@ export class PolicyService {
       return policyReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении политики');
     }
   }
@@ -190,9 +191,10 @@ export class PolicyService {
         content: policy.content,
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
+        deadline: policy.deadline,
         posts: policy.posts,
         organization: policy.organization,
-        user: policy.user,
+        postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
         targets: policy.targets
@@ -200,12 +202,10 @@ export class PolicyService {
 
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении политик');
     }
   }
@@ -215,23 +215,18 @@ export class PolicyService {
 
       const policy = new Policy();
       policy.policyName = policyCreateDto.policyName;
-      policy.state = policyCreateDto.state;
-      policy.type = policyCreateDto.type;
       policy.content = policyCreateDto.content;
-      policy.user = policyCreateDto.user;
+      policy.postCreator = policyCreateDto.postCreator;
       policy.account = policyCreateDto.account;
       policy.organization = policyCreateDto.organization;
-      if (policyCreateDto.state === State.ACTIVE)
-        policy.dateActive = new Date();
       const createdPolicy = await this.policyRepository.insert(policy);
 
 
       return createdPolicy.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
       throw new InternalServerErrorException('Ошибка при создании политики');
     }
@@ -271,30 +266,31 @@ export class PolicyService {
       if (!policy) {
         throw new NotFoundException(`Политика с ID ${_id} не найдена`);
       }
-      // Обновить свойства, если они указаны в DTO
-      if (updatePolicyDto.policyName)
-        policy.policyName = updatePolicyDto.policyName;
+      if (updatePolicyDto.policyName) policy.policyName = updatePolicyDto.policyName;
       if (updatePolicyDto.state) policy.state = updatePolicyDto.state;
       if (updatePolicyDto.type) policy.type = updatePolicyDto.type;
       if (updatePolicyDto.content) policy.content = updatePolicyDto.content;
+
       if (updatePolicyDto.state === State.ACTIVE)
         policy.dateActive = new Date();
+
+      if (updatePolicyDto.type === Type.DISPOSAL)
+        policy.deadline = updatePolicyDto.deadline;
+
       await this.policyRepository.update(policy.id, {
         policyName: policy.policyName,
         state: policy.state,
         type: policy.type,
         content: policy.content,
         dateActive: policy.dateActive,
+        deadline: policy.deadline
       });
       return policy.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении политики');
     }
   }

@@ -63,7 +63,14 @@ export class PolicyReadDto {
   updatedAt: Date;
 
   @ApiProperty({
-    description: 'Связанный пост политики',
+    description: 'Дедлайн распоряжения',
+    required: false,
+    example: '2025-09-16 17:03:31.000111',
+  })
+  deadline: Date;
+
+  @ApiProperty({
+    description: 'Связанные посты с политикой',
     example: ['bb1897ad-1e87-4747-a6bb-749e4bf49bf6'],
     nullable: true,
   })
@@ -72,8 +79,8 @@ export class PolicyReadDto {
   @ApiProperty({ description: 'Связанная организация с политикой' })
   organization: Organization;
 
-  @ApiProperty({ description: 'Связанный юзер политики' })
-  user: User;
+  @ApiProperty({ description: 'Пост создатель' })
+  postCreator: Post;
 
   @ApiProperty({ description: 'Связанный аккаунт политики' })
   account: Account;

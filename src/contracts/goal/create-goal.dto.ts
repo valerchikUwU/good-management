@@ -11,6 +11,7 @@ import {
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { Organization } from 'src/domains/organization.entity';
+import { Post } from 'src/domains/post.entity';
 import { User } from 'src/domains/user.entity';
 
 export class GoalCreateDto {
@@ -33,7 +34,7 @@ export class GoalCreateDto {
   organizationId: string;
 
   @Exclude({ toPlainOnly: true })
-  user: User;
+  postCreator: Post;
 
   @Exclude({ toPlainOnly: true })
   account: Account;

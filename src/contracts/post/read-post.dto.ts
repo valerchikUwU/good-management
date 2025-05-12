@@ -2,13 +2,16 @@ import { Account } from 'src/domains/account.entity';
 import { ControlPanel } from 'src/domains/controlPanel.entity';
 import { Convert } from 'src/domains/convert.entity';
 import { ConvertToPost } from 'src/domains/convertToPost.entity';
+import { Goal } from 'src/domains/goal.entity';
 import { GroupToPost } from 'src/domains/groupToPost.entity';
 import { HistoryUsersToPost } from 'src/domains/historyUsersToPost.entity';
 import { Message } from 'src/domains/message.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Policy } from 'src/domains/policy.entity';
+import { Project } from 'src/domains/project.entity';
 import { Role } from 'src/domains/role.entity';
 import { Statistic } from 'src/domains/statistic.entity';
+import { Strategy } from 'src/domains/strategy.entity';
 import { Target } from 'src/domains/target.entity';
 import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { User } from 'src/domains/user.entity';
@@ -21,6 +24,7 @@ export class PostReadDto {
   parentId: string;
   product: string;
   purpose: string;
+  isDefault: boolean;
   createdAt: Date;
   updatedAt: Date;
   user: User;
@@ -36,5 +40,9 @@ export class PostReadDto {
   controlPanels: ControlPanel[];
   role: Role;
   groupToPosts: GroupToPost[];
+  goals: Goal[];
+  policies: Policy[];
+  strategies: Strategy[];
+  projects: Project[];
   underPosts?: PostReadDto[];
 }

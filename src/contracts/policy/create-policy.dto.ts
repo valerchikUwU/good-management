@@ -1,46 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import {
-  ArrayNotEmpty,
-  IsArray,
-  IsEnum,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsUUID,
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { Organization } from 'src/domains/organization.entity';
-import { State, Type } from 'src/domains/policy.entity';
-import { User } from 'src/domains/user.entity';
+import { Post } from 'src/domains/post.entity';
 
 export class PolicyCreateDto {
   @ApiProperty({ description: 'Название политики', example: 'Политика' })
   @IsString()
   @IsNotEmpty({ message: 'Название политики не может быть пустым!' })
   policyName: string;
-
-  @ApiProperty({
-    description: 'Состояние политики',
-    required: false,
-    default: State.DRAFT,
-    example: 'Черновик',
-    examples: ['Черновик', 'Активный', 'Отменён'],
-  })
-  @IsOptional()
-  @IsEnum(State)
-  state?: State;
-
-  @ApiProperty({
-    description: 'Тип политики',
-    example: 'Директива',
-    required: false,
-    default: Type.DIRECTIVE,
-    examples: ['Директива', 'Инструкция'],
-  })
-  @IsOptional()
-  @IsEnum(Type)
-  type?: Type; // DEFALUT DIRECTIVA
 
   @ApiProperty({
     description: 'HTML контент политики',
@@ -52,7 +25,7 @@ export class PolicyCreateDto {
   content: string;
 
   @Exclude({ toPlainOnly: true })
-  user: User;
+  postCreator: Post;
 
   @Exclude({ toPlainOnly: true })
   account: Account;

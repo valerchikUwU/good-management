@@ -201,6 +201,9 @@ export class TargetService {
       const holderPostMap = new Map(holderPosts.map(post => [post.id, post]));
       targetCreateDtos.forEach(targetCreateDto => {
         targetCreateDto.holderPost = targetCreateDto.holderPostId ? holderPostMap.get(targetCreateDto.holderPostId) : null;
+        if(targetCreateDto.targetState === State.ACTIVE){
+          targetCreateDto.dateStart = new Date();
+        }
         return targetCreateDto;
       });
       const createdTargetsResult = await this.targetRepository.insert(targetCreateDtos);
@@ -303,11 +306,12 @@ export class TargetService {
       updateTargetDtos.forEach(updateTargetDto => {
         updateTargetDto.holderPost = updateTargetDto.holderPostId ? holderPostMapForUpdation.get(updateTargetDto.holderPostId) : null;
         if (updateTargetDto.targetState === State.FINISHED) updateTargetDto.dateComplete = new Date();
+        if (updateTargetDto.targetState === State.ACTIVE) updateTargetDto.dateStart = new Date();
       });
       const updatedTargetsResult = await this.targetRepository.upsert(
         updateTargetDtos.map(dto => ({
           ...dto,
-          id: dto._id,  // Явно задаем соответствие `_id` → `id`
+          id: dto._id,
         })),
         {
           conflictPaths: ["id"],
