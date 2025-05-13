@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, ArrayNotEmpty, IsArray, IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsUUID } from 'class-validator';
+import { Exclude, Type } from 'class-transformer';
+import { ArrayMaxSize, ArrayMinSize, ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
+import { TypeConvert, PathConvert } from 'src/domains/convert.entity';
+import { Post } from 'src/domains/post.entity';
 // import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
 
 export class ConvertUpdateDto {
@@ -12,6 +14,17 @@ export class ConvertUpdateDto {
   @IsUUID()
   @IsNotEmpty({ message: 'Id конверта не может быть пустым!' })
   _id: string;
+
+  @ApiProperty({
+    description: 'Тема конверта',
+    required: false,
+    example: 'Тема'
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(1024, { message: 'Тема конверта должна быть не более 1024 символа' })
+  @IsNotEmpty({ message: 'Тема не может быть пустой!' })
+  convertTheme?: string;
 
   @ApiProperty({
     description: 'Список ids постов, которые участники',
@@ -52,4 +65,23 @@ export class ConvertUpdateDto {
   @IsOptional()
   @IsBoolean()
   convertStatus?: boolean;
+
+  @ApiProperty({
+    description: 'Дедлайн',
+    required: false,
+    example: '2025-09-16 17:03:31.000111',
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  deadline?: Date;
+
+  @Exclude({ toPlainOnly: true })
+  pathOfPosts?: string[];
+
+  @Exclude({ toPlainOnly: true })
+  convertPath?: PathConvert;
+
+  @Exclude({ toPlainOnly: true })
+  host?: Post;
 }

@@ -21,6 +21,7 @@ import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { Transactional } from 'nestjs-transaction';
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertService } from '../convert/convert.service';
+import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 
 @Injectable()
 export class ProjectService {
@@ -293,7 +294,7 @@ export class ProjectService {
   }
 
   @Transactional()
-  async update(_id: string, updateProjectDto: ProjectUpdateDto, convertCreateDtos: ConvertCreateDto[]): Promise<string> {
+  async update(_id: string, updateProjectDto: ProjectUpdateDto, convertCreateDtos: ConvertCreateDto[], convertUpdateDtos: ConvertUpdateDto[]): Promise<string> {
     try {
       const project = await this.projectRepository.findOne({
         where: { id: _id },
@@ -405,11 +406,11 @@ export class ProjectService {
       // const createdConverts = convertCreateDtos?.length
       //   ? await this.convertService.createBulkForProject(convertCreateDtos)
       //   : [];
-      if (updateProjectDto.targetCreateDtos) {
-        for (let index = 0; index < updateProjectDto.targetCreateDtos.length; index++) {
-          const targetCreateDto = updateProjectDto.targetCreateDtos[index];
+      if (updateProjectDto.targetCreateDtos.length > 0) {
+        for (let i = 0; i < updateProjectDto.targetCreateDtos.length; i++) {
+          const targetCreateDto = updateProjectDto.targetCreateDtos[i];
           if (convertCreateDtos.length > 0) {
-            const createdConvert = await this.convertService.create(convertCreateDtos[index]);
+            const createdConvert = await this.convertService.create(convertCreateDtos[i]);
             targetCreateDto.convert = createdConvert;
           }
           targetCreateDto.project = project;
@@ -417,14 +418,12 @@ export class ProjectService {
 
         await this.targetService.createBulk(updateProjectDto.targetCreateDtos);
       }
-      if (updateProjectDto.targetUpdateDtos) {
-        if (convertCreateDtos.length > 0) {
+      if (updateProjectDto.targetUpdateDtos.length > 0) {
+        if (convertUpdateDtos.length > 0) {
           for (let i = 0; i < updateProjectDto.targetUpdateDtos.length; i++) {
             const targetUpdateDto = updateProjectDto.targetUpdateDtos[i];
-            const convertIndex = i + (updateProjectDto?.targetCreateDtos?.length || 0);
-            if(targetUpdateDto.targetState === State.ACTIVE) {
-              const createdConvert = await this.convertService.create(convertCreateDtos[convertIndex]);
-              targetUpdateDto.convert = createdConvert;
+            if(!targetUpdateDto.convert) {
+              await this.convertService.update(convertUpdateDtos[i]._id, convertUpdateDtos[i]);
             }
           }
         }
