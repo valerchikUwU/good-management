@@ -1,5 +1,5 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
-import { Exclude, Type } from 'class-transformer';
+import { Exclude, Transform, TransformFnParams, Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -18,6 +18,7 @@ import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { State, Type as TargetType } from 'src/domains/target.entity';
 import { ConvertReadDto } from '../convert/read-convert.dto';
+import { IsRequiredIfActive } from 'src/validators/target-validators';
 
 @ApiExtraModels()
 export class TargetUpdateDto {
@@ -38,6 +39,7 @@ export class TargetUpdateDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'Задача не может быть пустой!' })
+  @Transform(({ value }: TransformFnParams) => value?.trim())
   content?: string;
 
   @ApiProperty({
@@ -58,6 +60,7 @@ export class TargetUpdateDto {
   @IsOptional()
   @IsUUID()
   @IsNotEmpty({ message: 'Id ответственного поста не может быть пустым' })
+  @IsRequiredIfActive()
   holderPostId?: string;
 
   @ApiProperty({
@@ -112,6 +115,7 @@ export class TargetUpdateDto {
   @IsOptional()
   @Type(() => Date)
   @IsDate()
+  @IsRequiredIfActive()
   deadline?: Date;
 
   @IsOptional()
