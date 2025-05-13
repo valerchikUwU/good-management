@@ -35,6 +35,8 @@ export class ReadUserDto {
   @IsNumber()
   vk_id: number;
 
+  isFired: boolean;
+
   @IsDate()
   @Type(() => Date)
   createdAt: Date;

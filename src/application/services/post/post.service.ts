@@ -33,7 +33,10 @@ export class PostService {
   async findAllForOrganization(organizationId: string, structure: boolean, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { organization: { id: organizationId } },
+        where: {
+          organization: { id: organizationId },
+          isArchive: false
+        },
         relations: relations ?? [],
       });
 
@@ -46,6 +49,7 @@ export class PostService {
         product: post.product,
         purpose: post.purpose,
         isDefault: post.isDefault,
+        isArchive: post.isArchive,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -81,6 +85,7 @@ export class PostService {
       const posts = await this.postRepository.find({
         where: {
           user: { id: userId },
+          isArchive: false
         },
         relations: relations ?? [],
       });
@@ -94,6 +99,7 @@ export class PostService {
         product: post.product,
         purpose: post.purpose,
         isDefault: post.isDefault,
+        isArchive: post.isArchive,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -116,7 +122,6 @@ export class PostService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех постов для юзера!',
       );
@@ -126,7 +131,11 @@ export class PostService {
   async findAllWithUserForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { organization: { id: organizationId }, user: { id: Not(IsNull()) } },
+        where: {
+          organization: { id: organizationId },
+          user: { id: Not(IsNull()) },
+          isArchive: false
+        },
         relations: relations ?? [],
       });
 
@@ -139,6 +148,7 @@ export class PostService {
         product: post.product,
         purpose: post.purpose,
         isDefault: post.isDefault,
+        isArchive: post.isArchive,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -161,7 +171,6 @@ export class PostService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех постов для организации!',
       );
@@ -171,7 +180,11 @@ export class PostService {
   async findAllWithoutUserForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
-        where: { organization: { id: organizationId }, user: { id: IsNull() } },
+        where: {
+          organization: { id: organizationId },
+          user: { id: IsNull() },
+          isArchive: false
+        },
         relations: relations ?? [],
       });
 
@@ -184,6 +197,7 @@ export class PostService {
         product: post.product,
         purpose: post.purpose,
         isDefault: post.isDefault,
+        isArchive: post.isArchive,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -206,7 +220,6 @@ export class PostService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех постов без юзеров!',
       );
@@ -233,7 +246,7 @@ export class PostService {
           AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)
           AND "watcher"."id" IS NULL
           AND ("c"."pathOfPosts"[1] IN (:...userPostsIds) OR "c"."activePostId" IN (:...userPostsIds))`, { userPostsIds }
-        )        
+        )
         .leftJoin(
           'c.messages',
           'latestMessage',
@@ -277,7 +290,6 @@ export class PostService {
       return posts
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех контактов!',
       );
@@ -307,6 +319,7 @@ export class PostService {
         product: post.product,
         purpose: post.purpose,
         isDefault: post.isDefault,
+        isArchive: post.isArchive,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -330,12 +343,10 @@ export class PostService {
 
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении статистик');
     }
   }
@@ -360,6 +371,7 @@ export class PostService {
         product: post.product,
         purpose: post.purpose,
         isDefault: post.isDefault,
+        isArchive: post.isArchive,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         user: post.user,
@@ -384,20 +396,18 @@ export class PostService {
       return postReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении поста');
     }
   }
 
   async findMaxDivisionNumber(organizationId: string): Promise<number> {
     try {
-      const maxDivisionNumber = await this.postRepository.maximum('divisionNumber', {organization: {id: organizationId}})
-      if (!maxDivisionNumber) return 1;
+      const maxDivisionNumber = await this.postRepository.maximum('divisionNumber', { organization: { id: organizationId } })
+      if (!maxDivisionNumber) return 0;
       return maxDivisionNumber;
     } catch (err) {
       this.logger.error(err);
@@ -474,7 +484,7 @@ export class PostService {
       post.account = postCreateDto.account;
       post.role = postCreateDto.role;
       console.log(postCreateDto.user.posts)
-      if(postCreateDto.user.posts.length < 1){
+      if (postCreateDto.user.posts.length < 1) {
         post.isDefault = true;
       }
       const createdPostId = await this.postRepository.insert(post);
@@ -491,11 +501,15 @@ export class PostService {
   async update(_id: string, updatePostDto: PostUpdateDto): Promise<string> {
     try {
       const post = await this.postRepository.findOne({ where: { id: _id } });
+
       if (!post) {
         throw new NotFoundException(`Пост с ID ${_id} не найден`);
       }
+
       if (updatePostDto.postName) post.postName = updatePostDto.postName;
+
       if (updatePostDto.divisionName) post.divisionName = updatePostDto.divisionName;
+
       if (updatePostDto.parentId !== null) {
         post.parentId = updatePostDto.parentId;
       }
@@ -504,7 +518,9 @@ export class PostService {
       }
 
       if (updatePostDto.product) post.product = updatePostDto.product;
+
       if (updatePostDto.purpose) post.purpose = updatePostDto.purpose;
+
       if (updatePostDto.responsibleUserId !== null) {
         post.user = updatePostDto.user;
         await this.cacheService.del(`user:${updatePostDto.responsibleUserId}`)
@@ -519,12 +535,15 @@ export class PostService {
         post.policy = null;
       }
 
+      if (updatePostDto.isArchive != null) post.isArchive = updatePostDto.isArchive;
+
       await this.postRepository.update(post.id, {
         postName: post.postName,
         divisionName: post.divisionName,
         parentId: post.parentId,
         product: post.product,
         purpose: post.purpose,
+        isArchive: post.isArchive,
         user: post.user,
         organization: post.organization,
         policy: post.policy,
