@@ -57,10 +57,10 @@ export class TargetUpdateDto {
     required: false,
     example: '0d081ac3-200f-4c7c-adc8-d11f1f66b20a',
   })
+  // @IsRequiredIfActive()
   @IsOptional()
   @IsUUID()
   @IsNotEmpty({ message: 'Id ответственного поста не может быть пустым' })
-  @IsRequiredIfActive()
   holderPostId?: string;
 
   @ApiProperty({
@@ -112,10 +112,10 @@ export class TargetUpdateDto {
     nullable: true,
     example: '2025-09-16 17:03:31.000111',
   })
+  // @IsRequiredIfActive()
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  @IsRequiredIfActive()
   deadline?: Date;
 
   @IsOptional()

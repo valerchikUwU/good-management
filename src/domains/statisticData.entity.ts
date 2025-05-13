@@ -38,7 +38,7 @@ export class StatisticData {
    * @remarks
    * nullable: false.
    */
-  @Column({ nullable: false })
+  @Column({ type: 'decimal', nullable: false })
   value: number;
 
   /**
