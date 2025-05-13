@@ -265,7 +265,7 @@ export class ProjectService {
   @Transactional()
   async create(projectCreateDto: ProjectCreateDto): Promise<string> {
     try {
-      if(!projectCreateDto.postCreator){
+      if (!projectCreateDto.postCreator) {
         throw new BadRequestException('Вы должны быть закреплены хотя бы за одним постом!')
       }
 
@@ -406,6 +406,9 @@ export class ProjectService {
       // const createdConverts = convertCreateDtos?.length
       //   ? await this.convertService.createBulkForProject(convertCreateDtos)
       //   : [];
+
+      console.log(convertCreateDtos)
+      console.log(convertUpdateDtos)
       if (updateProjectDto.targetCreateDtos.length > 0) {
         for (let i = 0; i < updateProjectDto.targetCreateDtos.length; i++) {
           const targetCreateDto = updateProjectDto.targetCreateDtos[i];
@@ -419,14 +422,17 @@ export class ProjectService {
         await this.targetService.createBulk(updateProjectDto.targetCreateDtos);
       }
       if (updateProjectDto.targetUpdateDtos.length > 0) {
-        if (convertUpdateDtos.length > 0) {
           for (let i = 0; i < updateProjectDto.targetUpdateDtos.length; i++) {
             const targetUpdateDto = updateProjectDto.targetUpdateDtos[i];
-            if(!targetUpdateDto.convert) {
-              await this.convertService.update(convertUpdateDtos[i]._id, convertUpdateDtos[i]);
+            if (targetUpdateDto.convert && convertUpdateDtos.length > 0) {
+              const convertToUpdate = convertUpdateDtos.find(dto => dto.targetId === targetUpdateDto._id)
+              await this.convertService.update(convertToUpdate._id, convertToUpdate);
+            }
+            else if(convertCreateDtos.length > 0 && convertCreateDtos[i].pathOfPosts.length > 1) {
+              const createdConvert = await this.convertService.create(convertCreateDtos.find(dto => dto.targetId === targetUpdateDto._id))
+              targetUpdateDto.convert = createdConvert;
             }
           }
-        }
         await this.targetService.updateBulk(updateProjectDto.targetUpdateDtos);
       }
 
