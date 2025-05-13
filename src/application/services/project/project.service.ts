@@ -409,7 +409,7 @@ export class ProjectService {
       if (updateProjectDto.targetCreateDtos.length > 0) {
         for (let i = 0; i < updateProjectDto.targetCreateDtos.length; i++) {
           const targetCreateDto = updateProjectDto.targetCreateDtos[i];
-          if (convertCreateDtos.length > 0) {
+          if (convertCreateDtos.length > 0 && convertCreateDtos[i].pathOfPosts.length > 1) {
             const createdConvert = await this.convertService.create(convertCreateDtos[i]);
             targetCreateDto.convert = createdConvert;
           }
