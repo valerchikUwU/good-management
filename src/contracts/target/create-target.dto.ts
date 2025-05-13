@@ -1,5 +1,5 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
-import { Exclude, Type } from 'class-transformer';
+import { Exclude, Transform, TransformFnParams, Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -13,7 +13,6 @@ import {
   Min,
   min,
 } from 'class-validator';
-import { Attachment } from 'src/domains/attachment.entity';
 import { Convert } from 'src/domains/convert.entity';
 import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
