@@ -90,6 +90,15 @@ export class PostUpdateDto {
   @IsBoolean()
   isDefault?: boolean;
 
+  @ApiProperty({
+    description: 'Флаг архивного поста',
+    required: false,
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isArchive?: boolean;
+
   @Exclude({ toPlainOnly: true })
   user: User;
 

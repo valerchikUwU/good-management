@@ -25,6 +25,7 @@ export class PostReadDto {
   product: string;
   purpose: string;
   isDefault: boolean;
+  isArchive: boolean
   createdAt: Date;
   updatedAt: Date;
   user: User;

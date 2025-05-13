@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsBoolean,
   IsEmail,
   IsInt,
   IsMobilePhone,
@@ -75,4 +76,13 @@ export class UpdateUserDto {
   @IsMobilePhone('ru-RU', {strictMode: true})
   @IsNotEmpty({ message: 'Телефон юзера не может быть пустым!' })
   telephoneNumber?: string;
+
+  @ApiProperty({
+    description: 'Флаг увольнения',
+    required: false,
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  isFired?: boolean;
 }

@@ -11,11 +11,7 @@ import {
 import { RefreshSession } from './refreshSession.entity';
 import { Post } from './post.entity';
 import { Organization } from './organization.entity';
-import { Goal } from './goal.entity';
-import { Policy } from './policy.entity';
-import { Strategy } from './strategy.entity';
 import { Account } from './account.entity';
-import { Project } from './project.entity';
 import { HistoryUsersToPost } from './historyUsersToPost.entity';
 
 /**
@@ -95,6 +91,16 @@ export class User {
    */
   @Column({ nullable: true, unique: true })
   vk_id: number | null;
+
+  /**
+   * Статус уволен ли сотрудник.
+   * 
+   * @remarks
+   * nullable: false, default: false .
+   */
+  @Column({ nullable: false, default: false })
+  isFired: boolean;
+
 
   /**
    * Дата создания записи.

@@ -34,6 +34,7 @@ export class UsersService {
       telephoneNumber: user.telephoneNumber,
       avatar_url: user.avatar_url,
       vk_id: user.vk_id,
+      isFired: user.isFired,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
       posts: user.posts,
@@ -62,6 +63,7 @@ export class UsersService {
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
         vk_id: user.vk_id,
+        isFired: user.isFired,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         posts: user.posts,
@@ -96,6 +98,7 @@ export class UsersService {
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
         vk_id: user.vk_id,
+        isFired: user.isFired,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         posts: user.posts,
@@ -129,6 +132,7 @@ export class UsersService {
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
         vk_id: user.vk_id,
+        isFired: user.isFired,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         posts: user.posts,
@@ -172,6 +176,7 @@ export class UsersService {
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
         vk_id: user.vk_id,
+        isFired: user.isFired,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         posts: user.posts,
@@ -211,6 +216,7 @@ export class UsersService {
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
         vk_id: user.vk_id,
+        isFired: user.isFired,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         posts: user.posts,
@@ -245,6 +251,7 @@ export class UsersService {
         telephoneNumber: user.telephoneNumber,
         avatar_url: user.avatar_url,
         vk_id: user.vk_id,
+        isFired: user.isFired,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
         posts: user.posts,
@@ -313,13 +320,15 @@ export class UsersService {
       if (updateUserDto.telegramId) user.telegramId = updateUserDto.telegramId;
       if (updateUserDto.avatar_url) user.avatar_url = updateUserDto.avatar_url;
       if (updateUserDto.telephoneNumber) user.telephoneNumber = updateUserDto.telephoneNumber;
+      if (updateUserDto.isFired != null) user.isFired = updateUserDto.isFired; 
       await this.usersRepository.update(_id, {
         firstName: user.firstName,
         lastName: user.lastName,
         middleName: user.middleName,
         telegramId: user.telegramId,
         avatar_url: user.avatar_url,
-        telephoneNumber: user.telephoneNumber
+        telephoneNumber: user.telephoneNumber,
+        isFired: user.isFired
       });
 
       return user.id;

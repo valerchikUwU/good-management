@@ -105,6 +105,16 @@ export class Post {
   isDefault: boolean;
 
 
+    /**
+   * Флаг архивного поста.
+   * 
+   * @remarks
+   * type: 'boolean', default: false, nullable: false 
+   */
+    @Column({ type: 'boolean', default: false })
+    isArchive: boolean;
+
+
   /**
    * Дата создания записи.
    * 
