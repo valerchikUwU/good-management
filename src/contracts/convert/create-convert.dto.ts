@@ -24,7 +24,7 @@ export class ConvertCreateDto {
     example: 'Тема'
   })
   @IsString()
-  @MaxLength(1024, {message: 'Тема конверта должна быть не более 1024 символа'})
+  @MaxLength(1024, { message: 'Тема конверта должна быть не более 1024 символа' })
   @IsNotEmpty({ message: 'Тема не может быть пустой!' })
   convertTheme: string;
 
@@ -105,4 +105,7 @@ export class ConvertCreateDto {
   @Type(() => TargetCreateDto)
   targetCreateDto?: TargetCreateDto;
 
+
+  @Exclude({ toPlainOnly: true })
+  targetId?: string
 }

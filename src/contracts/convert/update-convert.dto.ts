@@ -84,4 +84,7 @@ export class ConvertUpdateDto {
 
   @Exclude({ toPlainOnly: true })
   host?: Post;
+
+  @Exclude({ toPlainOnly: true })
+  targetId?: string
 }
