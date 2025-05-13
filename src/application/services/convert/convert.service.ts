@@ -235,7 +235,7 @@ export class ConvertService {
 
       const messageCreateDto: MessageCreateDto = {
         content: convertCreateDto.targetCreateDto !== undefined ? convertCreateDto.targetCreateDto.content : convertCreateDto.convertTheme,
-        postId: convertCreateDto.senderPostId,
+        postId: convertCreateDto.host.id,
         convert: createdConvert,
         sender: convert.host
       }
@@ -298,7 +298,7 @@ export class ConvertService {
       if (convertUpdateDto.activePostId) {
         convert.activePostId = convertUpdateDto.activePostId;
       }
-      if (convertUpdateDto.convertStatus !== undefined) {
+      if (convertUpdateDto.convertStatus != null) {
         convert.convertStatus = convertUpdateDto.convertStatus;
         convert.dateFinish = new Date();
       }
@@ -325,6 +325,65 @@ export class ConvertService {
         throw err;
       }
       throw new InternalServerErrorException('Ошибка при обновлении конверта');
+    }
+  }
+
+  async updateFromProject(_id: string, convertUpdateDto: ConvertUpdateDto): Promise<string> {
+    try {
+      const convert = await this.convertRepository
+        .createQueryBuilder('convert')
+        .where('convert.id = :_id', { _id })
+        .getOne();
+
+      if (!convert) {
+        throw new NotFoundException(`Конверт с ID ${_id} не найден`);
+      }
+      if (convertUpdateDto.convertTheme) {
+        convert.convertTheme = convertUpdateDto.convertTheme;
+      }
+      if (convertUpdateDto.activePostId) {
+        convert.activePostId = convertUpdateDto.pathOfPosts[1];
+      }
+      if (convertUpdateDto.convertStatus != null) {
+        convert.convertStatus = convertUpdateDto.convertStatus;
+        convert.dateFinish = new Date();
+      }
+      if (convertUpdateDto.deadline) {
+        convert.deadline = convertUpdateDto.deadline;
+      }
+      if (convertUpdateDto.pathOfPosts) {
+        convert.pathOfPosts = convertUpdateDto.pathOfPosts;
+      }
+      if (convertUpdateDto.convertPath) {
+        convert.convertPath = convertUpdateDto.convertPath;
+      }      
+      if (convertUpdateDto.host) {
+        convert.host = convertUpdateDto.host;
+      }
+
+
+
+
+      if (convertUpdateDto.pathOfPosts) {
+        await this.convertToPostService.remove(convert);
+        await this.convertToPostService.createSeveral(convert, convertUpdateDto.pathOfPosts.slice(0, 2));
+      }
+      await this.convertRepository.update(convert.id, {
+        convertTheme: convert.convertTheme,
+        activePostId: convert.activePostId,
+        dateFinish: convert.dateFinish,
+        deadline: convert.deadline,
+        pathOfPosts: convert.pathOfPosts,
+        convertPath: convert.convertPath,
+        host: convert.host,
+      });
+      return convert.id;
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+      throw new InternalServerErrorException('Ошибка при обновлении конверта из проекта');
     }
   }
 }
