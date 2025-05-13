@@ -356,7 +356,7 @@ export class ConvertController {
   async finish(
     @Param('convertId') convertId: string,
     @Body() convertFinishDto: ConvertFinishDto
-  ): Promise<string> {
+  ): Promise<{id: string}> {
     const convertUpdateDto: ConvertUpdateDto = {
       _id: convertId,
       convertStatus: false,
@@ -366,7 +366,7 @@ export class ConvertController {
     this.logger.info(
       `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт завершен!`,
     );
-    return finishedConvertId;
+    return {id: finishedConvertId};
   }
 
 

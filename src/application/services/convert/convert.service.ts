@@ -371,6 +371,7 @@ export class ConvertService {
       await this.convertRepository.update(convert.id, {
         convertTheme: convert.convertTheme,
         activePostId: convert.activePostId,
+        convertStatus: convert.convertStatus,
         dateFinish: convert.dateFinish,
         deadline: convert.deadline,
         pathOfPosts: convert.pathOfPosts,
