@@ -438,7 +438,7 @@ export class ProjectController {
             convertUpdateDto._id = target.convert.id
             convertUpdateDto.convertTheme = target.content;
             convertUpdateDto.deadline = target.deadline;
-            convertUpdateDto.host = senderPost;
+            convertUpdateDto.host = isProductTarget ? userPost : senderPost;
             convertUpdateDto.targetId = target._id;
             if (target.targetState === State.FINISHED || target.targetState === State.REJECTED) {
               convertUpdateDto.convertStatus = false;
@@ -483,7 +483,7 @@ export class ProjectController {
             convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
             convertCreateDto.deadline = target.deadline;
             convertCreateDto.convertType = TypeConvert.ORDER;
-            convertCreateDto.host = senderPost;
+            convertCreateDto.host = isProductTarget ? userPost : senderPost;
             convertCreateDto.account = user.account;
             convertCreateDto.targetId = target._id;
             convertCreateDtos.push(convertCreateDto);
