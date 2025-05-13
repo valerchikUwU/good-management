@@ -426,7 +426,7 @@ export class ProjectService {
             const targetUpdateDto = updateProjectDto.targetUpdateDtos[i];
             if (targetUpdateDto.convert && convertUpdateDtos.length > 0) {
               const convertToUpdate = convertUpdateDtos.find(dto => dto.targetId === targetUpdateDto._id)
-              await this.convertService.update(convertToUpdate._id, convertToUpdate);
+              await this.convertService.updateFromProject(convertToUpdate._id, convertToUpdate);
             }
             else if(convertCreateDtos.length > 0 && convertCreateDtos[i].pathOfPosts.length > 1) {
               const createdConvert = await this.convertService.create(convertCreateDtos.find(dto => dto.targetId === targetUpdateDto._id))
