@@ -168,7 +168,7 @@ export class ConvertController {
   })
   async findOne(
     @Param('convertId') convertId: string,
-  ): Promise<{convert: ConvertReadDto; allPostsInConvert: PostReadDto[]}> {
+  ): Promise<{ convert: ConvertReadDto; allPostsInConvert: PostReadDto[] }> {
     const start = new Date()
     const convert = await this.convertService.findOneById(convertId, [
       'convertToPosts.post.user',
@@ -179,7 +179,7 @@ export class ConvertController {
     const allPostsInConvert = await this.postService.findBulk(convert.pathOfPosts, ['user'])
     const now = new Date()
     console.log(`чат по id ${now.getTime() - start.getTime()}`);
-    return {convert: convert, allPostsInConvert: allPostsInConvert};
+    return { convert: convert, allPostsInConvert: allPostsInConvert };
   }
 
   @Post('new')
@@ -210,10 +210,11 @@ export class ConvertController {
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
     const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId);
+    const isChat = convertCreateDto.convertType !== TypeConvert.CHAT;
     const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
       await Promise.all([
-        this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
-        this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
+        isChat ? this.postService.getHierarchyToTop(convertCreateDto.senderPostId) : [],
+        isChat ? this.postService.getHierarchyToTop(convertCreateDto.reciverPostId) : [],
         this.postService.findOneById(convertCreateDto.reciverPostId),
       ]);
     const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
@@ -237,16 +238,18 @@ export class ConvertController {
     console.log(postIdsFromSenderToTop); // ___________________________LOG
     console.log(postIdsFromRecieverToTop); // ___________________________LOG
     console.log(postIdsFromSenderToReciver); // ___________________________LOG
-    if(!isCommonDivision){
+    if (!isCommonDivision) {
       convertCreateDto.convertPath = PathConvert.REQUEST
     }
-    else if(postIdsFromSenderToReciver.length > 2 && convertCreateDto.convertType !== TypeConvert.CHAT){
+    else if (postIdsFromSenderToReciver.length > 2 && convertCreateDto.convertType !== TypeConvert.CHAT) {
       convertCreateDto.convertPath = PathConvert.COORDINATION
     }
     else {
       convertCreateDto.convertPath = PathConvert.DIRECT
     }
-    convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
+    convertCreateDto.pathOfPosts = isChat ? postIdsFromSenderToReciver
+      .concat(convertCreateDto.senderPostId, convertCreateDto.reciverPostId) : postIdsFromSenderToReciver;
+      
     convertCreateDto.host = userPost;
     convertCreateDto.account = user.account;
     if (convertCreateDto.convertType === TypeConvert.ORDER) {
@@ -356,7 +359,7 @@ export class ConvertController {
   async finish(
     @Param('convertId') convertId: string,
     @Body() convertFinishDto: ConvertFinishDto
-  ): Promise<{id: string}> {
+  ): Promise<{ id: string }> {
     const convertUpdateDto: ConvertUpdateDto = {
       _id: convertId,
       convertStatus: false,
@@ -366,7 +369,7 @@ export class ConvertController {
     this.logger.info(
       `${yellow('OK!')} - convertUpdateDto: ${JSON.stringify(convertUpdateDto)} - Конверт завершен!`,
     );
-    return {id: finishedConvertId};
+    return { id: finishedConvertId };
   }
 
 
