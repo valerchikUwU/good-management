@@ -210,7 +210,7 @@ export class ConvertController {
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
     const userPost = user.posts.find(post => post.id === convertCreateDto.senderPostId);
-    const isChat = convertCreateDto.convertType !== TypeConvert.CHAT;
+    const isChat = convertCreateDto.convertType === TypeConvert.CHAT;
     const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
       await Promise.all([
         isChat ? this.postService.getHierarchyToTop(convertCreateDto.senderPostId) : [],
