@@ -213,8 +213,8 @@ export class ConvertController {
     const isChat = convertCreateDto.convertType === TypeConvert.CHAT;
     const [postIdsFromSenderToTop, postIdsFromRecieverToTop, targetHolderPost] =
       await Promise.all([
-        isChat ? this.postService.getHierarchyToTop(convertCreateDto.senderPostId) : [],
-        isChat ? this.postService.getHierarchyToTop(convertCreateDto.reciverPostId) : [],
+        isChat ? [] : this.postService.getHierarchyToTop(convertCreateDto.senderPostId),
+        isChat ? [] : this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
         this.postService.findOneById(convertCreateDto.reciverPostId),
       ]);
     const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
