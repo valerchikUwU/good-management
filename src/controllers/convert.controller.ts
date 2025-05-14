@@ -247,9 +247,8 @@ export class ConvertController {
     else {
       convertCreateDto.convertPath = PathConvert.DIRECT
     }
-    convertCreateDto.pathOfPosts = isChat ? postIdsFromSenderToReciver
-      .concat(convertCreateDto.senderPostId, convertCreateDto.reciverPostId) : postIdsFromSenderToReciver;
-      
+    convertCreateDto.pathOfPosts = isChat ? [convertCreateDto.senderPostId, convertCreateDto.reciverPostId] : postIdsFromSenderToReciver;
+
     convertCreateDto.host = userPost;
     convertCreateDto.account = user.account;
     if (convertCreateDto.convertType === TypeConvert.ORDER) {
