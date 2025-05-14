@@ -231,7 +231,7 @@ export class ConvertService {
       convert.host = convertCreateDto.host;
       convert.account = convertCreateDto.account;
       const createdConvert = await this.convertRepository.save(convert);
-      
+
 
       const messageCreateDto: MessageCreateDto = {
         content: convertCreateDto.targetCreateDto !== undefined ? convertCreateDto.targetCreateDto.content : convertCreateDto.convertTheme,
@@ -240,11 +240,14 @@ export class ConvertService {
         sender: convert.host
       }
 
+      const postsToConvert = convertCreateDto.pathOfPosts.slice(0, 2)
+        .concat(convertCreateDto.pathOfPosts[convertCreateDto.pathOfPosts.length - 1])
+        .filter((postId, index, arr) => index ===
+          arr.findIndex((id) => id === postId));
 
 
-      
       await Promise.all([
-        this.convertToPostService.createSeveral(createdConvert, convertCreateDto.pathOfPosts.slice(0, 2)),
+        this.convertToPostService.createSeveral(createdConvert, postsToConvert),
         convertCreateDto.targetCreateDto ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
         convertCreateDto.convertType !== TypeConvert.CHAT ? this.messageService.create(messageCreateDto) : null
       ])
@@ -272,7 +275,7 @@ export class ConvertService {
   //     })
 
 
-      
+
   //     await Promise.all([
   //       this.convertToPostService.createSeveralBulk(createdConverts),
   //       this.messageService.createBulk(messageCreateDtos)
@@ -356,7 +359,7 @@ export class ConvertService {
       }
       if (convertUpdateDto.convertPath) {
         convert.convertPath = convertUpdateDto.convertPath;
-      }      
+      }
       if (convertUpdateDto.host) {
         convert.host = convertUpdateDto.host;
       }
@@ -365,8 +368,13 @@ export class ConvertService {
 
 
       if (convertUpdateDto.pathOfPosts) {
+        const postsToConvert = convertUpdateDto.pathOfPosts.slice(0, 2)
+          .concat(convertUpdateDto.pathOfPosts[convertUpdateDto.pathOfPosts.length - 1])
+          .filter((postId, index, arr) => index ===
+            arr.findIndex((id) => id === postId));
+            
         await this.convertToPostService.remove(convert);
-        await this.convertToPostService.createSeveral(convert, convertUpdateDto.pathOfPosts.slice(0, 2));
+        await this.convertToPostService.createSeveral(convert, postsToConvert);
       }
       await this.convertRepository.update(convert.id, {
         convertTheme: convert.convertTheme,
