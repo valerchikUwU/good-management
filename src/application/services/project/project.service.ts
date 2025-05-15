@@ -424,12 +424,13 @@ export class ProjectService {
       if (updateProjectDto.targetUpdateDtos.length > 0) {
           for (let i = 0; i < updateProjectDto.targetUpdateDtos.length; i++) {
             const targetUpdateDto = updateProjectDto.targetUpdateDtos[i];
+            const convertCreateDtoForTarget = convertCreateDtos.find(dto => dto.targetId === targetUpdateDto._id);
             if (targetUpdateDto.convert && convertUpdateDtos.length > 0) {
               const convertToUpdate = convertUpdateDtos.find(dto => dto.targetId === targetUpdateDto._id)
               await this.convertService.updateFromProject(convertToUpdate._id, convertToUpdate);
             }
-            else if(convertCreateDtos.length > 0 && convertCreateDtos[i].pathOfPosts.length > 1) {
-              const createdConvert = await this.convertService.create(convertCreateDtos.find(dto => dto.targetId === targetUpdateDto._id))
+            else if(convertCreateDtos.length > 0 && convertCreateDtoForTarget.pathOfPosts.length > 1) {
+              const createdConvert = await this.convertService.create(convertCreateDtoForTarget)
               targetUpdateDto.convert = createdConvert;
             }
           }
