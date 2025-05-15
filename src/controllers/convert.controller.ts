@@ -238,10 +238,10 @@ export class ConvertController {
     console.log(postIdsFromSenderToTop); // ___________________________LOG
     console.log(postIdsFromRecieverToTop); // ___________________________LOG
     console.log(postIdsFromSenderToReciver); // ___________________________LOG
-    if (!isCommonDivision) {
+    if (!isCommonDivision && !isChat) {
       convertCreateDto.convertPath = PathConvert.REQUEST
     }
-    else if (postIdsFromSenderToReciver.length > 2 && convertCreateDto.convertType !== TypeConvert.CHAT) {
+    else if (postIdsFromSenderToReciver.length > 2 && !isChat) {
       convertCreateDto.convertPath = PathConvert.COORDINATION
     }
     else {
