@@ -13,14 +13,15 @@ dotenv.config();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
-    // test for fetch fix
-    cors: false
-    // когда будет билд фронта поменять
+    // cors: {
+    //   origin:'http://localhost:3000', 
+    //   credentials:true,            //access-control-allow-credentials:true
+    // }
 
-    // {
-    // origin: process.env.NODE_ENV === 'dev' ? true : false,
-    // credentials: true,
-    // },
+    cors: {
+      origin: process.env.NODE_ENV === 'dev' ? 'http://localhost:3000' : false,
+      credentials: true,
+    },
   });
   // const app = await NestFactory.create<NestFastifyApplication>(
   //   AppModule,

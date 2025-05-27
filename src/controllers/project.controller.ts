@@ -15,14 +15,12 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiHeader,
   ApiOperation,
   ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { use } from 'passport';
 import { ProjectService } from 'src/application/services/project/project.service';
 import { StrategyService } from 'src/application/services/strategy/strategy.service';
 import { TargetService } from 'src/application/services/target/target.service';
@@ -42,10 +40,11 @@ import { PostService } from 'src/application/services/post/post.service';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { beforeCreate, beforeCreateProgram, findAllExample, findOneExample, findOneProgramExample } from 'src/constants/swagger-examples/projects/project-examples';
 import { State, State as TargetState, Type as TargetType } from 'src/domains/target.entity';
-import { createPathInOneDivision } from 'src/helpersFunc/createPathInOneDivision';
-import { PathConvert, TypeConvert } from 'src/domains/convert.entity';
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
+import { createPathFromSenderToRecieverPost } from 'src/helpersFunc/createPathFromSenderToRecieverPost';
+import { setConvertPath } from 'src/helpersFunc/setConvertPath';
+import { TypeConvert } from 'src/domains/convert.entity';
 
 @ApiTags('Project')
 @ApiBearerAuth('access-token')
@@ -351,7 +350,6 @@ export class ProjectController {
     if (holderProductPostId) {
       let senderPost = await this.postService.findOneById(holderProductPostId);
       if (projectUpdateDto.targetCreateDtos.length > 0) {
-
         const convertCreationForTargetCreatePromises = projectUpdateDto.targetCreateDtos.map(async (target) => {
           const convertCreateDto = new ConvertCreateDto();
           const [postIdsFromSenderToTop, postIdsFromRecieverToTop] =
@@ -359,32 +357,11 @@ export class ProjectController {
               this.postService.getHierarchyToTop(holderProductPostId),
               this.postService.getHierarchyToTop(target.holderPostId),
             ]);
-          const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
-            postIdsFromRecieverToTop.includes(postId),
-          );
-          const postIdsFromSenderToReciver: string[] = [];
-          if (isCommonDivision) {
-            postIdsFromSenderToReciver.push(
-              ...createPathInOneDivision(
-                postIdsFromSenderToTop,
-                postIdsFromRecieverToTop,
-              ),
-            );
-          } else {
-            postIdsFromRecieverToTop.reverse();
-            postIdsFromSenderToReciver.push(
-              ...postIdsFromSenderToTop.concat(postIdsFromRecieverToTop),
-            );
-          }
-          if (!isCommonDivision) {
-            convertCreateDto.convertPath = PathConvert.REQUEST
-          }
-          else if (postIdsFromSenderToReciver.length > 2 && convertCreateDto.convertType !== TypeConvert.CHAT) {
-            convertCreateDto.convertPath = PathConvert.COORDINATION
-          }
-          else {
-            convertCreateDto.convertPath = PathConvert.DIRECT
-          }
+
+          const isCommonDivision = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).isCommonDivision;
+          const postIdsFromSenderToReciver = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).postIdsFromSenderToReciver;
+
+          setConvertPath(convertCreateDto, postIdsFromSenderToReciver, isCommonDivision);
           convertCreateDto.convertTheme = target.content;
           convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
           convertCreateDto.deadline = target.deadline;
@@ -407,32 +384,10 @@ export class ProjectController {
                   isProductTarget ? this.postService.getHierarchyToTop(userPost.id) : this.postService.getHierarchyToTop(holderProductPostId),
                   this.postService.getHierarchyToTop(target.holderPostId),
                 ]);
-              const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
-                postIdsFromRecieverToTop.includes(postId),
-              );
-              const postIdsFromSenderToReciver: string[] = [];
-              if (isCommonDivision) {
-                postIdsFromSenderToReciver.push(
-                  ...createPathInOneDivision(
-                    postIdsFromSenderToTop,
-                    postIdsFromRecieverToTop,
-                  ),
-                );
-              } else {
-                postIdsFromRecieverToTop.reverse();
-                postIdsFromSenderToReciver.push(
-                  ...postIdsFromSenderToTop.concat(postIdsFromRecieverToTop),
-                );
-              }
-              if (!isCommonDivision) {
-                convertUpdateDto.convertPath = PathConvert.REQUEST
-              }
-              else if (postIdsFromSenderToReciver.length > 2) {
-                convertUpdateDto.convertPath = PathConvert.COORDINATION
-              }
-              else {
-                convertUpdateDto.convertPath = PathConvert.DIRECT
-              }
+
+              const isCommonDivision = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).isCommonDivision;
+              const postIdsFromSenderToReciver = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).postIdsFromSenderToReciver;
+              setConvertPath(convertUpdateDto, postIdsFromSenderToReciver, isCommonDivision);
               convertUpdateDto.pathOfPosts = postIdsFromSenderToReciver;
             }
             convertUpdateDto._id = target.convert.id
@@ -452,33 +407,9 @@ export class ProjectController {
                 isProductTarget ? this.postService.getHierarchyToTop(userPost.id) : this.postService.getHierarchyToTop(holderProductPostId),
                 this.postService.getHierarchyToTop(target.holderPostId),
               ]);
-            const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
-              postIdsFromRecieverToTop.includes(postId),
-            );
-            const postIdsFromSenderToReciver: string[] = [];
-            if (isCommonDivision) {
-              postIdsFromSenderToReciver.push(
-                ...createPathInOneDivision(
-                  postIdsFromSenderToTop,
-                  postIdsFromRecieverToTop,
-                ),
-              );
-            } else {
-              postIdsFromRecieverToTop.reverse();
-              postIdsFromSenderToReciver.push(
-                ...postIdsFromSenderToTop.concat(postIdsFromRecieverToTop),
-              );
-            }
-            if (!isCommonDivision) {
-              convertCreateDto.convertPath = PathConvert.REQUEST
-            }
-            else if (postIdsFromSenderToReciver.length > 2 && convertCreateDto.convertType !== TypeConvert.CHAT) {
-              convertCreateDto.convertPath = PathConvert.COORDINATION
-            }
-            else {
-              convertCreateDto.convertPath = PathConvert.DIRECT
-            }
-
+            const isCommonDivision = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).isCommonDivision;
+            const postIdsFromSenderToReciver = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).postIdsFromSenderToReciver;
+            setConvertPath(convertCreateDto, postIdsFromSenderToReciver, isCommonDivision);
             convertCreateDto.convertTheme = target.content;
             convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
             convertCreateDto.deadline = target.deadline;
@@ -488,8 +419,6 @@ export class ProjectController {
             convertCreateDto.targetId = target._id;
             convertCreateDtos.push(convertCreateDto);
           }
-
-
         });
         await Promise.all(convertUpdationForTargetUpdatePromises)
       }
@@ -505,48 +434,6 @@ export class ProjectController {
       convertUpdateDtos
     );
 
-    // const updatedEventProjectDto: ProjectUpdateEventDto = {
-    //   eventType: 'PROJECT_UPDATED',
-    //   id: project.id,
-    //   projectName:
-    //     projectUpdateDto.projectName !== undefined
-    //       ? projectUpdateDto.projectName
-    //       : null,
-    //   programId:
-    //     projectUpdateDto.programId !== undefined
-    //       ? projectUpdateDto.programId
-    //       : null,
-    //   content:
-    //     projectUpdateDto.content !== undefined
-    //       ? projectUpdateDto.content
-    //       : null,
-    //   updatedAt: new Date(),
-    //   strategyId:
-    //     projectUpdateDto.strategyId !== undefined
-    //       ? projectUpdateDto.strategyId
-    //       : null,
-    //   accountId: user.account.id,
-    //   targetUpdateDtos:
-    //     targetUpdateEventDtos.length > 0 ? targetUpdateEventDtos : null,
-    //   targetCreateDtos:
-    //     targetCreateEventDtos.length > 0 ? targetCreateEventDtos : null,
-    // };
-    // try {
-    //   await Promise.race([
-    //     this.producerService.sendUpdatedProjectToQueue(updatedEventProjectDto),
-    //     new Promise((_, reject) =>
-    //       setTimeout(() => reject(new TimeoutError()), 5000),
-    //     ),
-    //   ]);
-    // } catch (error) {
-    //   if (error instanceof TimeoutError) {
-    //     this.logger.error(
-    //       `Ошибка отправки в RabbitMQ: превышено время ожидания - ${error.message}`,
-    //     );
-    //   } else {
-    //     this.logger.error(`Ошибка отправки в RabbitMQ: ${error.message}`);
-    //   }
-    // }
     this.logger.info(
       `${yellow('OK!')} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`,
     );

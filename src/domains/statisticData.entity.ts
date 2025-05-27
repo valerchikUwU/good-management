@@ -14,6 +14,7 @@ import { Statistic } from './statistic.entity';
 export enum CorrelationType {
   MONTH = 'Месяц',
   YEAR = 'Год',
+  WEEK = 'Неделя'
 }
 
 
