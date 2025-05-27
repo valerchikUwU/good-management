@@ -41,6 +41,7 @@ import { ApproveConvertGuard } from 'src/guards/approveConvert.guard';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { ConvertFinishDto } from 'src/contracts/convert/finish-convert.dto';
 import { createPathInOneDivision } from 'src/helpersFunc/createPathInOneDivision';
+import { createPathFromSenderToRecieverPost } from 'src/helpersFunc/createPathFromSenderToRecieverPost';
 
 @ApiTags('Converts')
 @ApiBearerAuth('access-token')
@@ -217,24 +218,8 @@ export class ConvertController {
         isChat ? [] : this.postService.getHierarchyToTop(convertCreateDto.reciverPostId),
         this.postService.findOneById(convertCreateDto.reciverPostId),
       ]);
-    const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
-      postIdsFromRecieverToTop.includes(postId),
-    );
-    const postIdsFromSenderToReciver: string[] = [];
-    console.log(isCommonDivision); // ___________________________LOG
-    if (isCommonDivision) {
-      postIdsFromSenderToReciver.push(
-        ...createPathInOneDivision(
-          postIdsFromSenderToTop,
-          postIdsFromRecieverToTop,
-        ),
-      );
-    } else {
-      postIdsFromRecieverToTop.reverse();
-      postIdsFromSenderToReciver.push(
-        ...postIdsFromSenderToTop.concat(postIdsFromRecieverToTop),
-      );
-    }
+    const isCommonDivision = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).isCommonDivision;
+    const postIdsFromSenderToReciver = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).postIdsFromSenderToReciver;
     console.log(postIdsFromSenderToTop); // ___________________________LOG
     console.log(postIdsFromRecieverToTop); // ___________________________LOG
     console.log(postIdsFromSenderToReciver); // ___________________________LOG
@@ -247,14 +232,13 @@ export class ConvertController {
     else {
       convertCreateDto.convertPath = PathConvert.DIRECT
     }
-    convertCreateDto.pathOfPosts = isChat ? [convertCreateDto.senderPostId, convertCreateDto.reciverPostId] : postIdsFromSenderToReciver;
 
+    convertCreateDto.pathOfPosts = isChat ? [convertCreateDto.senderPostId, convertCreateDto.reciverPostId] : postIdsFromSenderToReciver;
     convertCreateDto.host = userPost;
     convertCreateDto.account = user.account;
     if (convertCreateDto.convertType === TypeConvert.ORDER) {
       convertCreateDto.targetCreateDto.holderPost = targetHolderPost;
     }
-
 
     const [createdConvert, activePost] =
       await Promise.all([

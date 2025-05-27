@@ -18,9 +18,7 @@ import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { Logger } from 'winston';
 
 @WebSocketGateway({
-  // когда будет билд фронта поменять
-  namespace: 'convert', cors: process.env.NODE_ENV === 'prod' ? '*:*' : { origin: process.env.PROD_API_HOST }
-  // namespace: 'convert', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST }
+  namespace: 'convert', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST }
 })
 export class ConvertGateway
   implements OnGatewayConnection, OnGatewayDisconnect {

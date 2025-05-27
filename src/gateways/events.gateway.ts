@@ -20,9 +20,7 @@ import { ClientCredentialsDto } from 'src/contracts/websockets/clientCredentials
 import { Logger } from 'winston';
 
 @WebSocketGateway({
-  // когда будет билд фронта поменять
-  namespace: 'auth', cors: process.env.NODE_ENV === 'prod' ? '*:*' : { origin: process.env.PROD_API_HOST }
-  // namespace: 'auth', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST }
+  namespace: 'auth', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST }
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
@@ -99,7 +97,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
           await validateOrReject(clientCredentialsDto).catch(errors => {
             reject(new BadRequestException(errors));
           });
-          resolve(clientCredentialsDto); // Завершаем промис
+          resolve(clientCredentialsDto);
         });
       }),
       new Promise((_, reject) =>
