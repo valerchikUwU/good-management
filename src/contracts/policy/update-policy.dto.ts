@@ -52,7 +52,7 @@ export class PolicyUpdateDto {
     examples: ['Директива', 'Инструкция', 'Распоряжение'],
   })
   @IsOptional()
-  @IsEnum(Type)
+  @IsEnum(PolicyType)
   type?: PolicyType;
 
   @ApiProperty({
