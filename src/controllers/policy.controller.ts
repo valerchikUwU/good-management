@@ -77,13 +77,16 @@ export class PolicyController {
   ): Promise<{
     directives: PolicyReadDto[];
     instructions: PolicyReadDto[];
+    disposals: PolicyReadDto[]
   }> {
     const policies = await this.policyService.findAllForOrganization(organizationId);
     const directives = policies.filter((policy) => policy.type === Type.DIRECTIVE);
     const instructions = policies.filter((policy) => policy.type === Type.INSTRUCTION);
+    const disposals = policies.filter((policy) => policy.type === Type.DISPOSAL);
     return {
       directives: directives,
       instructions: instructions,
+      disposals: disposals
     };
   }
 
