@@ -19,19 +19,18 @@ export class ConvertToPostService {
     private readonly convertToPostRepository: ConvertToPostRepository,
     private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async createSeveral(convert: Convert, postIds: string[]): Promise<void> {
     try {
       const posts = await this.postService.findBulk(postIds);
 
-      const convertToPosts = posts.map(post => {
+      const convertToPosts = posts.map((post) => {
         const convertToPost = new ConvertToPost();
         convertToPost.post = post;
         convertToPost.convert = convert;
-        return convertToPost
-      })
-
+        return convertToPost;
+      });
 
       await this.convertToPostRepository.insert(convertToPosts);
     } catch (err) {
@@ -81,16 +80,14 @@ export class ConvertToPostService {
   //   }
   // }
 
-
   async remove(convert: ConvertReadDto): Promise<void> {
     try {
       await this.convertToPostRepository.delete({ convert: convert });
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err);
 
       if (err instanceof NotFoundException) {
-        throw err
+        throw err;
       }
       throw new InternalServerErrorException(
         'Ой, что - то пошло не так при удалении конверта!',

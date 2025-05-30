@@ -2,12 +2,9 @@ import {
   Controller,
   Get,
   Post,
-  Delete,
-  Param,
   Body,
   HttpStatus,
   Patch,
-  Ip,
   Inject,
 } from '@nestjs/common';
 import {
@@ -22,9 +19,8 @@ import { RoleSettingService } from 'src/application/services/roleSetting/roleSet
 import { RoleSettingCreateDto } from 'src/contracts/roleSetting/create-roleSetting.dto';
 import { RoleSettingReadDto } from 'src/contracts/roleSetting/read-roleSetting.dto';
 import { RoleSettingUpdateDto } from 'src/contracts/roleSetting/update-roleSetting.dto';
-import { RoleSetting } from 'src/domains/roleSetting.entity';
 import { Logger } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
+import { yellow } from 'colorette';
 
 @ApiTags('RoleSettings')
 @Controller(':userId/roleSettings')
@@ -121,7 +117,8 @@ export class RoleSettingController {
       roleSettingCreateDto.roleId,
     );
     roleSettingCreateDto.role = role;
-    const createdRuleId = await this.roleSettingService.create(roleSettingCreateDto);
+    const createdRuleId =
+      await this.roleSettingService.create(roleSettingCreateDto);
     this.logger.info(
       `${yellow('OK!')} - roleSettingCreateDto: ${JSON.stringify(roleSettingCreateDto)} - Создана настройка!`,
     );

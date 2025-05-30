@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
-  IsBoolean,
   IsDate,
   IsEnum,
   IsNotEmpty,

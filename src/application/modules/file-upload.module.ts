@@ -41,11 +41,11 @@ import { v4 as uuidv4 } from 'uuid';
       }),
     }),
     FileModule,
-    AttachmentModule
+    AttachmentModule,
   ],
   controllers: [FileUploadController],
 })
-export class FileUploadModule { }
+export class FileUploadModule {}
 
 function formatDate(date: Date): string {
   const day = String(date.getDate()).padStart(2, '0'); // День (DD)
@@ -56,8 +56,5 @@ function formatDate(date: Date): string {
   const minutes = String(date.getMinutes()).padStart(2, '0'); // Минуты (MM)
   const seconds = String(date.getSeconds()).padStart(2, '0'); // Секунды (SS)
 
-
   return `${day}-${month}-${year}_${hours}-${minutes}-${seconds}`;
 }
-
-

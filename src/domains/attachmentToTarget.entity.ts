@@ -1,15 +1,11 @@
 import {
-  Column,
   CreateDateColumn,
   Entity,
   Index,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Convert } from './convert.entity';
-import { Post } from './post.entity';
 import { Attachment } from './attachment.entity';
 import { Target } from './target.entity';
 
@@ -24,11 +20,15 @@ export class AttachmentToTarget {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @ManyToOne(() => Attachment, (attachment) => attachment.attachmentToTargets, {onDelete: 'CASCADE'})
-  @Index() 
+  @ManyToOne(() => Attachment, (attachment) => attachment.attachmentToTargets, {
+    onDelete: 'CASCADE',
+  })
+  @Index()
   attachment: Attachment;
 
-  @ManyToOne(() => Target, (target) => target.attachmentToTargets, {onDelete: 'CASCADE'})
-  @Index() 
+  @ManyToOne(() => Target, (target) => target.attachmentToTargets, {
+    onDelete: 'CASCADE',
+  })
+  @Index()
   target: Target;
 }

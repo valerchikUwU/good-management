@@ -21,9 +21,12 @@ export class StatisticService {
     @InjectRepository(Statistic)
     private readonly statisticRepository: StatisticRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
-  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<StatisticReadDto[]> {
+  async findAllForAccount(
+    account: AccountReadDto,
+    relations?: string[],
+  ): Promise<StatisticReadDto[]> {
     try {
       const statistics = await this.statisticRepository.find({
         where: { account: { id: account.id } },
@@ -40,7 +43,7 @@ export class StatisticService {
         statisticDatas: statistic.statisticDatas,
         post: statistic.post,
         account: statistic.account,
-        panelToStatistics: statistic.panelToStatistics
+        panelToStatistics: statistic.panelToStatistics,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -51,7 +54,10 @@ export class StatisticService {
     }
   }
 
-  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<StatisticReadDto[]> {
+  async findAllForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<StatisticReadDto[]> {
     try {
       const statistics = await this.statisticRepository.find({
         where: { post: { organization: { id: organizationId } } },
@@ -68,7 +74,7 @@ export class StatisticService {
         statisticDatas: statistic.statisticDatas,
         post: statistic.post,
         account: statistic.account,
-        panelToStatistics: statistic.panelToStatistics
+        panelToStatistics: statistic.panelToStatistics,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -79,9 +85,11 @@ export class StatisticService {
     }
   }
 
-  async findOneById(id: string, relations?: string[]): Promise<StatisticReadDto> {
+  async findOneById(
+    id: string,
+    relations?: string[],
+  ): Promise<StatisticReadDto> {
     try {
-      
       const statistic = await this.statisticRepository.findOne({
         where: { id: id },
         relations: relations ?? [],
@@ -99,7 +107,7 @@ export class StatisticService {
         statisticDatas: statistic.statisticDatas,
         post: statistic.post,
         account: statistic.account,
-        panelToStatistics: statistic.panelToStatistics
+        panelToStatistics: statistic.panelToStatistics,
       };
       return statisticReadDto;
     } catch (err) {
@@ -114,14 +122,13 @@ export class StatisticService {
     }
   }
 
-
   async findBulk(ids: string[]): Promise<StatisticReadDto[]> {
     try {
       const statistics = await this.statisticRepository.find({
         where: { id: In(ids) },
       });
-      const foundIds = statistics.map(statistic => statistic.id);
-      const missingIds = ids.filter(id => !foundIds.includes(id));
+      const foundIds = statistics.map((statistic) => statistic.id);
+      const missingIds = ids.filter((id) => !foundIds.includes(id));
       if (missingIds.length > 0) {
         throw new NotFoundException(
           `Не найдены статистики с IDs: ${missingIds.join(', ')}`,
@@ -137,9 +144,8 @@ export class StatisticService {
         statisticDatas: statistic.statisticDatas,
         post: statistic.post,
         account: statistic.account,
-        panelToStatistics: statistic.panelToStatistics
+        panelToStatistics: statistic.panelToStatistics,
       }));
-
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
@@ -151,7 +157,6 @@ export class StatisticService {
       throw new InternalServerErrorException('Ошибка при получении статистик');
     }
   }
-
 
   async create(statisticCreateDto: StatisticCreateDto): Promise<Statistic> {
     try {
@@ -169,7 +174,10 @@ export class StatisticService {
     }
   }
 
-  async update(_id: string, statisticUpdateDto: StatisticUpdateDto): Promise<string> {
+  async update(
+    _id: string,
+    statisticUpdateDto: StatisticUpdateDto,
+  ): Promise<string> {
     try {
       const statistic = await this.statisticRepository.findOne({
         where: { id: _id },
@@ -179,7 +187,8 @@ export class StatisticService {
       }
       if (statisticUpdateDto.type) statistic.type = statisticUpdateDto.type;
       if (statisticUpdateDto.name) statistic.name = statisticUpdateDto.name;
-      if (statisticUpdateDto.description) statistic.description = statisticUpdateDto.description;
+      if (statisticUpdateDto.description)
+        statistic.description = statisticUpdateDto.description;
       if (statisticUpdateDto.post) statistic.post = statisticUpdateDto.post;
       await this.statisticRepository.update(statistic.id, {
         type: statistic.type,

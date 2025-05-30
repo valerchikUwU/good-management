@@ -1,20 +1,7 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Body,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus } from '@nestjs/common';
 import { AccountService } from 'src/application/services/account/account.service';
 import { AccountCreateDto } from 'src/contracts/account/create-account.dto';
-import { AccountReadDto } from 'src/contracts/account/read-account.dto';
-import {
-  ApiBody,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProducerService } from 'src/application/services/producer/producer.service';
 import { RoleSettingService } from 'src/application/services/roleSetting/roleSetting.service';
 import { RoleService } from 'src/application/services/role/role.service';
@@ -29,7 +16,6 @@ export class AccountController {
     private readonly roleService: RoleService,
   ) {}
 
-
   @Post('new')
   @ApiOperation({ summary: 'Создать аккаунт' })
   @ApiBody({
@@ -41,16 +27,14 @@ export class AccountController {
     status: HttpStatus.CREATED,
     description: 'CREATED!',
     example: {
-      id: '1c64b108-5023-4a76-a3ba-2b1657ed0c9f'
-    }
+      id: '1c64b108-5023-4a76-a3ba-2b1657ed0c9f',
+    },
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  async create(
-    @Body() accountCreateDto: AccountCreateDto,
-  ): Promise<string> {
+  async create(@Body() accountCreateDto: AccountCreateDto): Promise<string> {
     const newAccount = await this.accountService.create(accountCreateDto);
     const roles = await this.roleService.findAll();
     await this.roleSettingService.createAllForAccount(newAccount, roles);

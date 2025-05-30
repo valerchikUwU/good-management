@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -12,7 +11,7 @@ import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { PostCreateDto } from 'src/contracts/post/create-post.dto';
 import { Logger } from 'winston';
 import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
-import { Brackets, FindOptionsWhere, In, IsNull, Not } from 'typeorm';
+import { Brackets, In, IsNull, Not } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PostUpdateDefaultDto } from 'src/contracts/post/updateDefault-post.dto';
@@ -25,17 +24,18 @@ export class PostService {
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
-
-
-
-  async findAllForOrganization(organizationId: string, structure: boolean, relations?: string[]): Promise<PostReadDto[]> {
+  async findAllForOrganization(
+    organizationId: string,
+    structure: boolean,
+    relations?: string[],
+  ): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: {
           organization: { id: organizationId },
-          isArchive: false
+          isArchive: false,
         },
         relations: relations ?? [],
       });
@@ -69,7 +69,10 @@ export class PostService {
         policies: post.policies,
         strategies: post.strategies,
         projects: post.projects,
-        underPosts: structure === true ? posts.filter(underPost => underPost.parentId === post.id) : null
+        underPosts:
+          structure === true
+            ? posts.filter((underPost) => underPost.parentId === post.id)
+            : null,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -80,12 +83,15 @@ export class PostService {
     }
   }
 
-  async findAllForUser(userId: string, relations?: string[]): Promise<PostReadDto[]> {
+  async findAllForUser(
+    userId: string,
+    relations?: string[],
+  ): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: {
           user: { id: userId },
-          isArchive: false
+          isArchive: false,
         },
         relations: relations ?? [],
       });
@@ -128,13 +134,16 @@ export class PostService {
     }
   }
 
-  async findAllWithUserForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
+  async findAllWithUserForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: {
           organization: { id: organizationId },
           user: { id: Not(IsNull()) },
-          isArchive: false
+          isArchive: false,
         },
         relations: relations ?? [],
       });
@@ -177,13 +186,16 @@ export class PostService {
     }
   }
 
-  async findAllWithoutUserForOrganization(organizationId: string, relations?: string[]): Promise<PostReadDto[]> {
+  async findAllWithoutUserForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: {
           organization: { id: organizationId },
           user: { id: IsNull() },
-          isArchive: false
+          isArchive: false,
         },
         relations: relations ?? [],
       });
@@ -231,9 +243,14 @@ export class PostService {
       const posts = await this.postRepository
         .createQueryBuilder('post')
         .leftJoin('post.user', 'user')
-        .innerJoin('post.convertToPosts', 'ctp')  // связь post → ConvertToPosts
-        .innerJoin('ctp.convert', 'c')  // связь ConvertToPosts → Convert (чаты)
-        .leftJoin('c.watchersToConvert', 'wtc', 'wtc.postId IN (:...userPostsIds)', { userPostsIds })
+        .innerJoin('post.convertToPosts', 'ctp') // связь post → ConvertToPosts
+        .innerJoin('ctp.convert', 'c') // связь ConvertToPosts → Convert (чаты)
+        .leftJoin(
+          'c.watchersToConvert',
+          'wtc',
+          'wtc.postId IN (:...userPostsIds)',
+          { userPostsIds },
+        )
         .leftJoin('wtc.post', 'watcher')
         .leftJoin(
           'c.messages',
@@ -245,30 +262,43 @@ export class PostService {
           ) 
           AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)
           AND "watcher"."id" IS NULL
-          AND ("c"."pathOfPosts"[1] IN (:...userPostsIds) OR "c"."activePostId" IN (:...userPostsIds))`, { userPostsIds }
+          AND ("c"."pathOfPosts"[1] IN (:...userPostsIds) OR "c"."activePostId" IN (:...userPostsIds))`,
+          { userPostsIds },
         )
         .leftJoin(
           'c.messages',
           'latestMessage',
-          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")'
+          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")',
         )
         .where('"post"."id" NOT IN (:...userPostsIds)', { userPostsIds })
-        .andWhere(new Brackets((qb) => {
-          qb.where('"c"."pathOfPosts"[1] IN (:...userPostsIds)', { userPostsIds })
-            .andWhere('"c"."pathOfPosts"[array_length("c"."pathOfPosts", 1)] = "post"."id"')
-            .orWhere(new Brackets((qb) => {
-              qb.where('"c"."pathOfPosts"[1] = "post"."id"')
-                .andWhere(new Brackets((qb) => {
-                  qb.where(`EXISTS (
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where('"c"."pathOfPosts"[1] IN (:...userPostsIds)', {
+              userPostsIds,
+            })
+              .andWhere(
+                '"c"."pathOfPosts"[array_length("c"."pathOfPosts", 1)] = "post"."id"',
+              )
+              .orWhere(
+                new Brackets((qb) => {
+                  qb.where('"c"."pathOfPosts"[1] = "post"."id"').andWhere(
+                    new Brackets((qb) => {
+                      qb.where(
+                        `EXISTS (
                       SELECT 1 FROM "convert_to_post" "sub_ctp"
                       INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
                       WHERE "sub_ctp"."convertId" = c.id
                       AND "sub_post"."id" IN (:...userPostsIds)
-                  )`)
-                    .orWhere('watcher.id IN (:...userPostsIds)', { userPostsIds })
-                }))
-            }))
-        }))
+                  )`,
+                      ).orWhere('watcher.id IN (:...userPostsIds)', {
+                        userPostsIds,
+                      });
+                    }),
+                  );
+                }),
+              );
+          }),
+        )
         .select([
           'post.id AS "id"',
           'post.postName AS "postName"',
@@ -287,7 +317,7 @@ export class PostService {
         ])
         .groupBy('post.id, user.id')
         .getRawMany();
-      return posts
+      return posts;
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException(
@@ -296,15 +326,14 @@ export class PostService {
     }
   }
 
-
   async findBulk(ids: string[], relations?: string[]): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: { id: In(ids) },
-        relations: relations ?? []
+        relations: relations ?? [],
       });
-      const foundIds = posts.map(post => post.id);
-      const missingIds = ids.filter(id => !foundIds.includes(id));
+      const foundIds = posts.map((post) => post.id);
+      const missingIds = ids.filter((id) => !foundIds.includes(id));
       if (missingIds.length > 0) {
         throw new NotFoundException(
           `Не найдены посты с IDs: ${missingIds.join(', ')}`,
@@ -340,7 +369,6 @@ export class PostService {
         projects: post.projects,
         groupToPosts: post.groupToPosts,
       }));
-
     } catch (err) {
       this.logger.error(err);
       if (err instanceof NotFoundException) {
@@ -350,9 +378,6 @@ export class PostService {
       throw new InternalServerErrorException('Ошибка при получении статистик');
     }
   }
-
-
-
 
   async findOneById(id: string, relations?: string[]): Promise<PostReadDto> {
     try {
@@ -406,7 +431,10 @@ export class PostService {
 
   async findMaxDivisionNumber(organizationId: string): Promise<number> {
     try {
-      const maxDivisionNumber = await this.postRepository.maximum('divisionNumber', { organization: { id: organizationId } })
+      const maxDivisionNumber = await this.postRepository.maximum(
+        'divisionNumber',
+        { organization: { id: organizationId } },
+      );
       if (!maxDivisionNumber) return 0;
       return maxDivisionNumber;
     } catch (err) {
@@ -456,9 +484,15 @@ export class PostService {
 
   async getChildrenPosts(postId: string): Promise<PostReadDto[]> {
     const childrenPosts: PostReadDto[] = [];
-    const post = await this.postRepository.findOne({ where: { id: postId }, relations: ['user'] })
+    const post = await this.postRepository.findOne({
+      where: { id: postId },
+      relations: ['user'],
+    });
     // Находим прямых потомков
-    const directChildren = await this.postRepository.find({ where: { parentId: post.id, user: { id: Not(post.user.id) } }, relations: ['user'] });
+    const directChildren = await this.postRepository.find({
+      where: { parentId: post.id, user: { id: Not(post.user.id) } },
+      relations: ['user'],
+    });
     // Добавляем прямых потомков в результат
     childrenPosts.push(...directChildren);
     // Рекурсивно ищем потомков для каждого прямого потомка
@@ -471,7 +505,6 @@ export class PostService {
 
   async create(postCreateDto: PostCreateDto): Promise<string> {
     try {
-
       const post = new Post();
       post.postName = postCreateDto.postName;
       post.divisionName = postCreateDto.divisionName;
@@ -483,13 +516,13 @@ export class PostService {
       post.policy = postCreateDto.policy;
       post.account = postCreateDto.account;
       post.role = postCreateDto.role;
-      console.log(postCreateDto.user.posts)
+      console.log(postCreateDto.user.posts);
       if (postCreateDto.user.posts.length < 1) {
         post.isDefault = true;
       }
       const createdPostId = await this.postRepository.insert(post);
       if (postCreateDto.responsibleUserId) {
-        await this.cacheService.del(`user:${postCreateDto.responsibleUserId}`)
+        await this.cacheService.del(`user:${postCreateDto.responsibleUserId}`);
       }
       return createdPostId.identifiers[0].id;
     } catch (err) {
@@ -508,12 +541,12 @@ export class PostService {
 
       if (updatePostDto.postName) post.postName = updatePostDto.postName;
 
-      if (updatePostDto.divisionName) post.divisionName = updatePostDto.divisionName;
+      if (updatePostDto.divisionName)
+        post.divisionName = updatePostDto.divisionName;
 
       if (updatePostDto.parentId !== null) {
         post.parentId = updatePostDto.parentId;
-      }
-      else {
+      } else {
         post.parentId = null;
       }
 
@@ -523,9 +556,8 @@ export class PostService {
 
       if (updatePostDto.responsibleUserId !== null) {
         post.user = updatePostDto.user;
-        await this.cacheService.del(`user:${updatePostDto.responsibleUserId}`)
-      }
-      else {
+        await this.cacheService.del(`user:${updatePostDto.responsibleUserId}`);
+      } else {
         post.user = null;
       }
 
@@ -535,7 +567,8 @@ export class PostService {
         post.policy = null;
       }
 
-      if (updatePostDto.isArchive != null) post.isArchive = updatePostDto.isArchive;
+      if (updatePostDto.isArchive != null)
+        post.isArchive = updatePostDto.isArchive;
 
       await this.postRepository.update(post.id, {
         postName: post.postName,
@@ -558,28 +591,39 @@ export class PostService {
     }
   }
 
-
-  async updateDefaultPost(_id: string, postUpdateDefaultDto: PostUpdateDefaultDto): Promise<string> {
+  async updateDefaultPost(
+    _id: string,
+    postUpdateDefaultDto: PostUpdateDefaultDto,
+  ): Promise<string> {
     try {
       const post = await this.postRepository.findOne({ where: { id: _id } });
-      const newDefaultPost = await this.postRepository.findOne({ where: { id: postUpdateDefaultDto.newDefaultPostId } });
+      const newDefaultPost = await this.postRepository.findOne({
+        where: { id: postUpdateDefaultDto.newDefaultPostId },
+      });
       if (!post) {
         throw new NotFoundException(`Пост с ID ${_id} не найден`);
       }
       if (!newDefaultPost) {
-        throw new NotFoundException(`Пост с ID ${postUpdateDefaultDto.newDefaultPostId} не найден`);
+        throw new NotFoundException(
+          `Пост с ID ${postUpdateDefaultDto.newDefaultPostId} не найден`,
+        );
       }
       await Promise.all([
         await this.postRepository.update(post.id, { isDefault: false }),
-        await this.postRepository.update(postUpdateDefaultDto.newDefaultPostId, { isDefault: true })
-      ])
+        await this.postRepository.update(
+          postUpdateDefaultDto.newDefaultPostId,
+          { isDefault: true },
+        ),
+      ]);
       return newDefaultPost.id;
     } catch (err) {
       this.logger.error(err);
       if (err instanceof NotFoundException) {
         throw err;
       }
-      throw new InternalServerErrorException('Ошибка при смене поста по умолчанию');
+      throw new InternalServerErrorException(
+        'Ошибка при смене поста по умолчанию',
+      );
     }
   }
 }

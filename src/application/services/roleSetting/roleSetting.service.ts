@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -97,9 +96,7 @@ export class RoleSettingService {
     }
   }
 
-  async create(
-    roleSettingCreateDto: RoleSettingCreateDto,
-  ): Promise<string> {
+  async create(roleSettingCreateDto: RoleSettingCreateDto): Promise<string> {
     try {
       const roleSetting = new RoleSetting();
       roleSetting.module = roleSettingCreateDto.module;
@@ -108,7 +105,8 @@ export class RoleSettingService {
       roleSetting.can_update = roleSettingCreateDto.can_update;
       roleSetting.role = roleSettingCreateDto.role;
       roleSetting.account = roleSettingCreateDto.account;
-      const createdRoleSettingId = await this.roleSettingRepository.insert(roleSetting);
+      const createdRoleSettingId =
+        await this.roleSettingRepository.insert(roleSetting);
       return createdRoleSettingId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
@@ -118,7 +116,10 @@ export class RoleSettingService {
     }
   }
 
-  async createAllForAccount(account: AccountReadDto, roles: RoleReadDto[]): Promise<string[]> {
+  async createAllForAccount(
+    account: AccountReadDto,
+    roles: RoleReadDto[],
+  ): Promise<string[]> {
     try {
       const modules: Modules[] = [
         Modules.POLICY,
@@ -145,9 +146,12 @@ export class RoleSettingService {
         }
       }
 
-      const createdSettingResult = await this.roleSettingRepository.insert(roleSettings);
+      const createdSettingResult =
+        await this.roleSettingRepository.insert(roleSettings);
       const createdSettingIds: string[] = [];
-      createdSettingResult.identifiers.forEach((identifier) => { createdSettingIds.push(identifier.id)})
+      createdSettingResult.identifiers.forEach((identifier) => {
+        createdSettingIds.push(identifier.id);
+      });
       return createdSettingIds;
     } catch (err) {
       this.logger.error(err);
@@ -190,4 +194,3 @@ export class RoleSettingService {
     }
   }
 }
-

@@ -30,24 +30,23 @@ import { PostCreateDto } from 'src/contracts/post/create-post.dto';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { Logger } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
+import { yellow } from 'colorette';
 import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
 import { ProducerService } from 'src/application/services/producer/producer.service';
 import { PostCreateEventDto } from 'src/contracts/post/createEvent-post.dto';
 import { PostUpdateEventDto } from 'src/contracts/post/updateEvent-post.dto';
-import { TimeoutError } from 'rxjs';
 import { GroupService } from 'src/application/services/group/group.service';
 import { HistoryUsersToPostService } from 'src/application/services/historyUsersToPost/historyUsersToPost.service';
 import { HistoryUsersToPostCreateDto } from 'src/contracts/historyUsersToPost/create-historyUsersToPost.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
-import { 
-  beforeCreateExample, 
-  findAllContactsExample, 
-  findAllMyPostsExample, 
-  findAllPostsExample, 
-  findAllUnderPostsExample, 
-  findOnePostExample 
+import {
+  beforeCreateExample,
+  findAllContactsExample,
+  findAllMyPostsExample,
+  findAllPostsExample,
+  findAllUnderPostsExample,
+  findOnePostExample,
 } from 'src/constants/swagger-examples/post/post-examples';
 import { RoleService } from 'src/application/services/role/role.service';
 import { RoleReadDto } from 'src/contracts/role/read-role.dto';
@@ -68,15 +67,14 @@ export class PostController {
     private readonly groupService: GroupService,
     private readonly historyUsersToPostService: HistoryUsersToPostService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
-
+  ) {}
 
   @Get('myPosts')
   @ApiOperation({ summary: 'Получить все свои посты' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllMyPostsExample
+    example: findAllMyPostsExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -86,20 +84,17 @@ export class PostController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  async findAllMyPosts(
-    @Req() req: ExpressRequest
-  ): Promise<PostReadDto[]> {
-    const user = req.user as ReadUserDto
+  async findAllMyPosts(@Req() req: ExpressRequest): Promise<PostReadDto[]> {
+    const user = req.user as ReadUserDto;
     return user.posts;
   }
-
 
   @Get('contacts')
   @ApiOperation({ summary: 'Все контакты' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllContactsExample
+    example: findAllContactsExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -110,13 +105,14 @@ export class PostController {
     description: 'Ошибка сервера!',
   })
   async findAllContacts(@Req() req: ExpressRequest): Promise<any[]> {
-    let start = new Date()
+    const start = new Date();
     const user = req.user as ReadUserDto;
-    const userPostsIds = user.posts.map(post => post.id);
-    const postsWithConverts = await this.postService.findAllContactsForCurrentUser(userPostsIds);
-    let c = new Date()
-    let end = c.getTime() - start.getTime()
-    console.log(`все контакты ${end}`)
+    const userPostsIds = user.posts.map((post) => post.id);
+    const postsWithConverts =
+      await this.postService.findAllContactsForCurrentUser(userPostsIds);
+    const c = new Date();
+    const end = c.getTime() - start.getTime();
+    console.log(`все контакты ${end}`);
     return postsWithConverts;
   }
 
@@ -125,7 +121,7 @@ export class PostController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllPostsExample
+    example: findAllPostsExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -139,7 +135,7 @@ export class PostController {
     name: 'organizationId',
     required: true,
     description: 'Id организации',
-    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   @ApiQuery({
     name: 'structure',
@@ -149,11 +145,14 @@ export class PostController {
   })
   async findAll(
     @Query('structure') structure: boolean,
-    @Param('organizationId') organizationId: string
+    @Param('organizationId') organizationId: string,
   ): Promise<PostReadDto[]> {
-    if (!structure)
-      structure = false;
-    const posts = await this.postService.findAllForOrganization(organizationId, structure, ['user']);
+    if (!structure) structure = false;
+    const posts = await this.postService.findAllForOrganization(
+      organizationId,
+      structure,
+      ['user'],
+    );
     return posts;
   }
 
@@ -199,17 +198,21 @@ export class PostController {
 
     if (postUpdateDto.policyId !== null) {
       promises.push(
-        this.policyService.findOneById(postUpdateDto.policyId).then(policy => {
-          postUpdateDto.policy = policy;
-        }),
+        this.policyService
+          .findOneById(postUpdateDto.policyId)
+          .then((policy) => {
+            postUpdateDto.policy = policy;
+          }),
       );
     }
 
     if (postUpdateDto.responsibleUserId !== null) {
       promises.push(
-        this.userService.findOne(postUpdateDto.responsibleUserId).then(user => {
-          postUpdateDto.user = user;
-        }),
+        this.userService
+          .findOne(postUpdateDto.responsibleUserId)
+          .then((user) => {
+            postUpdateDto.user = user;
+          }),
       );
     }
 
@@ -220,14 +223,15 @@ export class PostController {
       const updatedPost = await this.postService.findOneById(updatedPostId);
       const historyUsersToPostCreateDto: HistoryUsersToPostCreateDto = {
         user: postUpdateDto.user,
-        post: updatedPost
-      }
-      this.historyUsersToPostService.create(historyUsersToPostCreateDto)
+        post: updatedPost,
+      };
+      this.historyUsersToPostService
+        .create(historyUsersToPostCreateDto)
         .catch((error) => {
           this.logger.error(
             `Failed to create historyUsersToPost: ${error.message}`,
           );
-        });;
+        });
     }
     const updatedEventPostDto: PostUpdateEventDto = {
       eventType: 'POST_UPDATED',
@@ -280,7 +284,7 @@ export class PostController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: beforeCreateExample
+    example: beforeCreateExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -294,31 +298,30 @@ export class PostController {
     name: 'organizationId',
     required: true,
     description: 'Id организации',
-    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async beforeCreate(
-    @Param('organizationId') organizationId: string
-  ): Promise<{
+  async beforeCreate(@Param('organizationId') organizationId: string): Promise<{
     workers: ReadUserDto[];
     policies: PolicyReadDto[];
     posts: PostReadDto[];
     roles: RoleReadDto[];
     maxDivisionNumber: number;
   }> {
-    const [policies, workers, posts, roles, maxDivisionNumber] = await Promise.all([
-      this.policyService.findAllActiveForOrganization(organizationId),
-      this.userService.findAllForOrganization(organizationId),
-      this.postService.findAllForOrganization(organizationId, false),
-      this.roleService.findAll(),
-      this.postService.findMaxDivisionNumber(organizationId)
-    ])
+    const [policies, workers, posts, roles, maxDivisionNumber] =
+      await Promise.all([
+        this.policyService.findAllActiveForOrganization(organizationId),
+        this.userService.findAllForOrganization(organizationId),
+        this.postService.findAllForOrganization(organizationId, false),
+        this.roleService.findAll(),
+        this.postService.findMaxDivisionNumber(organizationId),
+      ]);
 
     return {
       workers: workers,
       policies: policies,
       posts: posts,
       roles: roles,
-      maxDivisionNumber: maxDivisionNumber
+      maxDivisionNumber: maxDivisionNumber,
     };
   }
 
@@ -327,7 +330,7 @@ export class PostController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findOnePostExample
+    example: findOnePostExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -344,11 +347,9 @@ export class PostController {
   @ApiParam({
     name: 'postId',
     required: true,
-    description: 'Id поста'
+    description: 'Id поста',
   })
-  async findOne(
-    @Param('postId') postId: string,
-  ): Promise<{
+  async findOne(@Param('postId') postId: string): Promise<{
     currentPost: PostReadDto;
     posts: PostReadDto[];
     parentPost: PostReadDto;
@@ -356,17 +357,32 @@ export class PostController {
     policiesActive: PolicyReadDto[];
     roles: RoleReadDto[];
   }> {
-    const currentPost = await this.postService.findOneById(postId, ['policy', 'user', 'organization', 'statistics']);
-    const isHasBoss = currentPost.parentId !== null ? true : false
+    const currentPost = await this.postService.findOneById(postId, [
+      'policy',
+      'user',
+      'organization',
+      'statistics',
+    ]);
+    const isHasBoss = currentPost.parentId !== null ? true : false;
     const [posts, workers, policiesActive, roles] = await Promise.all([
-      isHasBoss ? this.postService.getParentPosts(currentPost.id) : this.postService.findAllForOrganization(currentPost.organization.id, false, ['user']),
+      isHasBoss
+        ? this.postService.getParentPosts(currentPost.id)
+        : this.postService.findAllForOrganization(
+            currentPost.organization.id,
+            false,
+            ['user'],
+          ),
       this.userService.findAllForOrganization(currentPost.organization.id),
-      this.policyService.findAllActiveForOrganization(currentPost.organization.id),
+      this.policyService.findAllActiveForOrganization(
+        currentPost.organization.id,
+      ),
       this.roleService.findAll(),
-    ])
-    const _posts = posts.filter((post) => post.id !== currentPost.id)
+    ]);
+    const _posts = posts.filter((post) => post.id !== currentPost.id);
     const parentPost = posts.find((post) => post.id === currentPost.parentId);
-    const isHasChildPost = posts.some((post) => post.parentId === currentPost.id);
+    const isHasChildPost = posts.some(
+      (post) => post.parentId === currentPost.id,
+    );
     const _currentPost = { ...currentPost, isHasChildPost };
     return {
       currentPost: _currentPost,
@@ -374,18 +390,16 @@ export class PostController {
       parentPost: parentPost,
       workers: workers,
       policiesActive: policiesActive,
-      roles: roles
+      roles: roles,
     };
   }
-
-
 
   @Get(':postId/allUnderPosts')
   @ApiOperation({ summary: 'Получить все дочерние посты' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllUnderPostsExample
+    example: findAllUnderPostsExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -398,12 +412,12 @@ export class PostController {
   @ApiParam({
     name: 'postId',
     required: true,
-    description: 'Id поста'
+    description: 'Id поста',
   })
   async findAllUnderPosts(
     @Param('postId') postId: string,
   ): Promise<PostReadDto[]> {
-    const underPosts = await this.postService.getChildrenPosts(postId)
+    const underPosts = await this.postService.getChildrenPosts(postId);
     return underPosts;
   }
 
@@ -446,31 +460,33 @@ export class PostController {
 
     if (postCreateDto.policyId) {
       promises.push(
-        this.policyService.findOneById(postCreateDto.policyId).then(policy => {
-          postCreateDto.policy = policy;
-        }),
+        this.policyService
+          .findOneById(postCreateDto.policyId)
+          .then((policy) => {
+            postCreateDto.policy = policy;
+          }),
       );
     }
 
     if (postCreateDto.responsibleUserId) {
       promises.push(
-        this.userService.findOne(postCreateDto.responsibleUserId, ['posts']).then(user => {
-          postCreateDto.user = user;
-        }),
+        this.userService
+          .findOne(postCreateDto.responsibleUserId, ['posts'])
+          .then((user) => {
+            postCreateDto.user = user;
+          }),
       );
     }
 
     promises.push(
-      this.organizationService.findOneById(postCreateDto.organizationId).then(
-        organization => {
+      this.organizationService
+        .findOneById(postCreateDto.organizationId)
+        .then((organization) => {
           postCreateDto.organization = organization;
-        },
-      ),
-      this.roleService.findOneById(postCreateDto.roleId).then(
-        role => {
-          postCreateDto.role = role;
-        },
-      )
+        }),
+      this.roleService.findOneById(postCreateDto.roleId).then((role) => {
+        postCreateDto.role = role;
+      }),
     );
 
     await Promise.all(promises);
@@ -481,12 +497,10 @@ export class PostController {
       const createdPost = await this.postService.findOneById(createdPostId);
       const historyUsersToPostCreateDto: HistoryUsersToPostCreateDto = {
         user: postCreateDto.user,
-        post: createdPost
-      }
+        post: createdPost,
+      };
       await this.historyUsersToPostService.create(historyUsersToPostCreateDto);
     }
-
-
 
     // if (postCreateDto.divisionName && postCreateDto.responsibleUserId) {
     //   const groups = await this.groupService.findAllByDivisionName(postCreateDto.divisionName); ЕСЛИ В ОТДЕЛЕ ОТДЕЛ, ТО КАК ЕГО ОБНОВЛЯТЬ
@@ -512,9 +526,8 @@ export class PostController {
       product: postCreateDto.product,
       purpose: postCreateDto.purpose,
       createdAt: new Date(),
-      policyId: postCreateDto.policyId !== undefined
-        ? postCreateDto.policyId
-        : null,
+      policyId:
+        postCreateDto.policyId !== undefined ? postCreateDto.policyId : null,
       accountId: user.account.id,
       responsibleUserId:
         postCreateDto.responsibleUserId !== undefined
@@ -546,8 +559,6 @@ export class PostController {
     );
     return { id: createdPostId };
   }
-
-
 
   @Patch(':postId/changeDefaultPost')
   @ApiOperation({ summary: 'Сменить дефолтный пост для себя' })
@@ -581,13 +592,13 @@ export class PostController {
   })
   @ApiParam({ name: 'postId', required: true, description: 'Id поста' })
   async updateDefaultPost(
-    @Req() req: ExpressRequest,
     @Param('postId') postId: string,
     @Body() postUpdateDefaultDto: PostUpdateDefaultDto,
   ): Promise<{ id: string }> {
-    const user = req.user as ReadUserDto;
-
-    const updatedPostId = await this.postService.updateDefaultPost(postId, postUpdateDefaultDto);
+    const updatedPostId = await this.postService.updateDefaultPost(
+      postId,
+      postUpdateDefaultDto,
+    );
     this.logger.info(
       `${yellow('OK!')} - UPDATED POST: ${JSON.stringify(postUpdateDefaultDto)} - Пост успешно обновлен!`,
     );

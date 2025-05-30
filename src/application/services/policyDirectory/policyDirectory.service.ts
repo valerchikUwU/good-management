@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -10,7 +9,6 @@ import { PolicyDirectory } from 'src/domains/policyDirectory.entity';
 import { Logger } from 'winston';
 import { PolicyDirectoryRepository } from './repository/policyDirectory.repository';
 import { PolicyToPolicyDirectoryService } from '../policyToPolicyDirectories/policyToPolicyDirectory.service';
-import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { PolicyDirectoryReadDto } from 'src/contracts/policyDirectory/read-policyDirectory.dto';
 import { PolicyDirectoryCreateDto } from 'src/contracts/policyDirectory/create-policyDirectory.dto';
 import { PolicyDirectoryUpdateDto } from 'src/contracts/policyDirectory/update-policyDirectory.dto';
@@ -23,12 +21,19 @@ export class PolicyDirectoryService {
     private readonly policyDirectoryRepository: PolicyDirectoryRepository,
     private readonly policyToPolicyDirectoryService: PolicyToPolicyDirectoryService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
-  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PolicyDirectoryReadDto[]> {
+  async findAllForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<PolicyDirectoryReadDto[]> {
     try {
       const policyDirectories = await this.policyDirectoryRepository.find({
-        where: { policyToPolicyDirectories: { policy: { organization: { id: organizationId } } } },
+        where: {
+          policyToPolicyDirectories: {
+            policy: { organization: { id: organizationId } },
+          },
+        },
         relations: relations ?? [],
       });
       return policyDirectories.map((policyDirectory) => ({
@@ -36,7 +41,11 @@ export class PolicyDirectoryService {
         directoryName: policyDirectory.directoryName,
         createdAt: policyDirectory.createdAt,
         updatedAt: policyDirectory.updatedAt,
-        policyToPolicyDirectories: policyDirectory.policyToPolicyDirectories.filter((policyToPolicyDirectory) => policyToPolicyDirectory.policy.state === State.ACTIVE),
+        policyToPolicyDirectories:
+          policyDirectory.policyToPolicyDirectories.filter(
+            (policyToPolicyDirectory) =>
+              policyToPolicyDirectory.policy.state === State.ACTIVE,
+          ),
       }));
     } catch (err) {
       this.logger.error(err);
@@ -47,23 +56,30 @@ export class PolicyDirectoryService {
     }
   }
 
-  async findOneById(id: string, relations?: string[]): Promise<PolicyDirectoryReadDto> {
+  async findOneById(
+    id: string,
+    relations?: string[],
+  ): Promise<PolicyDirectoryReadDto> {
     try {
       const policyDirectory = await this.policyDirectoryRepository.findOne({
         where: { id: id },
         relations: relations ?? [],
       });
 
-
-      if (!policyDirectory) throw new NotFoundException(`Папка с ID: ${id} не найдена`);
+      if (!policyDirectory)
+        throw new NotFoundException(`Папка с ID: ${id} не найдена`);
 
       const policyDirectoryReadDto: PolicyDirectoryReadDto = {
         id: policyDirectory.id,
         directoryName: policyDirectory.directoryName,
         createdAt: policyDirectory.createdAt,
         updatedAt: policyDirectory.updatedAt,
-        policyToPolicyDirectories: policyDirectory.policyToPolicyDirectories.filter((policyToPolicyDirectory) => policyToPolicyDirectory.policy.state === State.ACTIVE),
-      }
+        policyToPolicyDirectories:
+          policyDirectory.policyToPolicyDirectories.filter(
+            (policyToPolicyDirectory) =>
+              policyToPolicyDirectory.policy.state === State.ACTIVE,
+          ),
+      };
       return policyDirectoryReadDto;
     } catch (err) {
       this.logger.error(err);
@@ -77,13 +93,15 @@ export class PolicyDirectoryService {
     }
   }
 
-  async create(policyDirectoryCreateDto: PolicyDirectoryCreateDto): Promise<string> {
+  async create(
+    policyDirectoryCreateDto: PolicyDirectoryCreateDto,
+  ): Promise<string> {
     try {
-
       const policyDirectory = new PolicyDirectory();
       policyDirectory.directoryName = policyDirectoryCreateDto.directoryName;
       policyDirectory.account = policyDirectoryCreateDto.account;
-      const createdPolicyDirectory = await this.policyDirectoryRepository.save(policyDirectory);
+      const createdPolicyDirectory =
+        await this.policyDirectoryRepository.save(policyDirectory);
       await this.policyToPolicyDirectoryService.createSeveral(
         createdPolicyDirectory,
         policyDirectoryCreateDto.policyToPolicyDirectories,
@@ -98,7 +116,10 @@ export class PolicyDirectoryService {
     }
   }
 
-  async update(_id: string, updatePolicyDirectoryDto: PolicyDirectoryUpdateDto): Promise<string> {
+  async update(
+    _id: string,
+    updatePolicyDirectoryDto: PolicyDirectoryUpdateDto,
+  ): Promise<string> {
     try {
       const policyDirectory = await this.policyDirectoryRepository.findOne({
         where: { id: _id },
@@ -117,8 +138,10 @@ export class PolicyDirectoryService {
           updatePolicyDirectoryDto.policyToPolicyDirectories,
         );
       }
-      await this.policyDirectoryRepository.update(policyDirectory.id, {directoryName: policyDirectory.directoryName});
-      return policyDirectory.id
+      await this.policyDirectoryRepository.update(policyDirectory.id, {
+        directoryName: policyDirectory.directoryName,
+      });
+      return policyDirectory.id;
     } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
@@ -141,8 +164,7 @@ export class PolicyDirectoryService {
       }
 
       await this.policyDirectoryRepository.delete({ id: _id });
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
@@ -152,6 +174,5 @@ export class PolicyDirectoryService {
       // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при удалении папки');
     }
-
   }
 }

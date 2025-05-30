@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Account } from 'src/domains/account.entity';
 import { State, Type } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
-import { User } from 'src/domains/user.entity';
 import { PolicyToPolicyDirectory } from 'src/domains/policyToPolicyDirectories.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Target } from 'src/domains/target.entity';

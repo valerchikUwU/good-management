@@ -1,25 +1,27 @@
-import { createPathInOneDivision } from "./createPathInOneDivision";
+import { createPathInOneDivision } from './createPathInOneDivision';
 
 export function createPathFromSenderToRecieverPost(
-    postIdsFromSenderToTop: string[],
-    postIdsFromRecieverToTop: string[]
+  postIdsFromSenderToTop: string[],
+  postIdsFromRecieverToTop: string[],
 ): { postIdsFromSenderToReciver: string[]; isCommonDivision: boolean } {
-    const isCommonDivision = postIdsFromSenderToTop.some(postId =>
-        postIdsFromRecieverToTop.includes(postId)
+  const isCommonDivision = postIdsFromSenderToTop.some((postId) =>
+    postIdsFromRecieverToTop.includes(postId),
+  );
+
+  const postIdsFromSenderToReciver: string[] = [];
+  if (isCommonDivision) {
+    postIdsFromSenderToReciver.push(
+      ...createPathInOneDivision(
+        postIdsFromSenderToTop,
+        postIdsFromRecieverToTop,
+      ),
     );
+  } else {
+    postIdsFromRecieverToTop.reverse();
+    postIdsFromSenderToReciver.push(
+      ...postIdsFromSenderToTop.concat(postIdsFromRecieverToTop),
+    );
+  }
 
-    let postIdsFromSenderToReciver: string[] = [];
-    if (isCommonDivision) {
-        postIdsFromSenderToReciver
-            .push(...createPathInOneDivision(
-                postIdsFromSenderToTop,
-                postIdsFromRecieverToTop));
-    } else {
-        postIdsFromRecieverToTop.reverse();
-        postIdsFromSenderToReciver
-            .push(...postIdsFromSenderToTop
-                .concat(postIdsFromRecieverToTop));
-    }
-
-    return { postIdsFromSenderToReciver, isCommonDivision };
+  return { postIdsFromSenderToReciver, isCommonDivision };
 }

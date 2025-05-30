@@ -4,7 +4,6 @@ import { Post } from 'src/domains/post.entity';
 import { Type } from 'src/domains/project.entity';
 import { Strategy } from 'src/domains/strategy.entity';
 import { Target } from 'src/domains/target.entity';
-import { User } from 'src/domains/user.entity';
 
 export class ProjectReadDto {
   id: string;

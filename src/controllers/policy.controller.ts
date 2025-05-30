@@ -23,21 +23,18 @@ import {
 import { PolicyCreateDto } from 'src/contracts/policy/create-policy.dto';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
 import { Logger } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
+import { yellow } from 'colorette';
 import { PolicyUpdateDto } from 'src/contracts/policy/update-policy.dto';
-import { ModuleAccess } from 'src/decorators/module-access.decorator';
-import { ActionAccess } from 'src/decorators/action-access.decorator';
-import { Actions, Modules } from 'src/domains/roleSetting.entity';
-import { PermissionsGuard } from 'src/guards/permission.guard';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
-import { PolicyCreateEventDto } from 'src/contracts/policy/createEvent-policy.dto';
 import { ProducerService } from 'src/application/services/producer/producer.service';
-import { State, Type } from 'src/domains/policy.entity';
+import { Type } from 'src/domains/policy.entity';
 import { PolicyUpdateEventDto } from 'src/contracts/policy/updateEvent-policy.dto';
-import { TimeoutError } from 'rxjs';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
-import { findAllPoliciesExample, findOnePolicyExample } from 'src/constants/swagger-examples/policy/policy-examples';
+import {
+  findAllPoliciesExample,
+  findOnePolicyExample,
+} from 'src/constants/swagger-examples/policy/policy-examples';
 
 @ApiTags('Policy')
 @ApiBearerAuth('access-token')
@@ -49,14 +46,14 @@ export class PolicyController {
     private readonly organizationService: OrganizationService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Все политики в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllPoliciesExample
+    example: findAllPoliciesExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -70,26 +67,30 @@ export class PolicyController {
     name: 'organizationId',
     required: true,
     description: 'Id организации',
-    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async findAll(
-    @Param('organizationId') organizationId: string
-  ): Promise<{
+  async findAll(@Param('organizationId') organizationId: string): Promise<{
     directives: PolicyReadDto[];
     instructions: PolicyReadDto[];
-    disposals: PolicyReadDto[]
+    disposals: PolicyReadDto[];
   }> {
-    const policies = await this.policyService.findAllForOrganization(organizationId);
-    const directives = policies.filter((policy) => policy.type === Type.DIRECTIVE);
-    const instructions = policies.filter((policy) => policy.type === Type.INSTRUCTION);
-    const disposals = policies.filter((policy) => policy.type === Type.DISPOSAL);
+    const policies =
+      await this.policyService.findAllForOrganization(organizationId);
+    const directives = policies.filter(
+      (policy) => policy.type === Type.DIRECTIVE,
+    );
+    const instructions = policies.filter(
+      (policy) => policy.type === Type.INSTRUCTION,
+    );
+    const disposals = policies.filter(
+      (policy) => policy.type === Type.DISPOSAL,
+    );
     return {
       directives: directives,
       instructions: instructions,
-      disposals: disposals
+      disposals: disposals,
     };
   }
-
 
   @Patch(':policyId/update')
   @ApiOperation({ summary: 'Обновить политику по Id' })
@@ -101,7 +102,7 @@ export class PolicyController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {"id": "71ba1ba2-9e53-4238-9bb2-14a475460689"},
+    example: { id: '71ba1ba2-9e53-4238-9bb2-14a475460689' },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -126,7 +127,10 @@ export class PolicyController {
     @Body() policyUpdateDto: PolicyUpdateDto,
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
-    const updatedPolicyId = await this.policyService.update(policyId, policyUpdateDto);
+    const updatedPolicyId = await this.policyService.update(
+      policyId,
+      policyUpdateDto,
+    );
     const updatedEventPolicyDto: PolicyUpdateEventDto = {
       eventType: 'POLICY_UPDATED',
       id: updatedPolicyId,
@@ -177,7 +181,7 @@ export class PolicyController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findOnePolicyExample
+    example: findOnePolicyExample,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -196,9 +200,7 @@ export class PolicyController {
     description: 'Ошибка сервера!',
   })
   @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
-  async findOne(
-    @Param('policyId') policyId: string
-  ): Promise<PolicyReadDto> {
+  async findOne(@Param('policyId') policyId: string): Promise<PolicyReadDto> {
     const policy = await this.policyService.findOneById(policyId);
     return policy;
   }
@@ -213,7 +215,7 @@ export class PolicyController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'CREATED!',
-    example: {"id": "71ba1ba2-9e53-4238-9bb2-14a475460689"},
+    example: { id: '71ba1ba2-9e53-4238-9bb2-14a475460689' },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -232,10 +234,12 @@ export class PolicyController {
     @Body() policyCreateDto: PolicyCreateDto,
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
-    const organization = await this.organizationService.findOneById(policyCreateDto.organizationId);
-    const postCreator = user.posts.find(post => post.isDefault);
+    const organization = await this.organizationService.findOneById(
+      policyCreateDto.organizationId,
+    );
+    const postCreator = user.posts.find((post) => post.isDefault);
     policyCreateDto.organization = organization;
-    policyCreateDto.postCreator = postCreator
+    policyCreateDto.postCreator = postCreator;
     policyCreateDto.account = user.account;
     const createdPolicyId = await this.policyService.create(policyCreateDto);
     // const createdEventPolicyDto: PolicyCreateEventDto = {

@@ -1,12 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  ArrayNotEmpty,
-  IsArray,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 export class AuthVK {
   @ApiProperty({ description: 'Авторизационный код от ВК' })

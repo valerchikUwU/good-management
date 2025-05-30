@@ -18,7 +18,6 @@ import {
 } from '@nestjs/swagger';
 import { AuthService } from './application/services/auth/auth.service';
 import { Request as ExpressRequest } from 'express';
-import { Response as ExpressResponse } from 'express';
 @ApiTags('Homepage')
 @Controller()
 export class AppController implements OnModuleInit {
@@ -39,7 +38,7 @@ export class AppController implements OnModuleInit {
       tokenForTG: '7b96732ad3e8c42f69e3',
       code_challenge: 'yUTIHPqrEeWTVoHmYJkL5x9WAQGb3umfTrT3TxFPtSg',
       state: 'c0def372ed9f958837bf45cb10dbbd26',
-      isLogged: false
+      isLogged: false,
     },
   })
   @ApiResponse({
@@ -65,9 +64,12 @@ export class AppController implements OnModuleInit {
     let isLogged = false;
     let userId = null;
     const refreshTokenId = req.cookies['refresh-tokenId'];
-    if(fingerprint && refreshTokenId){
-      const isLoggedResult = await this.authService.isSessionExpired(fingerprint, refreshTokenId)
-      isLogged = isLoggedResult.isExpired ? false : true
+    if (fingerprint && refreshTokenId) {
+      const isLoggedResult = await this.authService.isSessionExpired(
+        fingerprint,
+        refreshTokenId,
+      );
+      isLogged = isLoggedResult.isExpired ? false : true;
       userId = isLogged ? isLoggedResult.userId : null;
     }
     // Генерация code_verifier
@@ -88,10 +90,10 @@ export class AppController implements OnModuleInit {
       code_challenge: codeChallenge,
       state,
       isLogged,
-      userId
+      userId,
     };
   }
-  
+
   onModuleInit() {
       if (process.env.NODE_ENV === 'prod') {
       this.telegramBotService.startBot();

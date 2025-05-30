@@ -11,7 +11,6 @@ import {
 } from 'class-validator';
 
 export class UpdateUserDto {
-
   @ApiProperty({
     description: 'Id юзера',
     required: true,
@@ -51,7 +50,6 @@ export class UpdateUserDto {
   @IsNotEmpty({ message: 'Отчество юзера не может быть пустым!' })
   middleName?: string;
 
-
   @IsOptional()
   @IsInt()
   telegramId?: number;
@@ -59,13 +57,13 @@ export class UpdateUserDto {
   @ApiProperty({
     description: 'Аватарка юзера',
     required: false,
-    example: 'app\\uploads\\photo_17-03-2025_09-35-58_dac4ebc6-90c3-491d-8c2f-6c936cb34a28.jpg',
+    example:
+      'app\\uploads\\photo_17-03-2025_09-35-58_dac4ebc6-90c3-491d-8c2f-6c936cb34a28.jpg',
   })
   @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'Аватарка юзера не может быть пустой!' })
   avatar_url?: string;
-
 
   @ApiProperty({
     description: 'Телефон юзера',
@@ -73,7 +71,7 @@ export class UpdateUserDto {
     example: '+79787878788',
   })
   @IsOptional()
-  @IsMobilePhone('ru-RU', {strictMode: true})
+  @IsMobilePhone('ru-RU', { strictMode: true })
   @IsNotEmpty({ message: 'Телефон юзера не может быть пустым!' })
   telephoneNumber?: string;
 

@@ -16,7 +16,9 @@ export class RefreshSessionRepository extends Repository<RefreshSession> {
     });
   }
 
-  async findOneByFingerprint(fingerprint: string): Promise<RefreshSession | null> {
+  async findOneByFingerprint(
+    fingerprint: string,
+  ): Promise<RefreshSession | null> {
     const session = await this.findOne({
       relations: ['user'],
       where: { fingerprint: fingerprint },

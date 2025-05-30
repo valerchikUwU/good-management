@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -20,7 +19,10 @@ export class OrganizationService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<OrganizationReadDto[]> {
+  async findAllForAccount(
+    account: AccountReadDto,
+    relations?: string[],
+  ): Promise<OrganizationReadDto[]> {
     try {
       const organizations = await this.organizationRepository.find({
         where: { account: { id: account.id } },
@@ -53,7 +55,10 @@ export class OrganizationService {
     }
   }
 
-  async findOneById(id: string, relations?: string[]): Promise<OrganizationReadDto> {
+  async findOneById(
+    id: string,
+    relations?: string[],
+  ): Promise<OrganizationReadDto> {
     try {
       const organization = await this.organizationRepository.findOne({
         where: { id: id },
@@ -104,15 +109,19 @@ export class OrganizationService {
 
       organization.organizationName = organizationCreateDto.organizationName;
 
-      if (organizationCreateDto.parentOrganizationId) organization.parentOrganizationId = organizationCreateDto.parentOrganizationId;
+      if (organizationCreateDto.parentOrganizationId)
+        organization.parentOrganizationId =
+          organizationCreateDto.parentOrganizationId;
 
-      if (organizationCreateDto.reportDay) organization.reportDay = organizationCreateDto.reportDay;
+      if (organizationCreateDto.reportDay)
+        organization.reportDay = organizationCreateDto.reportDay;
 
       organization.organizationColor = organizationCreateDto.organizationColor;
 
       organization.account = organizationCreateDto.account;
-      
-      const createdOrganizationId = await this.organizationRepository.insert(organization);
+
+      const createdOrganizationId =
+        await this.organizationRepository.insert(organization);
       return createdOrganizationId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
@@ -121,7 +130,10 @@ export class OrganizationService {
     }
   }
 
-  async update(_id: string, updateOrganizationDto: OrganizationUpdateDto): Promise<string> {
+  async update(
+    _id: string,
+    updateOrganizationDto: OrganizationUpdateDto,
+  ): Promise<string> {
     try {
       const organization = await this.organizationRepository.findOne({
         where: { id: _id },
@@ -133,19 +145,21 @@ export class OrganizationService {
       if (updateOrganizationDto.organizationName)
         organization.organizationName = updateOrganizationDto.organizationName;
       if (updateOrganizationDto.parentOrganizationId)
-        organization.parentOrganizationId = updateOrganizationDto.parentOrganizationId;
+        organization.parentOrganizationId =
+          updateOrganizationDto.parentOrganizationId;
       if (updateOrganizationDto.reportDay !== undefined)
         organization.reportDay = updateOrganizationDto.reportDay;
       if (updateOrganizationDto.colorCodes)
         organization.colorCodes = updateOrganizationDto.colorCodes;
       if (updateOrganizationDto.organizationColor)
-        organization.organizationColor = updateOrganizationDto.organizationColor;
+        organization.organizationColor =
+          updateOrganizationDto.organizationColor;
       await this.organizationRepository.update(_id, {
         organizationName: organization.organizationName,
         parentOrganizationId: organization.parentOrganizationId,
         reportDay: organization.reportDay,
         colorCodes: organization.colorCodes,
-        organizationColor: organization.organizationColor
+        organizationColor: organization.organizationColor,
       });
       return organization.id;
     } catch (err) {

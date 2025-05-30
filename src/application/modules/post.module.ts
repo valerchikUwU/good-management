@@ -20,11 +20,11 @@ import { RoleModule } from './role.module';
     OrganizationModule,
     forwardRef(() => QueueModule),
     GroupModule,
-    HistoryUsersToPostModule, 
-    RoleModule
+    HistoryUsersToPostModule,
+    RoleModule,
   ],
   controllers: [PostController],
   providers: [PostService, PostRepository],
-  exports: [PostService]
+  exports: [PostService],
 })
 export class PostModule {}

@@ -6,14 +6,10 @@ import { PanelToStatistic } from 'src/domains/panelToStatistic.entity';
 import { StatisticModule } from './statistic.module';
 import { PanelToStatisticController } from 'src/controllers/panelToStatistic.controller';
 
-
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([PanelToStatistic]),
-    StatisticModule
-  ],
+  imports: [TypeOrmModule.forFeature([PanelToStatistic]), StatisticModule],
   controllers: [PanelToStatisticController],
   providers: [PanelToStatisticService, PanelToStatisticRepository],
   exports: [PanelToStatisticService],
 })
-export class PanelToStatisticModule { }
+export class PanelToStatisticModule {}

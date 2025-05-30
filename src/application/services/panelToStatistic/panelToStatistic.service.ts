@@ -1,13 +1,17 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Logger } from "winston";
-import { PanelToStatisticRepository } from "./repository/panelToStatistic.repository";
-import { ControlPanel } from "src/domains/controlPanel.entity";
-import { PanelToStatistic } from "src/domains/panelToStatistic.entity";
-import { StatisticService } from "../statistic/statistic.service";
-import { ControlPanelReadDto } from "src/contracts/controlPanel/read-controlPanel.dto";
-import { PanelToStatisticUpdateDto } from "src/contracts/panelToStatistic/update-panelToStatistic.dto";
-
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Logger } from 'winston';
+import { PanelToStatisticRepository } from './repository/panelToStatistic.repository';
+import { ControlPanel } from 'src/domains/controlPanel.entity';
+import { PanelToStatistic } from 'src/domains/panelToStatistic.entity';
+import { StatisticService } from '../statistic/statistic.service';
+import { ControlPanelReadDto } from 'src/contracts/controlPanel/read-controlPanel.dto';
+import { PanelToStatisticUpdateDto } from 'src/contracts/panelToStatistic/update-panelToStatistic.dto';
 
 @Injectable()
 export class PanelToStatisticService {
@@ -15,44 +19,49 @@ export class PanelToStatisticService {
     @InjectRepository(PanelToStatisticRepository)
     private readonly panelToStatisticRepository: PanelToStatisticRepository,
     private readonly statisticService: StatisticService,
-    @Inject('winston') private readonly logger: Logger
-  ) { }
+    @Inject('winston') private readonly logger: Logger,
+  ) {}
 
   async createSeveral(
     controlPanel: ControlPanel,
     statisticIds: string[],
   ): Promise<void> {
     try {
-
       const statistics = await this.statisticService.findBulk(statisticIds);
 
       // Создаём связи для всех найденных Policy
-      const panelToStatistics = statistics.map(statistic => {
+      const panelToStatistics = statistics.map((statistic) => {
         const panelToStatistic = new PanelToStatistic();
         panelToStatistic.controlPanel = controlPanel;
         panelToStatistic.statistic = statistic;
         return panelToStatistic;
       });
-      await this.panelToStatisticRepository.insert(panelToStatistics)
-    }
-    catch (err) {
+      await this.panelToStatisticRepository.insert(panelToStatistics);
+    } catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при связывании статистик с панелью!')
+      throw new InternalServerErrorException(
+        'Ошибка при связывании статистик с панелью!',
+      );
     }
-
   }
 
-
-  async update(_id: string, panelToStatisticUpdateDto: PanelToStatisticUpdateDto): Promise<string> {
+  async update(
+    _id: string,
+    panelToStatisticUpdateDto: PanelToStatisticUpdateDto,
+  ): Promise<string> {
     try {
       const panelToStatistic = await this.panelToStatisticRepository.findOne({
         where: { id: _id },
       });
       if (!panelToStatistic) {
-        throw new NotFoundException(`Статистика с ID ${_id} в панеле не найдена`);
+        throw new NotFoundException(
+          `Статистика с ID ${_id} в панеле не найдена`,
+        );
       }
       // Обновить свойства, если они указаны в DTO
-      if (panelToStatisticUpdateDto.orderStatisticNumber) panelToStatistic.orderStatisticNumber = panelToStatisticUpdateDto.orderStatisticNumber;
+      if (panelToStatisticUpdateDto.orderStatisticNumber)
+        panelToStatistic.orderStatisticNumber =
+          panelToStatisticUpdateDto.orderStatisticNumber;
       await this.panelToStatisticRepository.update(panelToStatistic.id, {
         orderStatisticNumber: panelToStatistic.orderStatisticNumber,
       });
@@ -69,12 +78,11 @@ export class PanelToStatisticService {
         'Ошибка при обновлении статистики в панеле',
       );
     }
-
   }
 
   async remove(controlPanel: ControlPanelReadDto): Promise<void> {
-    await this.panelToStatisticRepository.delete({ controlPanel: controlPanel });
+    await this.panelToStatisticRepository.delete({
+      controlPanel: controlPanel,
+    });
   }
-
-
 }

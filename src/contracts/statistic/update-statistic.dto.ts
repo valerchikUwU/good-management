@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
-import { Account } from 'src/domains/account.entity';
 import { Post } from 'src/domains/post.entity';
 import { Type as TypeStatistic } from 'src/domains/statistic.entity';
 import { StatisticDataCreateDto } from '../statisticData/create-statisticData.dto';
@@ -9,7 +8,6 @@ import {
   IsArray,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   IsUUID,

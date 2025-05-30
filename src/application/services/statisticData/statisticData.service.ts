@@ -1,16 +1,13 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { StatisticReadDto } from 'src/contracts/statistic/read-statistic.dto';
 import { Logger } from 'winston';
 import { StatisticDataRepository } from './repository/statisticData.repository';
 import { StatisticData } from 'src/domains/statisticData.entity';
-import { StatisticDataReadDto } from 'src/contracts/statisticData/read-statisticData.dto';
 import { StatisticDataCreateDto } from 'src/contracts/statisticData/create-statisticData.dto';
 import { StatisticDataUpdateDto } from 'src/contracts/statisticData/update-statisticData.dto';
 
@@ -22,10 +19,10 @@ export class StatisticDataService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-
-  async create(statisticDataCreateDto: StatisticDataCreateDto): Promise<string> {
+  async create(
+    statisticDataCreateDto: StatisticDataCreateDto,
+  ): Promise<string> {
     try {
-
       const statisticData = new StatisticData();
       statisticData.value = statisticDataCreateDto.value;
       statisticData.valueDate = statisticDataCreateDto.valueDate;
@@ -41,7 +38,9 @@ export class StatisticDataService {
     }
   }
 
-  async update(statisticDataUpdateDto: StatisticDataUpdateDto): Promise<string> {
+  async update(
+    statisticDataUpdateDto: StatisticDataUpdateDto,
+  ): Promise<string> {
     try {
       const statisticData = await this.statisticDataRepository.findOne({
         where: { id: statisticDataUpdateDto._id },
@@ -66,7 +65,7 @@ export class StatisticDataService {
     } catch (err) {
       this.logger.error(err);
       if (err instanceof NotFoundException) {
-        throw err; 
+        throw err;
       }
       throw new InternalServerErrorException(
         'Ошибка при обновлении данных статистики',

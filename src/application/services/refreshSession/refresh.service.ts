@@ -4,7 +4,6 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { RefreshSession } from 'src/domains/refreshSession.entity';
 import { RefreshSessionRepository } from './Repository/refresh.repository';
 import { ReadRefreshSessionDto } from 'src/contracts/refreshSession/read-refreshSession.dto';
@@ -21,7 +20,7 @@ export class RefreshService {
     private readonly cacheService: Cache,
     @Inject('winston')
     private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async findAllByUserId(userId: string): Promise<ReadRefreshSessionDto[]> {
     try {
@@ -47,9 +46,7 @@ export class RefreshService {
     }
   }
 
-  async create(
-    createSessionDto: CreateRefreshSessionDto,
-  ): Promise<string> {
+  async create(createSessionDto: CreateRefreshSessionDto): Promise<string> {
     try {
       const session = new RefreshSession();
       session.user_agent = createSessionDto.user_agent;
@@ -59,7 +56,11 @@ export class RefreshService {
       session.refreshToken = createSessionDto.refreshToken;
       session.user = createSessionDto.user;
       const refreshSession = await this.sessionsRepository.save(session);
-      await this.cacheService.set<RefreshSession>(`session:${refreshSession.id}`, refreshSession, 1860000);
+      await this.cacheService.set<RefreshSession>(
+        `session:${refreshSession.id}`,
+        refreshSession,
+        1860000,
+      );
       return refreshSession.id;
     } catch (err) {
       this.logger.error(err);
@@ -72,13 +73,13 @@ export class RefreshService {
     fingerprint: string,
   ): Promise<ReadRefreshSessionDto | null> {
     try {
-      const session = await this.cacheService.get<ReadRefreshSessionDto>(`session:${id}`)
-        ?? await this.sessionsRepository.findOneByIdAndFingerprint(
+      const session =
+        (await this.cacheService.get<ReadRefreshSessionDto>(`session:${id}`)) ??
+        (await this.sessionsRepository.findOneByIdAndFingerprint(
           id,
           fingerprint,
-        );
-      if (!session)
-        return null;
+        ));
+      if (!session) return null;
 
       // Преобразование объекта User в ReadUserDto
       const readRefreshSessionDto: ReadRefreshSessionDto = {
@@ -106,10 +107,8 @@ export class RefreshService {
     }
   }
 
-
-
   async remove(id: string): Promise<void> {
-    await this.cacheService.del(`session:${id}`)
+    await this.cacheService.del(`session:${id}`);
     await this.sessionsRepository.delete(id);
   }
 

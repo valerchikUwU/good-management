@@ -1,9 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  IsNumber,
-  IsUUID,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 
 export class PanelToStatisticUpdateDto {
   @ApiProperty({
@@ -14,7 +10,6 @@ export class PanelToStatisticUpdateDto {
   @IsUUID()
   @IsNotEmpty({ message: 'ID не может быть пустым!' })
   _id: string;
-
 
   @ApiProperty({
     description: 'Порядковый номер',

@@ -3,7 +3,6 @@ import {
   Catch,
   ArgumentsHost,
   BadRequestException,
-  HttpException,
   Inject,
 } from '@nestjs/common';
 import { ValidationError } from 'class-validator';

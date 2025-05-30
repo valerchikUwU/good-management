@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import amqp, { ChannelWrapper } from 'amqp-connection-manager';
 import { ConfirmChannel } from 'amqplib';
 import { AccountService } from '../account/account.service';
@@ -7,10 +7,7 @@ import { OrganizationService } from '../organization/organization.service';
 import { AccountCreateDto } from 'src/contracts/account/create-account.dto';
 import { CreateUserDto } from 'src/contracts/user/create-user.dto';
 import { RoleService } from '../role/role.service';
-import { OrganizationCreateDto } from 'src/contracts/organization/create-organization.dto';
 import { PostService } from '../post/post.service';
-import { Roles } from 'src/domains/role.entity';
-import { PostCreateDto } from 'src/contracts/post/create-post.dto';
 import { PolicyService } from '../policy/policy.service';
 import { StatisticService } from '../statistic/statistic.service';
 import { StatisticCreateDto } from 'src/contracts/statistic/create-statistic.dto';
@@ -119,7 +116,9 @@ export class ConsumerService implements OnModuleInit {
   private async handleTenantCreatedEvent(event: any) {
     try {
       const payload = event.payload;
-      this.logger.log(`Handling TenantCreatedEvent: ${JSON.stringify(payload)}`);
+      this.logger.log(
+        `Handling TenantCreatedEvent: ${JSON.stringify(payload)}`,
+      );
       const accountCreateDto: AccountCreateDto = {
         id: payload.company.id,
         accountName: payload.company.name,
@@ -135,11 +134,9 @@ export class ConsumerService implements OnModuleInit {
         account: createdAccount,
       };
       await this.userService.create(userCreateDto);
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err);
     }
-
   }
 
   // Обработка события OrganizationCreatedEvent
@@ -205,7 +202,7 @@ export class ConsumerService implements OnModuleInit {
   //   }
   //   catch (err) {
   //     this.logger.error(err);
-      
+
   //   }
   // }
 
@@ -256,7 +253,9 @@ export class ConsumerService implements OnModuleInit {
       );
 
       const account = await this.accountService.findOneById(event.accountId);
-      const post = await this.postService.findOneById(payload.responsiblePostId);
+      const post = await this.postService.findOneById(
+        payload.responsiblePostId,
+      );
       const statisticCreateDto: StatisticCreateDto = {
         id: payload.id,
         name: payload.name,
@@ -267,10 +266,8 @@ export class ConsumerService implements OnModuleInit {
         account: account,
       };
       return await this.statisticService.create(statisticCreateDto);
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err);
-      
     }
   }
 
@@ -305,10 +302,8 @@ export class ConsumerService implements OnModuleInit {
         account: account,
       };
       return await this.userService.create(userCreateDto);
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err);
-      
     }
   }
 
@@ -328,10 +323,8 @@ export class ConsumerService implements OnModuleInit {
         telephoneNumber: payload.phone,
       };
       return await this.userService.update(userUpdateDto.id, userUpdateDto);
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err);
-      
     }
   }
 }

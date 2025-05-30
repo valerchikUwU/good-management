@@ -36,7 +36,10 @@ import { ObjectiveCreateEventDto } from 'src/contracts/objective/createEvent-obj
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
-import { findAllStrategiesExample, findeOneStrategyExample } from 'src/constants/swagger-examples/strategy/strategy-examples';
+import {
+  findAllStrategiesExample,
+  findeOneStrategyExample,
+} from 'src/constants/swagger-examples/strategy/strategy-examples';
 
 @ApiTags('Strategy')
 @ApiBearerAuth('access-token')
@@ -49,15 +52,14 @@ export class StrategyController {
     private readonly producerService: ProducerService,
     private readonly objectiveService: ObjectiveService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
-
+  ) {}
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Получить стратегию по организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllStrategiesExample
+    example: findAllStrategiesExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -67,16 +69,17 @@ export class StrategyController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({ 
-    name: 'organizationId', 
-    required: true, 
+  @ApiParam({
+    name: 'organizationId',
+    required: true,
     description: 'Id организации',
-    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   async findAll(
     @Param('organizationId') organizationId: string,
   ): Promise<StrategyReadDto[]> {
-    const strategies = await this.strategyService.findAllForOrganization(organizationId);
+    const strategies =
+      await this.strategyService.findAllForOrganization(organizationId);
     return strategies;
   }
 
@@ -113,7 +116,6 @@ export class StrategyController {
     @Param('strategyId') strategyId: string,
     @Body() strategyUpdateDto: StrategyUpdateDto,
   ): Promise<{ id: string }> {
-
     const updatedStrategyId = await this.strategyService.update(
       strategyId,
       strategyUpdateDto,
@@ -154,13 +156,12 @@ export class StrategyController {
     return { id: updatedStrategyId };
   }
 
-
   @Get(':strategyId/strategy')
   @ApiOperation({ summary: 'Получить стратегию по ID' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findeOneStrategyExample
+    example: findeOneStrategyExample,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -217,13 +218,17 @@ export class StrategyController {
     @Body() strategyCreateDto: StrategyCreateDto,
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
-    const organization = await this.organizationService.findOneById(strategyCreateDto.organizationId);
-    const postCreator = user.posts.find(post => post.isDefault);
-    strategyCreateDto.postCreator = postCreator
+    const organization = await this.organizationService.findOneById(
+      strategyCreateDto.organizationId,
+    );
+    const postCreator = user.posts.find((post) => post.isDefault);
+    strategyCreateDto.postCreator = postCreator;
     strategyCreateDto.account = user.account;
     strategyCreateDto.organization = organization;
-    const createdStrategyId = await this.strategyService.create(strategyCreateDto);
-    const createdStrategy = await this.strategyService.findOneById(createdStrategyId);
+    const createdStrategyId =
+      await this.strategyService.create(strategyCreateDto);
+    const createdStrategy =
+      await this.strategyService.findOneById(createdStrategyId);
     const objectiveCreateDto: ObjectiveCreateDto = {
       content: ['', ''],
       rootCause: [''],
@@ -232,7 +237,8 @@ export class StrategyController {
       strategy: createdStrategy,
       account: user.account,
     };
-    const createdObjectiveId = await this.objectiveService.create(objectiveCreateDto);
+    const createdObjectiveId =
+      await this.objectiveService.create(objectiveCreateDto);
     const createdStrategyEventDto: StrategyCreateEventDto = {
       eventType: 'STRATEGY_CREATED',
       id: createdStrategyId,

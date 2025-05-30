@@ -38,8 +38,18 @@ import { Request as ExpressRequest } from 'express';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { PostService } from 'src/application/services/post/post.service';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
-import { beforeCreate, beforeCreateProgram, findAllExample, findOneExample, findOneProgramExample } from 'src/constants/swagger-examples/projects/project-examples';
-import { State, State as TargetState, Type as TargetType } from 'src/domains/target.entity';
+import {
+  beforeCreate,
+  beforeCreateProgram,
+  findAllExample,
+  findOneExample,
+  findOneProgramExample,
+} from 'src/constants/swagger-examples/projects/project-examples';
+import {
+  State,
+  State as TargetState,
+  Type as TargetType,
+} from 'src/domains/target.entity';
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertUpdateDto } from 'src/contracts/convert/update-convert.dto';
 import { createPathFromSenderToRecieverPost } from 'src/helpersFunc/createPathFromSenderToRecieverPost';
@@ -59,14 +69,14 @@ export class ProjectController {
     private readonly organizationService: OrganizationService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   @Get(':organizationId/projects')
   @ApiOperation({ summary: 'Все проекты в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllExample
+    example: findAllExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -85,7 +95,9 @@ export class ProjectController {
   async findAll(
     @Param('organizationId') organizationId: string,
   ): Promise<ProjectReadDto[]> {
-    return await this.projectService.findAllForOrganization(organizationId, ['targets']);
+    return await this.projectService.findAllForOrganization(organizationId, [
+      'targets',
+    ]);
   }
 
   @Get(':organizationId/program/new')
@@ -93,7 +105,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: beforeCreateProgram
+    example: beforeCreateProgram,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -116,9 +128,17 @@ export class ProjectController {
     strategies: StrategyReadDto[];
     projects: ProjectReadDto[];
   }> {
-    const posts = await this.postService.findAllWithUserForOrganization(organizationId, ['user']);
-    const strategies = await this.strategyService.findAllActiveForOrganization(organizationId);
-    const projects = await this.projectService.findAllProjectsWithoutProgramForOrganization(organizationId, ['targets']);
+    const posts = await this.postService.findAllWithUserForOrganization(
+      organizationId,
+      ['user'],
+    );
+    const strategies =
+      await this.strategyService.findAllActiveForOrganization(organizationId);
+    const projects =
+      await this.projectService.findAllProjectsWithoutProgramForOrganization(
+        organizationId,
+        ['targets'],
+      );
     return {
       posts: posts,
       strategies: strategies,
@@ -131,7 +151,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: beforeCreate
+    example: beforeCreate,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -147,16 +167,21 @@ export class ProjectController {
     description: 'Id организации',
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async beforeCreate(
-    @Param('organizationId') organizationId: string,
-  ): Promise<{
+  async beforeCreate(@Param('organizationId') organizationId: string): Promise<{
     posts: PostReadDto[];
     strategies: StrategyReadDto[];
     programs: ProjectReadDto[];
   }> {
-    const posts = await this.postService.findAllWithUserForOrganization(organizationId, ['user']);
-    const strategies = await this.strategyService.findAllActiveForOrganization(organizationId);
-    const programs = await this.projectService.findAllProgramsForOrganization(organizationId, ['strategy', 'targets']);
+    const posts = await this.postService.findAllWithUserForOrganization(
+      organizationId,
+      ['user'],
+    );
+    const strategies =
+      await this.strategyService.findAllActiveForOrganization(organizationId);
+    const programs = await this.projectService.findAllProgramsForOrganization(
+      organizationId,
+      ['strategy', 'targets'],
+    );
     return {
       posts: posts,
       strategies: strategies,
@@ -174,7 +199,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'ОК!',
-    example: { "id": "ff6c48ae-8493-48cc-9c5d-cdd1393858e6" },
+    example: { id: 'ff6c48ae-8493-48cc-9c5d-cdd1393858e6' },
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -192,15 +217,16 @@ export class ProjectController {
     @Req() req: ExpressRequest,
     @Body() projectCreateDto: ProjectCreateDto,
   ): Promise<{ id: string }> {
-
     const start = new Date();
     const user = req.user as ReadUserDto;
     const [organization, strategy] = await Promise.all([
       this.organizationService.findOneById(projectCreateDto.organizationId),
-      projectCreateDto.strategyId !== undefined ? await this.strategyService.findOneById(projectCreateDto.strategyId) : undefined
+      projectCreateDto.strategyId !== undefined
+        ? await this.strategyService.findOneById(projectCreateDto.strategyId)
+        : undefined,
     ]);
-    const postCreator = user.posts.find(post => post.isDefault);
-    projectCreateDto.postCreator = postCreator
+    const postCreator = user.posts.find((post) => post.isDefault);
+    projectCreateDto.postCreator = postCreator;
     projectCreateDto.account = user.account;
     projectCreateDto.organization = organization;
     projectCreateDto.strategy = strategy;
@@ -240,7 +266,6 @@ export class ProjectController {
     //   );
     //   await Promise.all(createTargetsPromises);
     // }
-
 
     // const createdEventProjectDto: ProjectCreateEventDto = {
     //   eventType: 'PROJECT_CREATED',
@@ -289,12 +314,9 @@ export class ProjectController {
       `${yellow('OK!')} - projectCreateDto: ${JSON.stringify(projectCreateDto)} - Создан новый проект!`,
     );
     const now = new Date();
-    console.log(now.getTime() - start.getTime())
+    console.log(now.getTime() - start.getTime());
     return { id: createdProjectId };
   }
-
-
-
 
   @Patch(':projectId/update')
   @ApiOperation({ summary: 'Обновить проект по Id' })
@@ -329,116 +351,160 @@ export class ProjectController {
   @ApiParam({
     name: 'projectId',
     required: true,
-    description: 'Id проекта'
+    description: 'Id проекта',
   })
   @ApiQuery({
     name: 'holderProductPostId',
     required: false,
-    description: 'Id поста ответственного за задачу с типом Продукт'
+    description: 'Id поста ответственного за задачу с типом Продукт',
   })
   async update(
     @Req() req: ExpressRequest,
     @Param('projectId') projectId: string,
     @Query('holderProductPostId') holderProductPostId: string,
-    @Body() projectUpdateDto: ProjectUpdateDto
+    @Body() projectUpdateDto: ProjectUpdateDto,
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
-    const userPost = user.posts.find(post => post.isDefault);
+    const userPost = user.posts.find((post) => post.isDefault);
     const start = new Date();
     const convertCreateDtos: ConvertCreateDto[] = [];
     const convertUpdateDtos: ConvertUpdateDto[] = [];
     if (holderProductPostId) {
-      let senderPost = await this.postService.findOneById(holderProductPostId);
+      const senderPost =
+        await this.postService.findOneById(holderProductPostId);
       if (projectUpdateDto.targetCreateDtos.length > 0) {
-        const convertCreationForTargetCreatePromises = projectUpdateDto.targetCreateDtos.map(async (target) => {
-          const convertCreateDto = new ConvertCreateDto();
-          const [postIdsFromSenderToTop, postIdsFromRecieverToTop] =
-            await Promise.all([
-              this.postService.getHierarchyToTop(holderProductPostId),
-              this.postService.getHierarchyToTop(target.holderPostId),
-            ]);
-
-          const isCommonDivision = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).isCommonDivision;
-          const postIdsFromSenderToReciver = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).postIdsFromSenderToReciver;
-
-          setConvertPath(convertCreateDto, postIdsFromSenderToReciver, isCommonDivision);
-          convertCreateDto.convertTheme = target.content;
-          convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
-          convertCreateDto.deadline = target.deadline;
-          convertCreateDto.convertType = TypeConvert.ORDER;
-          convertCreateDto.host = senderPost;
-          convertCreateDto.account = user.account;
-          convertCreateDtos.push(convertCreateDto);
-        });
-        await Promise.all(convertCreationForTargetCreatePromises)
-      }
-      if (projectUpdateDto.targetUpdateDtos.length > 0) {
-        const convertUpdationForTargetUpdatePromises = projectUpdateDto.targetUpdateDtos.map(async (target) => {
-          const isProductTarget = target.type === TargetType.PRODUCT
-
-          if (target.convert) {
-            const convertUpdateDto = new ConvertUpdateDto();
-            if (target.holderPostId) {
-              const [postIdsFromSenderToTop, postIdsFromRecieverToTop] =
-                await Promise.all([
-                  isProductTarget ? this.postService.getHierarchyToTop(userPost.id) : this.postService.getHierarchyToTop(holderProductPostId),
-                  this.postService.getHierarchyToTop(target.holderPostId),
-                ]);
-
-              const isCommonDivision = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).isCommonDivision;
-              const postIdsFromSenderToReciver = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).postIdsFromSenderToReciver;
-              setConvertPath(convertUpdateDto, postIdsFromSenderToReciver, isCommonDivision);
-              convertUpdateDto.pathOfPosts = postIdsFromSenderToReciver;
-            }
-            convertUpdateDto._id = target.convert.id
-            convertUpdateDto.convertTheme = target.content;
-            convertUpdateDto.deadline = target.deadline;
-            convertUpdateDto.host = isProductTarget ? userPost : senderPost;
-            convertUpdateDto.targetId = target._id;
-            if (target.targetState === State.FINISHED || target.targetState === State.REJECTED) {
-              convertUpdateDto.convertStatus = false;
-            }
-            convertUpdateDtos.push(convertUpdateDto);
-          }
-          else {
+        const convertCreationForTargetCreatePromises =
+          projectUpdateDto.targetCreateDtos.map(async (target) => {
             const convertCreateDto = new ConvertCreateDto();
             const [postIdsFromSenderToTop, postIdsFromRecieverToTop] =
               await Promise.all([
-                isProductTarget ? this.postService.getHierarchyToTop(userPost.id) : this.postService.getHierarchyToTop(holderProductPostId),
+                this.postService.getHierarchyToTop(holderProductPostId),
                 this.postService.getHierarchyToTop(target.holderPostId),
               ]);
-            const isCommonDivision = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).isCommonDivision;
-            const postIdsFromSenderToReciver = createPathFromSenderToRecieverPost(postIdsFromSenderToTop, postIdsFromRecieverToTop).postIdsFromSenderToReciver;
-            setConvertPath(convertCreateDto, postIdsFromSenderToReciver, isCommonDivision);
+
+            const isCommonDivision = createPathFromSenderToRecieverPost(
+              postIdsFromSenderToTop,
+              postIdsFromRecieverToTop,
+            ).isCommonDivision;
+            const postIdsFromSenderToReciver =
+              createPathFromSenderToRecieverPost(
+                postIdsFromSenderToTop,
+                postIdsFromRecieverToTop,
+              ).postIdsFromSenderToReciver;
+
+            setConvertPath(
+              convertCreateDto,
+              postIdsFromSenderToReciver,
+              isCommonDivision,
+            );
             convertCreateDto.convertTheme = target.content;
             convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
             convertCreateDto.deadline = target.deadline;
             convertCreateDto.convertType = TypeConvert.ORDER;
-            convertCreateDto.host = isProductTarget ? userPost : senderPost;
+            convertCreateDto.host = senderPost;
             convertCreateDto.account = user.account;
-            convertCreateDto.targetId = target._id;
             convertCreateDtos.push(convertCreateDto);
-          }
-        });
-        await Promise.all(convertUpdationForTargetUpdatePromises)
+          });
+        await Promise.all(convertCreationForTargetCreatePromises);
+      }
+      if (projectUpdateDto.targetUpdateDtos.length > 0) {
+        const convertUpdationForTargetUpdatePromises =
+          projectUpdateDto.targetUpdateDtos.map(async (target) => {
+            const isProductTarget = target.type === TargetType.PRODUCT;
+
+            if (target.convert) {
+              const convertUpdateDto = new ConvertUpdateDto();
+              if (target.holderPostId) {
+                const [postIdsFromSenderToTop, postIdsFromRecieverToTop] =
+                  await Promise.all([
+                    isProductTarget
+                      ? this.postService.getHierarchyToTop(userPost.id)
+                      : this.postService.getHierarchyToTop(holderProductPostId),
+                    this.postService.getHierarchyToTop(target.holderPostId),
+                  ]);
+
+                const isCommonDivision = createPathFromSenderToRecieverPost(
+                  postIdsFromSenderToTop,
+                  postIdsFromRecieverToTop,
+                ).isCommonDivision;
+                const postIdsFromSenderToReciver =
+                  createPathFromSenderToRecieverPost(
+                    postIdsFromSenderToTop,
+                    postIdsFromRecieverToTop,
+                  ).postIdsFromSenderToReciver;
+                setConvertPath(
+                  convertUpdateDto,
+                  postIdsFromSenderToReciver,
+                  isCommonDivision,
+                );
+                convertUpdateDto.pathOfPosts = postIdsFromSenderToReciver;
+              }
+              convertUpdateDto._id = target.convert.id;
+              convertUpdateDto.convertTheme = target.content;
+              convertUpdateDto.deadline = target.deadline;
+              convertUpdateDto.host = isProductTarget ? userPost : senderPost;
+              convertUpdateDto.targetId = target._id;
+              if (
+                target.targetState === State.FINISHED ||
+                target.targetState === State.REJECTED
+              ) {
+                convertUpdateDto.convertStatus = false;
+              }
+              convertUpdateDtos.push(convertUpdateDto);
+            } else {
+              const convertCreateDto = new ConvertCreateDto();
+              const [postIdsFromSenderToTop, postIdsFromRecieverToTop] =
+                await Promise.all([
+                  isProductTarget
+                    ? this.postService.getHierarchyToTop(userPost.id)
+                    : this.postService.getHierarchyToTop(holderProductPostId),
+                  this.postService.getHierarchyToTop(target.holderPostId),
+                ]);
+              const isCommonDivision = createPathFromSenderToRecieverPost(
+                postIdsFromSenderToTop,
+                postIdsFromRecieverToTop,
+              ).isCommonDivision;
+              const postIdsFromSenderToReciver =
+                createPathFromSenderToRecieverPost(
+                  postIdsFromSenderToTop,
+                  postIdsFromRecieverToTop,
+                ).postIdsFromSenderToReciver;
+              setConvertPath(
+                convertCreateDto,
+                postIdsFromSenderToReciver,
+                isCommonDivision,
+              );
+              convertCreateDto.convertTheme = target.content;
+              convertCreateDto.pathOfPosts = postIdsFromSenderToReciver;
+              convertCreateDto.deadline = target.deadline;
+              convertCreateDto.convertType = TypeConvert.ORDER;
+              convertCreateDto.host = isProductTarget ? userPost : senderPost;
+              convertCreateDto.account = user.account;
+              convertCreateDto.targetId = target._id;
+              convertCreateDtos.push(convertCreateDto);
+            }
+          });
+        await Promise.all(convertUpdationForTargetUpdatePromises);
       }
     }
     if (projectUpdateDto.strategyId != null) {
-      const strategy = await this.strategyService.findOneById(projectUpdateDto.strategyId);
+      const strategy = await this.strategyService.findOneById(
+        projectUpdateDto.strategyId,
+      );
       projectUpdateDto.strategy = strategy;
     }
     const updatedProjectId = await this.projectService.update(
       projectId,
       projectUpdateDto,
       convertCreateDtos,
-      convertUpdateDtos
+      convertUpdateDtos,
     );
 
     this.logger.info(
       `${yellow('OK!')} - UPDATED PROJECT: ${JSON.stringify(projectUpdateDto)} - Проект успешно обновлен!`,
     );
     const now = new Date();
-    console.log(now.getTime() - start.getTime())
+    console.log(now.getTime() - start.getTime());
     return { id: updatedProjectId };
   }
 
@@ -447,7 +513,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findOneProgramExample
+    example: findOneProgramExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -464,13 +530,17 @@ export class ProjectController {
   @ApiParam({
     name: 'programId',
     required: true,
-    description: 'Id программы'
+    description: 'Id программы',
   })
   async findOneProgram(
     @Param('programId') programId: string,
   ): Promise<{ program: ProjectReadDto; projects: ProjectReadDto[] }> {
     const program = await this.projectService.findOneProgramById(programId);
-    const projectsInProgram = await this.projectService.findAllNotRejectedProjectsByProgramIdForOrganization(programId, program.organization.id);
+    const projectsInProgram =
+      await this.projectService.findAllNotRejectedProjectsByProgramIdForOrganization(
+        programId,
+        program.organization.id,
+      );
     return { program: program, projects: projectsInProgram };
   }
 
@@ -479,7 +549,7 @@ export class ProjectController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findOneExample
+    example: findOneExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -496,13 +566,20 @@ export class ProjectController {
   @ApiParam({
     name: 'projectId',
     required: true,
-    description: 'Id проекта'
+    description: 'Id проекта',
   })
   async findOne(
     @Param('projectId') projectId: string,
   ): Promise<{ project: ProjectReadDto; strategies: StrategyReadDto[] }> {
-    const project = await this.projectService.findOneById(projectId, ['strategy', 'targets.targetHolders.post', 'targets.convert', 'organization']);
-    const strategies = await this.strategyService.findAllActiveForOrganization(project.organization.id);
+    const project = await this.projectService.findOneById(projectId, [
+      'strategy',
+      'targets.targetHolders.post',
+      'targets.convert',
+      'organization',
+    ]);
+    const strategies = await this.strategyService.findAllActiveForOrganization(
+      project.organization.id,
+    );
     return { project: project, strategies: strategies };
   }
 }

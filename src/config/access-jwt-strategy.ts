@@ -3,7 +3,6 @@ import { AuthService } from '../application/services/auth/auth.service';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtPayloadInterface } from '../utils/jwt-payload.interface';
-import { User } from '../domains/user.entity';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 
 @Injectable()

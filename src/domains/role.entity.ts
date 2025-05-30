@@ -1,14 +1,10 @@
 import {
   Entity,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinColumn,
-  OneToOne,
 } from 'typeorm';
 import { RoleSetting } from './roleSetting.entity';
 import { Post } from './post.entity';

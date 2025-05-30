@@ -16,7 +16,7 @@ export class PostCreateDto {
   @ApiProperty({
     description: 'Название поста',
     required: true,
-    example: 'Директор'
+    example: 'Директор',
   })
   @IsString()
   @IsNotEmpty({ message: 'Название поста не может быть пустым!' })
@@ -45,7 +45,7 @@ export class PostCreateDto {
   @ApiProperty({
     description: 'Продукт поста',
     required: true,
-    example: 'Продукт'
+    example: 'Продукт',
   })
   @IsString()
   @IsNotEmpty({ message: 'Продукт поста не может быть пустым!' })

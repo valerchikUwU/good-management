@@ -28,10 +28,10 @@ import { Group } from './group.entity';
 export class Account {
   /**
    * Уникальный идентификатор аккаунта.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется и имеет формат UUID v4.0.
-   * 
+   *
    * @example
    * '550e8400-e29b-41d4-a716-446655440000'
    */
@@ -40,10 +40,10 @@ export class Account {
 
   /**
    * Название аккаунта.
-   * 
+   *
    * @remarks
    * nullable: false, length: 120
-   * 
+   *
    * @example
    * 'Академия'
    */
@@ -52,10 +52,10 @@ export class Account {
 
   /**
    * Идентификатор собственника в БД академии (tenant ID).
-   * 
+   *
    * @remarks
    * Должен быть валидным UUID. unique: true, nullable: true.
-   * 
+   *
    * @example
    * '123e4567-e89b-12d3-a456-426614174000'
    */
@@ -64,10 +64,10 @@ export class Account {
 
   /**
    * Дата и время создания аккаунта.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -76,10 +76,10 @@ export class Account {
 
   /**
    * Дата и время последнего обновления аккаунта.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при каждом изменении записи.
-   * 
+   *
    * @example
    * '2024-06-10T08:15:30Z'
    */
@@ -149,7 +149,10 @@ export class Account {
   /**
    * Связь с директориями политик (1:M PolicyDirectory).
    */
-  @OneToMany(() => PolicyDirectory, (policyDirectory) => policyDirectory.account)
+  @OneToMany(
+    () => PolicyDirectory,
+    (policyDirectory) => policyDirectory.account,
+  )
   policyDirectories: PolicyDirectory[];
 
   /**

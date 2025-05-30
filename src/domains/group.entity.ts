@@ -28,7 +28,7 @@ export class Group {
 
   /**
    * Ссылка на аватарку из ВК.
-   * 
+   *
    * @remarks
    * nullable: true.
    */

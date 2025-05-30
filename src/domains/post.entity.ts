@@ -30,20 +30,18 @@ import { Strategy } from './strategy.entity';
  */
 @Entity()
 export class Post {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-
   /**
    * Название поста.
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -52,7 +50,7 @@ export class Post {
 
   /**
    * Название отдела.
-   * 
+   *
    * @remarks
    * При наличии parentId устанавливается post.divisionName WHERE id = parentId (т.е. отдел родительского поста), default: "Подразделение", nullable: false.
    */
@@ -61,7 +59,7 @@ export class Post {
 
   /**
    * Порядковый номер отдела.
-   * 
+   *
    * @remarks
    * Инкремент в БД. Нужен для автогенерации названия отдела при отсутствии parentId, т.е. на клиенте будет, например, "Подразделение 2"
    */
@@ -70,7 +68,7 @@ export class Post {
 
   /**
    * Id родительского поста.
-   * 
+   *
    * @remarks
    * UUID v4.0, nullable: true
    */
@@ -79,7 +77,7 @@ export class Post {
 
   /**
    * Продукт поста.
-   * 
+   *
    * @remarks
    * nullable: false
    */
@@ -88,7 +86,7 @@ export class Post {
 
   /**
    * Цель поста.
-   * 
+   *
    * @remarks
    * nullable: false
    */
@@ -97,43 +95,40 @@ export class Post {
 
   /**
    * Флаг дефолтного поста.
-   * 
+   *
    * @remarks
-   * type: 'boolean', default: false, nullable: false 
+   * type: 'boolean', default: false, nullable: false
    */
   @Column({ type: 'boolean', default: false })
   isDefault: boolean;
 
-
   /**
    * Флаг архивного поста.
-   * 
+   *
    * @remarks
-   * type: 'boolean', default: false, nullable: false 
+   * type: 'boolean', default: false, nullable: false
    */
   @Column({ type: 'boolean', default: false })
   isArchive: boolean;
 
-
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -142,7 +137,7 @@ export class Post {
 
   /**
    * Связь с сущностью М:1 User.
-   * 
+   *
    * @remarks
    * Установлен индекс, nullable: true (не назначили человека на пост).
    */
@@ -152,7 +147,7 @@ export class Post {
 
   /**
    * Связь с сущностью М:1 Policy.
-   * 
+   *
    * @remarks
    * Установлен индекс, nullable: true.
    */
@@ -162,7 +157,7 @@ export class Post {
 
   /**
    * Связь с сущностью М:1 Organization.
-   * 
+   *
    * @remarks
    * Установлен индекс, nullable: true (????????).
    */
@@ -174,7 +169,7 @@ export class Post {
 
   /**
    * Связь с сущностью М:1 Account.
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -196,7 +191,10 @@ export class Post {
   /**
    * Связь с сущностью 1:M HistoryUsersToPost.
    */
-  @OneToMany(() => HistoryUsersToPost, (historyUsersToPost) => historyUsersToPost.post)
+  @OneToMany(
+    () => HistoryUsersToPost,
+    (historyUsersToPost) => historyUsersToPost.post,
+  )
   historiesUsersToPost: HistoryUsersToPost[];
 
   /**
@@ -210,7 +208,6 @@ export class Post {
    */
   @OneToMany(() => ConvertToPost, (convertToPost) => convertToPost.post)
   convertToPosts: ConvertToPost[];
-
 
   /**
    * Связь с сущностью 1:M Message.

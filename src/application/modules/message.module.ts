@@ -17,10 +17,10 @@ import { PostModule } from './post.module';
     forwardRef(() => EventsModule),
     ConvertModule,
     WatchersToConvertModule,
-    PostModule
+    PostModule,
   ],
   providers: [MessageService, MessageRepository],
   controllers: [MessageController],
   exports: [MessageService],
 })
-export class MessageModule { }
+export class MessageModule {}

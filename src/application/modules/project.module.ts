@@ -19,7 +19,7 @@ import { ConvertModule } from './convert.module';
     TargetModule,
     OrganizationModule,
     forwardRef(() => QueueModule),
-    ConvertModule
+    ConvertModule,
   ],
   controllers: [ProjectController],
   providers: [ProjectService, ProjectRepository],

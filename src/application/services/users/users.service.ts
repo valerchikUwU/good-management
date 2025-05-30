@@ -21,7 +21,7 @@ export class UsersService {
     @InjectRepository(User)
     private usersRepository: UsersRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async findAll(): Promise<ReadUserDto[]> {
     const users = await this.usersRepository.find();
@@ -41,7 +41,7 @@ export class UsersService {
       refreshSessions: user.refreshSessions,
       organization: user.organization,
       account: user.account,
-      historiesUsersToPost: user.historiesUsersToPost
+      historiesUsersToPost: user.historiesUsersToPost,
     }));
   }
 
@@ -70,7 +70,7 @@ export class UsersService {
         refreshSessions: user.refreshSessions,
         organization: user.organization,
         account: user.account,
-        historiesUsersToPost: user.historiesUsersToPost
+        historiesUsersToPost: user.historiesUsersToPost,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -105,7 +105,7 @@ export class UsersService {
         refreshSessions: user.refreshSessions,
         organization: user.organization,
         account: user.account,
-        historiesUsersToPost: user.historiesUsersToPost
+        historiesUsersToPost: user.historiesUsersToPost,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -139,7 +139,7 @@ export class UsersService {
         refreshSessions: user.refreshSessions,
         organization: user.organization,
         account: user.account,
-        historiesUsersToPost: user.historiesUsersToPost
+        historiesUsersToPost: user.historiesUsersToPost,
       };
 
       return readUserDto;
@@ -183,7 +183,7 @@ export class UsersService {
         refreshSessions: user.refreshSessions,
         organization: user.organization,
         account: user.account,
-        historiesUsersToPost: user.historiesUsersToPost
+        historiesUsersToPost: user.historiesUsersToPost,
       };
 
       return readUserDto;
@@ -203,8 +203,7 @@ export class UsersService {
   async findOneByTelegramId(telegramId: number): Promise<ReadUserDto | null> {
     try {
       const user = await this.usersRepository.findOneBy({ telegramId });
-      if (!user)
-        return null;
+      if (!user) return null;
 
       // Преобразование объекта User в ReadUserDto
       const readUserDto: ReadUserDto = {
@@ -223,13 +222,15 @@ export class UsersService {
         refreshSessions: user.refreshSessions,
         organization: user.organization,
         account: user.account,
-        historiesUsersToPost: user.historiesUsersToPost
+        historiesUsersToPost: user.historiesUsersToPost,
       };
 
       return readUserDto;
     } catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при получении пользователя');
+      throw new InternalServerErrorException(
+        'Ошибка при получении пользователя',
+      );
     }
   }
 
@@ -258,7 +259,7 @@ export class UsersService {
         refreshSessions: user.refreshSessions,
         organization: user.organization,
         account: user.account,
-        historiesUsersToPost: user.historiesUsersToPost
+        historiesUsersToPost: user.historiesUsersToPost,
       };
 
       return readUserDto;
@@ -280,9 +281,13 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<string> {
     try {
-      const userWithDtoTelephoneNumber = await this.usersRepository.findOneBy({ telephoneNumber: createUserDto.telephoneNumber })
+      const userWithDtoTelephoneNumber = await this.usersRepository.findOneBy({
+        telephoneNumber: createUserDto.telephoneNumber,
+      });
       if (userWithDtoTelephoneNumber != null) {
-        throw new BadRequestException('Пользователь с таким номером уже существует!')
+        throw new BadRequestException(
+          'Пользователь с таким номером уже существует!',
+        );
       }
       const user = new User();
       if (user.id) user.id = createUserDto.id;
@@ -304,10 +309,7 @@ export class UsersService {
     }
   }
 
-  async update(
-    _id: string,
-    updateUserDto: UpdateUserDto,
-  ): Promise<string> {
+  async update(_id: string, updateUserDto: UpdateUserDto): Promise<string> {
     try {
       const user = await this.usersRepository.findOneBy({ id: _id });
 
@@ -319,8 +321,9 @@ export class UsersService {
       if (updateUserDto.middleName) user.middleName = updateUserDto.middleName;
       if (updateUserDto.telegramId) user.telegramId = updateUserDto.telegramId;
       if (updateUserDto.avatar_url) user.avatar_url = updateUserDto.avatar_url;
-      if (updateUserDto.telephoneNumber) user.telephoneNumber = updateUserDto.telephoneNumber;
-      if (updateUserDto.isFired != null) user.isFired = updateUserDto.isFired; 
+      if (updateUserDto.telephoneNumber)
+        user.telephoneNumber = updateUserDto.telephoneNumber;
+      if (updateUserDto.isFired != null) user.isFired = updateUserDto.isFired;
       await this.usersRepository.update(_id, {
         firstName: user.firstName,
         lastName: user.lastName,
@@ -328,7 +331,7 @@ export class UsersService {
         telegramId: user.telegramId,
         avatar_url: user.avatar_url,
         telephoneNumber: user.telephoneNumber,
-        isFired: user.isFired
+        isFired: user.isFired,
       });
 
       return user.id;
@@ -340,7 +343,6 @@ export class UsersService {
       throw new InternalServerErrorException('Ошибка при обновлении юзера');
     }
   }
-
 
   async updateVkAuth(
     user: User,

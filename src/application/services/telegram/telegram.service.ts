@@ -1,14 +1,12 @@
 import {
   Inject,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Telegraf } from 'telegraf';
 import { UsersService } from '../users/users.service';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { ChatStorageService } from './chatStorage.service';
 import { Logger } from 'winston';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
@@ -50,10 +48,15 @@ export class TelegramService {
             const clientId = parts[1]; // Вторая часть - clientId
             if (token) {
               const telegramId = ctx.message.from.id;
-              const user = await this.usersService.findOneByTelegramId(telegramId);
+              const user =
+                await this.usersService.findOneByTelegramId(telegramId);
               if (user !== null) {
-                await ctx.reply('Привет, я бот для регистрации в GoodManagement!')
-                await ctx.replyWithSticker('CAACAgIAAxkBAAEOSMBn-X2yVR9aaUuQNGLXHeQfoQEXJQACAQEAAladvQoivp8OuMLmNDYE')
+                await ctx.reply(
+                  'Привет, я бот для регистрации в GoodManagement!',
+                );
+                await ctx.replyWithSticker(
+                  'CAACAgIAAxkBAAEOSMBn-X2yVR9aaUuQNGLXHeQfoQEXJQACAQEAAladvQoivp8OuMLmNDYE',
+                );
                 const authFlag = await this.authRequest(
                   user,
                   telegramId,
@@ -75,7 +78,12 @@ export class TelegramService {
                   {
                     reply_markup: {
                       keyboard: [
-                        [{ text: 'Поделиться контактом', request_contact: true }],
+                        [
+                          {
+                            text: 'Поделиться контактом',
+                            request_contact: true,
+                          },
+                        ],
                       ],
                       resize_keyboard: true,
                       one_time_keyboard: true,
@@ -93,22 +101,22 @@ export class TelegramService {
               'Команда /start не соответствует ожидаемому формату, пожалуйста, используйте QR - код или ссылку из приложения!',
             );
           }
-        }
-        else {
+        } else {
           ctx.reply(
             'Взаимодействие с ботом возможно только через ссылку на главном экране приложения!',
           );
         }
-      }
-      catch (err) {
-        this.logger.error(err)
+      } catch (err) {
+        this.logger.error(err);
       }
     });
 
     this.bot.on('contact', async (ctx) => {
       try {
         const chatId = ctx.update.message?.chat.id;
-        const telephoneNumber = this.formatPhoneNumber(ctx.message.contact.phone_number);
+        const telephoneNumber = this.formatPhoneNumber(
+          ctx.message.contact.phone_number,
+        );
         const telegramId = Number(ctx.message.contact.user_id);
         const chat = this.chatStorageService.getChatInfo(chatId);
         if (chat.token) {
@@ -144,7 +152,6 @@ export class TelegramService {
         this.chatStorageService.clearChatById(chatId);
       } catch (err) {
         this.logger.error(err);
-
       }
     });
 
@@ -169,7 +176,9 @@ export class TelegramService {
     try {
       const response = await firstValueFrom(
         this.httpService.post(
-          process.env.NODE_ENV === 'dev' ? `${process.env.API_HOST}/auth/login/tg` : `${process.env.PROD_API_HOST}/auth/login/tg`,
+          process.env.NODE_ENV === 'dev'
+            ? `${process.env.API_HOST}/auth/login/tg`
+            : `${process.env.PROD_API_HOST}/auth/login/tg`,
           {
             user: user,
             telegramId: telegramId,
@@ -180,10 +189,16 @@ export class TelegramService {
       );
       return true;
     } catch (error) {
-      if (error.response && (error.response.status === 400 || error.response.status === 401)) {
+      if (
+        error.response &&
+        (error.response.status === 400 || error.response.status === 401)
+      ) {
         this.logger.error(error);
         ctx.reply('Попробуйте войти еще раз!');
-      } else if (error.response && (error.response.status === 404 || error.response.status === 500)) {
+      } else if (
+        error.response &&
+        (error.response.status === 404 || error.response.status === 500)
+      ) {
         this.logger.error(error);
         ctx.reply('Ой, что - то пошло не так!');
       }

@@ -14,8 +14,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: WinstonModule.createLogger(winstonConfig),
     // cors: {
-    //   origin:'http://localhost:3000', 
-    //   credentials:true,            //access-control-allow-credentials:true
+    //   origin:'http://localhost:3000',
+    //   credentials:true,
     // }
 
     cors: {
@@ -46,7 +46,10 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const port = process.env.PORT || 5000;
-  const host = process.env.NODE_ENV === 'dev' ? process.env.API_HOST : process.env.PROD_API_HOST;
+  const host =
+    process.env.NODE_ENV === 'dev'
+      ? process.env.API_HOST
+      : process.env.PROD_API_HOST;
 
   const swaggerApi = new DocumentBuilder()
     .setTitle('Good-Management API')
@@ -72,8 +75,6 @@ async function bootstrap() {
   app.getHttpAdapter().get('/swagger-json', (req, res) => {
     res.json(document); // Возвращаем JSON-документ
   });
-
-
 
   await app.listen(port, () => console.log(`${host}/`));
 }

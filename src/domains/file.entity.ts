@@ -2,7 +2,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -15,10 +14,10 @@ import {
 export class File {
   /**
    * Уникальный идентификатор файла.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
-   * 
+   *
    * @example
    * '123e4567-e89b-12d3-a456-426614174000'
    */
@@ -27,10 +26,10 @@ export class File {
 
   /**
    * Имя файла.
-   * 
+   *
    * @remarks
    * nullable: false
-   * 
+   *
    * @example
    * 'photo.jpg'
    */
@@ -39,10 +38,10 @@ export class File {
 
   /**
    * Путь к файлу.
-   * 
+   *
    * @remarks
-   * nullable: false, на проде добавляется префикс 
-   * 
+   * nullable: false, на проде добавляется префикс
+   *
    * @example
    * 'uploads/image.jpg'
    */
@@ -51,10 +50,10 @@ export class File {
 
   /**
    * Размер файла в байтах.
-   * 
+   *
    * @remarks
    * nullable: false.
-   * 
+   *
    * @example
    * 204800
    */
@@ -63,10 +62,10 @@ export class File {
 
   /**
    * MIME-тип файла.
-   * 
+   *
    * @remarks
    * nullable: false, разрешены jpeg, jpg, png, gif
-   * 
+   *
    * @example
    * 'image/jpg'
    */
@@ -75,10 +74,10 @@ export class File {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании файла.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -87,11 +86,10 @@ export class File {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении данных файла.
    */
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
-
 }

@@ -3,7 +3,6 @@ import { Message } from 'src/domains/message.entity';
 import { Post } from 'src/domains/post.entity';
 
 export class MessageSeenStatusCreateDto {
-
   @Exclude({ toPlainOnly: true })
   timeSeen: Date;
 

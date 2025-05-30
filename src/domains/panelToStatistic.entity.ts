@@ -15,33 +15,30 @@ import { Statistic } from './statistic.entity';
  */
 @Entity()
 export class PanelToStatistic {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-
   /**
- * Порядковый номер статистики в панеле.
- * 
- * @remarks
- * nullable: true
- */
+   * Порядковый номер статистики в панеле.
+   *
+   * @remarks
+   * nullable: true
+   */
   @Column({ nullable: true })
   orderStatisticNumber: number;
 
-
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -50,10 +47,10 @@ export class PanelToStatistic {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -62,17 +59,24 @@ export class PanelToStatistic {
 
   /**
    * Связь с сущностью М:1 ControlPanel.
-   * 
+   *
    * @remarks
    * Установлен индекс
    */
-  @ManyToOne(() => ControlPanel, (controlPanel) => controlPanel.panelToStatistics, { nullable: false, onDelete: 'CASCADE' })
-  @Index() // Добавляем индекс 
+  @ManyToOne(
+    () => ControlPanel,
+    (controlPanel) => controlPanel.panelToStatistics,
+    { nullable: false, onDelete: 'CASCADE' },
+  )
+  @Index() // Добавляем индекс
   controlPanel: ControlPanel;
 
   /**
    * Связь с сущностью М:1 Statistic.
    */
-  @ManyToOne(() => Statistic, (statistic) => statistic.panelToStatistics, { nullable: false, onDelete: 'CASCADE' })
+  @ManyToOne(() => Statistic, (statistic) => statistic.panelToStatistics, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   statistic: Statistic;
 }

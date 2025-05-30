@@ -13,7 +13,6 @@ import {
 import { TargetHolder } from './targetHolder.entity';
 import { Project } from './project.entity';
 import { Policy } from './policy.entity';
-import { Post } from './post.entity';
 import { AttachmentToTarget } from './attachmentToTarget.entity';
 import { Convert } from './convert.entity';
 
@@ -27,7 +26,7 @@ export enum Type {
   PRODUCT = 'Продукт',
   EVENT = 'Организационные мероприятия',
   ORDER = 'Приказ',
-  PERSONAL = 'Личная'
+  PERSONAL = 'Личная',
 }
 
 /**
@@ -45,10 +44,9 @@ export enum State {
  */
 @Entity()
 export class Target {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
@@ -57,7 +55,7 @@ export class Target {
 
   /**
    * Тип задачи.
-   * 
+   *
    * @remarks
    * Используется перечисление `Type`. По умолчанию установлено значение обычная(COMMON). nullable: false
    */
@@ -71,7 +69,7 @@ export class Target {
 
   /**
    * Порядковый номер задачи в проекте.
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -80,7 +78,7 @@ export class Target {
 
   /**
    * Содержание задачи.
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -89,7 +87,7 @@ export class Target {
 
   /**
    * Id текущего ответственного поста за задачу.
-   * 
+   *
    * @remarks
    * UUID v4.0, nullable: false.
    */
@@ -98,7 +96,7 @@ export class Target {
 
   /**
    * Состояние задачи.
-   * 
+   *
    * @remarks
    * Используется перечисление `State`. По умолчанию установлено значение активная(ACTIVE). nullable: false
    */
@@ -112,7 +110,7 @@ export class Target {
 
   /**
    * Дата старта задачи.
-   * 
+   *
    * @remarks
    * nullable: true
    */
@@ -124,7 +122,7 @@ export class Target {
 
   /**
    * Дедлайн задачи.
-   * 
+   *
    * @remarks
    * nullable: true
    */
@@ -133,7 +131,7 @@ export class Target {
 
   /**
    * Дата окончания задачи.
-   * 
+   *
    * @remarks
    * nullable: true
    */
@@ -142,10 +140,10 @@ export class Target {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -154,16 +152,15 @@ export class Target {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
-
 
   /**
    * Связь с сущностью 1:1 Convert.
@@ -174,7 +171,7 @@ export class Target {
 
   /**
    * Связь с сущностью M:1 Project.
-   * 
+   *
    * @remarks
    * Установлен индекс, nullable: true
    */
@@ -184,7 +181,7 @@ export class Target {
 
   /**
    * Связь с сущностью M:1 Policy.
-   * 
+   *
    * @remarks
    * Установлен индекс, nullable: true
    */
@@ -199,9 +196,11 @@ export class Target {
   targetHolders: TargetHolder[];
 
   /**
-  * Связь с сущностью 1:M AttachmentToTarget.
-  */
-  @OneToMany(() => AttachmentToTarget, (attachmentToTarget) => attachmentToTarget.target)
+   * Связь с сущностью 1:M AttachmentToTarget.
+   */
+  @OneToMany(
+    () => AttachmentToTarget,
+    (attachmentToTarget) => attachmentToTarget.target,
+  )
   attachmentToTargets: AttachmentToTarget[];
-
 }

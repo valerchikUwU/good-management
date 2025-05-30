@@ -19,7 +19,7 @@ export class RoleSettingCreateDto {
       'post',
       'statistic',
     ],
-  })  
+  })
   @IsEnum(Modules)
   module: Modules;
 

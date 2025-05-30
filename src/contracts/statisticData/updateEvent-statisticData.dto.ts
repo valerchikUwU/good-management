@@ -1,4 +1,4 @@
-import { CorrelationType } from "src/domains/statisticData.entity";
+import { CorrelationType } from 'src/domains/statisticData.entity';
 
 export class StatisticDataUpdateEventDto {
   id: string;

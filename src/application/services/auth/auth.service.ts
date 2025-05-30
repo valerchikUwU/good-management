@@ -31,13 +31,17 @@ export class AuthService {
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async validateUser(payload: JwtPayloadInterface): Promise<ReadUserDto> {
-    let user = await this.cacheService.get<ReadUserDto>(`user:${payload.id}`); 
-    if(user === null){
+    let user = await this.cacheService.get<ReadUserDto>(`user:${payload.id}`);
+    if (user === null) {
       user = await this.usersService.findOne(payload.id, ['account', 'posts']);
-      await this.cacheService.set<ReadUserDto>(`user:${user.id}`, user, 1860000);
+      await this.cacheService.set<ReadUserDto>(
+        `user:${user.id}`,
+        user,
+        1860000,
+      );
     }
     return user;
   }
@@ -171,7 +175,9 @@ export class AuthService {
       const isExpired = currentTime > session.expiresIn;
       if (isExpired) {
         await this.refreshService.remove(refreshTokenId);
-        throw new UnauthorizedException('Ваша сессия истекла, пожалуйста, войдите еще раз в свой аккаунт.');
+        throw new UnauthorizedException(
+          'Ваша сессия истекла, пожалуйста, войдите еще раз в свой аккаунт.',
+        );
       }
       const newSession: CreateRefreshSessionDto = {
         user_agent: session.user_agent,
@@ -202,7 +208,10 @@ export class AuthService {
       this.logger.info(
         `${yellow('OK!')} - CREATED SESSION WITH ID: ${newSessionId} - Создана сессия!`,
       );
-      return { newRefreshTokenId: newSessionId, newAccessToken: _newAccessToken };
+      return {
+        newRefreshTokenId: newSessionId,
+        newAccessToken: _newAccessToken,
+      };
     } catch (err) {
       this.logger.error(err);
       if (err instanceof UnauthorizedException) {
@@ -230,7 +239,9 @@ export class AuthService {
       const currentTime = Math.floor(Date.now() / 1000);
       const isExpired = currentTime > session.expiresIn;
       if (isExpired) {
-        throw new UnauthorizedException('Пожалуйста, войдите еще раз в свой аккаунт.');
+        throw new UnauthorizedException(
+          'Пожалуйста, войдите еще раз в свой аккаунт.',
+        );
       }
       await this.refreshService.remove(session.id);
     } catch (err) {
@@ -295,9 +306,10 @@ export class AuthService {
     }
   }
 
-
-  async isSessionExpired(fingerprint: string, refreshTokenId: string): Promise<{ isExpired: boolean, userId: string }> {
-
+  async isSessionExpired(
+    fingerprint: string,
+    refreshTokenId: string,
+  ): Promise<{ isExpired: boolean; userId: string }> {
     const session = await this.refreshService.findOneByIdAndFingerprint(
       String(refreshTokenId),
       String(fingerprint),

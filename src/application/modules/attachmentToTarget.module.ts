@@ -8,6 +8,6 @@ import { AttachmentModule } from './attachment.module';
 @Module({
   imports: [TypeOrmModule.forFeature([AttachmentToTarget]), AttachmentModule],
   providers: [AttachmentToTargetRepository, AttachmentToTargetService],
-  exports: [AttachmentToTargetService]
+  exports: [AttachmentToTargetService],
 })
 export class AttachmentToTargetModule {}

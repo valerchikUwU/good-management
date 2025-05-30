@@ -22,15 +22,16 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Logger } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
-import { RoleSettingService } from 'src/application/services/roleSetting/roleSetting.service';
-import { RoleService } from 'src/application/services/role/role.service';
-import { RoleReadDto } from 'src/contracts/role/read-role.dto';
+import { yellow } from 'colorette';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { OrganizationService } from 'src/application/services/organization/organization.service';
 import { PostService } from 'src/application/services/post/post.service';
 import { PostReadDto } from 'src/contracts/post/read-post.dto';
-import { beforeCreateUserExample, findAllUsersExample, findOneUserExample } from 'src/constants/swagger-examples/user/user-examples';
+import {
+  beforeCreateUserExample,
+  findAllUsersExample,
+  findOneUserExample,
+} from 'src/constants/swagger-examples/user/user-examples';
 import { UpdateUserDto } from 'src/contracts/user/update-user.dto';
 
 @ApiTags('User')
@@ -43,7 +44,7 @@ export class UsersController {
     private readonly organizationService: OrganizationService,
     private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   @Get(':organizationId/organization')
   @ApiOperation({ summary: 'Все пользователи в организации' })
@@ -52,7 +53,7 @@ export class UsersController {
     description: 'ОК!',
     type: ReadUserDto,
     isArray: true,
-    example: findAllUsersExample
+    example: findAllUsersExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -68,7 +69,9 @@ export class UsersController {
     description: 'Id организации',
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async findAll(@Param('organizationId') organizationId: string): Promise<ReadUserDto[]> {
+  async findAll(
+    @Param('organizationId') organizationId: string,
+  ): Promise<ReadUserDto[]> {
     return await this.usersService.findAllForOrganization(organizationId);
   }
 
@@ -78,7 +81,7 @@ export class UsersController {
     status: HttpStatus.OK,
     description: 'ОК!',
     type: ReadUserDto,
-    example: beforeCreateUserExample
+    example: beforeCreateUserExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -94,15 +97,14 @@ export class UsersController {
     description: 'Id организации',
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async beforeCreate(@Param('orgainizationId') orgainizationId: string): Promise<PostReadDto[]> {
+  async beforeCreate(
+    @Param('orgainizationId') orgainizationId: string,
+  ): Promise<PostReadDto[]> {
     const [postsWithoutUser] = await Promise.all([
       this.postService.findAllWithoutUserForOrganization(orgainizationId),
-    ])
+    ]);
     return postsWithoutUser;
   }
-
-
-
 
   @Patch(':userId/update')
   @ApiOperation({ summary: 'Обновить контакт' })
@@ -114,7 +116,7 @@ export class UsersController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'OK!',
-    example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
+    example: { id: '71ba1ba2-9e53-4238-9bb2-14a475460689' },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -145,7 +147,7 @@ export class UsersController {
     status: HttpStatus.OK,
     description: 'ОК!',
     type: ReadUserDto,
-    example: findOneUserExample
+    example: findOneUserExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -179,7 +181,7 @@ export class UsersController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'CREATED!',
-    example: { "id": "71ba1ba2-9e53-4238-9bb2-14a475460689" },
+    example: { id: '71ba1ba2-9e53-4238-9bb2-14a475460689' },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -193,13 +195,13 @@ export class UsersController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  async create(
-    @Body() userCreateDto: CreateUserDto,
-  ): Promise<{ id: string }> {
+  async create(@Body() userCreateDto: CreateUserDto): Promise<{ id: string }> {
     const [organization /**, role */] = await Promise.all([
-      this.organizationService.findOneById(userCreateDto.organizationId, ['account']),
+      this.organizationService.findOneById(userCreateDto.organizationId, [
+        'account',
+      ]),
       // this.roleService.findOneById(userCreateDto.roleId)
-    ])
+    ]);
     // userCreateDto.role = role;
     userCreateDto.organization = organization;
     userCreateDto.account = organization.account;
@@ -209,6 +211,4 @@ export class UsersController {
     );
     return { id: createdUserId };
   }
-
-
 }

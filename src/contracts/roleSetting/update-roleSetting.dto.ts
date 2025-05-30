@@ -1,7 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
-import { Role } from 'src/domains/role.entity';
-import { Modules } from 'src/domains/roleSetting.entity';
 
 export class RoleSettingUpdateDto {
   @ApiProperty({

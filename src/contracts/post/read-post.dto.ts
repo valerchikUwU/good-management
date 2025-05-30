@@ -12,7 +12,6 @@ import { Project } from 'src/domains/project.entity';
 import { Role } from 'src/domains/role.entity';
 import { Statistic } from 'src/domains/statistic.entity';
 import { Strategy } from 'src/domains/strategy.entity';
-import { Target } from 'src/domains/target.entity';
 import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { User } from 'src/domains/user.entity';
 
@@ -25,7 +24,7 @@ export class PostReadDto {
   product: string;
   purpose: string;
   isDefault: boolean;
-  isArchive: boolean
+  isArchive: boolean;
   createdAt: Date;
   updatedAt: Date;
   user: User;

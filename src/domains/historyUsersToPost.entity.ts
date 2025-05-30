@@ -11,17 +11,17 @@ import { User } from './user.entity';
 
 /**
  * Сущность HistoryUsersToPost.
- * 
+ *
  * Хранит историю привязки пользователей к постам (должностям) для аудита и анализа изменений.
  */
 @Entity()
 export class HistoryUsersToPost {
   /**
    * Уникальный идентификатор записи.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
-   * 
+   *
    * @example
    * '123e4567-e89b-12d3-a456-426614174000'
    */
@@ -30,10 +30,10 @@ export class HistoryUsersToPost {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -42,7 +42,7 @@ export class HistoryUsersToPost {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
    */
@@ -51,21 +51,25 @@ export class HistoryUsersToPost {
 
   /**
    * Связь с сущностью M:1 Post (должность).
-   * 
+   *
    * @remarks
-   * Поле связывает запись истории с конкретной должностью. 
+   * Поле связывает запись истории с конкретной должностью.
    * Добавлен индекс для ускорения поиска по полю `post`.
    */
-  @ManyToOne(() => Post, (post) => post.historiesUsersToPost, {onDelete: 'CASCADE'})
+  @ManyToOne(() => Post, (post) => post.historiesUsersToPost, {
+    onDelete: 'CASCADE',
+  })
   @Index() // Добавляем индекс для поля policy
   post: Post;
 
   /**
    * Связь с сущностью M:1 User.
-   * 
+   *
    * @remarks
    * Поле связывает запись истории с конкретным пользователем.
    */
-  @ManyToOne(() => User, (user) => user.historiesUsersToPost, {onDelete: 'CASCADE'})
+  @ManyToOne(() => User, (user) => user.historiesUsersToPost, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 }

@@ -4,7 +4,6 @@ import { Organization } from 'src/domains/organization.entity';
 import { Post } from 'src/domains/post.entity';
 import { Project } from 'src/domains/project.entity';
 import { State } from 'src/domains/strategy.entity';
-import { User } from 'src/domains/user.entity';
 
 export class StrategyReadDto {
   id: string;

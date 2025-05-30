@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
-  ArrayNotEmpty,
-  IsArray,
   IsDate,
   IsEnum,
   IsNotEmpty,
@@ -10,10 +8,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { Account } from 'src/domains/account.entity';
-import { Organization } from 'src/domains/organization.entity';
 import { State, Type as PolicyType } from 'src/domains/policy.entity';
-import { User } from 'src/domains/user.entity';
 
 export class PolicyUpdateDto {
   @ApiProperty({
@@ -74,5 +69,4 @@ export class PolicyUpdateDto {
   @Type(() => Date)
   @IsDate()
   deadline?: Date;
-
 }

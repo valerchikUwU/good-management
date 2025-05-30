@@ -28,19 +28,21 @@ import { Type } from 'src/domains/statistic.entity';
 import { StatisticDataService } from 'src/application/services/statisticData/statisticData.service';
 import { PostService } from 'src/application/services/post/post.service';
 import { Logger } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
+import { yellow } from 'colorette';
 import { StatisticUpdateDto } from 'src/contracts/statistic/update-statistic.dto';
 import { ProducerService } from 'src/application/services/producer/producer.service';
 import { StatisticDataCreateEventDto } from 'src/contracts/statisticData/createEvent-statisticData.dto';
 import { StatisticCreateEventDto } from 'src/contracts/statistic/createEvent-statistic.dto';
 import { StatisticDataUpdateEventDto } from 'src/contracts/statisticData/updateEvent-statisticData.dto';
 import { StatisticUpdateEventDto } from 'src/contracts/statistic/updateEvent-statistic.dto';
-import { TimeoutError } from 'rxjs';
 import { StatisticUpdateBulkDto } from 'src/contracts/statistic/updateBulk_statistic.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
-import { findAllStatisticsExample, findOneStatisticExample } from 'src/constants/swagger-examples/statistic/statistic-examples';
+import {
+  findAllStatisticsExample,
+  findOneStatisticExample,
+} from 'src/constants/swagger-examples/statistic/statistic-examples';
 
 @UseGuards(AccessTokenGuard)
 @ApiTags('Statistic')
@@ -53,14 +55,14 @@ export class StatisticController {
     private readonly postService: PostService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Все статистики в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllStatisticsExample
+    example: findAllStatisticsExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -74,7 +76,7 @@ export class StatisticController {
     name: 'organizationId',
     required: true,
     description: 'Id организации',
-    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   @ApiQuery({
     name: 'statisticData',
@@ -84,16 +86,18 @@ export class StatisticController {
   })
   async findAll(
     @Query('statisticData') statisticData: boolean,
-    @Param('organizationId') organizationId: string
+    @Param('organizationId') organizationId: string,
   ): Promise<StatisticReadDto[]> {
-    let relations: string[]
+    let relations: string[];
     if (statisticData) {
-      relations = ['statisticDatas', 'post']
+      relations = ['statisticDatas', 'post'];
+    } else {
+      relations = ['post'];
     }
-    else {
-      relations = ['post']
-    }
-    return await this.statisticService.findAllForOrganization(organizationId, relations);
+    return await this.statisticService.findAllForOrganization(
+      organizationId,
+      relations,
+    );
   }
 
   @Patch(':statisticId/update')
@@ -106,7 +110,7 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: { "id": "ed2dfe55-b678-4f7e-a82e-ccf395afae05" },
+    example: { id: 'ed2dfe55-b678-4f7e-a82e-ccf395afae05' },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -148,54 +152,59 @@ export class StatisticController {
       statisticId,
       statisticUpdateDto,
     );
-    const statistic = await this.statisticService.findOneById(updatedStatisticId);
+    const statistic =
+      await this.statisticService.findOneById(updatedStatisticId);
     if (statisticUpdateDto.statisticDataUpdateDtos !== undefined) {
-      const updateStatisticDataPromises = statisticUpdateDto.statisticDataUpdateDtos.map(
-        async (statisticDataUpdateDto) => {
-          const updatedStatisticDataId = await this.statisticDataService.update(statisticDataUpdateDto);
-          const statisticDataUpdateEventDto: StatisticDataUpdateEventDto = {
-            id: updatedStatisticDataId,
-            value:
-              statisticDataUpdateDto.value !== undefined
-                ? statisticDataUpdateDto.value
-                : null,
-            valueDate:
-              statisticDataUpdateDto.valueDate !== undefined
-                ? statisticDataUpdateDto.valueDate
-                : null,
-            correlationType:
-              statisticDataUpdateDto.correlationType !== undefined
-                ? statisticDataUpdateDto.correlationType
-                : null,
-            updatedAt: new Date(),
-            statisticId: statistic.id,
-            accountId: user.account.id,
-          };
-          statisticDataUpdateEventDtos.push(statisticDataUpdateEventDto);
-          return updatedStatisticDataId;
-        },
-      );
+      const updateStatisticDataPromises =
+        statisticUpdateDto.statisticDataUpdateDtos.map(
+          async (statisticDataUpdateDto) => {
+            const updatedStatisticDataId =
+              await this.statisticDataService.update(statisticDataUpdateDto);
+            const statisticDataUpdateEventDto: StatisticDataUpdateEventDto = {
+              id: updatedStatisticDataId,
+              value:
+                statisticDataUpdateDto.value !== undefined
+                  ? statisticDataUpdateDto.value
+                  : null,
+              valueDate:
+                statisticDataUpdateDto.valueDate !== undefined
+                  ? statisticDataUpdateDto.valueDate
+                  : null,
+              correlationType:
+                statisticDataUpdateDto.correlationType !== undefined
+                  ? statisticDataUpdateDto.correlationType
+                  : null,
+              updatedAt: new Date(),
+              statisticId: statistic.id,
+              accountId: user.account.id,
+            };
+            statisticDataUpdateEventDtos.push(statisticDataUpdateEventDto);
+            return updatedStatisticDataId;
+          },
+        );
       await Promise.all(updateStatisticDataPromises);
     }
 
     if (statisticUpdateDto.statisticDataCreateDtos !== undefined) {
-      const createStatisticDataPromises = statisticUpdateDto.statisticDataCreateDtos.map(
-        async (statisticDataCreateDto) => {
-          statisticDataCreateDto.statistic = statistic;
-          const createdStatisticDataId = await this.statisticDataService.create(statisticDataCreateDto);
-          const statisticDataCreateEventDto: StatisticDataCreateEventDto = {
-            id: createdStatisticDataId,
-            value: statisticDataCreateDto.value,
-            valueDate: statisticDataCreateDto.valueDate,
-            correlationType: statisticDataCreateDto.correlationType,
-            createdAt: new Date(),
-            statisticId: statistic.id,
-            accountId: user.account.id,
-          };
-          statisticDataCreateEventDtos.push(statisticDataCreateEventDto);
-          return createdStatisticDataId;
-        },
-      );
+      const createStatisticDataPromises =
+        statisticUpdateDto.statisticDataCreateDtos.map(
+          async (statisticDataCreateDto) => {
+            statisticDataCreateDto.statistic = statistic;
+            const createdStatisticDataId =
+              await this.statisticDataService.create(statisticDataCreateDto);
+            const statisticDataCreateEventDto: StatisticDataCreateEventDto = {
+              id: createdStatisticDataId,
+              value: statisticDataCreateDto.value,
+              valueDate: statisticDataCreateDto.valueDate,
+              correlationType: statisticDataCreateDto.correlationType,
+              createdAt: new Date(),
+              statisticId: statistic.id,
+              accountId: user.account.id,
+            };
+            statisticDataCreateEventDtos.push(statisticDataCreateEventDto);
+            return createdStatisticDataId;
+          },
+        );
       await Promise.all(createStatisticDataPromises);
     }
 
@@ -289,15 +298,18 @@ export class StatisticController {
     @Param('postId') postId: string,
     @Body() statisticUpdateBulkDto: StatisticUpdateBulkDto,
   ): Promise<{ message: string }> {
-    const post = await this.postService.findOneById(postId)
+    const post = await this.postService.findOneById(postId);
     const updateStatisticPromises = statisticUpdateBulkDto.ids.map(
       async (id) => {
         const statisticUpdateDto: StatisticUpdateDto = {
           _id: id,
           postId: postId,
-          post: post
+          post: post,
         };
-        const updatedStatisticId = await this.statisticService.update(statisticUpdateDto._id, statisticUpdateDto);
+        const updatedStatisticId = await this.statisticService.update(
+          statisticUpdateDto._id,
+          statisticUpdateDto,
+        );
 
         return updatedStatisticId;
       },
@@ -316,7 +328,7 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'CREATED!',
-    example: { "id": "f35dc993-1c7e-4f55-9ddd-45d8841d4396" },
+    example: { id: 'f35dc993-1c7e-4f55-9ddd-45d8841d4396' },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -341,7 +353,8 @@ export class StatisticController {
     statisticCreateDto.account = user.account;
     statisticCreateDto.post = post;
 
-    const createdStatistic = await this.statisticService.create(statisticCreateDto);
+    const createdStatistic =
+      await this.statisticService.create(statisticCreateDto);
 
     if (statisticCreateDto.statisticDataCreateDtos !== undefined) {
       const statisticDataCreatePromises =
@@ -417,7 +430,7 @@ export class StatisticController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findOneStatisticExample
+    example: findOneStatisticExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -445,7 +458,6 @@ export class StatisticController {
   async findOne(
     @Param('statisticId') statisticId: string,
   ): Promise<StatisticReadDto> {
-
     const statistic = await this.statisticService.findOneById(statisticId, [
       'statisticDatas',
       'post',

@@ -22,7 +22,10 @@ export class GoalService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<GoalReadDto[]> {
+  async findAllForAccount(
+    account: AccountReadDto,
+    relations?: string[],
+  ): Promise<GoalReadDto[]> {
     try {
       const goals = await this.goalRepository.find({
         where: { account: { id: account.id } },
@@ -46,10 +49,13 @@ export class GoalService {
     }
   }
 
-  async findOneByOrganizationId(organizationId: string, relations?: string[]): Promise<GoalReadDto | null> {
+  async findOneByOrganizationId(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<GoalReadDto | null> {
     try {
       const goal = await this.goalRepository.findOne({
-        where: {organization: { id: organizationId }},
+        where: { organization: { id: organizationId } },
         relations: relations ?? [],
       });
 
@@ -71,8 +77,10 @@ export class GoalService {
 
   async create(goalCreateDto: GoalCreateDto): Promise<string> {
     try {
-      if(!goalCreateDto.postCreator){
-        throw new BadRequestException('Вы должны быть закреплены хотя бы за одним постом!')
+      if (!goalCreateDto.postCreator) {
+        throw new BadRequestException(
+          'Вы должны быть закреплены хотя бы за одним постом!',
+        );
       }
       const goal = new Goal();
       goal.content = goalCreateDto.content;
@@ -92,7 +100,6 @@ export class GoalService {
 
   async update(_id: string, updateGoalDto: GoalUpdateDto): Promise<string> {
     try {
-      
       const goal = await this.goalRepository.findOne({ where: { id: _id } });
 
       if (!goal) {
@@ -100,15 +107,14 @@ export class GoalService {
       }
 
       if (updateGoalDto.content) goal.content = updateGoalDto.content;
-      
+
       await this.goalRepository.update(goal.id, { content: goal.content });
 
       return goal.id;
-
     } catch (err) {
       this.logger.error(err);
       if (err instanceof NotFoundException) {
-        throw err; 
+        throw err;
       }
 
       throw new InternalServerErrorException('Ошибка при обновлении цели');

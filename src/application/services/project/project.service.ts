@@ -12,12 +12,9 @@ import { ProjectReadDto } from 'src/contracts/project/read-project.dto';
 import { ProjectCreateDto } from 'src/contracts/project/create-project.dto';
 import { Logger } from 'winston';
 import { ProjectUpdateDto } from 'src/contracts/project/update-project.dto';
-import { DataSource, In, IsNull, Not } from 'typeorm';
-import { State, Target, Type as TypeTarget } from 'src/domains/target.entity';
+import { DataSource, In, IsNull } from 'typeorm';
+import { State, Type as TypeTarget } from 'src/domains/target.entity';
 import { TargetService } from '../target/target.service';
-import { Post } from 'src/domains/post.entity';
-import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
-import { TargetHolder } from 'src/domains/targetHolder.entity';
 import { Transactional } from 'nestjs-transaction';
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertService } from '../convert/convert.service';
@@ -31,10 +28,13 @@ export class ProjectService {
     private readonly targetService: TargetService,
     private readonly convertService: ConvertService,
     @Inject('winston') private readonly logger: Logger,
-    private dataSource: DataSource
-  ) { }
+    private dataSource: DataSource,
+  ) {}
 
-  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
+  async findAllForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
         where: { organization: { id: organizationId } },
@@ -64,7 +64,10 @@ export class ProjectService {
     }
   }
 
-  async findAllProgramsForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
+  async findAllProgramsForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<ProjectReadDto[]> {
     try {
       const programs = await this.projectRepository.find({
         where: { type: Type.PROGRAM, organization: { id: organizationId } },
@@ -83,7 +86,10 @@ export class ProjectService {
         organization: program.organization,
         targets: program.targets.map((target) => ({
           ...target,
-          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
+          isExpired: target.deadline
+            ? new Date(target.deadline) < new Date() &&
+              target.targetState !== State.FINISHED
+            : false,
         })),
         strategy: program.strategy,
         account: program.account,
@@ -97,7 +103,10 @@ export class ProjectService {
     }
   }
 
-  async findAllProjectsWithoutProgramForOrganization(organizationId: string, relations?: string[]): Promise<ProjectReadDto[]> {
+  async findAllProjectsWithoutProgramForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository.find({
         where: {
@@ -120,7 +129,10 @@ export class ProjectService {
         organization: project.organization,
         targets: project.targets.map((target) => ({
           ...target,
-          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
+          isExpired: target.deadline
+            ? new Date(target.deadline) < new Date() &&
+              target.targetState !== State.FINISHED
+            : false,
         })),
         strategy: project.strategy,
         account: project.account,
@@ -139,8 +151,8 @@ export class ProjectService {
     try {
       const project = await this.projectRepository.findOne({
         where: { id: id },
-        relations: relations ?? []
-      })
+        relations: relations ?? [],
+      });
 
       if (!project) throw new NotFoundException(`Проект с ID: ${id} не найден`);
 
@@ -164,17 +176,23 @@ export class ProjectService {
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
         organization: project.organization,
-        targets: relations !== undefined ? project.targets.map((target) => ({
-          ...target,
-          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
-        })) : project.targets,
+        targets:
+          relations !== undefined
+            ? project.targets.map((target) => ({
+                ...target,
+                isExpired: target.deadline
+                  ? new Date(target.deadline) < new Date() &&
+                    target.targetState !== State.FINISHED
+                  : false,
+              }))
+            : project.targets,
         strategy: project.strategy,
         account: project.account,
         postCreator: project.postCreator,
       };
       return projectReadDto;
     } catch (err) {
-      console.log(err)
+      console.log(err);
       this.logger.error(err);
       // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
@@ -205,7 +223,10 @@ export class ProjectService {
         organization: program.organization,
         targets: program.targets.map((target) => ({
           ...target,
-          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
+          isExpired: target.deadline
+            ? new Date(target.deadline) < new Date() &&
+              target.targetState !== State.FINISHED
+            : false,
         })),
         strategy: program.strategy,
         account: program.account,
@@ -223,7 +244,10 @@ export class ProjectService {
     }
   }
 
-  async findAllNotRejectedProjectsByProgramIdForOrganization(programId: string, organizationId: string): Promise<ProjectReadDto[]> {
+  async findAllNotRejectedProjectsByProgramIdForOrganization(
+    programId: string,
+    organizationId: string,
+  ): Promise<ProjectReadDto[]> {
     try {
       const projects = await this.projectRepository
         .createQueryBuilder('project')
@@ -231,9 +255,15 @@ export class ProjectService {
         .leftJoinAndSelect('target.targetHolders', 'targetHolder')
         .leftJoinAndSelect('targetHolder.post', 'post')
         .where('project.programId = :programId', { programId })
-        .andWhere('target.type = :targetType', { targetType: TypeTarget.PRODUCT })
-        .andWhere('target.targetState != :rejectedState', { rejectedState: State.REJECTED })
-        .andWhere('project.organization.id = :organizationId', { organizationId: organizationId })
+        .andWhere('target.type = :targetType', {
+          targetType: TypeTarget.PRODUCT,
+        })
+        .andWhere('target.targetState != :rejectedState', {
+          rejectedState: State.REJECTED,
+        })
+        .andWhere('project.organization.id = :organizationId', {
+          organizationId: organizationId,
+        })
         .getMany();
       return projects.map((project) => ({
         id: project.id,
@@ -247,7 +277,10 @@ export class ProjectService {
         organization: project.organization,
         targets: project.targets.map((target) => ({
           ...target,
-          isExpired: target.deadline ? new Date(target.deadline) < new Date() && target.targetState !== State.FINISHED : false,
+          isExpired: target.deadline
+            ? new Date(target.deadline) < new Date() &&
+              target.targetState !== State.FINISHED
+            : false,
         })),
         strategy: project.strategy,
         account: project.account,
@@ -266,7 +299,9 @@ export class ProjectService {
   async create(projectCreateDto: ProjectCreateDto): Promise<string> {
     try {
       if (!projectCreateDto.postCreator) {
-        throw new BadRequestException('Вы должны быть закреплены хотя бы за одним постом!')
+        throw new BadRequestException(
+          'Вы должны быть закреплены хотя бы за одним постом!',
+        );
       }
 
       const project = new Project();
@@ -278,12 +313,11 @@ export class ProjectService {
       project.account = projectCreateDto.account;
       project.strategy = projectCreateDto.strategy;
       const createdProject = await this.projectRepository.save(project);
-      projectCreateDto.targetCreateDtos.forEach(targetCreateDto => {
-        targetCreateDto.project = createdProject
-      })
-      await this.targetService.createBulk(projectCreateDto.targetCreateDtos)
-      return createdProject.id
-
+      projectCreateDto.targetCreateDtos.forEach((targetCreateDto) => {
+        targetCreateDto.project = createdProject;
+      });
+      await this.targetService.createBulk(projectCreateDto.targetCreateDtos);
+      return createdProject.id;
     } catch (err) {
       this.logger.error(err);
       if (err instanceof BadRequestException) {
@@ -294,7 +328,12 @@ export class ProjectService {
   }
 
   @Transactional()
-  async update(_id: string, updateProjectDto: ProjectUpdateDto, convertCreateDtos: ConvertCreateDto[], convertUpdateDtos: ConvertUpdateDto[]): Promise<string> {
+  async update(
+    _id: string,
+    updateProjectDto: ProjectUpdateDto,
+    convertCreateDtos: ConvertCreateDto[],
+    convertUpdateDtos: ConvertUpdateDto[],
+  ): Promise<string> {
     try {
       const project = await this.projectRepository.findOne({
         where: { id: _id },
@@ -307,14 +346,12 @@ export class ProjectService {
         project.projectName = updateProjectDto.projectName;
       if (updateProjectDto.programId !== undefined)
         project.programId = updateProjectDto.programId;
-      if (updateProjectDto.content)
-        project.content = updateProjectDto.content;
+      if (updateProjectDto.content) project.content = updateProjectDto.content;
 
       if (updateProjectDto.strategyId != null) {
         project.strategy = updateProjectDto.strategy;
-      }
-      else if (updateProjectDto.strategyId === null) {
-        project.strategy = null
+      } else if (updateProjectDto.strategyId === null) {
+        project.strategy = null;
       }
 
       await this.projectRepository.update(project.id, {
@@ -326,21 +363,25 @@ export class ProjectService {
       });
 
       if (project.type === Type.PROGRAM && updateProjectDto.projectIds) {
-        const projectsWithCurrentProgram = await this.projectRepository.createQueryBuilder('project')
+        const projectsWithCurrentProgram = await this.projectRepository
+          .createQueryBuilder('project')
           .leftJoinAndSelect('project.targets', 'targets')
           .where('project.programId = :programId', { programId: project.id })
-          .andWhere(qb => {
-            const subQuery = qb.subQuery()
+          .andWhere((qb) => {
+            const subQuery = qb
+              .subQuery()
               .select('1')
               .from('target', 'subTargets')
               .where('subTargets.projectId = project.id')
               .andWhere('subTargets.type = :type', { type: TypeTarget.PRODUCT })
-              .andWhere('subTargets.targetState = :state', { state: State.ACTIVE })
+              .andWhere('subTargets.targetState = :state', {
+                state: State.ACTIVE,
+              })
               .getQuery();
             return `EXISTS (${subQuery})`;
           })
           .getMany();
-        console.log(projectsWithCurrentProgram)
+        console.log(projectsWithCurrentProgram);
         let activeProjectsWithCurrentProgramIds = projectsWithCurrentProgram
           .filter((project) =>
             project.targets.some(
@@ -351,7 +392,9 @@ export class ProjectService {
             ),
           )
           .map((project) => project.id);
-        console.log(`activeProjectsWithCurrentProgramIds: ${activeProjectsWithCurrentProgramIds}`)
+        console.log(
+          `activeProjectsWithCurrentProgramIds: ${activeProjectsWithCurrentProgramIds}`,
+        );
         let expiredProjectsWithCurrentProgramIds = projectsWithCurrentProgram
           .filter((project) =>
             project.targets.some(
@@ -362,7 +405,9 @@ export class ProjectService {
             ),
           )
           .map((project) => project.id);
-        console.log(`expiredProjectsWithCurrentProgramIds: ${expiredProjectsWithCurrentProgramIds}`)
+        console.log(
+          `expiredProjectsWithCurrentProgramIds: ${expiredProjectsWithCurrentProgramIds}`,
+        );
         if (activeProjectsWithCurrentProgramIds === undefined)
           activeProjectsWithCurrentProgramIds = [];
         if (expiredProjectsWithCurrentProgramIds === undefined)
@@ -373,17 +418,18 @@ export class ProjectService {
             !activeProjectsWithCurrentProgramIds.includes(id) &&
             !expiredProjectsWithCurrentProgramIds.includes(id),
         );
-        const projectIdsToUpdate = updateProjectDto.projectIds.filter(
-          (id) =>
-            activeProjectsWithCurrentProgramIds.includes(id)
+        const projectIdsToUpdate = updateProjectDto.projectIds.filter((id) =>
+          activeProjectsWithCurrentProgramIds.includes(id),
         );
-        const commonArray = activeProjectsWithCurrentProgramIds.concat(expiredProjectsWithCurrentProgramIds);
+        const commonArray = activeProjectsWithCurrentProgramIds.concat(
+          expiredProjectsWithCurrentProgramIds,
+        );
         const projectIdsToDelete = commonArray.filter(
           (id) => !updateProjectDto.projectIds.includes(id),
         );
-        console.log(`projectIdsToAdd: ${projectIdsToAdd}`)
-        console.log(`projectIdsToUpdate: ${projectIdsToUpdate}`)
-        console.log(`projectIdsToDelete: ${projectIdsToDelete}`)
+        console.log(`projectIdsToAdd: ${projectIdsToAdd}`);
+        console.log(`projectIdsToUpdate: ${projectIdsToUpdate}`);
+        console.log(`projectIdsToDelete: ${projectIdsToDelete}`);
         if (projectIdsToAdd.length > 0) {
           await this.projectRepository.update(
             { id: In(projectIdsToAdd) },
@@ -407,13 +453,18 @@ export class ProjectService {
       //   ? await this.convertService.createBulkForProject(convertCreateDtos)
       //   : [];
 
-      console.log(convertCreateDtos)
-      console.log(convertUpdateDtos)
+      console.log(convertCreateDtos);
+      console.log(convertUpdateDtos);
       if (updateProjectDto.targetCreateDtos.length > 0) {
         for (let i = 0; i < updateProjectDto.targetCreateDtos.length; i++) {
           const targetCreateDto = updateProjectDto.targetCreateDtos[i];
-          if (convertCreateDtos.length > 0 && convertCreateDtos[i].pathOfPosts.length > 1) {
-            const createdConvert = await this.convertService.create(convertCreateDtos[i]);
+          if (
+            convertCreateDtos.length > 0 &&
+            convertCreateDtos[i].pathOfPosts.length > 1
+          ) {
+            const createdConvert = await this.convertService.create(
+              convertCreateDtos[i],
+            );
             targetCreateDto.convert = createdConvert;
           }
           targetCreateDto.project = project;
@@ -422,18 +473,29 @@ export class ProjectService {
         await this.targetService.createBulk(updateProjectDto.targetCreateDtos);
       }
       if (updateProjectDto.targetUpdateDtos.length > 0) {
-          for (let i = 0; i < updateProjectDto.targetUpdateDtos.length; i++) {
-            const targetUpdateDto = updateProjectDto.targetUpdateDtos[i];
-            const convertCreateDtoForTarget = convertCreateDtos.find(dto => dto.targetId === targetUpdateDto._id);
-            if (targetUpdateDto.convert && convertUpdateDtos.length > 0) {
-              const convertToUpdate = convertUpdateDtos.find(dto => dto.targetId === targetUpdateDto._id)
-              await this.convertService.updateFromProject(convertToUpdate._id, convertToUpdate);
-            }
-            else if(convertCreateDtos.length > 0 && convertCreateDtoForTarget.pathOfPosts.length > 1) {
-              const createdConvert = await this.convertService.create(convertCreateDtoForTarget)
-              targetUpdateDto.convert = createdConvert;
-            }
+        for (let i = 0; i < updateProjectDto.targetUpdateDtos.length; i++) {
+          const targetUpdateDto = updateProjectDto.targetUpdateDtos[i];
+          const convertCreateDtoForTarget = convertCreateDtos.find(
+            (dto) => dto.targetId === targetUpdateDto._id,
+          );
+          if (targetUpdateDto.convert && convertUpdateDtos.length > 0) {
+            const convertToUpdate = convertUpdateDtos.find(
+              (dto) => dto.targetId === targetUpdateDto._id,
+            );
+            await this.convertService.updateFromProject(
+              convertToUpdate._id,
+              convertToUpdate,
+            );
+          } else if (
+            convertCreateDtos.length > 0 &&
+            convertCreateDtoForTarget.pathOfPosts.length > 1
+          ) {
+            const createdConvert = await this.convertService.create(
+              convertCreateDtoForTarget,
+            );
+            targetUpdateDto.convert = createdConvert;
           }
+        }
         await this.targetService.updateBulk(updateProjectDto.targetUpdateDtos);
       }
 

@@ -5,15 +5,13 @@ import { TargetHolderRepository } from './repository/targetHolder.repository';
 import { TargetHolderReadDto } from 'src/contracts/targetHolder/read-targetHolder.dto';
 import { TargetHolderCreateDto } from 'src/contracts/targetHolder/create-targetHolder.dto';
 import { TargetReadDto } from 'src/contracts/target/read-target.dto';
-import { PostService } from '../post/post.service';
-import { In } from 'typeorm';
 
 @Injectable()
 export class TargetHolderService {
   constructor(
     @InjectRepository(TargetHolder)
     private readonly targetHolderRepository: TargetHolderRepository,
-  ) { }
+  ) {}
 
   async findAll(): Promise<TargetHolderReadDto[]> {
     const targetHolders = await this.targetHolderRepository.find({
@@ -29,7 +27,6 @@ export class TargetHolderService {
     }));
   }
 
-
   async create(targetHolderCreateDto: TargetHolderCreateDto): Promise<void> {
     try {
       const targetHolder = new TargetHolder();
@@ -38,23 +35,25 @@ export class TargetHolderService {
 
       await this.targetHolderRepository.insert(targetHolder);
     } catch (err) {
+      console.log(err);
       throw new InternalServerErrorException(
         'Ошибка при создании ответственного за задачу',
       );
     }
   }
 
-  async createBulk(targetHolderCreateDtos: TargetHolderCreateDto[]): Promise<void> {
+  async createBulk(
+    targetHolderCreateDtos: TargetHolderCreateDto[],
+  ): Promise<void> {
     try {
       await this.targetHolderRepository.insert(targetHolderCreateDtos);
     } catch (err) {
+      console.log(err);
       throw new InternalServerErrorException(
         'Ошибка при создании ответственного за задачу',
       );
     }
   }
-
-
 
   async remove(target: TargetReadDto): Promise<void> {
     await this.targetHolderRepository.delete({ target: target });

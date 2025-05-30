@@ -19,10 +19,9 @@ import { HistoryUsersToPost } from './historyUsersToPost.entity';
  */
 @Entity()
 export class User {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
@@ -31,7 +30,7 @@ export class User {
 
   /**
    * Имя юзера.
-   * 
+   *
    * @remarks
    * length: 50, nullable: false.
    */
@@ -40,7 +39,7 @@ export class User {
 
   /**
    * Фамилия юзера.
-   * 
+   *
    * @remarks
    * length: 50, nullable: false.
    */
@@ -49,7 +48,7 @@ export class User {
 
   /**
    * Отчество юзера.
-   * 
+   *
    * @remarks
    * length: 50, nullable: false.
    */
@@ -58,7 +57,7 @@ export class User {
 
   /**
    * Id юзера в телеграме.
-   * 
+   *
    * @remarks
    * nullable: true, unique: true.
    */
@@ -67,7 +66,7 @@ export class User {
 
   /**
    * Номер телефона юзера.
-   * 
+   *
    * @remarks
    * length: 13, nullable: true, unique: true.
    */
@@ -76,7 +75,7 @@ export class User {
 
   /**
    * Ссылка на аватарку из ВК.
-   * 
+   *
    * @remarks
    * nullable: true.
    */
@@ -85,7 +84,7 @@ export class User {
 
   /**
    * Id юзера в ВК.
-   * 
+   *
    * @remarks
    * nullable: true, unique: true.
    */
@@ -94,20 +93,19 @@ export class User {
 
   /**
    * Статус уволен ли сотрудник.
-   * 
+   *
    * @remarks
    * nullable: false, default: false .
    */
   @Column({ nullable: false, default: false })
   isFired: boolean;
 
-
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -116,10 +114,10 @@ export class User {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -128,7 +126,7 @@ export class User {
 
   /**
    * Связь с сущностью 1:M Post.
-   * 
+   *
    * @remarks
    * nullable: true
    */
@@ -144,12 +142,15 @@ export class User {
   /**
    * Связь с сущностью 1:M HistoryUsersToPost.
    */
-  @OneToMany(() => HistoryUsersToPost, (historyUsersToPost) => historyUsersToPost.user)
+  @OneToMany(
+    () => HistoryUsersToPost,
+    (historyUsersToPost) => historyUsersToPost.user,
+  )
   historiesUsersToPost: HistoryUsersToPost[];
 
   /**
    * Связь с сущностью M:1 Organization.
-   * 
+   *
    * @remarks
    * nullable: true (/?????????)
    */
@@ -160,13 +161,11 @@ export class User {
 
   /**
    * Связь с сущностью M:1 Account
-   * 
+   *
    * @remarks
    * Установлен индекс, nullable: true (??????)
    */
   @ManyToOne(() => Account, (account) => account.users, { nullable: true })
   @Index() // Добавляем индекс на поле account
   account: Account;
-
-
 }

@@ -8,16 +8,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ControlPanel } from 'src/domains/controlPanel.entity';
 import { PostModule } from './post.module';
 
-
 @Module({
   imports: [
     TypeOrmModule.forFeature([ControlPanel]),
     OrganizationModule,
     PanelToStatisticModule,
-    PostModule
+    PostModule,
   ],
   controllers: [ControlPanelController],
   providers: [ControlPanelService, ControlPanelRepository],
   exports: [ControlPanelService],
 })
-export class ControlPanelModule { }
+export class ControlPanelModule {}

@@ -9,8 +9,6 @@ import {
 } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { Organization } from 'src/domains/organization.entity';
-import { Post } from 'src/domains/post.entity';
-import { Role } from 'src/domains/role.entity';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -57,14 +55,13 @@ export class CreateUserDto {
   @ApiProperty({
     description: 'Аватарка юзера',
     required: false,
-    example: 'app\\uploads\\photo_17-03-2025_09-35-58_dac4ebc6-90c3-491d-8c2f-6c936cb34a28.jpg',
+    example:
+      'app\\uploads\\photo_17-03-2025_09-35-58_dac4ebc6-90c3-491d-8c2f-6c936cb34a28.jpg',
   })
   @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'Аватарка юзера не может быть пустой!' })
   avatar_url?: string;
-
-
 
   @ApiProperty({
     description: 'ID поста',

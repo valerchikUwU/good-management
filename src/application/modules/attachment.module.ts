@@ -7,6 +7,6 @@ import { AttachmentRepository } from '../services/attachment/repository/attachme
 @Module({
   imports: [TypeOrmModule.forFeature([Attachment])],
   providers: [AttachmentService, AttachmentRepository],
-  exports: [AttachmentService]
+  exports: [AttachmentService],
 })
 export class AttachmentModule {}

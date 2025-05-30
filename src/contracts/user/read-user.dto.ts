@@ -1,4 +1,10 @@
-import { IsDate, IsNumber, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsDate,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 import { ReadRefreshSessionDto } from '../refreshSession/read-refreshSession.dto';
 import { Post } from 'src/domains/post.entity';
 import { Organization } from 'src/domains/organization.entity';
@@ -49,5 +55,5 @@ export class ReadUserDto {
   refreshSessions: ReadRefreshSessionDto[];
   organization: Organization;
   account: Account;
-  historiesUsersToPost: HistoryUsersToPost[]
+  historiesUsersToPost: HistoryUsersToPost[];
 }

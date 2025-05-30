@@ -1,7 +1,6 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
 import { Exclude, Transform, TransformFnParams, Type } from 'class-transformer';
 import {
-  ArrayNotEmpty,
   IsArray,
   IsDate,
   IsEnum,
@@ -11,14 +10,11 @@ import {
   IsString,
   IsUUID,
   Min,
-  ValidateNested,
 } from 'class-validator';
 import { Convert } from 'src/domains/convert.entity';
 import { Policy } from 'src/domains/policy.entity';
 import { Post } from 'src/domains/post.entity';
 import { State, Type as TargetType } from 'src/domains/target.entity';
-import { ConvertReadDto } from '../convert/read-convert.dto';
-import { IsRequiredIfActive } from 'src/validators/target-validators';
 
 @ApiExtraModels()
 export class TargetUpdateDto {
@@ -128,6 +124,6 @@ export class TargetUpdateDto {
   @Exclude({ toPlainOnly: true })
   policy: Policy;
 
-  @Exclude({toPlainOnly: true})
+  @Exclude({ toPlainOnly: true })
   dateComplete: Date;
 }

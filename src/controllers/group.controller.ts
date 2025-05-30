@@ -7,15 +7,11 @@ import {
   Post,
   Inject,
   Ip,
-  InternalServerErrorException,
-  NotFoundException,
   Patch,
-  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from 'src/application/services/users/users.service';
 import {
   ApiBody,
-  ApiHeader,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -24,13 +20,7 @@ import {
 import { OrganizationService } from 'src/application/services/organization/organization.service';
 import { OrganizationReadDto } from 'src/contracts/organization/read-organization.dto';
 import { Logger } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
-import { ModuleAccess } from 'src/decorators/module-access.decorator';
-import { ActionAccess } from 'src/decorators/action-access.decorator';
-import { Actions, Modules } from 'src/domains/roleSetting.entity';
-import { PermissionsGuard } from 'src/guards/permission.guard';
-import { AccessTokenGuard } from 'src/guards/accessToken.guard';
-import { ProducerService } from 'src/application/services/producer/producer.service';
+import { red, yellow } from 'colorette';
 import { GroupService } from 'src/application/services/group/group.service';
 import { GroupReadDto } from 'src/contracts/group/read-group.dto';
 import { GroupUpdateDto } from 'src/contracts/group/update-group.dto';

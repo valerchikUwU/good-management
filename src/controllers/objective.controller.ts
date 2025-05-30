@@ -27,7 +27,10 @@ import { TimeoutError } from 'rxjs';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
-import { findAllObjectivesExample, findOneObjectiveExample } from 'src/constants/swagger-examples/objective/objective-examples';
+import {
+  findAllObjectivesExample,
+  findOneObjectiveExample,
+} from 'src/constants/swagger-examples/objective/objective-examples';
 
 @ApiTags('Objective')
 @ApiBearerAuth('access-token')
@@ -45,7 +48,7 @@ export class ObjectiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllObjectivesExample
+    example: findAllObjectivesExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -59,12 +62,13 @@ export class ObjectiveController {
     name: 'organizationId',
     required: true,
     description: 'Id организации',
-    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167'
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   async findAll(
-    @Param('organizationId') organizationId: string
+    @Param('organizationId') organizationId: string,
   ): Promise<ObjectiveReadDto[]> {
-    const objectives = await this.objectiveService.findAllForOrganization(organizationId);
+    const objectives =
+      await this.objectiveService.findAllForOrganization(organizationId);
     return objectives;
   }
 
@@ -153,7 +157,7 @@ export class ObjectiveController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findOneObjectiveExample
+    example: findOneObjectiveExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -171,7 +175,8 @@ export class ObjectiveController {
   async findOne(
     @Param('strategyId') strategyId: string,
   ): Promise<ObjectiveReadDto> {
-    const objective = await this.objectiveService.findOneByStrategyId(strategyId);
+    const objective =
+      await this.objectiveService.findOneByStrategyId(strategyId);
     return objective;
   }
 }

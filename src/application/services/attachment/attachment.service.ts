@@ -20,15 +20,15 @@ export class AttachmentService {
     @InjectRepository(Attachment)
     private readonly attachmentRepository: AttachmentRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async findAllByIds(ids: string[]): Promise<AttachmentReadDto[]> {
     try {
       const attachments = await this.attachmentRepository.find({
         where: { id: In(ids) },
       });
-      const foundIds = attachments.map(attachment => attachment.id);
-      const missingIds = ids.filter(id => !foundIds.includes(id));
+      const foundIds = attachments.map((attachment) => attachment.id);
+      const missingIds = ids.filter((id) => !foundIds.includes(id));
       if (missingIds.length > 0) {
         throw new NotFoundException(
           `Не найдены вложения с IDs: ${missingIds.join(', ')}`,
@@ -47,12 +47,10 @@ export class AttachmentService {
         attachmentToTargets: attachment.attachmentToTargets,
         attachmentToMessages: attachment.attachmentToMessages,
       }));
-    }
-    catch (err) {
-      this.logger.error(err)
-      if (err instanceof NotFoundException)
-        throw err;
-      throw new InternalServerErrorException('Ошибка при получении вложений!')
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) throw err;
+      throw new InternalServerErrorException('Ошибка при получении вложений!');
     }
   }
 
@@ -61,8 +59,7 @@ export class AttachmentService {
       const attachment = await this.attachmentRepository.findOne({
         where: { hash: fileHash },
       });
-      if (attachment)
-        return null;
+      if (attachment) return null;
 
       const attachmentReadDto: AttachmentReadDto = {
         id: attachment.id,
@@ -75,15 +72,13 @@ export class AttachmentService {
         createdAt: attachment.createdAt,
         updatedAt: attachment.updatedAt,
         attachmentToTargets: attachment.attachmentToTargets,
-        attachmentToMessages: attachment.attachmentToMessages
-      }
+        attachmentToMessages: attachment.attachmentToMessages,
+      };
       return attachmentReadDto;
-    }
-    catch (err) {
-      this.logger.error(err)
-      if (err instanceof NotFoundException)
-        throw err;
-      throw new InternalServerErrorException('Ошибка при получении вложения!')
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) throw err;
+      throw new InternalServerErrorException('Ошибка при получении вложения!');
     }
   }
 
@@ -100,7 +95,9 @@ export class AttachmentService {
       return await this.attachmentRepository.save(attachment);
     } catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при создании записи файла!');
+      throw new InternalServerErrorException(
+        'Ошибка при создании записи файла!',
+      );
     }
   }
 

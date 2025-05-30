@@ -32,8 +32,8 @@ import { FileValidationPipe } from 'src/validators/pipes/fileValidationPipe';
 export class FileUploadController {
   constructor(
     private readonly fileService: FileService,
-    private readonly attachmentService: AttachmentService
-  ) { }
+    private readonly attachmentService: AttachmentService,
+  ) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
@@ -70,7 +70,7 @@ export class FileUploadController {
   })
   async uploadImageInPolicy(
     @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
-  ): Promise<{ message: string, filePath: string }> {
+  ): Promise<{ message: string; filePath: string }> {
     const fileCreateDto: FileCreateDto = {
       fileName: image.filename,
       path: image.path.slice(1),
@@ -81,10 +81,11 @@ export class FileUploadController {
     return { message: 'Файл успешно загружен!', filePath: createdFile.path };
   }
 
-
   @Post('uploadFile')
   @UseInterceptors(FilesInterceptor('files', 10)) // 'file' — имя поля формы
-  @ApiOperation({ summary: 'Загрузка файлов и определение хеша для их кеширования' }) // Описание операции
+  @ApiOperation({
+    summary: 'Загрузка файлов и определение хеша для их кеширования',
+  }) // Описание операции
   @ApiConsumes('multipart/form-data') // Указываем тип контента
   @ApiBody({
     description: 'Загрузка файла',
@@ -117,11 +118,15 @@ export class FileUploadController {
     status: HttpStatus.CREATED,
     description: 'CREATED!',
   })
-  async uploadFiles(@UploadedFiles(new FileValidationPipe()) files: Array<Express.Multer.File>): Promise<Attachment[]> {
-    console.log(files)
+  async uploadFiles(
+    @UploadedFiles(new FileValidationPipe()) files: Array<Express.Multer.File>,
+  ): Promise<Attachment[]> {
+    console.log(files);
     const createdAttachments = await Promise.all(
       files.map(async (file) => {
-        const fileHash = await this.attachmentService.calculateFileHash(file.path);
+        const fileHash = await this.attachmentService.calculateFileHash(
+          file.path,
+        );
 
         const attachmentCreateDto: AttachmentCreateDto = {
           attachmentName: file.filename,
@@ -134,12 +139,13 @@ export class FileUploadController {
           message: null,
         };
 
-        const createdAttachment = await this.attachmentService.create(attachmentCreateDto);
+        const createdAttachment =
+          await this.attachmentService.create(attachmentCreateDto);
 
         console.log('File Hash:', fileHash);
         return createdAttachment;
       }),
-    )
+    );
     return createdAttachments;
   }
 }

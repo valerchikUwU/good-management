@@ -25,10 +25,9 @@ export enum Type {
  */
 @Entity()
 export class Statistic {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
@@ -37,7 +36,7 @@ export class Statistic {
 
   /**
    * Тип статистики.
-   * 
+   *
    * @remarks
    * Используется перечисление `Type`. По умолчанию установлено значение прямая(DIRECT). nullable: false
    */
@@ -51,7 +50,7 @@ export class Statistic {
 
   /**
    * Название статистики.
-   * 
+   *
    * @remarks
    * nullable: false
    */
@@ -60,7 +59,7 @@ export class Statistic {
 
   /**
    * Описание статистики.
-   * 
+   *
    * @remarks
    * nullable: true
    */
@@ -69,10 +68,10 @@ export class Statistic {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -81,10 +80,10 @@ export class Statistic {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -100,7 +99,10 @@ export class Statistic {
   /**
    * Связь с сущностью 1:M PanelToStatistic.
    */
-  @OneToMany(() => PanelToStatistic, (panelToStatistic) => panelToStatistic.statistic)
+  @OneToMany(
+    () => PanelToStatistic,
+    (panelToStatistic) => panelToStatistic.statistic,
+  )
   panelToStatistics: PanelToStatistic[];
 
   /**
@@ -111,7 +113,7 @@ export class Statistic {
 
   /**
    * Связь с сущностью M:1 Account.
-   * 
+   *
    * @remarks
    * nullable: false
    */
