@@ -1,6 +1,5 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users.module';
 import { Statistic } from 'src/domains/statistic.entity';
 import { StatisticRepository } from '../services/statistic/repository/statistic.repository';
 import { StatisticService } from '../services/statistic/statistic.service';

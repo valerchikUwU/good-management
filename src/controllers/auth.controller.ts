@@ -44,7 +44,7 @@ export class AuthController {
     private readonly userService: UsersService,
     private readonly eventsGateway: EventsGateway,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   @Post('/login/vk')
   @ApiOperation({ summary: 'Войти через ВК' })
@@ -73,6 +73,7 @@ export class AuthController {
     try {
       authData = await this.authService.getVkToken(auth);
     } catch (err) {
+      console.log(err);
       throw new UnprocessableEntityException('Wrong VK code');
     }
     console.log(JSON.stringify(authData.data));
@@ -107,7 +108,7 @@ export class AuthController {
         path: '/',
         secure: process.env.NODE_ENV === 'prod' ? true : false,
         maxAge: Number(process.env.COOKIE_EXPIRESIN),
-      sameSite: process.env.NODE_ENV === 'prod' ? 'strict' :'lax'
+        sameSite: process.env.NODE_ENV === 'prod' ? 'strict' : 'lax',
       });
       return authenticateResult._user;
     } else {
@@ -161,7 +162,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'CREATED!',
-    example: refreshTokensExample
+    example: refreshTokensExample,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
@@ -169,7 +170,8 @@ export class AuthController {
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
-    description: 'Ваша сессия истекла, пожалуйста, войдите еще раз в свой аккаунт.',
+    description:
+      'Ваша сессия истекла, пожалуйста, войдите еще раз в свой аккаунт.',
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -190,7 +192,7 @@ export class AuthController {
       path: '/',
       secure: process.env.NODE_ENV === 'prod' ? true : false,
       maxAge: Number(process.env.COOKIE_EXPIRESIN),
-      sameSite: process.env.NODE_ENV === 'prod' ? 'strict' :'lax'
+      sameSite: process.env.NODE_ENV === 'prod' ? 'strict' : 'lax',
     });
     return { newAccessToken: data.newAccessToken };
   }
@@ -216,7 +218,7 @@ export class AuthController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: { response: 'Вы вышли из аккаунта!' }
+    example: { response: 'Вы вышли из аккаунта!' },
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -232,11 +234,14 @@ export class AuthController {
   ): Promise<{ response: string }> {
     const refreshTokenId = req.cookies['refresh-tokenId'];
     await this.authService.logout(req.body.fingerprint, refreshTokenId);
-    return { response: 'Вы вышли из аккаунта!' }
+    return { response: 'Вы вышли из аккаунта!' };
   }
 
   @Post('login/tg')
-  @ApiOperation({ summary: 'Запрос для телеграм бота, с помощью которого происходит аутентификация' })
+  @ApiOperation({
+    summary:
+      'Запрос для телеграм бота, с помощью которого происходит аутентификация',
+  })
   @ApiBody({
     description: 'ДТО данных для аутентификации',
     type: AuthTG,
@@ -245,14 +250,17 @@ export class AuthController {
   async loginTG(@Body() authTg: AuthTG): Promise<void> {
     // Запрашиваем у клиента необходимую информацию
     const requiredInfo = ['fingerprint', 'userAgent', 'ip', 'token'];
-    const clientInfo = await this.eventsGateway.requestInfoFromClient(authTg.clientId, requiredInfo);
+    const clientInfo = await this.eventsGateway.requestInfoFromClient(
+      authTg.clientId,
+      requiredInfo,
+    );
 
     if (clientInfo.token === authTg.token) {
-      console.log(authTg.user.telegramId)
+      console.log(authTg.user.telegramId);
       if (authTg.user.telegramId === null) {
         const updateTgAuthUserDto: UpdateUserDto = {
           id: authTg.user.id,
-          telegramId: authTg.telegramId
+          telegramId: authTg.telegramId,
         };
         await this.userService.update(authTg.user.id, updateTgAuthUserDto);
       }
@@ -298,15 +306,17 @@ export class AuthController {
     required: true,
   })
   @Post('set-cookie')
-  setCookie(@Body('refreshTokenId') refreshTokenId: string, @Res({ passthrough: true }) res: ExpressResponse) {
+  setCookie(
+    @Body('refreshTokenId') refreshTokenId: string,
+    @Res({ passthrough: true }) res: ExpressResponse,
+  ) {
     res.cookie('refresh-tokenId', refreshTokenId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod' ? true : false,
       path: '/',
       maxAge: Number(process.env.COOKIE_EXPIRESIN),
-      sameSite: process.env.NODE_ENV === 'prod' ? 'strict' :'lax'
+      sameSite: process.env.NODE_ENV === 'prod' ? 'strict' : 'lax',
     });
     return { message: 'Куки успешно установлены' };
   }
-
 }

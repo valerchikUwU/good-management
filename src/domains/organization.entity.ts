@@ -19,7 +19,7 @@ import { ControlPanel } from './controlPanel.entity';
 
 /**
  * Перечисление дней недели для отчетов.
- * 
+ *
  * @remarks
  * Значения представляют числовые эквиваленты дней недели, начиная с воскресенья (0), понедельник (1) и т.д.
  */
@@ -30,19 +30,19 @@ export enum ReportDay {
   THURSDAY = 4,
   FRIDAY = 5,
   SUNDAY = 6,
-  SATURDAY = 0
+  SATURDAY = 0,
 }
 
 /**
  * Сущность Organization (Организация).
- * 
+ *
  * Представляет организацию в аккаунте.
  */
 @Entity()
 export class Organization {
   /**
    * Уникальный идентификатор организации.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
@@ -51,7 +51,7 @@ export class Organization {
 
   /**
    * Название организации.
-   * 
+   *
    * @remarks
    * nullable: false
    */
@@ -60,7 +60,7 @@ export class Organization {
 
   /**
    * Идентификатор родительской организации.
-   * 
+   *
    * @remarks
    * type: uuid v4.0, nullable: true
    */
@@ -69,7 +69,7 @@ export class Organization {
 
   /**
    * День недели для отчетности.
-   * 
+   *
    * @remarks
    * Используется перечисление `ReportDay`. По умолчанию установлено значение пятницы. nullable: false
    */
@@ -81,39 +81,36 @@ export class Organization {
   })
   reportDay: ReportDay;
 
-
   /**
    * Список кодов цветов, в которые красятся отделы.
-   * 
+   *
    * @remarks
    * Множество k=>v, где postId => colorCode'.
-   * 
+   *
    * @example
    * {uuid(postId): '#FFFFF'}
    */
   @Column({ type: 'hstore', hstoreType: 'object', nullable: true })
   colorCodes: Record<string, string>;
 
-
   /**
    * Код цвета организации.
-   * 
+   *
    * @remarks
    * nullable: true.
-   * 
+   *
    * @example
    * '#FFFFF'
    */
-    @Column({ nullable: true, length: 10 })
-    organizationColor: string;
-
+  @Column({ nullable: true, length: 10 })
+  organizationColor: string;
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -122,10 +119,10 @@ export class Organization {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */

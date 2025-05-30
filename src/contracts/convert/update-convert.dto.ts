@@ -1,7 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
-import { TypeConvert, PathConvert } from 'src/domains/convert.entity';
+import {
+  ArrayMinSize,
+  IsBoolean,
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+} from 'class-validator';
+import { PathConvert } from 'src/domains/convert.entity';
 import { Post } from 'src/domains/post.entity';
 // import { ConvertToUserCreateDto } from "../convertToUser/create-convertToUser.dto";
 
@@ -18,18 +27,23 @@ export class ConvertUpdateDto {
   @ApiProperty({
     description: 'Тема конверта',
     required: false,
-    example: 'Тема'
+    example: 'Тема',
   })
   @IsOptional()
   @IsString()
-  @MaxLength(1024, { message: 'Тема конверта должна быть не более 1024 символа' })
+  @MaxLength(1024, {
+    message: 'Тема конверта должна быть не более 1024 символа',
+  })
   @IsNotEmpty({ message: 'Тема не может быть пустой!' })
   convertTheme?: string;
 
   @ApiProperty({
     description: 'Список ids постов, которые участники',
     required: false,
-    example: ['323e4567-e89b-12d3-a456-426614174000', '750e8400-e29b-41d4-a716-446655440000'],
+    example: [
+      '323e4567-e89b-12d3-a456-426614174000',
+      '750e8400-e29b-41d4-a716-446655440000',
+    ],
   })
   @IsOptional()
   @IsUUID('4', { each: true })
@@ -46,11 +60,13 @@ export class ConvertUpdateDto {
   @IsNotEmpty({ message: 'Id конверта не может быть пустым!' })
   activePostId?: string;
 
-
   @ApiProperty({
     description: 'Список ids постов, которые наблюдатели',
     required: false,
-    example: ['323e4567-e89b-12d3-a456-426614174000', '750e8400-e29b-41d4-a716-446655440000'],
+    example: [
+      '323e4567-e89b-12d3-a456-426614174000',
+      '750e8400-e29b-41d4-a716-446655440000',
+    ],
   })
   @IsOptional()
   @IsUUID('4', { each: true })
@@ -86,5 +102,5 @@ export class ConvertUpdateDto {
   host?: Post;
 
   @Exclude({ toPlainOnly: true })
-  targetId?: string
+  targetId?: string;
 }

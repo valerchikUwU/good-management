@@ -1,5 +1,5 @@
-import { transports, format, exitOnError } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
+import { transports, format } from 'winston';
+import { blue, yellow, bold } from 'colorette';
 import 'winston-daily-rotate-file';
 
 const { combine, timestamp, json, errors, colorize, align, printf } = format;
@@ -60,10 +60,10 @@ export const winstonConfig = {
                     ? 200
                     : 500,
               ),
-            )} - ${info.url ? info.url : ''} - ${info.method ? info.method : ''
+            )} - ${info.url ? info.url : ''} - ${
+              info.method ? info.method : ''
             } - ${info.response_time ? info.response_time : ''} - ${info.message} ---------------- \n 
-            ${info.stack ? info.stack : 'no stack trace'
-            } \n`,
+            ${info.stack ? info.stack : 'no stack trace'} \n`,
         ),
       ),
     }),

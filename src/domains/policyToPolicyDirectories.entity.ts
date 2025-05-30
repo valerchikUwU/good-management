@@ -14,10 +14,9 @@ import { PolicyDirectory } from './policyDirectory.entity';
  */
 @Entity()
 export class PolicyToPolicyDirectory {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
@@ -26,10 +25,10 @@ export class PolicyToPolicyDirectory {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -38,10 +37,10 @@ export class PolicyToPolicyDirectory {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -50,7 +49,7 @@ export class PolicyToPolicyDirectory {
 
   /**
    * Связь с сущностью М:1 Policy.
-   * 
+   *
    * @remarks
    * Установлен индекс
    */
@@ -63,7 +62,8 @@ export class PolicyToPolicyDirectory {
    */
   @ManyToOne(
     () => PolicyDirectory,
-    (policyDirectory) => policyDirectory.policyToPolicyDirectories, {onDelete: 'CASCADE'}
+    (policyDirectory) => policyDirectory.policyToPolicyDirectories,
+    { onDelete: 'CASCADE' },
   )
   policyDirectory: PolicyDirectory;
 }

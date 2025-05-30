@@ -6,13 +6,11 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  Generated,
   Index,
 } from 'typeorm';
 import { Target } from './target.entity';
 import { Strategy } from './strategy.entity';
 import { Account } from './account.entity';
-import { User } from './user.entity';
 import { Organization } from './organization.entity';
 import { Post } from './post.entity';
 
@@ -29,29 +27,27 @@ export enum Type {
  */
 @Entity()
 export class Project {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-
   /**
    * Порядковый номер проекта.
-   * 
+   *
    * @remarks
    * Инркемент в БД.
    */
-  @Column({nullable: false})
+  @Column({ nullable: false })
   projectNumber: number;
 
   /**
    * Название проекта.
-   * 
+   *
    * @remarks
    * Длина <= 50, default: "Проект", nullable: false.
    */
@@ -60,7 +56,7 @@ export class Project {
 
   /**
    * Id программы.
-   * 
+   *
    * @remarks
    * UUID v4.0, nullable: true.
    */
@@ -69,7 +65,7 @@ export class Project {
 
   /**
    * Содержание проекта.
-   * 
+   *
    * @remarks
    * nullable: true.
    */
@@ -78,7 +74,7 @@ export class Project {
 
   /**
    * Тип проекта.
-   * 
+   *
    * @remarks
    * Используется перечисление `Type`. По умолчанию установлено значение проект(PROJECT). nullable: false
    */
@@ -90,24 +86,24 @@ export class Project {
   })
   type: Type;
 
-   /**
+  /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-   /**
+  /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -128,7 +124,7 @@ export class Project {
 
   /**
    * Связь с сущностью M:1 Strategy.
-   * 
+   *
    * @remarks
    * Установлен индекс, nullable: true
    */
@@ -140,7 +136,7 @@ export class Project {
 
   /**
    * Связь с сущностью M:1 Account.
-   * 
+   *
    * @remarks
    * nullable: false
    */
@@ -149,11 +145,13 @@ export class Project {
 
   /**
    * Связь с сущностью M:1 Post.
-   * 
+   *
    * @remarks
    * nullable: false
    */
-  @ManyToOne(() => Post, (postCreator) => postCreator.projects, { nullable: false })
+  @ManyToOne(() => Post, (postCreator) => postCreator.projects, {
+    nullable: false,
+  })
   postCreator: Post;
 }
 

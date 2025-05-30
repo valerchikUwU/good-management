@@ -23,7 +23,9 @@ export class StrategyService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForOrganization(organizationId: string): Promise<StrategyReadDto[]> {
+  async findAllForOrganization(
+    organizationId: string,
+  ): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: { organization: { id: organizationId } },
@@ -52,7 +54,9 @@ export class StrategyService {
     }
   }
 
-  async findAllActiveOrDraftWithoutObjectiveForOrganization(organizationId: string): Promise<StrategyReadDto[]> {
+  async findAllActiveOrDraftWithoutObjectiveForOrganization(
+    organizationId: string,
+  ): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: {
@@ -86,7 +90,10 @@ export class StrategyService {
     }
   }
 
-  async findAllActiveForOrganization(organizationId: string, relations?: string[]): Promise<StrategyReadDto[]> {
+  async findAllActiveForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<StrategyReadDto[]> {
     try {
       const strategies = await this.strategyRepository.find({
         where: {
@@ -154,7 +161,10 @@ export class StrategyService {
     }
   }
 
-  async findOneById(id: string, relations?: string[]): Promise<StrategyReadDto> {
+  async findOneById(
+    id: string,
+    relations?: string[],
+  ): Promise<StrategyReadDto> {
     try {
       const strategy = await this.strategyRepository.findOne({
         where: { id: id },
@@ -191,8 +201,10 @@ export class StrategyService {
 
   async create(strategyCreateDto: StrategyCreateDto): Promise<string> {
     try {
-      if(!strategyCreateDto.postCreator){
-        throw new BadRequestException('Вы должны быть закреплены хотя бы за одним постом!')
+      if (!strategyCreateDto.postCreator) {
+        throw new BadRequestException(
+          'Вы должны быть закреплены хотя бы за одним постом!',
+        );
       }
       const strategy = new Strategy();
       strategy.content = strategyCreateDto.content;
@@ -222,7 +234,10 @@ export class StrategyService {
     }
   }
 
-  async update(_id: string, updateStrategyDto: StrategyUpdateDto): Promise<string> {
+  async update(
+    _id: string,
+    updateStrategyDto: StrategyUpdateDto,
+  ): Promise<string> {
     try {
       const strategy = await this.strategyRepository.findOne({
         where: { id: _id },

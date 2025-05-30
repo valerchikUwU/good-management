@@ -15,7 +15,7 @@ import { AttachmentToTargetModule } from './attachmentToTarget.module';
     TargetHolderModule,
     PostModule,
     PolicyModule,
-    AttachmentToTargetModule
+    AttachmentToTargetModule,
   ],
   controllers: [TargetController],
   providers: [TargetService, TargetRepository],

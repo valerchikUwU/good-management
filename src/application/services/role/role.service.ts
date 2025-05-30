@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -18,7 +17,7 @@ export class RoleService {
     @InjectRepository(Role)
     private readonly roleRepository: RoleRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async findAll(): Promise<RoleReadDto[]> {
     try {
@@ -33,12 +32,10 @@ export class RoleService {
         roleSettings: role.roleSettings,
         posts: role.posts,
       }));
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException('Ошибка при получении ролей');
     }
-
   }
 
   async findOneById(id: string): Promise<RoleReadDto> {
@@ -71,7 +68,8 @@ export class RoleService {
         where: { roleName: roleName },
       });
 
-      if (!role) throw new NotFoundException(`Роль c названием ${roleName} не найдена`);
+      if (!role)
+        throw new NotFoundException(`Роль c названием ${roleName} не найдена`);
       const roleReadDto: RoleReadDto = {
         id: role.id,
         roleName: role.roleName,

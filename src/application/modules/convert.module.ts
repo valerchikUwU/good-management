@@ -9,7 +9,6 @@ import { PostModule } from './post.module';
 import { EventsModule } from './events.module';
 import { TargetModule } from './target.module';
 import { MessageModule } from './message.module';
-import { ConvertGateway } from 'src/gateways/convert.gateway';
 import { WatchersToConvertModule } from './watchersToConvert.module';
 
 @Module({

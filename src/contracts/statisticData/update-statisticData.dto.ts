@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
-  IsBoolean,
   IsDate,
   IsEnum,
   IsNotEmpty,
@@ -9,7 +8,6 @@ import {
   IsOptional,
   IsUUID,
 } from 'class-validator';
-import { Statistic } from 'src/domains/statistic.entity';
 import { CorrelationType } from 'src/domains/statisticData.entity';
 
 export class StatisticDataUpdateDto {

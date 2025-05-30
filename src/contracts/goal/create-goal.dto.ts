@@ -1,10 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import {
-  IsArray,
-  IsNotEmpty,
-  IsUUID,
-} from 'class-validator';
+import { IsArray, IsNotEmpty, IsUUID } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Post } from 'src/domains/post.entity';

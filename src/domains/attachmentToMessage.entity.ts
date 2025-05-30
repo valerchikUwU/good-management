@@ -7,7 +7,6 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Attachment } from './attachment.entity';
-import { Target } from './target.entity';
 import { Message } from './message.entity';
 
 @Entity()
@@ -21,11 +20,17 @@ export class AttachmentToMessage {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @ManyToOne(() => Attachment, (attachment) => attachment.attachmentToMessages, {onDelete: 'CASCADE'})
+  @ManyToOne(
+    () => Attachment,
+    (attachment) => attachment.attachmentToMessages,
+    { onDelete: 'CASCADE' },
+  )
   @Index()
   attachment: Attachment;
 
-  @ManyToOne(() => Message, (message) => message.attachmentToMessages, {onDelete: 'CASCADE'})
+  @ManyToOne(() => Message, (message) => message.attachmentToMessages, {
+    onDelete: 'CASCADE',
+  })
   @Index()
   message: Message;
 }

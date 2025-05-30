@@ -1,5 +1,5 @@
 import { ApiExtraModels, ApiProperty } from '@nestjs/swagger';
-import { Exclude, Transform, TransformFnParams, Type } from 'class-transformer';
+import { Exclude, Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
@@ -11,7 +11,6 @@ import {
   IsString,
   IsUUID,
   Min,
-  min,
 } from 'class-validator';
 import { Convert } from 'src/domains/convert.entity';
 import { Policy } from 'src/domains/policy.entity';
@@ -32,7 +31,7 @@ export class TargetCreateDto {
       'Правила',
       'Продукт',
       'Организационные мероприятия',
-      'Приказ'
+      'Приказ',
     ],
   })
   @IsOptional()
@@ -63,7 +62,7 @@ export class TargetCreateDto {
     example: 'a065a77a-36b0-4aea-9af4-5b313e550c19',
   })
   @IsOptional()
-  @IsUUID(undefined, {message: 'Неверный формат UUID'})
+  @IsUUID(undefined, { message: 'Неверный формат UUID' })
   holderPostId?: string;
 
   @ApiProperty({

@@ -11,7 +11,7 @@ import { PolicyModule } from './policy.module';
   imports: [
     TypeOrmModule.forFeature([PolicyDirectory]),
     PolicyToPolicyDirectoryModule,
-    PolicyModule
+    PolicyModule,
   ],
   controllers: [PolicyDirectoryController],
   providers: [PolicyDirectoryService, PolicyDirectoryRepository],

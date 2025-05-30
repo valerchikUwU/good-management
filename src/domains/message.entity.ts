@@ -22,13 +22,12 @@ export class Message {
 
   /**
    * Порядковый номер сообщения в конверте.
-   * 
+   *
    * @remarks
    * Инркемент в БД.
    */
   @Column({ nullable: false })
   messageNumber: number;
-
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -45,10 +44,12 @@ export class Message {
   /**
    * Связь с вложениями сообщения (1:M AttachmentToMessage).
    */
-  @OneToMany(() => AttachmentToMessage, (attachmentToMessage) => attachmentToMessage.message)
+  @OneToMany(
+    () => AttachmentToMessage,
+    (attachmentToMessage) => attachmentToMessage.message,
+  )
   attachmentToMessages: AttachmentToMessage[];
 
   @OneToMany(() => MessageSeenStatus, (seenStatus) => seenStatus.message)
   seenStatuses: MessageSeenStatus[];
-
 }

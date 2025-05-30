@@ -46,7 +46,7 @@ import { AttachmentToTargetModule } from './application/modules/attachmentToTarg
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { MessageSeenStatusModule } from './application/modules/messageSeenStatus.module';
 import { WatchersToConvertModule } from './application/modules/watchersToConvert.module';
-import { TransactionModule } from "nestjs-transaction";
+import { TransactionModule } from 'nestjs-transaction';
 
 dotenv.config();
 
@@ -65,10 +65,15 @@ dotenv.config();
       useFactory: async () => {
         return {
           stores: [
-            new KeyvRedis({ url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`, username: `${process.env.REDIS_USERNAME}`, password: `${process.env.REDIS_PASSWORD}` },
+            new KeyvRedis(
+              {
+                url: `redis://${process.env.REDIS_USERNAME}:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST_LOCAL}:${process.env.REDIS_PORT}`,
+                username: `${process.env.REDIS_USERNAME}`,
+                password: `${process.env.REDIS_PASSWORD}`,
+              },
               {
                 namespace: 'goodmanagement',
-              }
+              },
             ),
           ],
         };
@@ -119,7 +124,7 @@ dotenv.config();
     AttachmentToTargetModule,
     AttachmentToMessageModule,
     MessageSeenStatusModule,
-    WatchersToConvertModule
+    WatchersToConvertModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -22,10 +22,14 @@ export class ObjectiveService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-  async findAllForAccount(account: AccountReadDto, relations?: string[]): Promise<ObjectiveReadDto[]> {
+  async findAllForAccount(
+    account: AccountReadDto,
+    relations?: string[],
+  ): Promise<ObjectiveReadDto[]> {
     try {
       const objectives = await this.objectiveRepository.find({
-        where: { account: { id: account.id } }, relations: relations ?? []
+        where: { account: { id: account.id } },
+        relations: relations ?? [],
       });
 
       return objectives.map((objective) => ({
@@ -47,11 +51,14 @@ export class ObjectiveService {
     }
   }
 
-
-  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<ObjectiveReadDto[]> {
+  async findAllForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<ObjectiveReadDto[]> {
     try {
       const objectives = await this.objectiveRepository.find({
-        where: { strategy: {organization: { id: organizationId } }}, relations: relations ?? []
+        where: { strategy: { organization: { id: organizationId } } },
+        relations: relations ?? [],
       });
 
       return objectives.map((objective) => ({
@@ -110,7 +117,10 @@ export class ObjectiveService {
     }
   }
 
-  async findOneByStrategyId(strategyId: string, relations?: string[]): Promise<ObjectiveReadDto | null> {
+  async findOneByStrategyId(
+    strategyId: string,
+    relations?: string[],
+  ): Promise<ObjectiveReadDto | null> {
     try {
       const objective = await this.objectiveRepository.findOne({
         where: { strategy: { id: strategyId } },
@@ -155,7 +165,8 @@ export class ObjectiveService {
       objective.rootCause = objectiveCreateDto.rootCause;
       objective.strategy = objectiveCreateDto.strategy;
       objective.account = objectiveCreateDto.account;
-      const createdObjectiveId = await this.objectiveRepository.insert(objective);
+      const createdObjectiveId =
+        await this.objectiveRepository.insert(objective);
       return createdObjectiveId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);

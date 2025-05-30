@@ -1,10 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude, Type } from 'class-transformer';
-import {
-  IsNotEmpty,
-  IsString,
-  IsUUID,
-} from 'class-validator';
+import { Exclude } from 'class-transformer';
+import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 import { Account } from 'src/domains/account.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { Post } from 'src/domains/post.entity';
@@ -38,6 +34,6 @@ export class PolicyCreateDto {
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   @IsUUID()
-  @IsNotEmpty({message: 'ID организации не может быть пустым!'})
+  @IsNotEmpty({ message: 'ID организации не может быть пустым!' })
   organizationId: string;
 }

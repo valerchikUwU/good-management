@@ -13,7 +13,7 @@ import { PolicyCreateDto } from 'src/contracts/policy/create-policy.dto';
 import { AccountReadDto } from 'src/contracts/account/read-account.dto';
 import { PolicyUpdateDto } from 'src/contracts/policy/update-policy.dto';
 import { Logger } from 'winston';
-import { In, IsNull } from 'typeorm';
+import { In } from 'typeorm';
 
 @Injectable()
 export class PolicyService {
@@ -45,7 +45,7 @@ export class PolicyService {
         postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
-        targets: policy.targets
+        targets: policy.targets,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -56,7 +56,10 @@ export class PolicyService {
     }
   }
 
-  async findAllForOrganization(organizationId: string, relations?: string[]): Promise<PolicyReadDto[]> {
+  async findAllForOrganization(
+    organizationId: string,
+    relations?: string[],
+  ): Promise<PolicyReadDto[]> {
     try {
       const policies = await this.policyRepository.find({
         where: { organization: { id: organizationId } },
@@ -79,7 +82,7 @@ export class PolicyService {
         postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
-        targets: policy.targets
+        targets: policy.targets,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -97,8 +100,8 @@ export class PolicyService {
       const policies = await this.policyRepository.find({
         where: {
           organization: { id: organizationId },
-          state: State.ACTIVE
-        }
+          state: State.ACTIVE,
+        },
       });
 
       return policies.map((policy) => ({
@@ -117,7 +120,7 @@ export class PolicyService {
         postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
-        targets: policy.targets
+        targets: policy.targets,
       }));
     } catch (err) {
       this.logger.error(err);
@@ -155,7 +158,7 @@ export class PolicyService {
         postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
-        targets: policy.targets
+        targets: policy.targets,
       };
 
       return policyReadDto;
@@ -168,14 +171,13 @@ export class PolicyService {
     }
   }
 
-
   async findBulk(ids: string[]): Promise<PolicyReadDto[]> {
     try {
       const policies = await this.policyRepository.find({
         where: { id: In(ids) },
       });
-      const foundPolicyIds = policies.map(policy => policy.id);
-      const missingPolicyIds = ids.filter(id => !foundPolicyIds.includes(id));
+      const foundPolicyIds = policies.map((policy) => policy.id);
+      const missingPolicyIds = ids.filter((id) => !foundPolicyIds.includes(id));
       if (missingPolicyIds.length > 0) {
         throw new NotFoundException(
           `Не найдены политики с IDs: ${missingPolicyIds.join(', ')}`,
@@ -197,9 +199,8 @@ export class PolicyService {
         postCreator: policy.postCreator,
         account: policy.account,
         policyToPolicyDirectories: policy.policyToPolicyDirectories,
-        targets: policy.targets
+        targets: policy.targets,
       }));
-
     } catch (err) {
       this.logger.error(err);
       if (err instanceof NotFoundException) {
@@ -212,8 +213,10 @@ export class PolicyService {
 
   async create(policyCreateDto: PolicyCreateDto): Promise<string> {
     try {
-      if(!policyCreateDto.postCreator){
-        throw new BadRequestException('Вы должны быть закреплены хотя бы за одним постом!')
+      if (!policyCreateDto.postCreator) {
+        throw new BadRequestException(
+          'Вы должны быть закреплены хотя бы за одним постом!',
+        );
       }
       const policy = new Policy();
       policy.policyName = policyCreateDto.policyName;
@@ -222,7 +225,6 @@ export class PolicyService {
       policy.account = policyCreateDto.account;
       policy.organization = policyCreateDto.organization;
       const createdPolicy = await this.policyRepository.insert(policy);
-
 
       return createdPolicy.identifiers[0].id;
     } catch (err) {
@@ -268,7 +270,8 @@ export class PolicyService {
       if (!policy) {
         throw new NotFoundException(`Политика с ID ${_id} не найдена`);
       }
-      if (updatePolicyDto.policyName) policy.policyName = updatePolicyDto.policyName;
+      if (updatePolicyDto.policyName)
+        policy.policyName = updatePolicyDto.policyName;
       if (updatePolicyDto.state) policy.state = updatePolicyDto.state;
       if (updatePolicyDto.type) policy.type = updatePolicyDto.type;
       if (updatePolicyDto.content) policy.content = updatePolicyDto.content;
@@ -285,7 +288,7 @@ export class PolicyService {
         type: policy.type,
         content: policy.content,
         dateActive: policy.dateActive,
-        deadline: policy.deadline
+        deadline: policy.deadline,
       });
       return policy.id;
     } catch (err) {

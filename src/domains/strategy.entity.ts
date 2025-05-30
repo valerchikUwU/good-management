@@ -6,10 +6,8 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  Generated,
   OneToOne,
 } from 'typeorm';
-import { User } from './user.entity';
 import { Objective } from './objective.entity';
 import { Project } from './project.entity';
 import { Account } from './account.entity';
@@ -30,29 +28,27 @@ export enum State {
  */
 @Entity()
 export class Strategy {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-
   /**
    * Порядковый номер стратегии в организации.
-   * 
+   *
    * @remarks
    * Инркемент в БД.
    */
-  @Column({nullable: false})
+  @Column({ nullable: false })
   strategyNumber: number;
 
   /**
    * Дата активации стратегии.
-   * 
+   *
    * @remarks
    * Устанавливается в момент перехода в состояние "активная" (ACTIVE)
    */
@@ -61,7 +57,7 @@ export class Strategy {
 
   /**
    * Содержание стратегии.
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -70,7 +66,7 @@ export class Strategy {
 
   /**
    * Состояние стратегии.
-   * 
+   *
    * @remarks
    * Используется перечисление `State`. По умолчанию установлено значение черновик(DRAFT). nullable: false
    */
@@ -84,10 +80,10 @@ export class Strategy {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -96,10 +92,10 @@ export class Strategy {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -108,16 +104,18 @@ export class Strategy {
 
   /**
    * Связь с сущностью M:1 Post.
-   * 
+   *
    * @remarks
    * nullable: false
    */
-  @ManyToOne(() => Post, (postCreator) => postCreator.strategies, { nullable: false })
+  @ManyToOne(() => Post, (postCreator) => postCreator.strategies, {
+    nullable: false,
+  })
   postCreator: Post;
 
   /**
    * Связь с сущностью M:1 Account.
-   * 
+   *
    * @remarks
    * nullable: false
    */

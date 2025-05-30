@@ -1,6 +1,12 @@
-
 import { User } from 'src/domains/user.entity';
-import { IsOptional, IsString, IsIP, IsNumber, IsPositive, IsNotEmpty } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsIP,
+  IsNumber,
+  IsPositive,
+  IsNotEmpty,
+} from 'class-validator';
 import { Exclude } from 'class-transformer';
 
 export class CreateRefreshSessionDto {
@@ -28,4 +34,3 @@ export class CreateRefreshSessionDto {
   @Exclude({ toPlainOnly: true })
   user: User;
 }
-

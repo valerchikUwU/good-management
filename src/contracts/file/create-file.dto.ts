@@ -8,8 +8,10 @@ export class FileCreateDto {
     example: 'Галя_nudes.jpg',
   })
   @IsString()
-  @MaxLength(255, {message: 'Название файла должно быть не более 255 символов!'})
-  @IsNotEmpty({message: 'Название файла не может быть пустым!'})
+  @MaxLength(255, {
+    message: 'Название файла должно быть не более 255 символов!',
+  })
+  @IsNotEmpty({ message: 'Название файла не может быть пустым!' })
   fileName: string;
 
   @ApiProperty({
@@ -18,7 +20,7 @@ export class FileCreateDto {
     example: 'uploads/1737988764326-photo_2022-03-13_23-16-33.jpg',
   })
   @IsString()
-  @IsNotEmpty({message: 'Путь к файлу не может быть пустым!'})
+  @IsNotEmpty({ message: 'Путь к файлу не может быть пустым!' })
   path: string;
 
   @ApiProperty({
@@ -27,7 +29,7 @@ export class FileCreateDto {
     example: 345561,
   })
   @IsNumber()
-  @IsNotEmpty({message: 'Размер файла не может быть пустым'})
+  @IsNotEmpty({ message: 'Размер файла не может быть пустым' })
   size: number;
 
   @ApiProperty({
@@ -36,6 +38,6 @@ export class FileCreateDto {
     example: 'image/jpeg',
   })
   @IsString()
-  @IsNotEmpty({message: 'Тип файла не может быть пустым!'})
+  @IsNotEmpty({ message: 'Тип файла не может быть пустым!' })
   mimetype: string;
 }

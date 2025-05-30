@@ -26,7 +26,10 @@ export class OrganizationUpdateDto {
   @IsEnum(ReportDay)
   reportDay?: ReportDay;
 
-  @ApiProperty({ description: 'Список кодов цветов', example: {'2d1cea4c-7cea-4811-8cd5-078da7f20167': '#FFFFF'} })
+  @ApiProperty({
+    description: 'Список кодов цветов',
+    example: { '2d1cea4c-7cea-4811-8cd5-078da7f20167': '#FFFFF' },
+  })
   @IsOptional()
   @IsNotEmpty()
   colorCodes?: Record<string, string>;

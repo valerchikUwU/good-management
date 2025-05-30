@@ -15,10 +15,9 @@ import { Account } from './account.entity';
  */
 @Entity()
 export class PolicyDirectory {
-
   /**
    * Уникальный идентификатор папки с политиками.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
@@ -27,7 +26,7 @@ export class PolicyDirectory {
 
   /**
    * Название папки.
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -36,10 +35,10 @@ export class PolicyDirectory {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -48,10 +47,10 @@ export class PolicyDirectory {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -69,7 +68,7 @@ export class PolicyDirectory {
 
   /**
    * Связь с сущностью М:1 Account.
-   * 
+   *
    * @remarks
    * nullable: false
    */

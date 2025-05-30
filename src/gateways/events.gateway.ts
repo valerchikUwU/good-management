@@ -20,12 +20,16 @@ import { ClientCredentialsDto } from 'src/contracts/websockets/clientCredentials
 import { Logger } from 'winston';
 
 @WebSocketGateway({
-  namespace: 'auth', cors: process.env.NODE_ENV === 'dev' ? '*:*' : { origin: process.env.PROD_API_HOST }
+  namespace: 'auth',
+  cors:
+    process.env.NODE_ENV === 'dev'
+      ? '*:*'
+      : { origin: process.env.PROD_API_HOST },
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @Inject('winston') private readonly logger: Logger, // инъекция логгера
-  ) { }
+  ) {}
   private clients: Map<string, Socket> = new Map();
   @WebSocketServer() ws: Server;
 
@@ -43,7 +47,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.clients.set(client.id, client);
     this.logger.info(`Number of connected clients: ${this.clients.size}`);
   }
-
 
   sendTokenToClient(
     clientId: string,
@@ -66,8 +69,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
           `WebSocket соединение не установлено, не найден клиент с ID: ${clientId}`,
         );
       }
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err);
       // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
@@ -77,7 +79,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при входе!');
     }
-
   }
 
   async requestInfoFromClient(
@@ -86,32 +87,46 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): Promise<Record<string, any>> {
     const client = this.clients.get(clientId);
     if (!client) {
-      throw new NotFoundException(`WebSocket соединение не установлено, клиент с ID: ${clientId} не найден`);
+      throw new NotFoundException(
+        `WebSocket соединение не установлено, клиент с ID: ${clientId} не найден`,
+      );
     }
     const payload = { expectedData, clientId };
     client.emit('requestInfo', payload);
     return await Promise.race([
       new Promise<ClientCredentialsDto>((resolve, reject) => {
         client.once('responseFromClient', async (data) => {
-          const clientCredentialsDto = plainToInstance(ClientCredentialsDto, data);
-          await validateOrReject(clientCredentialsDto).catch(errors => {
+          const clientCredentialsDto = plainToInstance(
+            ClientCredentialsDto,
+            data,
+          );
+          await validateOrReject(clientCredentialsDto).catch((errors) => {
             reject(new BadRequestException(errors));
           });
           resolve(clientCredentialsDto);
         });
       }),
       new Promise((_, reject) =>
-        setTimeout(() => reject(new Error(`Превышено время ожидания ответа от соединения: ${clientId}`)), 5000),
-      )
-    ]).catch((err) => this.logger.error(err))
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                `Превышено время ожидания ответа от соединения: ${clientId}`,
+              ),
+            ),
+          5000,
+        ),
+      ),
+    ]).catch((err) => this.logger.error(err));
   }
-
 
   @SubscribeMessage('responseFromClient')
   async handleResponse(
     @MessageBody() data: ClientCredentialsDto,
     @ConnectedSocket() client: Socket,
   ) {
-    this.logger.info(`Response received from client ${client.id}: ${JSON.stringify(data)}`);
+    this.logger.info(
+      `Response received from client ${client.id}: ${JSON.stringify(data)}`,
+    );
   }
 }

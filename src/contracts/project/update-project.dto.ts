@@ -1,11 +1,7 @@
-import { Type as TypeProject } from 'src/domains/project.entity';
 import { TargetCreateDto } from '../target/create-target.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  ArrayNotEmpty,
   IsArray,
-  IsEmpty,
-  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -14,9 +10,11 @@ import {
 } from 'class-validator';
 import { TargetUpdateDto } from '../target/update-target.dto';
 import { Exclude, Type } from 'class-transformer';
-import { Organization } from 'src/domains/organization.entity';
 import { Strategy } from 'src/domains/strategy.entity';
-import { HasCommonActiveOrFinished, HasProjectIdsForProgram } from 'src/validators/project-validator';
+import {
+  HasCommonActiveOrFinished,
+  HasProjectIdsForProgram,
+} from 'src/validators/project-validator';
 
 export class ProjectUpdateDto {
   @ApiProperty({
@@ -122,19 +120,22 @@ export class ProjectUpdateDto {
   @IsArray({ message: 'Должен быть массив!' })
   @ValidateNested()
   @Type(() => TargetUpdateDto)
-  @HasCommonActiveOrFinished({message: 'Должна быть хотя бы одна задача с типом "Обычная" и статусом "Активная" или "Завершена"!'})
+  @HasCommonActiveOrFinished({
+    message:
+      'Должна быть хотя бы одна задача с типом "Обычная" и статусом "Активная" или "Завершена"!',
+  })
   targetUpdateDtos?: TargetUpdateDto[];
 
   @ApiProperty({
-    description: 'IDs проектов, которые привязать с програмой (юзается только для программ)',
+    description:
+      'IDs проектов, которые привязать с програмой (юзается только для программ)',
     required: false,
     example: ['865a8a3f-8197-41ee-b4cf-ba432d7fd51f'],
   })
   @IsOptional()
   @IsArray()
   @HasProjectIdsForProgram({
-    message:
-      'Выберите хотя бы один проект для программы!',
+    message: 'Выберите хотя бы один проект для программы!',
   })
   projectIds?: string[];
 }

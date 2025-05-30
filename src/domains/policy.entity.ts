@@ -6,9 +6,7 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
-  Generated,
 } from 'typeorm';
-import { User } from './user.entity';
 import { Post } from './post.entity';
 import { Account } from './account.entity';
 import { PolicyToPolicyDirectory } from './policyToPolicyDirectories.entity';
@@ -40,7 +38,7 @@ export enum Type {
   INSTRUCTION = 'Инструкция',
 
   /** Политика является распоряжением. */
-  DISPOSAL = 'Распоряжение'
+  DISPOSAL = 'Распоряжение',
 }
 
 /**
@@ -50,7 +48,7 @@ export enum Type {
 export class Policy {
   /**
    * Уникальный идентификатор политики.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
@@ -59,7 +57,7 @@ export class Policy {
 
   /**
    * Название политики.
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -68,7 +66,7 @@ export class Policy {
 
   /**
    * Порядковый номер политики.
-   * 
+   *
    * @remarks
    * Инкремент в БД.
    */
@@ -77,7 +75,7 @@ export class Policy {
 
   /**
    * Состояние политики.
-   * 
+   *
    * @remarks
    * Используется перечисление `State`. По умолчанию установлено значение черновик(DRAFT). nullable: false
    */
@@ -91,7 +89,7 @@ export class Policy {
 
   /**
    * Тип политики (директива или инструкция).
-   * 
+   *
    * @remarks
    * Используется перечисление `Type`. По умолчанию установлено значение директива(DIRECTIVE). nullable: false
    */
@@ -105,7 +103,7 @@ export class Policy {
 
   /**
    * Дата активации политики.
-   * 
+   *
    * @remarks
    * Устанавливается в момент перехода в состояние "активная" (ACTIVE)
    */
@@ -120,7 +118,7 @@ export class Policy {
 
   /**
    * Содержание политики в текстовом формате.
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -129,10 +127,10 @@ export class Policy {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -141,10 +139,10 @@ export class Policy {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -177,16 +175,15 @@ export class Policy {
    * @remarks
    * nullable: false
    */
-  @ManyToOne(() => Post, (postCreator) => postCreator.policies, { nullable: false })
+  @ManyToOne(() => Post, (postCreator) => postCreator.policies, {
+    nullable: false,
+  })
   postCreator: Post;
 
   /**
    * Связь с сущностью M:1 Organization.
    */
-  @ManyToOne(
-    () => Organization,
-    (organization) => organization.policies,
-  )
+  @ManyToOne(() => Organization, (organization) => organization.policies)
   organization: Organization;
 
   /**

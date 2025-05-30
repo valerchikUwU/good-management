@@ -1,14 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
 import {
-  IsArray,
   IsDate,
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
@@ -21,10 +18,12 @@ export class ConvertCreateDto {
   @ApiProperty({
     description: 'Тема конверта',
     required: true,
-    example: 'Тема'
+    example: 'Тема',
   })
   @IsString()
-  @MaxLength(1024, { message: 'Тема конверта должна быть не более 1024 символа' })
+  @MaxLength(1024, {
+    message: 'Тема конверта должна быть не более 1024 символа',
+  })
   @IsNotEmpty({ message: 'Тема не может быть пустой!' })
   convertTheme: string;
 
@@ -62,20 +61,20 @@ export class ConvertCreateDto {
   @IsNotEmpty({ message: 'Id поста отправителя не может быть пустой!' })
   senderPostId: string;
 
-
   @ApiProperty({
     description: 'Id поста получителя',
-    required: true
+    required: true,
   })
   @IsString()
   @IsNotEmpty({ message: 'Id поста получителя не может быть пустой!' })
   reciverPostId: string;
 
   @ApiProperty({
-    description: 'Текст для сообщения при convertType === Переписька или === Заявка',
+    description:
+      'Текст для сообщения при convertType === Переписька или === Заявка',
     example: 'Заявка на трусы',
     required: false,
-    nullable: true
+    nullable: true,
   })
   @IsString()
   messageContent: string | null;
@@ -85,7 +84,6 @@ export class ConvertCreateDto {
 
   @Exclude({ toPlainOnly: true })
   account: Account;
-
 
   @ApiProperty({
     description: 'Список задач',
@@ -98,14 +96,13 @@ export class ConvertCreateDto {
       attachmentIds: ['222895e6-9496-4cb5-aa7b-e3c72c18934a'],
       dateStart: '2024-09-18T14:59:47.010Z',
       deadline: '2024-09-18T14:59:47.010Z',
-    }
+    },
   })
   @IsOptional()
   @ValidateNested()
   @Type(() => TargetCreateDto)
   targetCreateDto?: TargetCreateDto;
 
-
   @Exclude({ toPlainOnly: true })
-  targetId?: string
+  targetId?: string;
 }

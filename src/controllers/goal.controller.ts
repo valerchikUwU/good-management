@@ -24,20 +24,18 @@ import { GoalCreateDto } from 'src/contracts/goal/create-goal.dto';
 import { GoalReadDto } from 'src/contracts/goal/read-goal.dto';
 import { GoalUpdateDto } from 'src/contracts/goal/update-goal.dto';
 import { Logger } from 'winston';
-import { blue, red, green, yellow, bold } from 'colorette';
+import { yellow } from 'colorette';
 import { ProducerService } from 'src/application/services/producer/producer.service';
 import { GoalCreateEventDto } from 'src/contracts/goal/createEvent-goal.dto';
 import { GoalUpdateEventDto } from 'src/contracts/goal/updateEvent-goal.dto';
-import { TimeoutError } from 'rxjs';
 import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { findAllGoalsExample } from 'src/constants/swagger-examples/goal/goal-examples';
 
-
 @UseGuards(AccessTokenGuard)
 @ApiTags('Goal')
-@ApiBearerAuth('access-token') // Указывает использовать схему Bearer
+@ApiBearerAuth('access-token')
 @Controller('goals')
 export class GoalController {
   constructor(
@@ -45,14 +43,14 @@ export class GoalController {
     private readonly organizationService: OrganizationService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Цель организации' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: findAllGoalsExample
+    example: findAllGoalsExample,
   })
   @ApiResponse({
     status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -68,8 +66,10 @@ export class GoalController {
     description: 'Id организации',
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async findAll(@Param('organizationId') organizationId: string): Promise<GoalReadDto> {
-    const goal = await this.goalService.findOneByOrganizationId(organizationId)
+  async findAll(
+    @Param('organizationId') organizationId: string,
+  ): Promise<GoalReadDto> {
+    const goal = await this.goalService.findOneByOrganizationId(organizationId);
     return goal;
   }
 
@@ -83,7 +83,7 @@ export class GoalController {
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'ОК!',
-    example: {"id": "7468bad1-a4b4-4600-8ac8-098f3e865b11"}
+    example: { id: '7468bad1-a4b4-4600-8ac8-098f3e865b11' },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -101,8 +101,10 @@ export class GoalController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  @ApiParam({ 
-    name: 'goalId', required: true, description: 'Id цели' 
+  @ApiParam({
+    name: 'goalId',
+    required: true,
+    description: 'Id цели',
   })
   async update(
     @Req() req: ExpressRequest,
@@ -150,7 +152,7 @@ export class GoalController {
   @ApiResponse({
     status: HttpStatus.CREATED,
     description: 'CREATED!',
-    example: {"id": "da1787cb-a79a-4663-8232-c13cacfdb953"},
+    example: { id: 'da1787cb-a79a-4663-8232-c13cacfdb953' },
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
@@ -169,8 +171,10 @@ export class GoalController {
     @Body() goalCreateDto: GoalCreateDto,
   ): Promise<{ id: string }> {
     const user = req.user as ReadUserDto;
-    const organization = await this.organizationService.findOneById(goalCreateDto.organizationId);
-    const postCreator = user.posts.find(post => post.isDefault);
+    const organization = await this.organizationService.findOneById(
+      goalCreateDto.organizationId,
+    );
+    const postCreator = user.posts.find((post) => post.isDefault);
     goalCreateDto.postCreator = postCreator;
     goalCreateDto.account = user.account;
     goalCreateDto.organization = organization;

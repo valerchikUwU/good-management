@@ -6,7 +6,10 @@ import { GroupToPostRepository } from '../services/groupToPost/repository/groupT
 import { PostModule } from './post.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GroupToPost]), forwardRef(() => PostModule)],
+  imports: [
+    TypeOrmModule.forFeature([GroupToPost]),
+    forwardRef(() => PostModule),
+  ],
   providers: [GroupToPostService, GroupToPostRepository],
   exports: [GroupToPostService],
 })

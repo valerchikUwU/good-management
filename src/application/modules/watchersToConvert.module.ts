@@ -6,11 +6,8 @@ import { WatchersToConvertService } from '../services/watchersToConvert/watchers
 import { PostModule } from './post.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([WatchersToConvert]),
-    PostModule
-  ],
+  imports: [TypeOrmModule.forFeature([WatchersToConvert]), PostModule],
   providers: [WatchersToConvertRepository, WatchersToConvertService],
-  exports: [WatchersToConvertService]
+  exports: [WatchersToConvertService],
 })
-export class WatchersToConvertModule { }
+export class WatchersToConvertModule {}

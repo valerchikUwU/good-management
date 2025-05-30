@@ -31,7 +31,6 @@ export enum PathConvert {
   REQUEST = 'Запрос',
 }
 
-
 /**
  * Сущность Convert.
  * Представляет конверт для отправки документов между постами.
@@ -40,10 +39,10 @@ export enum PathConvert {
 export class Convert {
   /**
    * Уникальный идентификатор конвертации.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется и имеет формат UUID v4.0.
-   * 
+   *
    * @example
    * '550e8400-e29b-41d4-a716-446655440000'
    */
@@ -52,10 +51,10 @@ export class Convert {
 
   /**
    * Тема конвертации.
-   * 
+   *
    * @remarks
    * nullable: false.
-   * 
+   *
    * @example
    * 'Согласование новой политики'
    */
@@ -64,10 +63,10 @@ export class Convert {
 
   /**
    * Список постов, через которые должен пройти конверт.
-   * 
+   *
    * @remarks
    * Поле содержит массив UUID постов.
-   * 
+   *
    * @example
    * ['123e4567-e89b-12d3-a456-426614174000', '550e8400-e29b-41d4-a716-446655440000']
    */
@@ -76,10 +75,10 @@ export class Convert {
 
   /**
    * Тип маршрута конверта.
-   * 
+   *
    * @remarks
    * Использует перечисление PathConvert. Поле может быть пустым.
-   * 
+   *
    * @example
    * PathConvert.DIRECT
    */
@@ -92,10 +91,10 @@ export class Convert {
 
   /**
    * Тип конвертации.
-   * 
+   *
    * @remarks
    * Использует перечисление TypeConvert. Поле может быть пустым.
-   * 
+   *
    * @example
    * TypeConvert.DIRECT
    */
@@ -106,14 +105,12 @@ export class Convert {
   })
   convertType: TypeConvert;
 
-
-
   /**
    * Статус конверта.
-   * 
+   *
    * @remarks
    * default: true, nullable: false. true - активен, false - завершен
-   * 
+   *
    * @example
    * true
    */
@@ -122,20 +119,19 @@ export class Convert {
 
   /**
    * Идентификатор поста, который должен подтвердить получение конверта.
-   * 
+   *
    * @remarks
    * Ссылается на поста, выполняющего текущие действия.
-   * 
+   *
    * @example
    * '123e4567-e89b-12d3-a456-426614174000'
    */
   @Column({ type: 'uuid', nullable: true })
   activePostId: string;
 
-
   /**
    * Дата старта конверта.
-   * 
+   *
    * @remarks
    * default: CURRENT_TIMESTAMP, nullable: false
    */
@@ -148,7 +144,7 @@ export class Convert {
 
   /**
    * Дедлайн конверта.
-   * 
+   *
    * @remarks
    * nullable: true
    */
@@ -157,10 +153,10 @@ export class Convert {
 
   /**
    * Дата завершения конверта.
-   * 
+   *
    * @remarks
    * Поле заполняется при завершении конверта.
-   * 
+   *
    * @example
    * '2024-06-10T08:15:30Z'
    */
@@ -169,10 +165,10 @@ export class Convert {
 
   /**
    * Дата и время создания конвертации.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании конверта.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -203,10 +199,9 @@ export class Convert {
   @OneToMany(() => WatchersToConvert, (watcher) => watcher.convert)
   watchersToConvert: WatchersToConvert[];
 
-
   /**
    * Связь с хостом конвертации (M:1 User).
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -215,7 +210,7 @@ export class Convert {
 
   /**
    * Связь с аккаунтом (M:1 Account).
-   * 
+   *
    * @remarks
    * nullable: false.
    */

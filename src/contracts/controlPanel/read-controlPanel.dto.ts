@@ -1,34 +1,33 @@
-import { GraphType, PanelType } from "src/domains/controlPanel.entity";
-import { Organization } from "src/domains/organization.entity";
-import { PanelToStatistic } from "src/domains/panelToStatistic.entity";
-import { Post } from "src/domains/post.entity";
-
+import { GraphType, PanelType } from 'src/domains/controlPanel.entity';
+import { Organization } from 'src/domains/organization.entity';
+import { PanelToStatistic } from 'src/domains/panelToStatistic.entity';
+import { Post } from 'src/domains/post.entity';
 
 /**
  * DTO для чтения данных панели управления.
  */
 export class ControlPanelReadDto {
-    id: string;
+  id: string;
 
-    panelName: string;
+  panelName: string;
 
-    orderNumber: number;
+  orderNumber: number;
 
-    controlPanelNumber: number;
+  controlPanelNumber: number;
 
-    panelType: PanelType;
+  panelType: PanelType;
 
-    graphType: GraphType;
+  graphType: GraphType;
 
-    isNameChanged: boolean;
+  isNameChanged: boolean;
 
-    createdAt: Date;
+  createdAt: Date;
 
-    updatedAt: Date;
+  updatedAt: Date;
 
-    panelToStatistics: PanelToStatistic[];
+  panelToStatistics: PanelToStatistic[];
 
-    organization: Organization;
+  organization: Organization;
 
-    post: Post;
+  post: Post;
 }

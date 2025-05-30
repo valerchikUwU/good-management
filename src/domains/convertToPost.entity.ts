@@ -1,9 +1,6 @@
 import {
-  Column,
   CreateDateColumn,
   Entity,
-  Index,
-  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,

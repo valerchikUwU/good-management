@@ -18,17 +18,17 @@ export class GroupToPostService {
     private readonly groupToPostRepository: GroupToPostRepository,
     private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async createSeveral(group: Group, postIds: string[]): Promise<void> {
     try {
       const posts = await this.postService.findBulk(postIds);
-      const groupToPosts = posts.map(post => {
+      const groupToPosts = posts.map((post) => {
         const groupToPost = new GroupToPost();
         groupToPost.group = group;
         groupToPost.post = post;
         return groupToPost;
-      })
+      });
       await this.groupToPostRepository.insert(groupToPosts);
     } catch (err) {
       this.logger.error(err);

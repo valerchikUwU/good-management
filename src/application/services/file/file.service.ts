@@ -17,7 +17,6 @@ export class FileService {
     @Inject('winston') private readonly logger: Logger,
   ) {}
 
-
   async create(fileCreateDto: FileCreateDto): Promise<File> {
     try {
       const file = new File();

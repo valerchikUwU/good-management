@@ -1,7 +1,6 @@
 import { Account } from 'src/domains/account.entity';
 import { Type as TypeProject } from 'src/domains/project.entity';
 import { Strategy } from 'src/domains/strategy.entity';
-import { User } from 'src/domains/user.entity';
 import { TargetCreateDto } from '../target/create-target.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Type } from 'class-transformer';
@@ -14,7 +13,10 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Organization } from 'src/domains/organization.entity';
-import { HasProductTask, HasStrategyForProgram } from 'src/validators/project-validator';
+import {
+  HasProductTask,
+  HasStrategyForProgram,
+} from 'src/validators/project-validator';
 import { Post } from 'src/domains/post.entity';
 
 export class ProjectCreateDto {
@@ -66,7 +68,7 @@ export class ProjectCreateDto {
   strategyId?: string;
 
   @Exclude({ toPlainOnly: true })
-  strategy: Strategy; 
+  strategy: Strategy;
 
   @Exclude({ toPlainOnly: true })
   account: Account;
@@ -123,7 +125,8 @@ export class ProjectCreateDto {
   @ValidateNested()
   @Type(() => TargetCreateDto)
   @HasProductTask({
-    message: 'Список задач должен содержать хотя бы одну задачу с типом "Продукт"!'
+    message:
+      'Список задач должен содержать хотя бы одну задачу с типом "Продукт"!',
   })
   targetCreateDtos: TargetCreateDto[];
 }

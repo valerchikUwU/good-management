@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Convert } from './convert.entity';
 import { Post } from './post.entity';
 
@@ -25,7 +32,10 @@ export class WatchersToConvert {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
 
-  @ManyToOne(() => Convert, (convert) => convert.watchersToConvert, { nullable: false, onDelete: 'CASCADE' })
+  @ManyToOne(() => Convert, (convert) => convert.watchersToConvert, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   convert: Convert;
 
   @ManyToOne(() => Post, { nullable: false, onDelete: 'CASCADE' })

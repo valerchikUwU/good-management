@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { HttpModule } from '@nestjs/axios';
 import { AuthService } from '../services/auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule, ConfigService } from 'nestjs-config';
+import { ConfigModule } from 'nestjs-config';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from 'src/controllers/auth.controller';
 import { UsersModule } from './users.module';
@@ -23,6 +23,11 @@ import { EventsModule } from './events.module';
   ],
   providers: [AuthService, AccessJwtStrategy, RefreshTokenStrategy],
   controllers: [AuthController],
-  exports: [PassportModule, AccessJwtStrategy, RefreshTokenStrategy, AuthService],
+  exports: [
+    PassportModule,
+    AccessJwtStrategy,
+    RefreshTokenStrategy,
+    AuthService,
+  ],
 })
 export class AuthModule {}

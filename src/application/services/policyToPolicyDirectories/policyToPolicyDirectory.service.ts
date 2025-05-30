@@ -2,12 +2,8 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
-import { OrganizationService } from '../organization/organization.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Policy } from 'src/domains/policy.entity';
-import { PolicyReadDto } from 'src/contracts/policy/read-policy.dto';
 import { Logger } from 'winston';
 import { PolicyToPolicyDirectory } from 'src/domains/policyToPolicyDirectories.entity';
 import { PolicyToPolicyDirectoryRepository } from './repository/policyToPolicyDirectory.repository';
@@ -22,30 +18,31 @@ export class PolicyToPolicyDirectoryService {
     private readonly policyToPolicyDirectoryRepository: PolicyToPolicyDirectoryRepository,
     private readonly policyService: PolicyService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
   async createSeveral(
     policyDirectory: PolicyDirectory,
     policyIds: string[],
   ): Promise<void> {
     try {
-
       const policies = await this.policyService.findBulk(policyIds);
 
       // Создаём связи для всех найденных Policy
-      const policyToPolicyDirectories = policies.map(policy => {
+      const policyToPolicyDirectories = policies.map((policy) => {
         const policyToPolicyDirectory = new PolicyToPolicyDirectory();
         policyToPolicyDirectory.policy = policy;
         policyToPolicyDirectory.policyDirectory = policyDirectory;
         return policyToPolicyDirectory;
       });
-      await this.policyToPolicyDirectoryRepository.insert(policyToPolicyDirectories)
-    }
-    catch (err) {
+      await this.policyToPolicyDirectoryRepository.insert(
+        policyToPolicyDirectories,
+      );
+    } catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ой что-то пошло не так при добавлении политики в папку!')
+      throw new InternalServerErrorException(
+        'Ой что-то пошло не так при добавлении политики в папку!',
+      );
     }
-
   }
 
   async remove(policyDirectory: PolicyDirectoryReadDto): Promise<void> {
@@ -53,10 +50,11 @@ export class PolicyToPolicyDirectoryService {
       await this.policyToPolicyDirectoryRepository.delete({
         policyDirectory: policyDirectory,
       });
-    }
-    catch (err) {
+    } catch (err) {
       this.logger.error(err);
-      throw new InternalServerErrorException('Ой что-то пошло не так при удалении политик в папке!')
+      throw new InternalServerErrorException(
+        'Ой что-то пошло не так при удалении политик в папке!',
+      );
     }
   }
 }

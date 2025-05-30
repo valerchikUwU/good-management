@@ -13,10 +13,9 @@ import { User } from './user.entity';
  */
 @Entity()
 export class RefreshSession {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
@@ -25,7 +24,7 @@ export class RefreshSession {
 
   /**
    * Хедер User_agent от клиента.
-   * 
+   *
    * @remarks
    * length: 200, nullable: false
    */
@@ -34,7 +33,7 @@ export class RefreshSession {
 
   /**
    * Уникальный идентификатор устройства от клиента.
-   * 
+   *
    * @remarks
    * length: 200, nullable: false
    */
@@ -43,7 +42,7 @@ export class RefreshSession {
 
   /**
    * IP клиента.
-   * 
+   *
    * @remarks
    * nullable: false
    */
@@ -52,7 +51,7 @@ export class RefreshSession {
 
   /**
    * Время сгорания сессии (вроде в мс).
-   * 
+   *
    * @remarks
    * nullable: false
    */
@@ -61,7 +60,7 @@ export class RefreshSession {
 
   /**
    * JWT токен сессии.
-   * 
+   *
    * @remarks
    * nullable: false
    */
@@ -70,10 +69,10 @@ export class RefreshSession {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -82,10 +81,10 @@ export class RefreshSession {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */

@@ -9,7 +9,6 @@ import {
   UpdateDateColumn,
   Index,
 } from 'typeorm';
-import { User } from './user.entity';
 import { Organization } from './organization.entity';
 import { Account } from './account.entity';
 import { Post } from './post.entity';
@@ -22,10 +21,10 @@ import { Post } from './post.entity';
 export class Goal {
   /**
    * Уникальный идентификатор цели.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
-   * 
+   *
    * @example
    * '123e4567-e89b-12d3-a456-426614174000'
    */
@@ -34,10 +33,10 @@ export class Goal {
 
   /**
    * Содержимое цели.
-   * 
+   *
    * @remarks
    * Хранит массив текстов, описывающих цель. Всегда size = 2.
-   * 
+   *
    * @example
    * ['Увеличить прибыль', 'Сократить расходы']
    */
@@ -46,10 +45,10 @@ export class Goal {
 
   /**
    * Дата создания цели.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -58,7 +57,7 @@ export class Goal {
 
   /**
    * Дата последнего обновления цели.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
    */
@@ -70,7 +69,9 @@ export class Goal {
    * @remarks
    * nullable: false.
    */
-  @ManyToOne(() => Post, (postCreator) => postCreator.goals, { nullable: false })
+  @ManyToOne(() => Post, (postCreator) => postCreator.goals, {
+    nullable: false,
+  })
   postCreator: Post;
 
   /**

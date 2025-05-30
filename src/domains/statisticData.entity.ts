@@ -14,19 +14,17 @@ import { Statistic } from './statistic.entity';
 export enum CorrelationType {
   MONTH = 'Месяц',
   YEAR = 'Год',
-  WEEK = 'Неделя'
+  WEEK = 'Неделя',
 }
-
 
 /**
  * Сущность, представляющая Данные статистики (точки статистики).
  */
 @Entity()
 export class StatisticData {
-
   /**
    * Уникальный идентификатор.
-   * 
+   *
    * @remarks
    * Поле автоматически генерируется в формате UUID v4.0.
    */
@@ -35,7 +33,7 @@ export class StatisticData {
 
   /**
    * Значение точки.
-   * 
+   *
    * @remarks
    * nullable: false.
    */
@@ -44,7 +42,7 @@ export class StatisticData {
 
   /**
    * Дата точки.
-   * 
+   *
    * @remarks
    * default: CURRENT_TIMESTAMP, nullable: false.
    */
@@ -57,7 +55,7 @@ export class StatisticData {
 
   /**
    * Флаг обозначающий корреляционное ли значение.
-   * 
+   *
    * @remarks
    * default: false, nullable: false.
    */
@@ -70,10 +68,10 @@ export class StatisticData {
 
   /**
    * Дата создания записи.
-   * 
+   *
    * @remarks
    * Поле автоматически заполняется при создании записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */
@@ -82,10 +80,10 @@ export class StatisticData {
 
   /**
    * Дата последнего обновления записи.
-   * 
+   *
    * @remarks
    * Поле автоматически обновляется при изменении записи.
-   * 
+   *
    * @example
    * '2024-06-01T12:34:56Z'
    */

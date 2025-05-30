@@ -1,15 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
 import {
-  ArrayNotEmpty,
-  IsArray,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
 } from 'class-validator';
-import { Organization } from 'src/domains/organization.entity';
 import { State } from 'src/domains/strategy.entity';
 
 export class StrategyUpdateDto {

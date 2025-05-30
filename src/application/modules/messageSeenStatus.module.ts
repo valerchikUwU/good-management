@@ -6,11 +6,8 @@ import { MessageSeenStatusRepository } from '../services/messageSeenStatus/repos
 import { MessageSeenStatusService } from '../services/messageSeenStatus/messageSeenStatus.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([MessageSeenStatus]),
-    MessageModule
-  ],
+  imports: [TypeOrmModule.forFeature([MessageSeenStatus]), MessageModule],
   providers: [MessageSeenStatusService, MessageSeenStatusRepository],
   exports: [MessageSeenStatusService],
 })
-export class MessageSeenStatusModule { }
+export class MessageSeenStatusModule {}

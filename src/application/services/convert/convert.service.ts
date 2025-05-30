@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Convert, PathConvert, TypeConvert } from 'src/domains/convert.entity';
+import { Convert, TypeConvert } from 'src/domains/convert.entity';
 import { ConvertRepository } from './repository/convert.repository';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { Logger } from 'winston';
@@ -29,10 +29,12 @@ export class ConvertService {
     private readonly targetService: TargetService,
     private readonly messageService: MessageService,
     @Inject('winston') private readonly logger: Logger,
-  ) { }
+  ) {}
 
-
-  async findAllArchiveForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
+  async findAllArchiveForContact(
+    userPostsIds: string[],
+    contactId: string,
+  ): Promise<any[]> {
     try {
       const converts = await this.convertRepository
         .createQueryBuilder('convert')
@@ -41,30 +43,54 @@ export class ConvertService {
         .leftJoin(
           'convert.messages',
           'latestMessage',
-          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")'
+          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")',
         )
         .where('post.id IN (:...userPostsIds)', { userPostsIds })
         .andWhere('convert.convertStatus = false')
-        .andWhere(new Brackets((qb) => {
-          qb.where('"convert"."pathOfPosts"[1] IN (:...userPostsIds)', { userPostsIds })
-            .andWhere('"convert"."pathOfPosts"[array_length("convert"."pathOfPosts", 1)] = :contactId', { contactId })
-            .orWhere(new Brackets((qb) => {
-              qb.where('"convert"."pathOfPosts"[1] = :contactId', { contactId })
-                .andWhere('"convert"."activePostId" NOT IN (:...userPostsIds)', { userPostsIds })
-            }))
-        }))
-        .orWhere(new Brackets((qb) => {
-          qb.where('convert.convertStatus = true')
-            .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
-            .andWhere('"convert"."activePostId" NOT IN (:...userPostsIds)', { userPostsIds })
-            .andWhere('"convert"."pathOfPosts" && ARRAY[:...userPostsIds]::uuid[]', { userPostsIds })
-        }))
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where('"convert"."pathOfPosts"[1] IN (:...userPostsIds)', {
+              userPostsIds,
+            })
+              .andWhere(
+                '"convert"."pathOfPosts"[array_length("convert"."pathOfPosts", 1)] = :contactId',
+                { contactId },
+              )
+              .orWhere(
+                new Brackets((qb) => {
+                  qb.where('"convert"."pathOfPosts"[1] = :contactId', {
+                    contactId,
+                  }).andWhere(
+                    '"convert"."activePostId" NOT IN (:...userPostsIds)',
+                    { userPostsIds },
+                  );
+                }),
+              );
+          }),
+        )
+        .orWhere(
+          new Brackets((qb) => {
+            qb.where('convert.convertStatus = true')
+              .andWhere('"convert"."pathOfPosts"[1] = :contactId', {
+                contactId,
+              })
+              .andWhere('"convert"."activePostId" NOT IN (:...userPostsIds)', {
+                userPostsIds,
+              })
+              .andWhere(
+                '"convert"."pathOfPosts" && ARRAY[:...userPostsIds]::uuid[]',
+                { userPostsIds },
+              );
+          }),
+        )
         .select([
           'convert.*',
           '"latestMessage"."content" AS "latestMessageContent"',
           '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
         ])
-        .groupBy('convert.id , "latestMessage"."content", "latestMessage"."createdAt"')
+        .groupBy(
+          'convert.id , "latestMessage"."content", "latestMessage"."createdAt"',
+        )
         .getRawMany();
       return converts;
     } catch (err) {
@@ -77,7 +103,10 @@ export class ConvertService {
     }
   }
 
-  async findAllArchiveCopiesForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
+  async findAllArchiveCopiesForContact(
+    userPostsIds: string[],
+    contactId: string,
+  ): Promise<any[]> {
     try {
       const converts = await this.convertRepository
         .createQueryBuilder('convert')
@@ -100,9 +129,10 @@ export class ConvertService {
     }
   }
 
-
-
-  async findAllForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
+  async findAllForContact(
+    userPostsIds: string[],
+    contactId: string,
+  ): Promise<any[]> {
     try {
       const converts = await this.convertRepository
         .createQueryBuilder('convert')
@@ -116,30 +146,45 @@ export class ConvertService {
           WHERE "mrs"."messageId" = "unreadMessages"."id"
           AND "mrs"."postId" IN (:...userPostsIds)
         ) 
-        AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`
+        AND "unreadMessages"."senderId" NOT IN (:...userPostsIds)`,
         )
         .leftJoin(
           'convert.messages',
           'latestMessage',
-          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")'
+          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")',
         )
         .where('post.id IN (:...userPostsIds)', { userPostsIds })
         .andWhere('convert.convertStatus = true')
-        .andWhere(new Brackets((qb) => {
-          qb.where('"convert"."pathOfPosts"[1] IN (:...userPostsIds)', { userPostsIds })
-            .andWhere('"convert"."pathOfPosts"[array_length("convert"."pathOfPosts", 1)] = :contactId', { contactId })
-            .orWhere(new Brackets((qb) => {
-              qb.where('"convert"."pathOfPosts"[1] = :contactId', { contactId })
-                .andWhere('"convert"."activePostId" IN (:...userPostsIds)', { userPostsIds })
-            }))
-        }))
+        .andWhere(
+          new Brackets((qb) => {
+            qb.where('"convert"."pathOfPosts"[1] IN (:...userPostsIds)', {
+              userPostsIds,
+            })
+              .andWhere(
+                '"convert"."pathOfPosts"[array_length("convert"."pathOfPosts", 1)] = :contactId',
+                { contactId },
+              )
+              .orWhere(
+                new Brackets((qb) => {
+                  qb.where('"convert"."pathOfPosts"[1] = :contactId', {
+                    contactId,
+                  }).andWhere(
+                    '"convert"."activePostId" IN (:...userPostsIds)',
+                    { userPostsIds },
+                  );
+                }),
+              );
+          }),
+        )
         .select([
           'convert.*',
           '"latestMessage"."content" AS "latestMessageContent"',
           '"latestMessage"."createdAt" AS "latestMessageCreatedAt"',
           'COUNT("unreadMessages"."id") AS "unseenMessagesCount"',
         ])
-        .groupBy('convert.id , "latestMessage"."content", "latestMessage"."createdAt"')
+        .groupBy(
+          'convert.id , "latestMessage"."content", "latestMessage"."createdAt"',
+        )
         .getRawMany();
       return converts;
     } catch (err) {
@@ -152,8 +197,10 @@ export class ConvertService {
     }
   }
 
-
-  async findAllCopiesForContact(userPostsIds: string[], contactId: string): Promise<any[]> {
+  async findAllCopiesForContact(
+    userPostsIds: string[],
+    contactId: string,
+  ): Promise<any[]> {
     try {
       const converts = await this.convertRepository
         .createQueryBuilder('convert')
@@ -176,9 +223,6 @@ export class ConvertService {
     }
   }
 
-
-
-
   async findOneById(id: string, relations?: string[]): Promise<ConvertReadDto> {
     try {
       const convert = await this.convertRepository.findOne({
@@ -186,7 +230,8 @@ export class ConvertService {
         relations: relations ?? [],
       });
 
-      if (!convert) throw new NotFoundException(`Конверт с ID: ${id} не найдена!`);
+      if (!convert)
+        throw new NotFoundException(`Конверт с ID: ${id} не найдена!`);
       const convertReadDto: ConvertReadDto = {
         id: convert.id,
         convertTheme: convert.convertTheme,
@@ -204,7 +249,7 @@ export class ConvertService {
         host: convert.host,
         account: convert.account,
         target: convert.target,
-        watchersToConvert: convert.watchersToConvert
+        watchersToConvert: convert.watchersToConvert,
       };
       return convertReadDto;
     } catch (err) {
@@ -232,25 +277,35 @@ export class ConvertService {
       convert.account = convertCreateDto.account;
       const createdConvert = await this.convertRepository.save(convert);
 
-
       const messageCreateDto: MessageCreateDto = {
-        content: convertCreateDto.targetCreateDto !== undefined ? convertCreateDto.targetCreateDto.content : convertCreateDto.convertTheme,
+        content:
+          convertCreateDto.targetCreateDto !== undefined
+            ? convertCreateDto.targetCreateDto.content
+            : convertCreateDto.convertTheme,
         postId: convertCreateDto.host.id,
         convert: createdConvert,
-        sender: convert.host
-      }
+        sender: convert.host,
+      };
 
-      const postsToConvert = convertCreateDto.pathOfPosts.slice(0, 2)
-        .concat(convertCreateDto.pathOfPosts[convertCreateDto.pathOfPosts.length - 1])
-        .filter((postId, index, arr) => index ===
-          arr.findIndex((id) => id === postId));
-
+      const postsToConvert = convertCreateDto.pathOfPosts
+        .slice(0, 2)
+        .concat(
+          convertCreateDto.pathOfPosts[convertCreateDto.pathOfPosts.length - 1],
+        )
+        .filter(
+          (postId, index, arr) =>
+            index === arr.findIndex((id) => id === postId),
+        );
 
       await Promise.all([
         this.convertToPostService.createSeveral(createdConvert, postsToConvert),
-        convertCreateDto.targetCreateDto ? this.targetService.create(convertCreateDto.targetCreateDto) : null,
-        convertCreateDto.convertType !== TypeConvert.CHAT ? this.messageService.create(messageCreateDto) : null
-      ])
+        convertCreateDto.targetCreateDto
+          ? this.targetService.create(convertCreateDto.targetCreateDto)
+          : null,
+        convertCreateDto.convertType !== TypeConvert.CHAT
+          ? this.messageService.create(messageCreateDto)
+          : null,
+      ]);
       return createdConvert;
     } catch (err) {
       this.logger.error(err);
@@ -274,8 +329,6 @@ export class ConvertService {
   //         messageCreateDtos.push(messageCreateDto);
   //     })
 
-
-
   //     await Promise.all([
   //       this.convertToPostService.createSeveralBulk(createdConverts),
   //       this.messageService.createBulk(messageCreateDtos)
@@ -287,11 +340,18 @@ export class ConvertService {
   //   }
   // }
 
-  async update(_id: string, convertUpdateDto: ConvertUpdateDto): Promise<string> {
+  async update(
+    _id: string,
+    convertUpdateDto: ConvertUpdateDto,
+  ): Promise<string> {
     try {
       const convert = await this.convertRepository
         .createQueryBuilder('convert')
-        .leftJoinAndSelect('convert.messages', 'latestMessage', '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")')
+        .leftJoinAndSelect(
+          'convert.messages',
+          'latestMessage',
+          '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "convert"."id")',
+        )
         .where('convert.id = :_id', { _id })
         .getOne();
 
@@ -307,7 +367,11 @@ export class ConvertService {
       }
       if (convertUpdateDto.watcherIds) {
         await this.watchersToConvertService.remove(convert);
-        await this.watchersToConvertService.createSeveral(convert, convertUpdateDto.watcherIds, convert.messages[0].messageNumber)
+        await this.watchersToConvertService.createSeveral(
+          convert,
+          convertUpdateDto.watcherIds,
+          convert.messages[0].messageNumber,
+        );
       }
       if (convertUpdateDto.convertToPostIds) {
         await this.convertToPostService.remove(convert);
@@ -319,7 +383,7 @@ export class ConvertService {
       await this.convertRepository.update(convert.id, {
         activePostId: convert.activePostId,
         convertStatus: convert.convertStatus,
-        dateFinish: convert.dateFinish
+        dateFinish: convert.dateFinish,
       });
       return convert.id;
     } catch (err) {
@@ -331,7 +395,10 @@ export class ConvertService {
     }
   }
 
-  async updateFromProject(_id: string, convertUpdateDto: ConvertUpdateDto): Promise<string> {
+  async updateFromProject(
+    _id: string,
+    convertUpdateDto: ConvertUpdateDto,
+  ): Promise<string> {
     try {
       const convert = await this.convertRepository
         .createQueryBuilder('convert')
@@ -364,15 +431,19 @@ export class ConvertService {
         convert.host = convertUpdateDto.host;
       }
 
-
-
-
       if (convertUpdateDto.pathOfPosts) {
-        const postsToConvert = convertUpdateDto.pathOfPosts.slice(0, 2)
-          .concat(convertUpdateDto.pathOfPosts[convertUpdateDto.pathOfPosts.length - 1])
-          .filter((postId, index, arr) => index ===
-            arr.findIndex((id) => id === postId));
-            
+        const postsToConvert = convertUpdateDto.pathOfPosts
+          .slice(0, 2)
+          .concat(
+            convertUpdateDto.pathOfPosts[
+              convertUpdateDto.pathOfPosts.length - 1
+            ],
+          )
+          .filter(
+            (postId, index, arr) =>
+              index === arr.findIndex((id) => id === postId),
+          );
+
         await this.convertToPostService.remove(convert);
         await this.convertToPostService.createSeveral(convert, postsToConvert);
       }
@@ -392,7 +463,9 @@ export class ConvertService {
       if (err instanceof NotFoundException) {
         throw err;
       }
-      throw new InternalServerErrorException('Ошибка при обновлении конверта из проекта');
+      throw new InternalServerErrorException(
+        'Ошибка при обновлении конверта из проекта',
+      );
     }
   }
 }
