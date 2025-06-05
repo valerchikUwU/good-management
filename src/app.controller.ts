@@ -24,7 +24,7 @@ export class AppController implements OnModuleInit {
   constructor(
     private readonly authService: AuthService,
     private readonly telegramBotService: TelegramService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Домашняя страница' })
@@ -95,9 +95,7 @@ export class AppController implements OnModuleInit {
   }
 
   onModuleInit() {
-      if (process.env.NODE_ENV === 'prod') {
-      this.telegramBotService.startBot();
-    }
+    this.telegramBotService.startBot();
   }
 
   // Метод для генерации code_verifier

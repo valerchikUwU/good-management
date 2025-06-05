@@ -43,6 +43,9 @@ import {
   findAllStatisticsExample,
   findOneStatisticExample,
 } from 'src/constants/swagger-examples/statistic/statistic-examples';
+import { ReportDay } from 'src/domains/organization.entity';
+import { viewTypes } from 'src/constants/extraTypes/statisticViewTypes';
+import { StatisticDataReadDto } from 'src/contracts/statisticData/read-statisticData.dto';
 
 @UseGuards(AccessTokenGuard)
 @ApiTags('Statistic')
@@ -55,7 +58,7 @@ export class StatisticController {
     private readonly postService: PostService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Все статистики в организации' })
@@ -445,23 +448,57 @@ export class StatisticController {
     description: 'Ошибка сервера!',
   })
   @ApiParam({
-    name: 'userId',
-    required: true,
-    description: 'Id пользователя',
-    example: 'bc807845-08a8-423e-9976-4f60df183ae2',
-  })
-  @ApiParam({
     name: 'statisticId',
     required: true,
     description: 'Id статистики',
   })
+  @ApiQuery({
+    name: 'viewType',
+    enum: viewTypes,
+    required: true,
+    description: 'Тип отображения'
+  })
+  @ApiQuery({
+    name: 'datePoint',
+    required: true,
+    description: 'Дата от которой будет вестись отчет (YYYY-MM-DD) зависит от типа отображения и направления хода по графику',
+    example: '2022-10-28',
+  })
   async findOne(
     @Param('statisticId') statisticId: string,
-  ): Promise<StatisticReadDto> {
+    @Query('datePoint') datePoint: string,
+    @Query('viewType') viewType: viewTypes,
+  ): Promise<{ statistic: StatisticReadDto; statisticData: any[] }> {
     const statistic = await this.statisticService.findOneById(statisticId, [
-      'statisticDatas',
       'post',
     ]);
-    return statistic;
+    const statisticData: any[] = [];
+    switch (viewType) {
+      case viewTypes.DAILY:
+        const statisticDataDaily = await this.statisticDataService.findDaily(statisticId, datePoint);
+        statisticData.push(...statisticDataDaily)
+        break;
+      case viewTypes.MONTHLY:
+        const statisticDataMonthly = await this.statisticDataService.findMonthly(statisticId, datePoint);
+        statisticData.push(...statisticDataMonthly)
+        break;
+      case viewTypes.YEARLY:
+        const statisticDataYearly = await this.statisticDataService.findYearly(statisticId, datePoint);
+        statisticData.push(...statisticDataYearly)
+        break;
+      case viewTypes.THIRTEEN:
+        const statisticDataThirteen = await this.statisticDataService.findSeveralWeeks(statisticId, datePoint, 13);
+        statisticData.push(...statisticDataThirteen)
+        break;
+      case viewTypes.TWENTY_SIX:
+        const statisticDataTwentySix = await this.statisticDataService.findSeveralWeeks(statisticId, datePoint, 26);
+        statisticData.push(...statisticDataTwentySix)
+        break;
+      case viewTypes.FIFTY_TWO:
+        const statisticDataFiftyTwo = await this.statisticDataService.findSeveralWeeks(statisticId, datePoint, 52);
+        statisticData.push(...statisticDataFiftyTwo)
+        break;
+    }
+    return { statistic, statisticData };
   }
 }

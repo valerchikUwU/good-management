@@ -199,7 +199,7 @@ export class PostController {
     if (postUpdateDto.policyId !== null) {
       promises.push(
         this.policyService
-          .findOneById(postUpdateDto.policyId)
+          .findOneById(postUpdateDto.policyId, false)
           .then((policy) => {
             postUpdateDto.policy = policy;
           }),
@@ -461,7 +461,7 @@ export class PostController {
     if (postCreateDto.policyId) {
       promises.push(
         this.policyService
-          .findOneById(postCreateDto.policyId)
+          .findOneById(postCreateDto.policyId, false)
           .then((policy) => {
             postCreateDto.policy = policy;
           }),

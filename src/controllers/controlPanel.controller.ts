@@ -42,7 +42,7 @@ export class ControlPanelController {
     private readonly organizationService: OrganizationService,
     private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Все панели в организации' })
@@ -68,8 +68,7 @@ export class ControlPanelController {
   async findAll(
     @Param('organizationId') organizationId: string,
   ): Promise<ControlPanelReadDto[]> {
-    const controlPanels =
-      await this.controlPanelService.findAllForOrganization(organizationId);
+    const controlPanels = await this.controlPanelService.findAllForOrganization(organizationId);
     return controlPanels;
   }
 
@@ -100,8 +99,7 @@ export class ControlPanelController {
   async findOne(
     @Param('controlPanelId') controlPanelId: string,
   ): Promise<ControlPanelReadDto> {
-    const controlPanel =
-      await this.controlPanelService.findOneById(controlPanelId);
+    const controlPanel = await this.controlPanelService.findOneById(controlPanelId);
     return controlPanel;
   }
 

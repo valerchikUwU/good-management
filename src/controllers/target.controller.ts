@@ -180,7 +180,7 @@ export class TargetController {
     if (targetCreateDto.policyId) {
       promises.push(
         this.policyService
-          .findOneById(targetCreateDto.policyId)
+          .findOneById(targetCreateDto.policyId, false)
           .then((policy) => {
             targetCreateDto.policy = policy;
           }),
@@ -240,7 +240,7 @@ export class TargetController {
     if (targetUpdateDto.policyId != null) {
       promises.push(
         this.policyService
-          .findOneById(targetUpdateDto.policyId)
+          .findOneById(targetUpdateDto.policyId, false)
           .then((policy) => {
             targetUpdateDto.policy = policy;
           }),

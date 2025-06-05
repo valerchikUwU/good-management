@@ -201,7 +201,7 @@ export class PolicyController {
   })
   @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
   async findOne(@Param('policyId') policyId: string): Promise<PolicyReadDto> {
-    const policy = await this.policyService.findOneById(policyId);
+    const policy = await this.policyService.findOneById(policyId, true);
     return policy;
   }
 

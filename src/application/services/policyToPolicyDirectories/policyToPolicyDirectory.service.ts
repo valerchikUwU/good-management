@@ -27,7 +27,6 @@ export class PolicyToPolicyDirectoryService {
     try {
       const policies = await this.policyService.findBulk(policyIds);
 
-      // Создаём связи для всех найденных Policy
       const policyToPolicyDirectories = policies.map((policy) => {
         const policyToPolicyDirectory = new PolicyToPolicyDirectory();
         policyToPolicyDirectory.policy = policy;
