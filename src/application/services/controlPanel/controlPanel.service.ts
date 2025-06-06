@@ -21,7 +21,7 @@ export class ControlPanelService {
     private readonly controlPanelRepository: ControlPanelRepository,
     private readonly panelToStatisticService: PanelToStatisticService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForOrganization(
     organizationId: string,

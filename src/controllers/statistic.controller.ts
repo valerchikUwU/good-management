@@ -428,6 +428,52 @@ export class StatisticController {
     return { id: createdStatistic.id };
   }
 
+
+  @Get(':controlPanelId/statisticsInControlPanel')
+  @ApiOperation({ summary: 'Получить статистики по controlPanelId с пагинацией (всегда 12)' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'ОК!',
+    example: findOneStatisticExample,
+  })
+  @ApiResponse({
+    status: HttpStatus.UNAUTHORIZED,
+    description: 'Вы не авторизованы!',
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: `Статистика не найдена!`,
+  })
+  @ApiResponse({
+    status: HttpStatus.INTERNAL_SERVER_ERROR,
+    description: 'Ошибка сервера!',
+  })
+  @ApiParam({
+    name: 'controlPanelId',
+    required: true,
+    description: 'Id панели управления',
+  })
+  @ApiQuery({
+    name: 'pagination',
+    required: true,
+    example: 12,
+    description: 'Пагинация (всегда 12)'
+  })
+  @ApiQuery({
+    name: 'datePoint',
+    required: true,
+    description: 'Дата от которой будет вестись отчет (YYYY-MM-DD) зависит от типа отображения и направления хода по графику',
+    example: '2022-10-28',
+  })
+  async findAllForControlPanel(
+    @Param('controlPanelId') controlPanelId: string,
+    @Query('pagination') pagination: number,
+    @Query('datePoint') datePoint: string,
+  ): Promise<StatisticReadDto[]> {
+    const statistics = await this.statisticService.findAllForControlPanel(controlPanelId, pagination, datePoint);
+    return statistics;
+  }
+
   @Get(':statisticId/statistic')
   @ApiOperation({ summary: 'Получить статистику по ID' })
   @ApiResponse({

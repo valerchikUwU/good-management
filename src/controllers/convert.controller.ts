@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -15,6 +16,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -22,7 +24,7 @@ import { ConvertService } from 'src/application/services/convert/convert.service
 import { ConvertCreateDto } from 'src/contracts/convert/create-convert.dto';
 import { ConvertReadDto } from 'src/contracts/convert/read-convert.dto';
 import { Logger } from 'winston';
-import { yellow} from 'colorette';
+import { yellow } from 'colorette';
 import { PostService } from 'src/application/services/post/post.service';
 import { ConvertGateway } from 'src/gateways/convert.gateway';
 import { PathConvert, TypeConvert } from 'src/domains/convert.entity';
@@ -51,7 +53,7 @@ export class ConvertController {
     private readonly postService: PostService,
     private readonly convertGateway: ConvertGateway,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get(':contactId/converts/archive')
   @ApiOperation({ summary: 'Все архивные конверты' })
@@ -74,19 +76,27 @@ export class ConvertController {
     description: 'Id контакта (поста)',
     example: '5fc5ec49-d658-4fe1-b4c9-7dd01d38a652',
   })
+  @ApiQuery({
+    name: 'pagination',
+    required: false,
+    description: 'Отступ пагинации',
+    example: 20,
+  })
   async findAllArchiveForContact(
     @Req() req: ExpressRequest,
     @Param('contactId') contactId: string,
+    @Query('pagination') pagination: number,
   ): Promise<any> {
     const start = new Date();
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map((post) => post.id);
     const [archiveConvertsForContact, archiveCopiesForContact] =
       await Promise.all([
-        this.convertService.findAllArchiveForContact(userPostsIds, contactId),
+        this.convertService.findAllArchiveForContact(userPostsIds, contactId, pagination),
         this.convertService.findAllArchiveCopiesForContact(
           userPostsIds,
           contactId,
+          pagination
         ),
       ]);
     const c = new Date();
@@ -119,9 +129,16 @@ export class ConvertController {
     description: 'Id контакта (поста)',
     example: '5fc5ec49-d658-4fe1-b4c9-7dd01d38a652',
   })
+  @ApiQuery({
+    name: 'pagination',
+    required: false,
+    description: 'Отступ пагинации',
+    example: 20,
+  })
   async findAllForContact(
     @Req() req: ExpressRequest,
     @Param('contactId') contactId: string,
+    @Query('pagination') pagination: number,
   ): Promise<{
     contact: PostReadDto;
     convertsForContact: any[];
@@ -132,8 +149,8 @@ export class ConvertController {
     const userPostsIds = user.posts.map((post) => post.id);
     const [contact, convertsForContact, copiesForContact] = await Promise.all([
       this.postService.findOneById(contactId, ['user']),
-      this.convertService.findAllForContact(userPostsIds, contactId),
-      this.convertService.findAllCopiesForContact(userPostsIds, contactId),
+      this.convertService.findAllForContact(userPostsIds, contactId, pagination),
+      this.convertService.findAllCopiesForContact(userPostsIds, contactId, pagination),
     ]);
     const c = new Date();
     const end = c.getTime() - start.getTime();

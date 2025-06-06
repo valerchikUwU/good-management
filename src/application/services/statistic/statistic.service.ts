@@ -21,7 +21,7 @@ export class StatisticService {
     @InjectRepository(Statistic)
     private readonly statisticRepository: StatisticRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForAccount(
     account: AccountReadDto,
@@ -142,6 +142,47 @@ export class StatisticService {
         account: statistic.account,
         panelToStatistics: statistic.panelToStatistics,
       }));
+    } catch (err) {
+      this.logger.error(err);
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
+
+      throw new InternalServerErrorException('Ошибка при получении статистик');
+    }
+  }
+
+  async findAllForControlPanel(controlPanelId: string, pagination: number, datePoint: string): Promise<StatisticReadDto[]> {
+    try {
+      const reportDayTyped = new Date(datePoint.split(' ')[0]);
+      const thirteenWeeksAgo = new Date(reportDayTyped);
+      thirteenWeeksAgo.setDate(thirteenWeeksAgo.getDate() - (13 * 7));
+      const statistics = await this.statisticRepository
+        .createQueryBuilder('statistic')
+        .innerJoin('statistic.panelToStatistics', 'p_t_s')
+        .leftJoinAndSelect('statistic.statisticDatas', 's_d',
+          '"s_d"."valueDate" <= :reportDayTyped AND "s_d"."valueDate" > :thirteenWeeksAgo AND "s_d"."correlationType" IS NULL',
+          { reportDayTyped, thirteenWeeksAgo })
+        .where('p_t_s.controlPanelId = :controlPanelId', { controlPanelId })
+        .orderBy('statistic.createdAt', 'DESC')
+        .take(12)
+        .skip(pagination)
+        .getMany()
+
+
+      return statistics.map((statistic) => ({
+        id: statistic.id,
+        type: statistic.type,
+        name: statistic.name,
+        description: statistic.description,
+        createdAt: statistic.createdAt,
+        updatedAt: statistic.updatedAt,
+        statisticDatas: statistic.statisticDatas,
+        post: statistic.post,
+        account: statistic.account,
+        panelToStatistics: statistic.panelToStatistics,
+      }));
+
     } catch (err) {
       this.logger.error(err);
       if (err instanceof NotFoundException) {

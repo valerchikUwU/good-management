@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -15,6 +16,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -72,36 +74,6 @@ export class ControlPanelController {
     return controlPanels;
   }
 
-  @Get(':controlPanelId/controlPanel')
-  @ApiOperation({ summary: 'Получить панель по ID' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
-    example: findOneExample,
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: `Панель не найдена!`,
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  @ApiParam({
-    name: 'controlPanelId',
-    required: true,
-    description: 'Id панели',
-  })
-  async findOne(
-    @Param('controlPanelId') controlPanelId: string,
-  ): Promise<ControlPanelReadDto> {
-    const controlPanel = await this.controlPanelService.findOneById(controlPanelId);
-    return controlPanel;
-  }
 
   @Post('new')
   @ApiOperation({ summary: 'Создать панель управления' })
