@@ -21,7 +21,7 @@ export class PolicyDirectoryService {
     private readonly policyDirectoryRepository: PolicyDirectoryRepository,
     private readonly policyToPolicyDirectoryService: PolicyToPolicyDirectoryService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForOrganization(
     organizationId: string,
@@ -29,6 +29,13 @@ export class PolicyDirectoryService {
   ): Promise<PolicyDirectoryReadDto[]> {
     try {
       const policyDirectories = await this.policyDirectoryRepository.find({
+        select: {
+          policyToPolicyDirectories: {
+            policy: {
+              content: false
+            }
+          }
+        },
         where: {
           policyToPolicyDirectories: {
             policy: { organization: { id: organizationId } },
@@ -49,7 +56,6 @@ export class PolicyDirectoryService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех папок с политиками!',
       );
@@ -62,6 +68,13 @@ export class PolicyDirectoryService {
   ): Promise<PolicyDirectoryReadDto> {
     try {
       const policyDirectory = await this.policyDirectoryRepository.findOne({
+        select: {
+          policyToPolicyDirectories: {
+            policy: {
+              content: false
+            }
+          }
+        },
         where: { id: id },
         relations: relations ?? [],
       });
