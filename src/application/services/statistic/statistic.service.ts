@@ -14,12 +14,16 @@ import { Logger } from 'winston';
 import { StatisticCreateDto } from 'src/contracts/statistic/create-statistic.dto';
 import { StatisticUpdateDto } from 'src/contracts/statistic/update-statistic.dto';
 import { In } from 'typeorm';
+import { CorrelationType } from 'src/domains/statisticData.entity';
+import { viewTypes } from 'src/constants/extraTypes/statisticViewTypes';
+import { StatisticDataService } from '../statisticData/statisticData.service';
 
 @Injectable()
 export class StatisticService {
   constructor(
     @InjectRepository(Statistic)
     private readonly statisticRepository: StatisticRepository,
+    private readonly statisticDataService: StatisticDataService,
     @Inject('winston') private readonly logger: Logger,
   ) { }
 
@@ -152,43 +156,68 @@ export class StatisticService {
     }
   }
 
-  async findAllForControlPanel(controlPanelId: string, pagination: number, datePoint: string): Promise<StatisticReadDto[]> {
+  async findAllForControlPanel(
+    controlPanelId: string,
+    pagination: number,
+    viewType: viewTypes,
+    datePoint: string
+  ): Promise<any[]> {
     try {
-      const reportDayTyped = new Date(datePoint.split(' ')[0]);
-      const thirteenWeeksAgo = new Date(reportDayTyped);
-      thirteenWeeksAgo.setDate(thirteenWeeksAgo.getDate() - (13 * 7));
       const statistics = await this.statisticRepository
         .createQueryBuilder('statistic')
         .innerJoin('statistic.panelToStatistics', 'p_t_s')
-        .leftJoinAndSelect('statistic.statisticDatas', 's_d',
-          '"s_d"."valueDate" <= :reportDayTyped AND "s_d"."valueDate" > :thirteenWeeksAgo AND "s_d"."correlationType" IS NULL',
-          { reportDayTyped, thirteenWeeksAgo })
         .where('p_t_s.controlPanelId = :controlPanelId', { controlPanelId })
         .orderBy('statistic.createdAt', 'DESC')
         .take(12)
         .skip(pagination)
-        .getMany()
+        .getMany();
 
+      const statisticsWithData = await Promise.all(
+        statistics.map(async (statistic) => {
+          let statisticData: any[] = [];
 
-      return statistics.map((statistic) => ({
-        id: statistic.id,
-        type: statistic.type,
-        name: statistic.name,
-        description: statistic.description,
-        createdAt: statistic.createdAt,
-        updatedAt: statistic.updatedAt,
-        statisticDatas: statistic.statisticDatas,
-        post: statistic.post,
-        account: statistic.account,
-        panelToStatistics: statistic.panelToStatistics,
-      }));
+          switch (viewType) {
+            case viewTypes.DAILY:
+              statisticData = await this.statisticDataService.findDaily(statistic.id, datePoint);
+              break;
+            case viewTypes.MONTHLY:
+              statisticData = await this.statisticDataService.findMonthly(statistic.id, datePoint);
+              break;
+            case viewTypes.YEARLY:
+              statisticData = await this.statisticDataService.findYearly(statistic.id, datePoint);
+              break;
+            case viewTypes.THIRTEEN:
+              statisticData = await this.statisticDataService.findSeveralWeeks(statistic.id, datePoint, 13);
+              break;
+            case viewTypes.TWENTY_SIX:
+              statisticData = await this.statisticDataService.findSeveralWeeks(statistic.id, datePoint, 26);
+              break;
+            case viewTypes.FIFTY_TWO:
+              statisticData = await this.statisticDataService.findSeveralWeeks(statistic.id, datePoint, 52);
+              break;
+          }
 
+          return {
+            id: statistic.id,
+            type: statistic.type,
+            name: statistic.name,
+            description: statistic.description,
+            createdAt: statistic.createdAt,
+            updatedAt: statistic.updatedAt,
+            statisticDatas: statisticData, // Используем полученные данные
+            post: statistic.post,
+            account: statistic.account,
+            panelToStatistics: statistic.panelToStatistics,
+          };
+        })
+      );
+
+      return statisticsWithData;
     } catch (err) {
       this.logger.error(err);
       if (err instanceof NotFoundException) {
         throw err;
       }
-
       throw new InternalServerErrorException('Ошибка при получении статистик');
     }
   }

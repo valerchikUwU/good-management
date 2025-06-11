@@ -457,7 +457,13 @@ export class StatisticController {
     name: 'pagination',
     required: true,
     example: 12,
-    description: 'Пагинация (всегда 12)'
+    description: 'Пагинация (первый запрос 0, далее всегда 12)'
+  })
+  @ApiQuery({
+    name: 'viewType',
+    enum: viewTypes,
+    required: true,
+    description: 'Тип отображения'
   })
   @ApiQuery({
     name: 'datePoint',
@@ -469,8 +475,9 @@ export class StatisticController {
     @Param('controlPanelId') controlPanelId: string,
     @Query('pagination') pagination: number,
     @Query('datePoint') datePoint: string,
-  ): Promise<StatisticReadDto[]> {
-    const statistics = await this.statisticService.findAllForControlPanel(controlPanelId, pagination, datePoint);
+    @Query('viewType') viewType: viewTypes,
+  ): Promise<any[]> {
+    const statistics = await this.statisticService.findAllForControlPanel(controlPanelId, pagination, viewType, datePoint);
     return statistics;
   }
 

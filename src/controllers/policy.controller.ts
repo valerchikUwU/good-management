@@ -74,8 +74,7 @@ export class PolicyController {
     instructions: PolicyReadDto[];
     disposals: PolicyReadDto[];
   }> {
-    const policies =
-      await this.policyService.findAllForOrganization(organizationId);
+    const policies = await this.policyService.findAllForOrganization(organizationId);
     const directives = policies.filter(
       (policy) => policy.type === Type.DIRECTIVE,
     );

@@ -89,7 +89,6 @@ export class TargetService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех задач!',
       );
@@ -156,7 +155,6 @@ export class TargetService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех задач!',
       );
@@ -220,7 +218,6 @@ export class TargetService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех задач!',
       );

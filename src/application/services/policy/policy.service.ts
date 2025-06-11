@@ -63,10 +63,22 @@ export class PolicyService {
     try {
       const policies = await this.policyRepository.find({
         select: {
-          content: false
+          id: true,
+          policyName: true,
+          policyNumber: true,
+          type: true,
+          dateActive: true,
+          createdAt: true,
+          updatedAt: true,
+          deadline: true,
+          posts: true,
+          organization: true,
+          postCreator: true,
+          account: true,
+          policyToPolicyDirectories: true,
+          targets: true,
         },
         where: { organization: { id: organizationId } },
-        relations: relations ?? [],
       });
       return policies.map((policy) => ({
         id: policy.id,
@@ -100,7 +112,20 @@ export class PolicyService {
     try {
       const policies = await this.policyRepository.find({
         select: {
-          content: false
+          id: true,
+          policyName: true,
+          policyNumber: true,
+          type: true,
+          dateActive: true,
+          createdAt: true,
+          updatedAt: true,
+          deadline: true,
+          posts: true,
+          organization: true,
+          postCreator: true,
+          account: true,
+          policyToPolicyDirectories: true,
+          targets: true,
         },
         where: {
           organization: { id: organizationId },
@@ -142,7 +167,21 @@ export class PolicyService {
     try {
       const policy = await this.policyRepository.findOne({
         select: {
-          content: contentLoading
+          id: true,
+          policyName: true,
+          policyNumber: true,
+          type: true,
+          content: contentLoading,
+          dateActive: true,
+          createdAt: true,
+          updatedAt: true,
+          deadline: true,
+          posts: true,
+          organization: true,
+          postCreator: true,
+          account: true,
+          policyToPolicyDirectories: true,
+          targets: true,
         },
         where: { id },
         relations: relations ?? [],
@@ -182,7 +221,20 @@ export class PolicyService {
     try {
       const policies = await this.policyRepository.find({
         select: {
-          content: false
+          id: true,
+          policyName: true,
+          policyNumber: true,
+          type: true,
+          dateActive: true,
+          createdAt: true,
+          updatedAt: true,
+          deadline: true,
+          posts: true,
+          organization: true,
+          postCreator: true,
+          account: true,
+          policyToPolicyDirectories: true,
+          targets: true,
         },
         where: { id: In(ids) },
       });

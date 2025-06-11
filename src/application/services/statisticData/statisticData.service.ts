@@ -132,8 +132,6 @@ export class StatisticDataService {
 
         const monthlyPoint = monthlyPoints.find((p) => p.month == month && p.year == year);
         const regularPoint = resultRegularPoints.find((p) => p.month == month && p.year == year);
-        console.log(`Processing i=${i}, date=${date.toISOString()}, month=${month}, year=${year}`);
-        console.log(regularPoint);
         result.push({
           year,
           month,
@@ -277,7 +275,6 @@ export class StatisticDataService {
           weeksAgo.setDate(weeksAgo.getDate() - (52 * 7));
           break;
       }
-      console.log(weeksAgo)
       const statisticDatas = await this.statisticDataRepository
         .createQueryBuilder('statistic_data')
         .where('statistic_data.statisticId = :statisticId', { statisticId })

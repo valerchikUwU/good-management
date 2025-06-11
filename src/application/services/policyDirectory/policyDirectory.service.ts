@@ -25,24 +25,31 @@ export class PolicyDirectoryService {
 
   async findAllForOrganization(
     organizationId: string,
-    relations?: string[],
   ): Promise<PolicyDirectoryReadDto[]> {
     try {
-      const policyDirectories = await this.policyDirectoryRepository.find({
-        select: {
-          policyToPolicyDirectories: {
-            policy: {
-              content: false
-            }
-          }
-        },
-        where: {
-          policyToPolicyDirectories: {
-            policy: { organization: { id: organizationId } },
-          },
-        },
-        relations: relations ?? [],
-      });
+      const policyDirectories = await this.policyDirectoryRepository.createQueryBuilder("policyDirectory")
+        .leftJoinAndSelect("policyDirectory.policyToPolicyDirectories", "policyToPolicyDirectory")
+        .leftJoinAndSelect("policyToPolicyDirectory.policy", "policy")
+        .where("policy.organizationId = :organizationId", { organizationId })
+        .select([
+          "policyDirectory.id",
+          "policyDirectory.directoryName",
+          "policyDirectory.createdAt",
+          "policyDirectory.updatedAt",
+          "policyToPolicyDirectory.id",
+          "policyToPolicyDirectory.createdAt",
+          "policyToPolicyDirectory.updatedAt",
+          "policy.id",
+          "policy.policyName",
+          "policy.policyNumber",
+          "policy.type",
+          "policy.state",
+          "policy.dateActive",
+          "policy.createdAt",
+          "policy.updatedAt",
+          "policy.deadline",
+        ])
+        .getMany();
       return policyDirectories.map((policyDirectory) => ({
         id: policyDirectory.id,
         directoryName: policyDirectory.directoryName,
@@ -64,21 +71,31 @@ export class PolicyDirectoryService {
 
   async findOneById(
     id: string,
-    relations?: string[],
   ): Promise<PolicyDirectoryReadDto> {
     try {
-      const policyDirectory = await this.policyDirectoryRepository.findOne({
-        select: {
-          policyToPolicyDirectories: {
-            policy: {
-              content: false
-            }
-          }
-        },
-        where: { id: id },
-        relations: relations ?? [],
-      });
-
+      const policyDirectory = await this.policyDirectoryRepository.createQueryBuilder("policyDirectory")
+        .leftJoinAndSelect("policyDirectory.policyToPolicyDirectories", "policyToPolicyDirectory")
+        .leftJoinAndSelect("policyToPolicyDirectory.policy", "policy")
+        .where("policyDirectory.id = :id", { id })
+        .select([
+          "policyDirectory.id",
+          "policyDirectory.directoryName",
+          "policyDirectory.createdAt",
+          "policyDirectory.updatedAt",
+          "policyToPolicyDirectory.id",
+          "policyToPolicyDirectory.createdAt",
+          "policyToPolicyDirectory.updatedAt",
+          "policy.id",
+          "policy.policyName",
+          "policy.policyNumber",
+          "policy.type",
+          "policy.state",
+          "policy.dateActive",
+          "policy.createdAt",
+          "policy.updatedAt",
+          "policy.deadline",
+        ])
+        .getOne();
       if (!policyDirectory)
         throw new NotFoundException(`Папка с ID: ${id} не найдена`);
 

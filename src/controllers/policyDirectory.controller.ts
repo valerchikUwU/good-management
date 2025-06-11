@@ -72,9 +72,7 @@ export class PolicyDirectoryController {
     @Param('organizationId') organizationId: string,
   ): Promise<PolicyDirectoryReadDto[]> {
     const policyDirectories =
-      await this.policyDirectoryService.findAllForOrganization(organizationId, [
-        'policyToPolicyDirectories.policy',
-      ]);
+      await this.policyDirectoryService.findAllForOrganization(organizationId);
     return policyDirectories;
   }
 
@@ -117,9 +115,7 @@ export class PolicyDirectoryController {
     instructions: PolicyReadDto[];
   }> {
     const [policyDirectory, policiesActive] = await Promise.all([
-      this.policyDirectoryService.findOneById(policyDirectoryId, [
-        'policyToPolicyDirectories.policy',
-      ]),
+      this.policyDirectoryService.findOneById(policyDirectoryId),
       this.policyService.findAllActiveForOrganization(organizationId),
     ]);
     const directives = policiesActive.filter(
