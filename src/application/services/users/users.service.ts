@@ -317,7 +317,7 @@ export class UsersService {
       if (updateUserDto.lastName) user.lastName = updateUserDto.lastName;
       if (updateUserDto.middleName) user.middleName = updateUserDto.middleName;
       if (updateUserDto.telegramId) user.telegramId = updateUserDto.telegramId;
-      if (updateUserDto.avatar_url) user.avatar_url = updateUserDto.avatar_url;
+      if (updateUserDto.avatar_url !== undefined) user.avatar_url = updateUserDto.avatar_url;
       if (updateUserDto.telephoneNumber)
         user.telephoneNumber = updateUserDto.telephoneNumber;
       if (updateUserDto.isFired != null) user.isFired = updateUserDto.isFired;
