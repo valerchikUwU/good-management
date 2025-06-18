@@ -24,7 +24,7 @@ export class PostService {
     @Inject(CACHE_MANAGER)
     private readonly cacheService: Cache,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForOrganization(
     organizationId: string,
@@ -229,6 +229,7 @@ export class PostService {
         projects: post.projects,
         groupToPosts: post.groupToPosts,
       }));
+
     } catch (err) {
       this.logger.error(err);
       throw new InternalServerErrorException(
@@ -237,7 +238,7 @@ export class PostService {
     }
   }
 
-  async findAllContactsForCurrentUser(userPostsIds: string[]): Promise<any> {
+  async findAllContactsInOrganizationForCurrentUser(organizationId: string, userPostsIds: string[]): Promise<any> {
     try {
       const posts = await this.postRepository
         .createQueryBuilder('post')
@@ -270,6 +271,7 @@ export class PostService {
           '"latestMessage"."messageNumber" = (SELECT MAX("m"."messageNumber") FROM "message" "m" WHERE "m"."convertId" = "c"."id")',
         )
         .where('"post"."id" NOT IN (:...userPostsIds)', { userPostsIds })
+        .andWhere('"post"."organizationId" = :organizationId', { organizationId })
         .andWhere(
           new Brackets((qb) => {
             qb.where('"c"."pathOfPosts"[1] IN (:...userPostsIds)', {
@@ -280,20 +282,22 @@ export class PostService {
               )
               .orWhere(
                 new Brackets((qb) => {
-                  qb.where('"c"."pathOfPosts"[1] = "post"."id"').andWhere(
-                    new Brackets((qb) => {
-                      qb.where(
-                        `EXISTS (
+                  qb.where('"c"."pathOfPosts"[1] = "post"."id"')
+                    .andWhere(
+                      new Brackets((qb) => {
+                        qb.where(
+                          `EXISTS (
                       SELECT 1 FROM "convert_to_post" "sub_ctp"
                       INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
                       WHERE "sub_ctp"."convertId" = c.id
                       AND "sub_post"."id" IN (:...userPostsIds)
                   )`,
-                      ).orWhere('watcher.id IN (:...userPostsIds)', {
-                        userPostsIds,
-                      });
-                    }),
-                  );
+                        )
+                          .orWhere('watcher.id IN (:...userPostsIds)', {
+                            userPostsIds,
+                          });
+                      }),
+                    );
                 }),
               );
           }),
@@ -321,6 +325,60 @@ export class PostService {
       this.logger.error(err);
       throw new InternalServerErrorException(
         'Ошибка при получении всех контактов!',
+      );
+    }
+  }
+
+  async findAllWithoutConvertForOrganization(
+    organizationId: string,
+    postsWithConvertsIds: string[],
+    relations?: string[]
+  ): Promise<PostReadDto[]> {
+    try {
+      const posts = await this.postRepository.find({
+        where: {
+          organization: { id: organizationId },
+          user: { id: Not(IsNull()) },
+          isArchive: false,
+          id: Not(In(postsWithConvertsIds)),
+        },
+        relations: relations ?? [],
+      });
+
+      return posts.map((post) => ({
+        id: post.id,
+        postName: post.postName,
+        divisionName: post.divisionName,
+        divisionNumber: post.divisionNumber,
+        parentId: post.parentId,
+        product: post.product,
+        purpose: post.purpose,
+        isDefault: post.isDefault,
+        isArchive: post.isArchive,
+        createdAt: post.createdAt,
+        updatedAt: post.updatedAt,
+        user: post.user,
+        policy: post.policy,
+        statistics: post.statistics,
+        organization: post.organization,
+        account: post.account,
+        convert: post.convert,
+        historiesUsersToPost: post.historiesUsersToPost,
+        targetHolders: post.targetHolders,
+        convertToPosts: post.convertToPosts,
+        messages: post.messages,
+        controlPanels: post.controlPanels,
+        role: post.role,
+        goals: post.goals,
+        policies: post.policies,
+        strategies: post.strategies,
+        projects: post.projects,
+        groupToPosts: post.groupToPosts,
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех постов для организации без конвертов!',
       );
     }
   }

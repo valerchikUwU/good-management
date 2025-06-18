@@ -89,7 +89,7 @@ export class PostController {
     return user.posts;
   }
 
-  @Get('contacts')
+  @Get(':organizationId/contacts')
   @ApiOperation({ summary: 'Все контакты' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -104,16 +104,38 @@ export class PostController {
     status: HttpStatus.INTERNAL_SERVER_ERROR,
     description: 'Ошибка сервера!',
   })
-  async findAllContacts(@Req() req: ExpressRequest): Promise<any[]> {
+  @ApiParam({
+    name: 'organizationId',
+    required: true,
+    description: 'Id организации',
+    example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
+  })
+  async findAllContacts(
+    @Req() req: ExpressRequest,
+    @Param('organizationId') organizationId: string,
+  ): Promise<{ postsWithConverts: any, postsWithoutConverts: PostReadDto[] }> {
     const start = new Date();
     const user = req.user as ReadUserDto;
     const userPostsIds = user.posts.map((post) => post.id);
-    const postsWithConverts =
-      await this.postService.findAllContactsForCurrentUser(userPostsIds);
+    const [postsWithConverts, postsWithoutConverts] = await Promise.all([
+      this.postService.findAllContactsInOrganizationForCurrentUser(organizationId, userPostsIds),
+      this.postService.findAllWithUserForOrganization(organizationId, ['user']),
+    ]);
+    // const postsWithConverts = await this.postService.findAllContactsInOrganizationForCurrentUser(organizationId, userPostsIds);
+    // const postsWithConvertsIds: string[] = postsWithConverts.map(post => post.id)
+    // const postsWithoutConverts = await this.postService.findAllWithoutConvertForOrganization(organizationId, postsWithConvertsIds, ['user'])
+    const postsWithConvertsIds: string[] = postsWithConverts.map(post => post.id);
+    const filteredPostsWithoutConverts = postsWithoutConverts.filter(
+      post => !postsWithConvertsIds.includes(post.id)
+    );
+
     const c = new Date();
     const end = c.getTime() - start.getTime();
     console.log(`все контакты ${end}`);
-    return postsWithConverts;
+    return {
+      postsWithConverts,
+      postsWithoutConverts: filteredPostsWithoutConverts,
+    };
   }
 
   @Get(':organizationId')
