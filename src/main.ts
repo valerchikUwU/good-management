@@ -61,9 +61,9 @@ async function bootstrap() {
       {
         type: 'http',
         scheme: 'bearer',
-        bearerFormat: 'JWT', // Указывает формат токена (опционально)
+        bearerFormat: 'JWT',
       },
-      'access-token', // Название схемы (используется в декораторе @ApiBearerAuth)
+      'access-token',
     )
     .build();
 

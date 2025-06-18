@@ -41,7 +41,6 @@ export class GroupService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех групп!',
       );
@@ -66,7 +65,6 @@ export class GroupService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех групп!',
       );
@@ -93,19 +91,16 @@ export class GroupService {
       return groupReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении группы');
     }
   }
 
   async create(groupCreateDto: GroupCreateDto): Promise<string> {
     try {
-      // Проверка на наличие обязательных данных
       if (!groupCreateDto.groupName) {
         throw new BadRequestException('У группы обязательно наличие названия!');
       }
@@ -125,9 +120,8 @@ export class GroupService {
       return createdGroup.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
       throw new InternalServerErrorException('Ошибка при создании группы');
     }
@@ -139,7 +133,6 @@ export class GroupService {
       if (!group) {
         throw new NotFoundException(`Группа с ID ${_id} не найдена`);
       }
-      // Обновить свойства, если они указаны в DTO
       if (updateGroupDto.groupName) group.groupName = updateGroupDto.groupName;
 
       if (updateGroupDto.postIds) {
@@ -155,12 +148,10 @@ export class GroupService {
       return group.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении группы');
     }
   }

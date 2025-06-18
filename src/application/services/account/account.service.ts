@@ -45,7 +45,6 @@ export class AccountService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех аккаунтов!',
       );
@@ -83,9 +82,8 @@ export class AccountService {
       return accountReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
       throw new InternalServerErrorException('Ошибка при получении аккаунта!');
     }

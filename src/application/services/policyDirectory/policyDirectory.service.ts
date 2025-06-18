@@ -115,7 +115,7 @@ export class PolicyDirectoryService {
       this.logger.error(err);
 
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
       throw new InternalServerErrorException(
         'Ошибка при получении папки с политиками!',
@@ -157,7 +157,6 @@ export class PolicyDirectoryService {
       if (!policyDirectory) {
         throw new NotFoundException(`Папка с ID ${_id} не найдена`);
       }
-      // Обновить свойства, если они указаны в DTO
       if (updatePolicyDirectoryDto.directoryName)
         policyDirectory.directoryName = updatePolicyDirectoryDto.directoryName;
 
@@ -174,12 +173,10 @@ export class PolicyDirectoryService {
       return policyDirectory.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении папки');
     }
   }
@@ -196,12 +193,10 @@ export class PolicyDirectoryService {
       await this.policyDirectoryRepository.delete({ id: _id });
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при удалении папки');
     }
   }

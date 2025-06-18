@@ -90,13 +90,3 @@ export class PolicyReadDto {
   @ApiProperty({ description: 'Связанные задачи с политикой' })
   targets: Target[];
 }
-
-// id: "bb1897ad-1e87-4747-a6bb-749e4bf49bf6",
-// policyName: "asdasd",
-// policyNumber: 1,
-// state: "Черновик",
-// type: "Директива",
-// dateActive: null,
-// content: "string",
-// createdAt: "2024-09-18T14:59:47.010Z",
-// updatedAt: "2024-09-18T14:59:47.010Z"

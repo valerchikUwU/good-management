@@ -13,12 +13,11 @@ import { v4 as uuidv4 } from 'uuid';
         filename: (req, file, cb) => {
           const mime = file.mimetype.split('/')[0];
           let filename: string;
-          // Пример использования
           const currentDate = new Date();
           const formattedDate = formatDate(currentDate);
           const lastDotIndex = file.originalname.lastIndexOf('.');
           const fileType = file.originalname.slice(lastDotIndex + 1);
-          const uniqueId = uuidv4(); // Генерация уникального идентификатора
+          const uniqueId = uuidv4();
           switch (mime) {
             case 'image':
               filename = `photo_${formattedDate}_${uniqueId}.${fileType}`;

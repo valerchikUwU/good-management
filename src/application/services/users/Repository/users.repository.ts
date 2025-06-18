@@ -1,4 +1,3 @@
-// user.repository.ts
 import { Repository, DataSource } from 'typeorm';
 import { User } from '../../../../domains/user.entity';
 import { Injectable } from '@nestjs/common';
@@ -16,5 +15,4 @@ export class UsersRepository extends Repository<User> {
   async findByVkId(vk_id: number) {
     return await this.findOne({ where: { vk_id } });
   }
-  // ...
 }

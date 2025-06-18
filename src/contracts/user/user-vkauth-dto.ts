@@ -9,6 +9,4 @@ export class UserVkAuthDto {
   vk_id: number | null;
   avatar_url: string | null;
   token: string;
-
-  // Вы можете добавить дополнительные поля в соответствии с вашими требованиями
 }

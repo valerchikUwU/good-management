@@ -44,7 +44,6 @@ export class ObjectiveService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех краткосрочных целей!',
       );
@@ -73,7 +72,6 @@ export class ObjectiveService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех краткосрочных целей!',
       );
@@ -105,12 +103,10 @@ export class ObjectiveService {
       return objectiveReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении краткосрочной цели',
       );
@@ -145,12 +141,10 @@ export class ObjectiveService {
       return objectiveReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении краткосрочной цели по id стратегии',
       );
@@ -170,10 +164,6 @@ export class ObjectiveService {
       return createdObjectiveId.identifiers[0].id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-      if (err instanceof BadRequestException) {
-        throw err; // Пробрасываем исключение дальше
-      }
       throw new InternalServerErrorException(
         'Ошибка при создании краткосрочной цели',
       );
@@ -193,7 +183,6 @@ export class ObjectiveService {
           `Краткосрочная цель с ID ${_id} не найдена`,
         );
       }
-      // Обновить свойства, если они указаны в DTO
       if (updateObjectiveDto.situation)
         objective.situation = updateObjectiveDto.situation;
       if (updateObjectiveDto.content)
@@ -208,12 +197,10 @@ export class ObjectiveService {
       return objective.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при обновлении краткосрочной цели',
       );

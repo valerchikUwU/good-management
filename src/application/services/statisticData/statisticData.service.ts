@@ -261,7 +261,6 @@ export class StatisticDataService {
 
   async findSeveralWeeks(statisticId: string, datePoint: string, weeksCount: number): Promise<any[]> {
     try {
-      //02.06.2025
       const reportDayTyped = new Date(datePoint.split(' ')[0]);
       const weeksAgo = new Date(reportDayTyped);
       switch (weeksCount) {

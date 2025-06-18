@@ -49,7 +49,6 @@ export class PolicyService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех политик!',
       );
@@ -67,6 +66,7 @@ export class PolicyService {
           policyName: true,
           policyNumber: true,
           type: true,
+          state: true,
           dateActive: true,
           createdAt: true,
           updatedAt: true,
@@ -116,6 +116,7 @@ export class PolicyService {
           policyName: true,
           policyNumber: true,
           type: true,
+          state: true,
           dateActive: true,
           createdAt: true,
           updatedAt: true,
@@ -171,6 +172,7 @@ export class PolicyService {
           policyName: true,
           policyNumber: true,
           type: true,
+          state: true,
           content: contentLoading,
           dateActive: true,
           createdAt: true,
@@ -225,6 +227,7 @@ export class PolicyService {
           policyName: true,
           policyNumber: true,
           type: true,
+          state: true,
           dateActive: true,
           createdAt: true,
           updatedAt: true,

@@ -16,7 +16,6 @@ const config = {
   synchronize: false,
 };
 
-// export default registerAs('typeorm', () => config)
 
 export default {
   type: 'postgres',

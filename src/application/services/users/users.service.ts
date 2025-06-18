@@ -166,7 +166,6 @@ export class UsersService {
           `Пользователь с номером телефона ${telephoneNumber} не найден!`,
         );
 
-      // Преобразование объекта User в ReadUserDto
       const readUserDto: ReadUserDto = {
         id: user.id,
         firstName: user.firstName,
@@ -205,7 +204,6 @@ export class UsersService {
       const user = await this.usersRepository.findOneBy({ telegramId });
       if (!user) return null;
 
-      // Преобразование объекта User в ReadUserDto
       const readUserDto: ReadUserDto = {
         id: user.id,
         firstName: user.firstName,
@@ -242,7 +240,6 @@ export class UsersService {
           `Пользователь с vk ID: ${vk_id} не найден!`,
         );
 
-      // Преобразование объекта User в ReadUserDto
       const readUserDto: ReadUserDto = {
         id: user.id,
         firstName: user.firstName,
@@ -354,9 +351,6 @@ export class UsersService {
       return this.usersRepository.save(user);
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении юзера');
     }
   }

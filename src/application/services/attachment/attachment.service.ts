@@ -20,7 +20,7 @@ export class AttachmentService {
     @InjectRepository(Attachment)
     private readonly attachmentRepository: AttachmentRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllByIds(ids: string[]): Promise<AttachmentReadDto[]> {
     try {
@@ -49,7 +49,9 @@ export class AttachmentService {
       }));
     } catch (err) {
       this.logger.error(err);
-      if (err instanceof NotFoundException) throw err;
+      if (err instanceof NotFoundException) {
+        throw err;
+      }
       throw new InternalServerErrorException('Ошибка при получении вложений!');
     }
   }
@@ -77,7 +79,9 @@ export class AttachmentService {
       return attachmentReadDto;
     } catch (err) {
       this.logger.error(err);
-      if (err instanceof NotFoundException) throw err;
+      if (err instanceof NotFoundException) {
+        throw err
+      };
       throw new InternalServerErrorException('Ошибка при получении вложения!');
     }
   }
@@ -103,7 +107,7 @@ export class AttachmentService {
 
   async calculateFileHash(filePath: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      const hash = createHash('sha256'); // Используем SHA-256
+      const hash = createHash('sha256');
       const stream = fs.createReadStream(filePath);
 
       stream.on('data', (chunk) => hash.update(chunk));

@@ -67,7 +67,7 @@ export class PostController {
     private readonly groupService: GroupService,
     private readonly historyUsersToPostService: HistoryUsersToPostService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get('myPosts')
   @ApiOperation({ summary: 'Получить все свои посты' })
@@ -212,6 +212,16 @@ export class PostController {
           .findOne(postUpdateDto.responsibleUserId)
           .then((user) => {
             postUpdateDto.user = user;
+          }),
+      );
+    }
+
+    if (postUpdateDto.roleId !== null) {
+      promises.push(
+        this.roleService
+          .findOneById(postUpdateDto.roleId)
+          .then((role) => {
+            postUpdateDto.role = role;
           }),
       );
     }
@@ -368,10 +378,10 @@ export class PostController {
       isHasBoss
         ? this.postService.getParentPosts(currentPost.id)
         : this.postService.findAllForOrganization(
-            currentPost.organization.id,
-            false,
-            ['user'],
-          ),
+          currentPost.organization.id,
+          false,
+          ['user'],
+        ),
       this.userService.findAllForOrganization(currentPost.organization.id),
       this.policyService.findAllActiveForOrganization(
         currentPost.organization.id,

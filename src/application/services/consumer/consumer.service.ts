@@ -30,7 +30,6 @@ export class ConsumerService implements OnModuleInit {
     private readonly statisticService: StatisticService,
     private readonly statisticDataService: StatisticDataService,
   ) {
-    // Подключение к RabbitMQ с правильными учетными данными
     if (process.env.NODE_ENV === 'dev') {
       const connection = amqp.connect(['amqp://rabbitmq']);
       this.channelWrapper = connection.createChannel();
@@ -58,7 +57,6 @@ export class ConsumerService implements OnModuleInit {
             if (message) {
               const event = JSON.parse(message.content.toString());
               this.logger.log(`Received message: ${JSON.stringify(event)}`);
-              // Подтверждение сообщения
               channel.ack(message);
             }
           });
@@ -99,7 +97,6 @@ export class ConsumerService implements OnModuleInit {
                   break;
               }
 
-              // Подтверждение сообщения
               channel.ack(message);
             }
           });

@@ -28,7 +28,7 @@ export class ConvertGateway
   constructor(
     private readonly messageSeenStatusService: MessageSeenStatusService,
     private readonly watchersToConvertService: WatchersToConvertService,
-    @Inject('winston') private readonly logger: Logger, // инъекция логгера
+    @Inject('winston') private readonly logger: Logger,
   ) {}
   private clients: Map<string, Socket> = new Map();
   @WebSocketServer() ws: Server;
@@ -38,7 +38,6 @@ export class ConvertGateway
   }
 
   handleDisconnect(client: Socket) {
-    // Извлечение параметров из URL
     this.logger.info(`Client Disconnected: ${client.id}`);
     this.clients.delete(client.id);
     this.clients.forEach((client) => {
@@ -49,7 +48,6 @@ export class ConvertGateway
   }
 
   handleConnection(client: Socket) {
-    // Извлечение параметров из URL
     const { userId } = client.handshake.auth;
     client.data.userId = userId;
     this.logger.info(`Client Connected: ${client.id}`);

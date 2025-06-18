@@ -82,11 +82,11 @@ export class FileUploadController {
   }
 
   @Post('uploadFile')
-  @UseInterceptors(FilesInterceptor('files', 10)) // 'file' — имя поля формы
+  @UseInterceptors(FilesInterceptor('files', 10)) // 'files' — имя поля формы
   @ApiOperation({
     summary: 'Загрузка файлов и определение хеша для их кеширования',
-  }) // Описание операции
-  @ApiConsumes('multipart/form-data') // Указываем тип контента
+  })
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'Загрузка файла',
     schema: {

@@ -76,7 +76,6 @@ export class PostService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех постов для организации!',
       );
@@ -567,6 +566,11 @@ export class PostService {
         post.policy = null;
       }
 
+
+      if (updatePostDto.roleId !== null) {
+        post.role = updatePostDto.role;
+      }
+
       if (updatePostDto.isArchive != null)
         post.isArchive = updatePostDto.isArchive;
 
@@ -580,6 +584,7 @@ export class PostService {
         user: post.user,
         organization: post.organization,
         policy: post.policy,
+        role: post.role
       });
       return post.id;
     } catch (err) {

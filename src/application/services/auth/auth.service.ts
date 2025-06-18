@@ -95,7 +95,6 @@ export class AuthService {
       if (err instanceof BadRequestException) {
         throw err;
       }
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при входе через ВК!');
     }
   }
@@ -113,11 +112,11 @@ export class AuthService {
           : process.env.API_LOCAL;
       return this.httpService
         .post(
-          `https://id.vk.com/oauth2/auth`, // Корректный endpoint для получения токена
+          `https://id.vk.com/oauth2/auth`,
           {
             grant_type: 'authorization_code',
             code_verifier: auth.code_verifier,
-            redirect_uri: host, // Убедитесь, что этот redirect_uri совпадает с тем, что вы использовали при запросе кода
+            redirect_uri: host,
             code: auth.code,
             client_id: VKDATA.client_id,
             client_secret: VKDATA.client_secret,
@@ -301,7 +300,6 @@ export class AuthService {
       if (err instanceof BadRequestException) {
         throw err;
       }
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при входе черет ТГ!');
     }
   }
