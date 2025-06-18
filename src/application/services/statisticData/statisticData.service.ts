@@ -69,6 +69,7 @@ export class StatisticDataService {
           .where('statistic_data.statisticId = :statisticId', { statisticId })
           .andWhere('statistic_data.valueDate BETWEEN :startDate AND :endDate', { startDate, endDate })
           .andWhere('statistic_data.correlationType = :type', { type: CorrelationType.MONTH })
+          .groupBy('year, month')
           .getRawMany(),
 
 
