@@ -43,13 +43,6 @@ export class TargetService {
           today.getUTCDate(),
         ),
       );
-      const yesterdayUTC = new Date(
-        Date.UTC(
-          today.getUTCFullYear(),
-          today.getUTCMonth(),
-          today.getUTCDate() - 1,
-        ),
-      );
       const tomorrowUTC = new Date(
         Date.UTC(
           today.getUTCFullYear(),
@@ -63,10 +56,11 @@ export class TargetService {
           project: { id: IsNull() },
           dateComplete: isArchive
             ? LessThan(todayUTC)
-            : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
+            : Or(IsNull(), Between(todayUTC, tomorrowUTC)),
           type: Type.PERSONAL,
         },
         relations: relations ?? [],
+        order: {dateComplete: 'DESC'}
       });
 
       return targets.map((target) => ({
@@ -109,13 +103,6 @@ export class TargetService {
           today.getUTCDate(),
         ),
       );
-      const yesterdayUTC = new Date(
-        Date.UTC(
-          today.getUTCFullYear(),
-          today.getUTCMonth(),
-          today.getUTCDate() - 1,
-        ),
-      );
       const tomorrowUTC = new Date(
         Date.UTC(
           today.getUTCFullYear(),
@@ -129,10 +116,11 @@ export class TargetService {
           project: { id: IsNull() },
           dateComplete: isArchive
             ? LessThan(todayUTC)
-            : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
+            : Or(IsNull(), Between(todayUTC, tomorrowUTC)),
           type: Type.ORDER,
         },
         relations: relations ?? [],
+        order: {dateComplete: 'DESC'}
       });
 
       return targets.map((target) => ({
@@ -174,13 +162,6 @@ export class TargetService {
           today.getUTCDate(),
         ),
       );
-      const yesterdayUTC = new Date(
-        Date.UTC(
-          today.getUTCFullYear(),
-          today.getUTCMonth(),
-          today.getUTCDate() - 1,
-        ),
-      );
       const tomorrowUTC = new Date(
         Date.UTC(
           today.getUTCFullYear(),
@@ -194,8 +175,9 @@ export class TargetService {
           project: { id: Not(IsNull()) },
           dateComplete: isArchive
             ? LessThan(todayUTC)
-            : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
+            : Or(IsNull(), Between(todayUTC, tomorrowUTC)),
         },
+        order: {dateComplete: 'DESC'}
       });
 
       return targets.map((target) => ({

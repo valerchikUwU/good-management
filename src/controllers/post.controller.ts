@@ -259,10 +259,9 @@ export class PostController {
       };
       this.historyUsersToPostService
         .create(historyUsersToPostCreateDto)
-        .catch((error) => {
-          this.logger.error(
-            `Failed to create historyUsersToPost: ${error.message}`,
-          );
+        .catch((err) => {
+          console.log(err);
+          this.logger.error(`Ошибка при создании истории!`);
         });
     }
     const updatedEventPostDto: PostUpdateEventDto = {
