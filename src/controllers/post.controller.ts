@@ -119,7 +119,7 @@ export class PostController {
     const userPostsIds = user.posts.map((post) => post.id);
     const [postsWithConverts, postsWithoutConverts] = await Promise.all([
       this.postService.findAllContactsInOrganizationForCurrentUser(organizationId, userPostsIds),
-      this.postService.findAllWithUserForOrganization(organizationId, ['user']),
+      this.postService.findAllWithUserForOrganization(organizationId, user.id, ['user']),
     ]);
     // const postsWithConverts = await this.postService.findAllContactsInOrganizationForCurrentUser(organizationId, userPostsIds);
     // const postsWithConvertsIds: string[] = postsWithConverts.map(post => post.id)

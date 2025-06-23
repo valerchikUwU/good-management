@@ -11,7 +11,7 @@ import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { PostCreateDto } from 'src/contracts/post/create-post.dto';
 import { Logger } from 'winston';
 import { PostUpdateDto } from 'src/contracts/post/update-post.dto';
-import { Brackets, In, IsNull, Not } from 'typeorm';
+import { And, Brackets, In, IsNull, Not } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { PostUpdateDefaultDto } from 'src/contracts/post/updateDefault-post.dto';
@@ -135,13 +135,14 @@ export class PostService {
 
   async findAllWithUserForOrganization(
     organizationId: string,
+    userId: string,
     relations?: string[],
   ): Promise<PostReadDto[]> {
     try {
       const posts = await this.postRepository.find({
         where: {
           organization: { id: organizationId },
-          user: { id: Not(IsNull()) },
+          user: { id: And(Not(IsNull()), Not(userId))  },
           isArchive: false,
         },
         relations: relations ?? [],
