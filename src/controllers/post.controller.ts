@@ -393,6 +393,7 @@ export class PostController {
       'user',
       'organization',
       'statistics',
+      'role'
     ]);
     const isHasBoss = currentPost.parentId !== null ? true : false;
     const [posts, workers, policiesActive, roles] = await Promise.all([
