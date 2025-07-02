@@ -157,7 +157,7 @@ export class StatisticDataService {
       const today = new Date(datePoint);
       const endDate = new Date(today.getFullYear() + 1, 0, 0);
       const startDate = new Date(endDate);
-      startDate.setFullYear(startDate.getFullYear() - 11);
+      startDate.setFullYear(startDate.getFullYear() - 11, 0, 0);
       const [yearlyPoints, monthlyPoints, regularPoints] = await Promise.all([
         await this.statisticDataRepository
           .createQueryBuilder('statistic_data')
