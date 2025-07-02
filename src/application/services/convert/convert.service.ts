@@ -139,8 +139,7 @@ export class ConvertService {
 
   async findAllForContact(
     userPostsIds: string[],
-    contactId: string,
-    pagination: number
+    contactId: string
   ): Promise<any[]> {
     try {
       const converts = await this.convertRepository
@@ -195,8 +194,6 @@ export class ConvertService {
           'convert.id , "latestMessage"."content", "latestMessage"."createdAt"',
         )
         .orderBy('convert.dateStart', 'ASC')
-        .take(20)
-        .skip(pagination)
         .getRawMany();
       return converts;
     } catch (err) {
@@ -212,7 +209,6 @@ export class ConvertService {
   async findAllCopiesForContact(
     userPostsIds: string[],
     contactId: string,
-    pagination: number
   ): Promise<any[]> {
     try {
       const converts = await this.convertRepository
@@ -225,8 +221,6 @@ export class ConvertService {
         .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
         .andWhere('wtc.unreadMessagesCount > 0')
         .orderBy('convert.dateStart', 'ASC')
-        .take(20)
-        .skip(pagination)
         .getMany();
       return converts;
     } catch (err) {

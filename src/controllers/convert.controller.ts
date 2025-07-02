@@ -138,7 +138,6 @@ export class ConvertController {
   async findAllForContact(
     @Req() req: ExpressRequest,
     @Param('contactId') contactId: string,
-    @Query('pagination') pagination: number,
   ): Promise<{
     contact: PostReadDto;
     convertsForContact: any[];
@@ -149,8 +148,8 @@ export class ConvertController {
     const userPostsIds = user.posts.map((post) => post.id);
     const [contact, convertsForContact, copiesForContact] = await Promise.all([
       this.postService.findOneById(contactId, ['user']),
-      this.convertService.findAllForContact(userPostsIds, contactId, pagination),
-      this.convertService.findAllCopiesForContact(userPostsIds, contactId, pagination),
+      this.convertService.findAllForContact(userPostsIds, contactId),
+      this.convertService.findAllCopiesForContact(userPostsIds, contactId),
     ]);
     const c = new Date();
     const end = c.getTime() - start.getTime();
