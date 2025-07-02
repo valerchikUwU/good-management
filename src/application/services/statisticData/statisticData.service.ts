@@ -342,11 +342,11 @@ export class StatisticDataService {
           `Данные с ID ${statisticDataUpdateDto._id} не найдены`,
         );
       }
-      if (statisticDataUpdateDto.value)
+      if (statisticDataUpdateDto.value != null)
         statisticData.value = statisticDataUpdateDto.value;
       if (statisticDataUpdateDto.valueDate)
         statisticData.valueDate = statisticDataUpdateDto.valueDate;
-      if (statisticDataUpdateDto.correlationType)
+      if (statisticDataUpdateDto.correlationType !== undefined)
         statisticData.correlationType = statisticDataUpdateDto.correlationType;
       await this.statisticDataRepository.update(statisticData.id, {
         value: statisticData.value,
