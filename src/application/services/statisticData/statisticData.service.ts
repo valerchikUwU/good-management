@@ -62,6 +62,7 @@ export class StatisticDataService {
         this.statisticDataRepository
           .createQueryBuilder('statistic_data')
           .select([
+            'statistic_data.id AS id',
             'EXTRACT(MONTH FROM statistic_data.valueDate) AS month',
             'EXTRACT(YEAR FROM statistic_data.valueDate) AS year',
             'CAST(SUM(statistic_data.value) AS FLOAT) AS total'
@@ -69,7 +70,7 @@ export class StatisticDataService {
           .where('statistic_data.statisticId = :statisticId', { statisticId })
           .andWhere('statistic_data.valueDate BETWEEN :startDate AND :endDate', { startDate, endDate })
           .andWhere('statistic_data.correlationType = :type', { type: CorrelationType.MONTH })
-          .groupBy('year, month')
+          .groupBy('year, month, id')
           .getRawMany(),
 
 
@@ -137,7 +138,8 @@ export class StatisticDataService {
           year,
           month,
           total: monthlyPoint ? parseFloat(monthlyPoint.total) : (regularPoint ? parseFloat(regularPoint.total) : 0),
-          correlationType: monthlyPoint ? true : false
+          correlationType: monthlyPoint ? true : false,
+          id: monthlyPoint ? monthlyPoint.id : null
         });
       }
 
@@ -160,13 +162,14 @@ export class StatisticDataService {
         await this.statisticDataRepository
           .createQueryBuilder('statistic_data')
           .select([
+            'statistic_data.id AS id',
             'EXTRACT(YEAR FROM statistic_data.valueDate) AS year',
             'CAST(SUM(statistic_data.value) AS FLOAT) AS total'
           ])
           .where('statistic_data.statisticId = :statisticId', { statisticId })
           .andWhere('statistic_data.valueDate BETWEEN :startDate AND :endDate', { startDate, endDate })
           .andWhere('statistic_data.correlationType = :type', { type: CorrelationType.YEAR })
-          .groupBy('year')
+          .groupBy('year, id')
           .getRawMany(),
 
         await this.statisticDataRepository
@@ -200,7 +203,6 @@ export class StatisticDataService {
           .groupBy('year, month, week, statistic_data.correlationType')
           .getRawMany()
       ])
-
 
 
       const monthlyKeys = new Set(
@@ -250,7 +252,8 @@ export class StatisticDataService {
           total: yearlyPoint
             ? parseFloat(yearlyPoint.total)
             : (regularPoint ? parseFloat(regularPoint.total) : 0),
-          correlationType: yearlyPoint ? true : false
+          correlationType: yearlyPoint ? true : false,
+          id: yearlyPoint ? yearlyPoint.id : null
         });
       }
 
