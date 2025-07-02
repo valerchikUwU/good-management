@@ -293,6 +293,10 @@ export class ConvertService {
             ? convertCreateDto.targetCreateDto.content
             : convertCreateDto.convertTheme,
         postId: convertCreateDto.host.id,
+        attachmentIds:
+          convertCreateDto.targetCreateDto !== undefined
+            ? convertCreateDto.targetCreateDto.attachmentIds
+            : undefined,
         convert: createdConvert,
         sender: convert.host,
       };
