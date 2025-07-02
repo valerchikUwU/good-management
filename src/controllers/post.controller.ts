@@ -228,7 +228,7 @@ export class PostController {
       );
     }
 
-    if (postUpdateDto.responsibleUserId !== null) {
+    if (postUpdateDto.responsibleUserId != null) {
       promises.push(
         this.userService
           .findOne(postUpdateDto.responsibleUserId)
@@ -264,30 +264,30 @@ export class PostController {
           this.logger.error(`Ошибка при создании истории!`);
         });
     }
-    const updatedEventPostDto: PostUpdateEventDto = {
-      eventType: 'POST_UPDATED',
-      id: updatedPostId,
-      postName:
-        postUpdateDto.postName !== undefined ? postUpdateDto.postName : null,
-      divisionName:
-        postUpdateDto.divisionName !== undefined
-          ? postUpdateDto.divisionName
-          : null,
-      parentId:
-        postUpdateDto.parentId !== undefined ? postUpdateDto.parentId : null,
-      product:
-        postUpdateDto.product !== undefined ? postUpdateDto.product : null,
-      purpose:
-        postUpdateDto.purpose !== undefined ? postUpdateDto.purpose : null,
-      updatedAt: new Date(),
-      policyId:
-        postUpdateDto.policyId !== undefined ? postUpdateDto.policyId : null,
-      responsibleUserId:
-        postUpdateDto.responsibleUserId !== undefined
-          ? postUpdateDto.responsibleUserId
-          : null,
-      accountId: user.account.id,
-    };
+    // const updatedEventPostDto: PostUpdateEventDto = {
+    //   eventType: 'POST_UPDATED',
+    //   id: updatedPostId,
+    //   postName:
+    //     postUpdateDto.postName !== undefined ? postUpdateDto.postName : null,
+    //   divisionName:
+    //     postUpdateDto.divisionName !== undefined
+    //       ? postUpdateDto.divisionName
+    //       : null,
+    //   parentId:
+    //     postUpdateDto.parentId !== undefined ? postUpdateDto.parentId : null,
+    //   product:
+    //     postUpdateDto.product !== undefined ? postUpdateDto.product : null,
+    //   purpose:
+    //     postUpdateDto.purpose !== undefined ? postUpdateDto.purpose : null,
+    //   updatedAt: new Date(),
+    //   policyId:
+    //     postUpdateDto.policyId !== undefined ? postUpdateDto.policyId : null,
+    //   responsibleUserId:
+    //     postUpdateDto.responsibleUserId !== undefined
+    //       ? postUpdateDto.responsibleUserId
+    //       : null,
+    //   accountId: user.account.id,
+    // };
     // try {
     //   await Promise.race([
     //     this.producerService.sendUpdatedPostToQueue(updatedEventPostDto),

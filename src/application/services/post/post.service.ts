@@ -142,7 +142,7 @@ export class PostService {
       const posts = await this.postRepository.find({
         where: {
           organization: { id: organizationId },
-          user: { id: And(Not(IsNull()), Not(userId))  },
+          user: { id: And(Not(IsNull()), Not(userId)) },
           isArchive: false,
         },
         relations: relations ?? [],
@@ -591,7 +591,10 @@ export class PostService {
 
   async update(_id: string, updatePostDto: PostUpdateDto): Promise<string> {
     try {
-      const post = await this.postRepository.findOne({ where: { id: _id } });
+      const post = await this.postRepository.findOne({
+        where: { id: _id },
+        relations: ['user']
+      });
 
       if (!post) {
         throw new NotFoundException(`Пост с ID ${_id} не найден`);
@@ -614,7 +617,10 @@ export class PostService {
 
       if (updatePostDto.responsibleUserId !== null) {
         post.user = updatePostDto.user;
-        await this.cacheService.del(`user:${updatePostDto.responsibleUserId}`);
+        await Promise.all([
+          await this.cacheService.del(`user:${updatePostDto.responsibleUserId}`),
+          post.user ? await this.cacheService.del(`user:${post.user.id}`) : null
+        ])
       } else {
         post.user = null;
       }

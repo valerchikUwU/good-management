@@ -137,6 +137,7 @@ export class StatisticDataService {
           year,
           month,
           total: monthlyPoint ? parseFloat(monthlyPoint.total) : (regularPoint ? parseFloat(regularPoint.total) : 0),
+          correlationType: monthlyPoint ? true : false
         });
       }
 
@@ -249,6 +250,7 @@ export class StatisticDataService {
           total: yearlyPoint
             ? parseFloat(yearlyPoint.total)
             : (regularPoint ? parseFloat(regularPoint.total) : 0),
+          correlationType: yearlyPoint ? true : false
         });
       }
 
@@ -280,14 +282,14 @@ export class StatisticDataService {
         .where('statistic_data.statisticId = :statisticId', { statisticId })
         .andWhere('statistic_data.valueDate < :reportDayTyped', { reportDayTyped })
         .andWhere('statistic_data.valueDate >= :weeksAgo', { weeksAgo })
-          .andWhere(new Brackets((qb) => {
-            qb.where('statistic_data.correlationType IS NULL')
-              .orWhere('statistic_data.correlationType = :type', { type: CorrelationType.WEEK })
-          }))
+        .andWhere(new Brackets((qb) => {
+          qb.where('statistic_data.correlationType IS NULL')
+            .orWhere('statistic_data.correlationType = :type', { type: CorrelationType.WEEK })
+        }))
         .orderBy('statistic_data.valueDate', 'ASC')
         .getMany()
 
-      
+
 
 
       return statisticDatas.map((data) => ({
