@@ -47,7 +47,7 @@ export class TargetController {
     private readonly postService: PostService,
     private readonly policyService: PolicyService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Личные задачи, задачи из проектов и приказы' })
@@ -69,13 +69,14 @@ export class TargetController {
     personalTargets: TargetReadDto[];
     ordersTargets: TargetReadDto[];
     projectTargets: TargetReadDto[];
+    sendedTargets: TargetReadDto[];
   }> {
     const user = req.user as ReadUserDto;
     const userPosts = await this.postService.findAllForUser(user.id, [
       'organization',
     ]);
     const userPostsIds = userPosts.map((post) => post.id);
-    const [personalTargets, orderTargets, projectTargets] = await Promise.all([
+    const [personalTargets, orderTargets, projectTargets, sendedTargets] = await Promise.all([
       this.targetService.findAllPersonalForUserPosts(userPostsIds, false, [
         'policy',
         'attachmentToTargets.attachment',
@@ -85,12 +86,17 @@ export class TargetController {
         'attachmentToTargets.attachment',
       ]),
       this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false),
+      this.targetService.findSendedTargets(userPostsIds, false, [
+        'convert.host.user',
+        'attachmentToTargets.attachment',
+      ])
     ]);
     return {
       userPosts: userPosts,
       personalTargets: personalTargets,
       ordersTargets: orderTargets,
       projectTargets: projectTargets,
+      sendedTargets: sendedTargets
     };
   }
 
@@ -131,6 +137,10 @@ export class TargetController {
           'attachmentToTargets.attachment',
         ]),
         this.targetService.findAllFromProjectsForUserPosts(userPostsIds, true),
+        this.targetService.findSendedTargets(userPostsIds, true, [
+          'convert.host.user',
+          'attachmentToTargets.attachment',
+        ])
       ]);
     return {
       userPosts: userPosts,

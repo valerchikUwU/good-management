@@ -311,6 +311,9 @@ export class ConvertService {
             index === arr.findIndex((id) => id === postId),
         );
 
+      if (convertCreateDto.targetCreateDto)
+        convertCreateDto.targetCreateDto.convert = createdConvert;
+
       await Promise.all([
         this.convertToPostService.createSeveral(createdConvert, postsToConvert),
         convertCreateDto.targetCreateDto
