@@ -20,18 +20,6 @@ export enum PanelType {
 }
 
 /**
- * Перечисление типов панели.
- */
-export enum GraphType {
-  YEAR = 'Ежегодовой',
-  WEEK_13 = '13',
-  WEEK_26 = '26',
-  WEEK_52 = '52',
-  MONTH = 'Ежемесячный',
-  DAY = 'Ежедневный',
-}
-
-/**
  * Сущность File.
  * Представляет загруженные файлы
  */
@@ -93,19 +81,6 @@ export class ControlPanel {
   })
   panelType: PanelType;
 
-  /**
-   * Тип графиков.
-   *
-   * @remarks
-   * Используется перечисление `GraphType`. По умолчанию установлено значение ежедневные(DAY). nullable: false
-   */
-  @Column({
-    type: 'enum',
-    enum: GraphType,
-    default: GraphType.DAY,
-    nullable: false,
-  })
-  graphType: GraphType;
 
   /**
    * Флаг для фронта.

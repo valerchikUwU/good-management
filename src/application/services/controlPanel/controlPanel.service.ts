@@ -37,7 +37,6 @@ export class ControlPanelService {
         orderNumber: controlPanel.orderNumber,
         controlPanelNumber: controlPanel.controlPanelNumber,
         panelType: controlPanel.panelType,
-        graphType: controlPanel.graphType,
         isNameChanged: controlPanel.isNameChanged,
         createdAt: controlPanel.createdAt,
         updatedAt: controlPanel.updatedAt,
@@ -67,7 +66,6 @@ export class ControlPanelService {
         orderNumber: controlPanel.orderNumber,
         controlPanelNumber: controlPanel.controlPanelNumber,
         panelType: controlPanel.panelType,
-        graphType: controlPanel.graphType,
         isNameChanged: controlPanel.isNameChanged,
         createdAt: controlPanel.createdAt,
         updatedAt: controlPanel.updatedAt,
@@ -132,9 +130,6 @@ export class ControlPanelService {
       }
       if (updateControlPanelDto.panelType)
         controlPanel.panelType = updateControlPanelDto.panelType;
-      if (updateControlPanelDto.graphType)
-        controlPanel.graphType = updateControlPanelDto.graphType;
-
       if (updateControlPanelDto.statisticIds) {
         await this.panelToStatisticService.remove(controlPanel);
         await this.panelToStatisticService.createSeveral(
@@ -145,7 +140,6 @@ export class ControlPanelService {
       await this.controlPanelRepository.update(controlPanel.id, {
         panelName: controlPanel.panelName,
         panelType: controlPanel.panelType,
-        graphType: controlPanel.graphType,
         isNameChanged: controlPanel.isNameChanged,
       });
       return controlPanel.id;
