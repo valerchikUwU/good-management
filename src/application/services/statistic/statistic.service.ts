@@ -159,7 +159,6 @@ export class StatisticService {
   async findAllForControlPanel(
     controlPanelId: string,
     pagination: number,
-    viewType: viewTypes,
     datePoint: string
   ): Promise<any[]> {
     try {
@@ -168,7 +167,7 @@ export class StatisticService {
         .innerJoin('statistic.panelToStatistics', 'p_t_s')
         .where('p_t_s.controlPanelId = :controlPanelId', { controlPanelId })
         .orderBy('statistic.createdAt', 'DESC')
-        .take(12)
+        .take(10)
         .skip(pagination)
         .getMany();
 
@@ -176,26 +175,7 @@ export class StatisticService {
         statistics.map(async (statistic) => {
           let statisticData: any[] = [];
 
-          switch (viewType) {
-            case viewTypes.DAILY:
-              statisticData = await this.statisticDataService.findDaily(statistic.id, datePoint);
-              break;
-            case viewTypes.MONTHLY:
-              statisticData = await this.statisticDataService.findMonthly(statistic.id, datePoint);
-              break;
-            case viewTypes.YEARLY:
-              statisticData = await this.statisticDataService.findYearly(statistic.id, datePoint);
-              break;
-            case viewTypes.THIRTEEN:
-              statisticData = await this.statisticDataService.findSeveralWeeks(statistic.id, datePoint, 13);
-              break;
-            case viewTypes.TWENTY_SIX:
-              statisticData = await this.statisticDataService.findSeveralWeeks(statistic.id, datePoint, 26);
-              break;
-            case viewTypes.FIFTY_TWO:
-              statisticData = await this.statisticDataService.findSeveralWeeks(statistic.id, datePoint, 52);
-              break;
-          }
+          statisticData = await this.statisticDataService.findSeveralWeeks(statistic.id, datePoint, 13);
 
           return {
             id: statistic.id,
@@ -204,7 +184,7 @@ export class StatisticService {
             description: statistic.description,
             createdAt: statistic.createdAt,
             updatedAt: statistic.updatedAt,
-            statisticDatas: statisticData, // Используем полученные данные
+            statisticDatas: statisticData,
             post: statistic.post,
             account: statistic.account,
             panelToStatistics: statistic.panelToStatistics,
@@ -215,10 +195,7 @@ export class StatisticService {
       return statisticsWithData;
     } catch (err) {
       this.logger.error(err);
-      if (err instanceof NotFoundException) {
-        throw err;
-      }
-      throw new InternalServerErrorException('Ошибка при получении статистик');
+      throw new InternalServerErrorException('Ошибка при получении статистик в панели');
     }
   }
 
