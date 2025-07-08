@@ -122,14 +122,17 @@ export class ProjectController {
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   async beforeCreateProgram(
+    @Req() req: ExpressRequest,
     @Param('organizationId') organizationId: string,
   ): Promise<{
     posts: PostReadDto[];
     strategies: StrategyReadDto[];
     projects: ProjectReadDto[];
   }> {
+    const user = req.user as ReadUserDto;
     const posts = await this.postService.findAllWithUserForOrganization(
       organizationId,
+      user.id,
       ['user'],
     );
     const strategies =
@@ -167,13 +170,18 @@ export class ProjectController {
     description: 'Id организации',
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
-  async beforeCreate(@Param('organizationId') organizationId: string): Promise<{
+  async beforeCreate(
+    @Req() req: ExpressRequest,
+    @Param('organizationId') organizationId: string
+  ): Promise<{
     posts: PostReadDto[];
     strategies: StrategyReadDto[];
     programs: ProjectReadDto[];
   }> {
+    const user = req.user as ReadUserDto;
     const posts = await this.postService.findAllWithUserForOrganization(
       organizationId,
+      user.id
       ['user'],
     );
     const strategies =

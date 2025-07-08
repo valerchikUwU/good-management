@@ -20,12 +20,12 @@ export class OrganizationService {
   ) {}
 
   async findAllForAccount(
-    account: AccountReadDto,
+    accountId: string,
     relations?: string[],
   ): Promise<OrganizationReadDto[]> {
     try {
       const organizations = await this.organizationRepository.find({
-        where: { account: { id: account.id } },
+        where: { account: { id: accountId } },
         relations: relations ?? [],
       });
       return organizations.map((organization) => ({
@@ -48,7 +48,6 @@ export class OrganizationService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех организаций!',
       );
@@ -89,12 +88,10 @@ export class OrganizationService {
       return organizationReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении организации',
       );
@@ -141,7 +138,6 @@ export class OrganizationService {
       if (!organization) {
         throw new NotFoundException(`Организация с ID ${_id} не найдена`);
       }
-      // Обновить свойства, если они указаны в DTO
       if (updateOrganizationDto.organizationName)
         organization.organizationName = updateOrganizationDto.organizationName;
       if (updateOrganizationDto.parentOrganizationId)
@@ -164,12 +160,10 @@ export class OrganizationService {
       return organization.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при обновлении организации',
       );

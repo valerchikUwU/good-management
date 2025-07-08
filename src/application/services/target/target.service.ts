@@ -27,7 +27,7 @@ export class TargetService {
     private readonly attachmentToTargetService: AttachmentToTargetService,
     private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllPersonalForUserPosts(
     postIds: string[],
@@ -43,13 +43,6 @@ export class TargetService {
           today.getUTCDate(),
         ),
       );
-      const yesterdayUTC = new Date(
-        Date.UTC(
-          today.getUTCFullYear(),
-          today.getUTCMonth(),
-          today.getUTCDate() - 1,
-        ),
-      );
       const tomorrowUTC = new Date(
         Date.UTC(
           today.getUTCFullYear(),
@@ -63,10 +56,11 @@ export class TargetService {
           project: { id: IsNull() },
           dateComplete: isArchive
             ? LessThan(todayUTC)
-            : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
+            : Or(IsNull(), Between(todayUTC, tomorrowUTC)),
           type: Type.PERSONAL,
         },
         relations: relations ?? [],
+        order: { dateComplete: 'DESC' }
       });
 
       return targets.map((target) => ({
@@ -89,7 +83,6 @@ export class TargetService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех задач!',
       );
@@ -110,13 +103,6 @@ export class TargetService {
           today.getUTCDate(),
         ),
       );
-      const yesterdayUTC = new Date(
-        Date.UTC(
-          today.getUTCFullYear(),
-          today.getUTCMonth(),
-          today.getUTCDate() - 1,
-        ),
-      );
       const tomorrowUTC = new Date(
         Date.UTC(
           today.getUTCFullYear(),
@@ -130,10 +116,11 @@ export class TargetService {
           project: { id: IsNull() },
           dateComplete: isArchive
             ? LessThan(todayUTC)
-            : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
+            : Or(IsNull(), Between(todayUTC, tomorrowUTC)),
           type: Type.ORDER,
         },
         relations: relations ?? [],
+        order: { dateComplete: 'DESC' }
       });
 
       return targets.map((target) => ({
@@ -156,7 +143,6 @@ export class TargetService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех задач!',
       );
@@ -176,13 +162,6 @@ export class TargetService {
           today.getUTCDate(),
         ),
       );
-      const yesterdayUTC = new Date(
-        Date.UTC(
-          today.getUTCFullYear(),
-          today.getUTCMonth(),
-          today.getUTCDate() - 1,
-        ),
-      );
       const tomorrowUTC = new Date(
         Date.UTC(
           today.getUTCFullYear(),
@@ -196,8 +175,9 @@ export class TargetService {
           project: { id: Not(IsNull()) },
           dateComplete: isArchive
             ? LessThan(todayUTC)
-            : Or(IsNull(), Between(yesterdayUTC, tomorrowUTC)),
+            : Or(IsNull(), Between(todayUTC, tomorrowUTC)),
         },
+        order: { dateComplete: 'DESC' }
       });
 
       return targets.map((target) => ({
@@ -220,9 +200,70 @@ export class TargetService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех задач!',
+      );
+    }
+  }
+
+  async findSendedTargets(
+    postIds: string[],
+    isArchive: boolean,
+    relations?: string[],
+  ): Promise<TargetReadDto[]> {
+    try {
+      const today = new Date();
+      const todayUTC = new Date(
+        Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate(),
+        ),
+      );
+      const tomorrowUTC = new Date(
+        Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate() + 1,
+        ),
+      );
+      const targets = await this.targetRepository.find({
+        where: {
+          dateComplete: isArchive
+            ? LessThan(todayUTC)
+            : Or(IsNull(), Between(todayUTC, tomorrowUTC)),
+            convert: {
+              host: {
+                id: In(postIds)
+              }
+            }
+        },
+        relations: relations ?? [],
+        order: { dateComplete: 'DESC' }
+      });
+
+      return targets.map((target) => ({
+        id: target.id,
+        type: target.type,
+        orderNumber: target.orderNumber,
+        content: target.content,
+        holderPostId: target.holderPostId,
+        targetState: target.targetState,
+        dateStart: target.dateStart,
+        deadline: target.deadline,
+        dateComplete: target.dateComplete,
+        createdAt: target.createdAt,
+        updatedAt: target.updatedAt,
+        targetHolders: target.targetHolders,
+        project: target.project,
+        policy: target.policy,
+        attachmentToTargets: target.attachmentToTargets,
+        convert: target.convert,
+      }));
+    } catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException(
+        'Ошибка при получении всех отправленных задач!',
       );
     }
   }
@@ -250,7 +291,7 @@ export class TargetService {
         };
         await this.targetHolderService.create(targetHolderCreateDto);
       }
-      if (targetCreateDto.attachmentIds) {
+      if (targetCreateDto.attachmentIds != null && targetCreateDto.attachmentIds.length > 0) {
         await this.attachmentToTargetService.createSeveral(
           createdTarget,
           targetCreateDto.attachmentIds,

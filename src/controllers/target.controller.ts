@@ -47,7 +47,7 @@ export class TargetController {
     private readonly postService: PostService,
     private readonly policyService: PolicyService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({ summary: 'Личные задачи, задачи из проектов и приказы' })
@@ -69,13 +69,14 @@ export class TargetController {
     personalTargets: TargetReadDto[];
     ordersTargets: TargetReadDto[];
     projectTargets: TargetReadDto[];
+    sendedTargets: TargetReadDto[];
   }> {
     const user = req.user as ReadUserDto;
     const userPosts = await this.postService.findAllForUser(user.id, [
       'organization',
     ]);
     const userPostsIds = userPosts.map((post) => post.id);
-    const [personalTargets, orderTargets, projectTargets] = await Promise.all([
+    const [personalTargets, orderTargets, projectTargets, sendedTargets] = await Promise.all([
       this.targetService.findAllPersonalForUserPosts(userPostsIds, false, [
         'policy',
         'attachmentToTargets.attachment',
@@ -85,12 +86,17 @@ export class TargetController {
         'attachmentToTargets.attachment',
       ]),
       this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false),
+      this.targetService.findSendedTargets(userPostsIds, false, [
+        'convert.host.user',
+        'attachmentToTargets.attachment',
+      ])
     ]);
     return {
       userPosts: userPosts,
       personalTargets: personalTargets,
       ordersTargets: orderTargets,
       projectTargets: projectTargets,
+      sendedTargets: sendedTargets
     };
   }
 
@@ -122,15 +128,19 @@ export class TargetController {
     const userPostsIds = userPosts.map((post) => post.id);
     const [personalArchiveTargets, orderArchiveTargets, projectArchiveTargets] =
       await Promise.all([
-        this.targetService.findAllPersonalForUserPosts(userPostsIds, false, [
+        this.targetService.findAllPersonalForUserPosts(userPostsIds, true, [
           'policy',
           'attachmentToTargets.attachment',
         ]),
-        this.targetService.findAllOrdersForUserPosts(userPostsIds, false, [
+        this.targetService.findAllOrdersForUserPosts(userPostsIds, true, [
           'convert.host.user',
           'attachmentToTargets.attachment',
         ]),
-        this.targetService.findAllFromProjectsForUserPosts(userPostsIds, false),
+        this.targetService.findAllFromProjectsForUserPosts(userPostsIds, true),
+        this.targetService.findSendedTargets(userPostsIds, true, [
+          'convert.host.user',
+          'attachmentToTargets.attachment',
+        ])
       ]);
     return {
       userPosts: userPosts,
@@ -180,7 +190,7 @@ export class TargetController {
     if (targetCreateDto.policyId) {
       promises.push(
         this.policyService
-          .findOneById(targetCreateDto.policyId)
+          .findOneById(targetCreateDto.policyId, false)
           .then((policy) => {
             targetCreateDto.policy = policy;
           }),
@@ -240,7 +250,7 @@ export class TargetController {
     if (targetUpdateDto.policyId != null) {
       promises.push(
         this.policyService
-          .findOneById(targetUpdateDto.policyId)
+          .findOneById(targetUpdateDto.policyId, false)
           .then((policy) => {
             targetUpdateDto.policy = policy;
           }),

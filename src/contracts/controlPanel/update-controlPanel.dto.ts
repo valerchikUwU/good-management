@@ -8,7 +8,7 @@ import {
   IsUUID,
   MaxLength,
 } from 'class-validator';
-import { GraphType, PanelType } from 'src/domains/controlPanel.entity';
+import { PanelType } from 'src/domains/controlPanel.entity';
 
 /**
  * DTO для создания данных панели управления.
@@ -35,24 +35,6 @@ export class ControlPanelUpdateDto {
   @IsEnum(PanelType)
   @IsNotEmpty({ message: 'Выберите тип панели!' })
   panelType?: PanelType;
-
-  @ApiProperty({
-    description: 'Тип отображения графика',
-    required: false,
-    example: 'Ежедневный',
-    examples: [
-      GraphType.YEAR,
-      GraphType.WEEK_13,
-      GraphType.WEEK_26,
-      GraphType.WEEK_52,
-      GraphType.MONTH,
-      GraphType.DAY,
-    ],
-  })
-  @IsOptional()
-  @IsEnum(GraphType)
-  @IsNotEmpty({ message: 'Выберите тип отображения графика!' })
-  graphType?: GraphType;
 
   @ApiProperty({
     description: 'IDs статистик, которые связать с панелью',

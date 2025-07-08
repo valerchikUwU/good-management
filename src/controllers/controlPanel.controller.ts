@@ -8,6 +8,8 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -15,6 +17,7 @@ import {
   ApiBody,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -31,6 +34,8 @@ import {
   findAllControlPanelsExample,
   findOneExample,
 } from 'src/constants/swagger-examples/controlPanel/controlPanel-examples';
+import { Request as ExpressRequest } from 'express';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 
 @ApiTags('ControlPanels')
 @ApiBearerAuth('access-token')
@@ -42,7 +47,7 @@ export class ControlPanelController {
     private readonly organizationService: OrganizationService,
     private readonly postService: PostService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Все панели в организации' })
@@ -66,44 +71,15 @@ export class ControlPanelController {
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   async findAll(
+    @Req() req: ExpressRequest,
     @Param('organizationId') organizationId: string,
   ): Promise<ControlPanelReadDto[]> {
-    const controlPanels =
-      await this.controlPanelService.findAllForOrganization(organizationId);
+    const user = req.user as ReadUserDto;
+    const userPostsIds = user.posts.map((post) => post.id);
+    const controlPanels = await this.controlPanelService.findAllForOrganization(organizationId, userPostsIds);
     return controlPanels;
   }
 
-  @Get(':controlPanelId/controlPanel')
-  @ApiOperation({ summary: 'Получить панель по ID' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'ОК!',
-    example: findOneExample,
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Вы не авторизованы!',
-  })
-  @ApiResponse({
-    status: HttpStatus.NOT_FOUND,
-    description: `Панель не найдена!`,
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Ошибка сервера!',
-  })
-  @ApiParam({
-    name: 'controlPanelId',
-    required: true,
-    description: 'Id панели',
-  })
-  async findOne(
-    @Param('controlPanelId') controlPanelId: string,
-  ): Promise<ControlPanelReadDto> {
-    const controlPanel =
-      await this.controlPanelService.findOneById(controlPanelId);
-    return controlPanel;
-  }
 
   @Post('new')
   @ApiOperation({ summary: 'Создать панель управления' })

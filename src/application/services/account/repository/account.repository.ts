@@ -1,4 +1,3 @@
-// user.repository.ts
 import { Repository, DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { Account } from 'src/domains/account.entity';
@@ -9,5 +8,4 @@ export class AccountRepository extends Repository<Account> {
     super(Account, dataSource.createEntityManager());
   }
 
-  // ...
 }

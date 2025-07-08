@@ -29,11 +29,12 @@ export class ConvertService {
     private readonly targetService: TargetService,
     private readonly messageService: MessageService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllArchiveForContact(
     userPostsIds: string[],
     contactId: string,
+    pagination
   ): Promise<any[]> {
     try {
       const converts = await this.convertRepository
@@ -91,6 +92,9 @@ export class ConvertService {
         .groupBy(
           'convert.id , "latestMessage"."content", "latestMessage"."createdAt"',
         )
+        .orderBy('convert.dateFinish', 'DESC')
+        .take(20)
+        .skip(pagination)
         .getRawMany();
       return converts;
     } catch (err) {
@@ -106,6 +110,7 @@ export class ConvertService {
   async findAllArchiveCopiesForContact(
     userPostsIds: string[],
     contactId: string,
+    pagination: number
   ): Promise<any[]> {
     try {
       const converts = await this.convertRepository
@@ -117,6 +122,9 @@ export class ConvertService {
         .where('watcher.id IN (:...userPostsIds)', { userPostsIds })
         .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
         .andWhere('wtc.unreadMessagesCount = 0')
+        .orderBy('convert.dateFinish', 'DESC')
+        .take(20)
+        .skip(pagination)
         .getMany();
       return converts;
     } catch (err) {
@@ -131,7 +139,7 @@ export class ConvertService {
 
   async findAllForContact(
     userPostsIds: string[],
-    contactId: string,
+    contactId: string
   ): Promise<any[]> {
     try {
       const converts = await this.convertRepository
@@ -185,6 +193,7 @@ export class ConvertService {
         .groupBy(
           'convert.id , "latestMessage"."content", "latestMessage"."createdAt"',
         )
+        .orderBy('convert.dateStart', 'ASC')
         .getRawMany();
       return converts;
     } catch (err) {
@@ -211,6 +220,7 @@ export class ConvertService {
         .where('watcher.id IN (:...userPostsIds)', { userPostsIds })
         .andWhere('"convert"."pathOfPosts"[1] = :contactId', { contactId })
         .andWhere('wtc.unreadMessagesCount > 0')
+        .orderBy('convert.dateStart', 'ASC')
         .getMany();
       return converts;
     } catch (err) {
@@ -283,6 +293,10 @@ export class ConvertService {
             ? convertCreateDto.targetCreateDto.content
             : convertCreateDto.convertTheme,
         postId: convertCreateDto.host.id,
+        attachmentIds:
+          convertCreateDto.targetCreateDto !== undefined
+            ? convertCreateDto.targetCreateDto.attachmentIds
+            : undefined,
         convert: createdConvert,
         sender: convert.host,
       };
@@ -296,6 +310,9 @@ export class ConvertService {
           (postId, index, arr) =>
             index === arr.findIndex((id) => id === postId),
         );
+
+      if (convertCreateDto.targetCreateDto)
+        convertCreateDto.targetCreateDto.convert = createdConvert;
 
       await Promise.all([
         this.convertToPostService.createSeveral(createdConvert, postsToConvert),
@@ -436,7 +453,7 @@ export class ConvertService {
           .slice(0, 2)
           .concat(
             convertUpdateDto.pathOfPosts[
-              convertUpdateDto.pathOfPosts.length - 1
+            convertUpdateDto.pathOfPosts.length - 1
             ],
           )
           .filter(

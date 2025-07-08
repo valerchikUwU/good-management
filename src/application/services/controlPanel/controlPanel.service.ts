@@ -5,8 +5,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Logger } from 'winston';
-import { ControlPanel } from 'src/domains/controlPanel.entity';
+import { ControlPanel, PanelType } from 'src/domains/controlPanel.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { And, Brackets, Or } from 'typeorm';
 import { ControlPanelRepository } from './repository/controlPanel.repository';
 import { PanelToStatisticService } from '../panelToStatistic/panelToStatistic.service';
 import { ControlPanelReadDto } from 'src/contracts/controlPanel/read-controlPanel.dto';
@@ -21,23 +22,31 @@ export class ControlPanelService {
     private readonly controlPanelRepository: ControlPanelRepository,
     private readonly panelToStatisticService: PanelToStatisticService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForOrganization(
     organizationId: string,
+    userPostsIds: string[]
   ): Promise<ControlPanelReadDto[]> {
     try {
-      const controlPanels = await this.controlPanelRepository.find({
-        where: { organization: { id: organizationId } },
-      });
-
+      const controlPanels = await this.controlPanelRepository.createQueryBuilder('panel')
+        .where('panel.organizationId = :organizationId', { organizationId })
+        .andWhere(new Brackets(qb => {
+          qb.where('panel.panelType = :globalType', {
+            globalType: PanelType.GLOBAL
+          })
+            .orWhere('panel.panelType = :personalType AND panel.postId IN (:...userPostsIds)', {
+              personalType: PanelType.LOCAL,
+              userPostsIds
+            });
+        }))
+        .getMany();
       return controlPanels.map((controlPanel) => ({
         id: controlPanel.id,
         panelName: controlPanel.panelName,
         orderNumber: controlPanel.orderNumber,
         controlPanelNumber: controlPanel.controlPanelNumber,
         panelType: controlPanel.panelType,
-        graphType: controlPanel.graphType,
         isNameChanged: controlPanel.isNameChanged,
         createdAt: controlPanel.createdAt,
         updatedAt: controlPanel.updatedAt,
@@ -47,7 +56,6 @@ export class ControlPanelService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех политик!',
       );
@@ -68,7 +76,6 @@ export class ControlPanelService {
         orderNumber: controlPanel.orderNumber,
         controlPanelNumber: controlPanel.controlPanelNumber,
         panelType: controlPanel.panelType,
-        graphType: controlPanel.graphType,
         isNameChanged: controlPanel.isNameChanged,
         createdAt: controlPanel.createdAt,
         updatedAt: controlPanel.updatedAt,
@@ -133,9 +140,6 @@ export class ControlPanelService {
       }
       if (updateControlPanelDto.panelType)
         controlPanel.panelType = updateControlPanelDto.panelType;
-      if (updateControlPanelDto.graphType)
-        controlPanel.graphType = updateControlPanelDto.graphType;
-
       if (updateControlPanelDto.statisticIds) {
         await this.panelToStatisticService.remove(controlPanel);
         await this.panelToStatisticService.createSeveral(
@@ -146,18 +150,14 @@ export class ControlPanelService {
       await this.controlPanelRepository.update(controlPanel.id, {
         panelName: controlPanel.panelName,
         panelType: controlPanel.panelType,
-        graphType: controlPanel.graphType,
         isNameChanged: controlPanel.isNameChanged,
       });
       return controlPanel.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
-
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении политики');
     }
   }

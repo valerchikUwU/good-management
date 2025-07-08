@@ -1,4 +1,3 @@
-// user.repository.ts
 import { Repository, DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { RefreshSession } from '../../../../domains/refreshSession.entity';

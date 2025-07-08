@@ -14,14 +14,18 @@ import { Logger } from 'winston';
 import { StatisticCreateDto } from 'src/contracts/statistic/create-statistic.dto';
 import { StatisticUpdateDto } from 'src/contracts/statistic/update-statistic.dto';
 import { In } from 'typeorm';
+import { CorrelationType } from 'src/domains/statisticData.entity';
+import { viewTypes } from 'src/constants/extraTypes/statisticViewTypes';
+import { StatisticDataService } from '../statisticData/statisticData.service';
 
 @Injectable()
 export class StatisticService {
   constructor(
     @InjectRepository(Statistic)
     private readonly statisticRepository: StatisticRepository,
+    private readonly statisticDataService: StatisticDataService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForAccount(
     account: AccountReadDto,
@@ -47,7 +51,6 @@ export class StatisticService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех статистик!',
       );
@@ -78,7 +81,6 @@ export class StatisticService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех статистик!',
       );
@@ -112,12 +114,10 @@ export class StatisticService {
       return statisticReadDto;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении статистики');
     }
   }
@@ -148,13 +148,54 @@ export class StatisticService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении статистик');
+    }
+  }
+
+  async findAllForControlPanel(
+    controlPanelId: string,
+    pagination: number,
+    datePoint: string
+  ): Promise<any[]> {
+    try {
+      const statistics = await this.statisticRepository
+        .createQueryBuilder('statistic')
+        .innerJoin('statistic.panelToStatistics', 'p_t_s')
+        .where('p_t_s.controlPanelId = :controlPanelId', { controlPanelId })
+        .orderBy('statistic.createdAt', 'DESC')
+        .take(10)
+        .skip(pagination)
+        .getMany();
+
+      const statisticsWithData = await Promise.all(
+        statistics.map(async (statistic) => {
+          let statisticData: any[] = [];
+
+          statisticData = await this.statisticDataService.findSeveralWeeks(statistic.id, datePoint, 13);
+
+          return {
+            id: statistic.id,
+            type: statistic.type,
+            name: statistic.name,
+            description: statistic.description,
+            createdAt: statistic.createdAt,
+            updatedAt: statistic.updatedAt,
+            statisticDatas: statisticData,
+            post: statistic.post,
+            account: statistic.account,
+            panelToStatistics: statistic.panelToStatistics,
+          };
+        })
+      );
+
+      return statisticsWithData;
+    } catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException('Ошибка при получении статистик в панели');
     }
   }
 

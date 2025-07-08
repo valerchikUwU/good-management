@@ -40,7 +40,6 @@ export class MessageSeenStatusService {
         };
         return messageSeenStatus;
       });
-      // Используем pipeline для выполнения удаления всех ключей одним запросом
       this.redis.keys(`undefined:messages:${convertId}:*`).then((keys) => {
         const pipeline = this.redis.pipeline();
         pipeline.unlink(keys);

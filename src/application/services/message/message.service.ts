@@ -310,12 +310,10 @@ export class MessageService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при получении сообщений');
     }
   }
@@ -330,7 +328,6 @@ export class MessageService {
           messageCreateDto.attachmentIds,
         );
       }
-      // Используем pipeline для выполнения удаления всех ключей одним запросом
       this.redis
         .keys(`undefined:messages:${messageCreateDto.convert.id}:*`)
         .then((keys) => {
@@ -370,7 +367,6 @@ export class MessageService {
       if (messageUpdateDto.content) message.content = messageUpdateDto.content;
       await this.messageRepository.update(_id, { content: message.content });
 
-      // Используем pipeline для выполнения удаления всех ключей одним запросом
       this.redis
         .keys(`undefined:messages:${message.convert.id}`)
         .then((keys) => {
@@ -382,12 +378,10 @@ export class MessageService {
       return _id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при обновлении сообщения');
     }
   }

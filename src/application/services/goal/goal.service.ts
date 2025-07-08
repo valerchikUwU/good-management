@@ -42,7 +42,6 @@ export class GoalService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех целей!',
       );

@@ -77,4 +77,4 @@ services:
     volumes:
       - /var/log/nginx/gm.log:/var/log/nginx/gm.log:ro
     ports:
-    - "4040:4040"  # Порт, на котором работает nginx-exporter
+    - "4040:4040"  # Порт на котором работает nginx-exporter

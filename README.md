@@ -22,27 +22,54 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## Описание проекта
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Цифровая образовательно - коммуникационная среда для собственников бизнеса  
+Внутрення дока в корне docs/typedoc, открывать через index.html
 
-## Project setup
+## Стек проекта
 
+- Node.js v18+ (лучше всего LTS)
+- npm v11+
+- Docker
+- Docker compose
+
+В контейнерах запускается БД (PostgreSQL), Redis, RabbitMQ, Nginx exporter (для экспортера нужна аппка для трекинга ошибок и состояния сервера: как настроить prometheus + grafana https://habr.com/ru/companies/doubletapp/articles/736602/) и главная аппка 
+
+## Подготовка проекта
+
+1. Клонирование репозиторий и установка зависимостей:
 ```bash
+$ git clone https://github.com/valerchikUwU/good-management
+
 $ npm install
 ```
 
-## Compile and run the project
+2. В src/config создать файл users.acl (пример для этого файла в этой же папке example_users.txt) - это файл для создания кастомного юзера в Redis с паролем
+
+3. Создать .env в корне (пример лежит в корне .env_example.txt)
+
+4. Создать папку uploads в корне (криво игнор изначально написал)
+
+5. Прописать свои секреты в .github/workflows/deploy.yml
+
+## Команды для проекта
 
 ```bash
-# development
-$ npm run start
+# запуск
+$ docker compose up --build -d
 
-# watch mode
+# запуск только контейнера с app 
+$ docker compose up -d --no-deps --build app
+
+# запустить без докера
 $ npm run start:dev
 
-# production mode
-$ npm run start:prod
+# логи
+$ docker logs [container_name] -f
+
+# закрыть контейнеры
+$ docker compose down
 ```
 
 ## Run tests

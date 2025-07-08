@@ -18,7 +18,7 @@ export class AttachmentToMessageService {
     private readonly attachmentToMessageRepository: AttachmentToMessageRepository,
     private readonly attachmentService: AttachmentService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async createSeveral(
     message: Message,
@@ -44,6 +44,14 @@ export class AttachmentToMessageService {
   }
 
   async remove(message: MessageReadDto): Promise<void> {
-    await this.attachmentToMessageRepository.delete({ message: message });
+    try {
+      await this.attachmentToMessageRepository.delete({ message: message });
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException(
+        'Ошибка при удалении вложений!',
+      );
+    }
   }
 }

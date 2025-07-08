@@ -8,6 +8,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { Policy } from 'src/domains/policy.entity';
+import { Role } from 'src/domains/role.entity';
 import { User } from 'src/domains/user.entity';
 
 export class PostUpdateDto {
@@ -88,6 +89,16 @@ export class PostUpdateDto {
   policyId?: string | null;
 
   @ApiProperty({
+    description: 'ID роли',
+    required: false,
+    example: '675a797e-d0f2-4907-bad5-25733c3e2380',
+  })
+  @IsOptional()
+  @IsUUID()
+  @IsNotEmpty()
+  roleId?: string;
+
+  @ApiProperty({
     description: 'Флаг дефолтного поста',
     required: false,
     example: true,
@@ -110,6 +121,8 @@ export class PostUpdateDto {
 
   @Exclude({ toPlainOnly: true })
   policy: Policy;
+
+  @Exclude({ toPlainOnly: true })
+  role: Role;
 }
 
-// STATE: 'Активный', 'Архивный', 'Вакантный'

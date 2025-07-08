@@ -47,7 +47,6 @@ export class StrategyService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех стратегий!',
       );
@@ -83,7 +82,6 @@ export class StrategyService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех стратегий!',
       );
@@ -98,7 +96,7 @@ export class StrategyService {
       const strategies = await this.strategyRepository.find({
         where: {
           organization: { id: organizationId },
-          state: In([State.ACTIVE, State.DRAFT]), // Используем In для OR условия
+          state: In([State.ACTIVE, State.DRAFT]),
         },
         relations: relations ?? [],
       });
@@ -119,7 +117,6 @@ export class StrategyService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех стратегий!',
       );

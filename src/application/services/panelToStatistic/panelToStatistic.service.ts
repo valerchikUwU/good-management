@@ -20,7 +20,7 @@ export class PanelToStatisticService {
     private readonly panelToStatisticRepository: PanelToStatisticRepository,
     private readonly statisticService: StatisticService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async createSeveral(
     controlPanel: ControlPanel,
@@ -29,7 +29,6 @@ export class PanelToStatisticService {
     try {
       const statistics = await this.statisticService.findBulk(statisticIds);
 
-      // Создаём связи для всех найденных Policy
       const panelToStatistics = statistics.map((statistic) => {
         const panelToStatistic = new PanelToStatistic();
         panelToStatistic.controlPanel = controlPanel;
@@ -58,22 +57,19 @@ export class PanelToStatisticService {
           `Статистика с ID ${_id} в панеле не найдена`,
         );
       }
-      // Обновить свойства, если они указаны в DTO
-      if (panelToStatisticUpdateDto.orderStatisticNumber)
-        panelToStatistic.orderStatisticNumber =
-          panelToStatisticUpdateDto.orderStatisticNumber;
+      if (panelToStatisticUpdateDto.orderStatisticNumber) {
+        panelToStatistic.orderStatisticNumber = panelToStatisticUpdateDto.orderStatisticNumber;
+      }
       await this.panelToStatisticRepository.update(panelToStatistic.id, {
         orderStatisticNumber: panelToStatistic.orderStatisticNumber,
       });
       return panelToStatistic.id;
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при обновлении статистики в панеле',
       );
@@ -81,8 +77,16 @@ export class PanelToStatisticService {
   }
 
   async remove(controlPanel: ControlPanelReadDto): Promise<void> {
-    await this.panelToStatisticRepository.delete({
-      controlPanel: controlPanel,
-    });
+    try {
+      await this.panelToStatisticRepository.delete({
+        controlPanel: controlPanel,
+      });
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException(
+        'Ошибка при удалении связанных статистик с панелью!',
+      );
+    }
   }
 }

@@ -157,7 +157,7 @@ export class GroupController {
   ): Promise<OrganizationReadDto[]> {
     const user = await this.userService.findOne(userId, ['account']);
     const organizations = await this.organizationService.findAllForAccount(
-      user.account,
+      user.account.id,
       ['posts.user'],
     );
     return organizations;

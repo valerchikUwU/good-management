@@ -28,7 +28,7 @@ import { Logger } from 'winston';
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
-    @Inject('winston') private readonly logger: Logger, // инъекция логгера
+    @Inject('winston') private readonly logger: Logger,
   ) {}
   private clients: Map<string, Socket> = new Map();
   @WebSocketServer() ws: Server;
@@ -71,12 +71,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
     } catch (err) {
       this.logger.error(err);
-      // Обработка специфичных исключений
       if (err instanceof NotFoundException) {
-        throw err; // Пробрасываем исключение дальше
+        throw err;
       }
 
-      // Обработка других ошибок
       throw new InternalServerErrorException('Ошибка при входе!');
     }
   }

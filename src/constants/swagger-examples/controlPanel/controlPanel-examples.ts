@@ -3,7 +3,6 @@ export const findAllControlPanelsExample = [
     id: '1bf5e414-6a75-444b-83dd-8d4aeff8f9a1',
     panelName: 'Панель новая',
     panelType: 'Личная',
-    graphType: 'Ежедневные',
     createdAt: '2025-01-15T10:57:16.485Z',
     updatedAt: '2025-01-15T10:57:16.485Z',
   },
@@ -13,7 +12,6 @@ export const findOneExample = {
   id: '1bf5e414-6a75-444b-83dd-8d4aeff8f9a1',
   panelName: 'Панель новая',
   panelType: 'Личная',
-  graphType: 'Ежедневные',
   createdAt: '2025-01-15T10:57:16.485Z',
   updatedAt: '2025-01-15T10:57:16.485Z',
   panelToStatistics: [

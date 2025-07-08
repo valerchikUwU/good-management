@@ -1,4 +1,4 @@
-import { GraphType, PanelType } from 'src/domains/controlPanel.entity';
+import { PanelType } from 'src/domains/controlPanel.entity';
 import { Organization } from 'src/domains/organization.entity';
 import { PanelToStatistic } from 'src/domains/panelToStatistic.entity';
 import { Post } from 'src/domains/post.entity';
@@ -16,8 +16,6 @@ export class ControlPanelReadDto {
   controlPanelNumber: number;
 
   panelType: PanelType;
-
-  graphType: GraphType;
 
   isNameChanged: boolean;
 

@@ -25,7 +25,6 @@ export class TelegramService {
   }
 
   startBot() {
-    // Telegraf will use `telegraf-session-local` configured above middleware
 
     this.bot.start(async (ctx) => {
       try {

@@ -45,7 +45,7 @@ export class StatisticDataUpdateDto {
   })
   @IsOptional()
   @IsEnum(CorrelationType)
-  correlationType?: CorrelationType;
+  correlationType?: CorrelationType | null;
 }
 
 // add DATA

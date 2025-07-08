@@ -1,3 +1,4 @@
+import { Statistic } from 'src/domains/statistic.entity';
 import { CorrelationType } from 'src/domains/statisticData.entity';
 
 export class StatisticDataReadDto {
@@ -6,5 +7,6 @@ export class StatisticDataReadDto {
   updatedAt: Date;
   value: number;
   valueDate: Date;
-  isCorrelation: CorrelationType;
+  correlationType: CorrelationType;
+  statistic: Statistic;
 }

@@ -58,10 +58,8 @@ export class OrganizationController {
     description: 'Ошибка сервера!',
   })
   async findAll(@Req() req: ExpressRequest): Promise<OrganizationReadDto[]> {
-    const user = req.user as ReadUserDto; // Здесь доступен пользователь из AccessJwtStrategy
-    return await this.organizationService.findAllForAccount(user.account, [
-      'users',
-    ]);
+    const user = req.user as ReadUserDto;
+    return await this.organizationService.findAllForAccount(user.account.id);
   }
 
   @Patch(':organizationId/update')
@@ -168,6 +166,6 @@ export class OrganizationController {
   async findOne(
     @Param('organizationId') organizationId: string,
   ): Promise<OrganizationReadDto> {
-    return await this.organizationService.findOneById(organizationId);
+    return await this.organizationService.findOneById(organizationId, ['users.posts']);
   }
 }

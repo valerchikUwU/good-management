@@ -62,8 +62,7 @@ export class UpdateUserDto {
   })
   @IsOptional()
   @IsString()
-  @IsNotEmpty({ message: 'Аватарка юзера не может быть пустой!' })
-  avatar_url?: string;
+  avatar_url?: string | null;
 
   @ApiProperty({
     description: 'Телефон юзера',

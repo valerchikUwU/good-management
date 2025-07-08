@@ -21,7 +21,7 @@ export class PolicyService {
     @InjectRepository(Policy)
     private readonly policyRepository: PolicyRepository,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async findAllForAccount(account: AccountReadDto): Promise<PolicyReadDto[]> {
     try {
@@ -49,7 +49,6 @@ export class PolicyService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех политик!',
       );
@@ -62,10 +61,25 @@ export class PolicyService {
   ): Promise<PolicyReadDto[]> {
     try {
       const policies = await this.policyRepository.find({
+        select: {
+          id: true,
+          policyName: true,
+          policyNumber: true,
+          type: true,
+          state: true,
+          dateActive: true,
+          createdAt: true,
+          updatedAt: true,
+          deadline: true,
+          posts: true,
+          organization: true,
+          postCreator: true,
+          account: true,
+          policyToPolicyDirectories: true,
+          targets: true,
+        },
         where: { organization: { id: organizationId } },
-        relations: relations ?? [],
       });
-
       return policies.map((policy) => ({
         id: policy.id,
         policyName: policy.policyName,
@@ -86,7 +100,6 @@ export class PolicyService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех политик!',
       );
@@ -98,6 +111,23 @@ export class PolicyService {
   ): Promise<PolicyReadDto[]> {
     try {
       const policies = await this.policyRepository.find({
+        select: {
+          id: true,
+          policyName: true,
+          policyNumber: true,
+          type: true,
+          state: true,
+          dateActive: true,
+          createdAt: true,
+          updatedAt: true,
+          deadline: true,
+          posts: true,
+          organization: true,
+          postCreator: true,
+          account: true,
+          policyToPolicyDirectories: true,
+          targets: true,
+        },
         where: {
           organization: { id: organizationId },
           state: State.ACTIVE,
@@ -124,7 +154,6 @@ export class PolicyService {
       }));
     } catch (err) {
       this.logger.error(err);
-      // Обработка других ошибок
       throw new InternalServerErrorException(
         'Ошибка при получении всех политик!',
       );
@@ -133,10 +162,29 @@ export class PolicyService {
 
   async findOneById(
     id: string,
+    contentLoading: boolean,
     relations?: string[],
   ): Promise<PolicyReadDto | null> {
     try {
       const policy = await this.policyRepository.findOne({
+        select: {
+          id: true,
+          policyName: true,
+          policyNumber: true,
+          type: true,
+          state: true,
+          content: contentLoading,
+          dateActive: true,
+          createdAt: true,
+          updatedAt: true,
+          deadline: true,
+          posts: true,
+          organization: true,
+          postCreator: true,
+          account: true,
+          policyToPolicyDirectories: true,
+          targets: true,
+        },
         where: { id },
         relations: relations ?? [],
       });
@@ -174,6 +222,23 @@ export class PolicyService {
   async findBulk(ids: string[]): Promise<PolicyReadDto[]> {
     try {
       const policies = await this.policyRepository.find({
+        select: {
+          id: true,
+          policyName: true,
+          policyNumber: true,
+          type: true,
+          state: true,
+          dateActive: true,
+          createdAt: true,
+          updatedAt: true,
+          deadline: true,
+          posts: true,
+          organization: true,
+          postCreator: true,
+          account: true,
+          policyToPolicyDirectories: true,
+          targets: true,
+        },
         where: { id: In(ids) },
       });
       const foundPolicyIds = policies.map((policy) => policy.id);

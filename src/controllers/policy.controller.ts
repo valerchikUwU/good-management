@@ -74,8 +74,7 @@ export class PolicyController {
     instructions: PolicyReadDto[];
     disposals: PolicyReadDto[];
   }> {
-    const policies =
-      await this.policyService.findAllForOrganization(organizationId);
+    const policies = await this.policyService.findAllForOrganization(organizationId);
     const directives = policies.filter(
       (policy) => policy.type === Type.DIRECTIVE,
     );
@@ -201,7 +200,7 @@ export class PolicyController {
   })
   @ApiParam({ name: 'policyId', required: true, description: 'Id политики' })
   async findOne(@Param('policyId') policyId: string): Promise<PolicyReadDto> {
-    const policy = await this.policyService.findOneById(policyId);
+    const policy = await this.policyService.findOneById(policyId, true);
     return policy;
   }
 

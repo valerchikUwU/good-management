@@ -18,7 +18,7 @@ export class AttachmentToTargetService {
     private readonly attachmentToTargetRepository: AttachmentToTargetRepository,
     private readonly attachmentService: AttachmentService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   async createSeveral(target: Target, attachmentIds: string[]): Promise<void> {
     try {
@@ -41,6 +41,14 @@ export class AttachmentToTargetService {
   }
 
   async remove(target: TargetReadDto): Promise<void> {
-    await this.attachmentToTargetRepository.delete({ target: target });
+    try {
+      await this.attachmentToTargetRepository.delete({ target: target });
+    }
+    catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException(
+        'Ошибка при удалении вложений задачи!',
+      );
+    }
   }
 }
