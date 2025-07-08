@@ -25,7 +25,7 @@
 ## Описание проекта
 
 Цифровая образовательно - коммуникационная среда для собственников бизнеса  
-/n Внутрення дока в корне docs/typedoc, открывать через index.html
+Внутрення дока в корне docs/typedoc, открывать через index.html
 
 ## Стек проекта
 
@@ -34,7 +34,7 @@
 - Docker
 - Docker compose
 
-В контейнерах запускается БД (PostgreSQL), Redis, RabbitMQ, Nginx exporter и главная аппка 
+В контейнерах запускается БД (PostgreSQL), Redis, RabbitMQ, Nginx exporter (для экспортера нужна аппка для трекинга ошибок и состояния сервера: как настроить prometheus + grafana https://habr.com/ru/companies/doubletapp/articles/736602/) и главная аппка 
 
 ## Подготовка проекта
 
@@ -60,7 +60,7 @@ $ npm install
 $ docker compose up --build -d
 
 # запуск только контейнера с app 
-$ docker-compose up -d --no-deps --build app
+$ docker compose up -d --no-deps --build app
 
 # запустить без докера
 $ npm run start:dev

@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -33,6 +34,8 @@ import {
   findAllControlPanelsExample,
   findOneExample,
 } from 'src/constants/swagger-examples/controlPanel/controlPanel-examples';
+import { Request as ExpressRequest } from 'express';
+import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 
 @ApiTags('ControlPanels')
 @ApiBearerAuth('access-token')
@@ -68,9 +71,12 @@ export class ControlPanelController {
     example: '2d1cea4c-7cea-4811-8cd5-078da7f20167',
   })
   async findAll(
+    @Req() req: ExpressRequest,
     @Param('organizationId') organizationId: string,
   ): Promise<ControlPanelReadDto[]> {
-    const controlPanels = await this.controlPanelService.findAllForOrganization(organizationId);
+    const user = req.user as ReadUserDto;
+    const userPostsIds = user.posts.map((post) => post.id);
+    const controlPanels = await this.controlPanelService.findAllForOrganization(organizationId, userPostsIds);
     return controlPanels;
   }
 
