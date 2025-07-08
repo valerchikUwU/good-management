@@ -24,7 +24,7 @@ import { Logger } from 'winston';
   cors:
     process.env.NODE_ENV === 'dev'
       ? '*:*'
-      : { origin: process.env.PROD_API_HOST },
+      : { origin: process.env.PROD_API_HOST_WS },
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
