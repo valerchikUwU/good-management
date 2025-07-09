@@ -292,7 +292,7 @@ export class PostService {
                       INNER JOIN "post" "sub_post" ON "sub_ctp"."postId" = "sub_post"."id"
                       WHERE "sub_ctp"."convertId" = c.id
                       AND "sub_post"."id" IN (:...userPostsIds)
-                  )`,
+                  )`, { userPostsIds }
                         )
                           .orWhere('watcher.id IN (:...userPostsIds)', {
                             userPostsIds,

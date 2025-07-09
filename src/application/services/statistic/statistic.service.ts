@@ -164,7 +164,7 @@ export class StatisticService {
     try {
       const statistics = await this.statisticRepository
         .createQueryBuilder('statistic')
-        .innerJoin('statistic.panelToStatistics', 'p_t_s')
+        .innerJoinAndSelect('statistic.panelToStatistics', 'p_t_s')
         .where('p_t_s.controlPanelId = :controlPanelId', { controlPanelId })
         .orderBy('statistic.createdAt', 'DESC')
         .take(10)
