@@ -166,7 +166,7 @@ export class StatisticService {
         .createQueryBuilder('statistic')
         .leftJoinAndSelect('statistic.panelToStatistics', 'p_t_s')
         .where('p_t_s.controlPanelId = :controlPanelId', { controlPanelId })
-        .orderBy('statistic.createdAt', 'DESC')
+        .orderBy('p_t_s.orderStatisticNumber', 'ASC')
         .take(10)
         .skip(pagination)
         .getMany();
