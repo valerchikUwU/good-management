@@ -72,6 +72,41 @@ $ docker logs [container_name] -f
 $ docker compose down
 ```
 
+## Структура проекта
+
+```
+src/
+├── application/
+│   ├── modules/          # Модули NestJS (.module.ts)
+│   └── services/        # Сервисы приложения
+│       └── {domain}/    # Доменные сервисы (с папкой repository)
+│
+├── config/              # Конфигурационные файлы
+│
+├── constants/
+│   ├── extraTypes/      # Дополнительные типы
+│   └── swaggerExamples/ # Примеры ответов API
+│
+├── contracts/           # DTO и контракты
+│   └── {domain}/       # Доменные DTO (create/read/update)
+│
+├── controllers/         # Контроллеры API
+├── decorators/          # Кастомные декораторы (для ролей и доступа)
+├── domains/             # Доменные сущности (.entity.ts)
+├── gateways/            # socket.io gateways (.gateway.ts)
+├── guards/              # Guards (.guard.ts)
+│
+├── helpersFunc/         # Вспомогательные функции
+├── middleware/          # Middleware (логгер)
+├── migrations/          # Миграции TypeORM
+├── utils/               # Утилиты
+│
+└── validators/          # Валидация
+    ├── pipes/           # Кастомные pipes
+    └── {domain}.validator.ts  # Кастомные декораторы для DTO
+```
+
+
 ## Run tests
 
 ```bash

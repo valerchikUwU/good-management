@@ -454,12 +454,6 @@ export class StatisticController {
     description: 'Id панели управления',
   })
   @ApiQuery({
-    name: 'pagination',
-    required: true,
-    example: 12,
-    description: 'Пагинация (первый запрос 0, далее всегда 12)'
-  })
-  @ApiQuery({
     name: 'datePoint',
     required: true,
     description: 'Дата от которой будет вестись отчет (YYYY-MM-DD) зависит от типа отображения и направления хода по графику',
