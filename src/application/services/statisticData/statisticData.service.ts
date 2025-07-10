@@ -271,13 +271,13 @@ export class StatisticDataService {
       const weeksAgo = new Date(reportDayTyped);
       switch (weeksCount) {
         case 13:
-          weeksAgo.setDate(weeksAgo.getDate() - (13 * 7));
+          weeksAgo.setDate(weeksAgo.getDate() - (13 * 8));
           break;
         case 26:
-          weeksAgo.setDate(weeksAgo.getDate() - (26 * 7));
+          weeksAgo.setDate(weeksAgo.getDate() - (26 * 8));
           break;
         case 52:
-          weeksAgo.setDate(weeksAgo.getDate() - (52 * 7));
+          weeksAgo.setDate(weeksAgo.getDate() - (52 * 8));
           break;
       }
       const statisticDatas = await this.statisticDataRepository
