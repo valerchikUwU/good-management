@@ -167,8 +167,6 @@ export class StatisticService {
         .leftJoinAndSelect('statistic.panelToStatistics', 'p_t_s')
         .where('p_t_s.controlPanelId = :controlPanelId', { controlPanelId })
         .orderBy('p_t_s.orderStatisticNumber', 'ASC')
-        .take(10)
-        .skip(pagination)
         .getMany();
 
       const statisticsWithData = await Promise.all(
