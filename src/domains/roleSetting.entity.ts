@@ -17,11 +17,16 @@ export enum Modules {
   PROJECT = 'project',
   POST = 'post',
   STATISTIC = 'statistic',
+  WORKING_PLAN = 'working_plan',
+  CONVERT = 'convert',
+  CONTROL_PANEL = 'control_panel'
 }
+
 export enum Actions {
   READ = 'read',
   CREATE = 'create',
   UPDATE = 'update',
+  DELETE = 'delete'
 }
 
 @Entity()

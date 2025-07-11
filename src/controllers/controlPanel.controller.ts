@@ -36,6 +36,10 @@ import {
 } from 'src/constants/swagger-examples/controlPanel/controlPanel-examples';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
+import { PermissionsGuard } from 'src/guards/permission.guard';
+import { Actions, Modules } from 'src/domains/roleSetting.entity';
+import { ActionAccess } from 'src/decorators/action-access.decorator';
+import { ModuleAccess } from 'src/decorators/module-access.decorator';
 
 @ApiTags('ControlPanels')
 @ApiBearerAuth('access-token')
@@ -50,6 +54,9 @@ export class ControlPanelController {
   ) { }
 
   @Get(':organizationId')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.CONTROL_PANEL)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Все панели в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -82,6 +89,9 @@ export class ControlPanelController {
 
 
   @Post('new')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.CONTROL_PANEL)
+  @ActionAccess(Actions.CREATE)
   @ApiOperation({ summary: 'Создать панель управления' })
   @ApiBody({
     description: 'ДТО для создания панели',
@@ -126,6 +136,9 @@ export class ControlPanelController {
   }
 
   @Patch(':controlPanelId/update')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.CONTROL_PANEL)
+  @ActionAccess(Actions.UPDATE)
   @ApiOperation({ summary: 'Обновить панель управления' })
   @ApiBody({
     description: 'ДТО для обновления панели',
@@ -174,6 +187,9 @@ export class ControlPanelController {
   }
 
   @Delete(':controlPanelId/remove')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.CONTROL_PANEL)
+  @ActionAccess(Actions.DELETE)
   @ApiOperation({ summary: 'Удалить панель' })
   @ApiResponse({
     status: HttpStatus.CREATED,
@@ -197,7 +213,9 @@ export class ControlPanelController {
     required: true,
     description: 'Id панели',
   })
-  async remove(@Param('controlPanelId') controlPanelId: string) {
+  async remove(
+    @Param('controlPanelId') controlPanelId: string
+  ) {
     await this.controlPanelService.remove(controlPanelId);
     return { message: 'Панель успешно удалена!' };
   }

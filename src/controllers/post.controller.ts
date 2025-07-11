@@ -51,6 +51,10 @@ import {
 import { RoleService } from 'src/application/services/role/role.service';
 import { RoleReadDto } from 'src/contracts/role/read-role.dto';
 import { PostUpdateDefaultDto } from 'src/contracts/post/updateDefault-post.dto';
+import { ActionAccess } from 'src/decorators/action-access.decorator';
+import { ModuleAccess } from 'src/decorators/module-access.decorator';
+import { Modules, Actions } from 'src/domains/roleSetting.entity';
+import { PermissionsGuard } from 'src/guards/permission.guard';
 
 @ApiTags('Posts')
 @ApiBearerAuth('access-token')
@@ -90,6 +94,9 @@ export class PostController {
   }
 
   @Get(':organizationId/contacts')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POST)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Все контакты' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -139,6 +146,9 @@ export class PostController {
   }
 
   @Get(':organizationId')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POST)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Все посты в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -179,6 +189,9 @@ export class PostController {
   }
 
   @Patch(':postId/update')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POST)
+  @ActionAccess(Actions.UPDATE)
   @ApiOperation({ summary: 'Обновить пост по Id' })
   @ApiBody({
     description: 'ДТО для обновления поста',
@@ -311,6 +324,9 @@ export class PostController {
   }
 
   @Get(':organizationId/new')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POST)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Получить данные для создания поста' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -357,6 +373,9 @@ export class PostController {
   }
 
   @Get(':postId/post')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POST)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Получить пост по id' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -427,6 +446,9 @@ export class PostController {
   }
 
   @Get(':postId/allUnderPosts')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POST)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Получить все дочерние посты' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -454,6 +476,9 @@ export class PostController {
   }
 
   @Post('new')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POST)
+  @ActionAccess(Actions.CREATE)
   @ApiOperation({ summary: 'Создать пост' })
   @ApiBody({
     description: 'ДТО для создания поста',
@@ -593,6 +618,9 @@ export class PostController {
   }
 
   @Patch(':postId/changeDefaultPost')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POST)
+  @ActionAccess(Actions.UPDATE)
   @ApiOperation({ summary: 'Сменить дефолтный пост для себя' })
   @ApiBody({
     description: 'ДТО для обновления поста',

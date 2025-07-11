@@ -6,7 +6,9 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { RoleSettingService } from 'src/application/services/roleSetting/roleSetting.service';
+import { PostReadDto } from 'src/contracts/post/read-post.dto';
 import { RoleSettingReadDto } from 'src/contracts/roleSetting/read-roleSetting.dto';
+import { Roles } from 'src/domains/role.entity';
 import { Actions, Modules, RoleSetting } from 'src/domains/roleSetting.entity';
 
 @Injectable()
@@ -14,12 +16,20 @@ export class PermissionsGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly roleSettingService: RoleSettingService,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const user = request.user; // Предполагается, что пользователь уже аутентифицирован и доступен
-    if (user.role.roleName === 'Собственник') {
+    const posts: PostReadDto[] = request.user?.posts;
+    if (!posts) {
+      return false;
+    }
+    
+    const defaultPost = posts.find(
+      (post) => post.isDefault
+    );
+
+    if (defaultPost.role.roleName === Roles.OWNER) {
       return true;
     }
     // Получаем модуль и действие из метаданных
@@ -33,16 +43,13 @@ export class PermissionsGuard implements CanActivate {
     );
 
     if (!module || !action) {
-      return false; // Если модуль или действие не указаны, доступ запрещён
+      return false;
     }
 
-    // Получаем настройки роли пользователя
     const roleSetting = await this.roleSettingService.findByRoleAndModule(
-      user.role.id,
+      defaultPost.role.id,
       module,
     );
-
-    // Проверяем, есть ли у роли доступ к модулю и разрешено ли выполнять действие
     const hasPermission = this.checkPermission(roleSetting, module, action);
 
     if (!hasPermission) {
@@ -54,7 +61,6 @@ export class PermissionsGuard implements CanActivate {
     return true;
   }
 
-  // Логика проверки разрешений
   private checkPermission(
     roleSettings: RoleSettingReadDto,
     module: Modules,

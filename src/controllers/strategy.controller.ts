@@ -40,6 +40,10 @@ import {
   findAllStrategiesExample,
   findeOneStrategyExample,
 } from 'src/constants/swagger-examples/strategy/strategy-examples';
+import { ActionAccess } from 'src/decorators/action-access.decorator';
+import { ModuleAccess } from 'src/decorators/module-access.decorator';
+import { Modules, Actions } from 'src/domains/roleSetting.entity';
+import { PermissionsGuard } from 'src/guards/permission.guard';
 
 @ApiTags('Strategy')
 @ApiBearerAuth('access-token')
@@ -55,6 +59,9 @@ export class StrategyController {
   ) {}
 
   @Get(':organizationId')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STRATEGY)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Получить стратегию по организации' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -84,6 +91,9 @@ export class StrategyController {
   }
 
   @Patch(':strategyId/update')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STRATEGY)
+  @ActionAccess(Actions.UPDATE)
   @ApiOperation({ summary: 'Обновить стратегию по Id' })
   @ApiBody({
     description: 'ДТО для обновления стратегии',
@@ -157,6 +167,9 @@ export class StrategyController {
   }
 
   @Get(':strategyId/strategy')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STRATEGY)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Получить стратегию по ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -188,6 +201,9 @@ export class StrategyController {
   }
 
   @Post('new')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STRATEGY)
+  @ActionAccess(Actions.CREATE)
   @ApiOperation({ summary: 'Создать стратегию' })
   @ApiBody({
     description: 'ДТО для создания цели',

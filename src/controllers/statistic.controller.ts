@@ -46,6 +46,10 @@ import {
 import { ReportDay } from 'src/domains/organization.entity';
 import { viewTypes } from 'src/constants/extraTypes/statisticViewTypes';
 import { StatisticDataReadDto } from 'src/contracts/statisticData/read-statisticData.dto';
+import { ActionAccess } from 'src/decorators/action-access.decorator';
+import { ModuleAccess } from 'src/decorators/module-access.decorator';
+import { Modules, Actions } from 'src/domains/roleSetting.entity';
+import { PermissionsGuard } from 'src/guards/permission.guard';
 
 @UseGuards(AccessTokenGuard)
 @ApiTags('Statistic')
@@ -61,6 +65,9 @@ export class StatisticController {
   ) { }
 
   @Get(':organizationId')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STATISTIC)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Все статистики в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -104,6 +111,9 @@ export class StatisticController {
   }
 
   @Patch(':statisticId/update')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STATISTIC)
+  @ActionAccess(Actions.UPDATE)
   @ApiOperation({ summary: 'Обновить статистику' })
   @ApiBody({
     description: 'ДТО для обновления статистики',
@@ -264,6 +274,9 @@ export class StatisticController {
   }
 
   @Patch(':postId/updateBulk')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STATISTIC)
+  @ActionAccess(Actions.UPDATE)
   @ApiOperation({ summary: 'Обновить статистикам postId' })
   @ApiBody({
     description: 'ДТО для обновления статистики',
@@ -322,6 +335,9 @@ export class StatisticController {
   }
 
   @Post('new')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STATISTIC)
+  @ActionAccess(Actions.CREATE)
   @ApiOperation({ summary: 'Создать статистику' })
   @ApiBody({
     description: 'ДТО для создания статистики',
@@ -430,6 +446,9 @@ export class StatisticController {
 
 
   @Get(':controlPanelId/statisticsInControlPanel')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STATISTIC)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Получить статистики по controlPanelId с пагинацией (всегда 12)' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -469,6 +488,9 @@ export class StatisticController {
   }
 
   @Get(':statisticId/statistic')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.STATISTIC)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Получить статистику по ID' })
   @ApiResponse({
     status: HttpStatus.OK,

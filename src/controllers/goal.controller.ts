@@ -32,6 +32,10 @@ import { AccessTokenGuard } from 'src/guards/accessToken.guard';
 import { Request as ExpressRequest } from 'express';
 import { ReadUserDto } from 'src/contracts/user/read-user.dto';
 import { findAllGoalsExample } from 'src/constants/swagger-examples/goal/goal-examples';
+import { ActionAccess } from 'src/decorators/action-access.decorator';
+import { ModuleAccess } from 'src/decorators/module-access.decorator';
+import { Modules, Actions } from 'src/domains/roleSetting.entity';
+import { PermissionsGuard } from 'src/guards/permission.guard';
 
 @UseGuards(AccessTokenGuard)
 @ApiTags('Goal')
@@ -46,6 +50,9 @@ export class GoalController {
   ) {}
 
   @Get(':organizationId')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.GOLE)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Цель организации' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -74,6 +81,9 @@ export class GoalController {
   }
 
   @Patch(':goalId/update')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.GOLE)
+  @ActionAccess(Actions.UPDATE)
   @ApiOperation({ summary: 'Обновить цель по ID' })
   @ApiBody({
     description: 'ДТО для обновления цели',
@@ -143,6 +153,9 @@ export class GoalController {
   }
 
   @Post('new')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.GOLE)
+  @ActionAccess(Actions.CREATE)
   @ApiOperation({ summary: 'Создать цель' })
   @ApiBody({
     description: 'ДТО для создания цели',

@@ -7,12 +7,14 @@ import { PanelToStatisticModule } from './panelToStatistic.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ControlPanel } from 'src/domains/controlPanel.entity';
 import { PostModule } from './post.module';
+import { RoleSettingModule } from './roleSetting.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ControlPanel]),
     OrganizationModule,
     PanelToStatisticModule,
+    RoleSettingModule,
     PostModule,
   ],
   controllers: [ControlPanelController],

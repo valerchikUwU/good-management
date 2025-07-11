@@ -30,7 +30,7 @@ export class PanelToStatistic {
    * @remarks
    * nullable: true
    */
-  @Column({ nullable: true })
+  @Column({ nullable: true, default: 1 })
   orderStatisticNumber: number;
 
   /**
