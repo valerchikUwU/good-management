@@ -66,7 +66,7 @@ export class RoleSettingService {
 
       if (!roleSetting)
         throw new NotFoundException(
-          `Настройка с ID роли: ${roleId} не найдены`,
+          `Настройка с ID роли: ${roleId} и модуля ${module} не найдены`,
         );
       const roleSettingsReadDto: RoleSettingReadDto = {
         id: roleSetting.id,
