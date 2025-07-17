@@ -25,12 +25,12 @@ export class StatisticDataService {
   async findDaily(statisticId: string, datePoint: string): Promise<StatisticDataReadDto[]> {
     try {
       const reportDayTyped = new Date(datePoint.split(' ')[0]);
-      const reportDayPlus7Days = new Date(reportDayTyped.getTime() + 7 * 24 * 60 * 60 * 1000);
+      const reportDayMinus7Days = new Date(reportDayTyped.getTime() - 7 * 24 * 60 * 60 * 1000);
       const statisticDatas = await this.statisticDataRepository
         .createQueryBuilder('statistic_data')
         .where('statistic_data.statisticId = :statisticId', { statisticId })
         .andWhere('statistic_data.valueDate >= :reportDayTyped', { reportDayTyped })
-        .andWhere('statistic_data.valueDate < :reportDayPlus7Days', { reportDayPlus7Days })
+        .andWhere('statistic_data.valueDate < :reportDayMinus7Days', { reportDayMinus7Days })
         .andWhere('statistic_data.correlationType IS NULL')
         .orderBy('statistic_data.valueDate', 'ASC')
         .getMany()
@@ -283,7 +283,7 @@ export class StatisticDataService {
       const statisticDatas = await this.statisticDataRepository
         .createQueryBuilder('statistic_data')
         .where('statistic_data.statisticId = :statisticId', { statisticId })
-        .andWhere('statistic_data.valueDate < :reportDayTyped', { reportDayTyped })
+        .andWhere('statistic_data.valueDate <= :reportDayTyped', { reportDayTyped })
         .andWhere('statistic_data.valueDate >= :weeksAgo', { weeksAgo })
         .andWhere(new Brackets((qb) => {
           qb.where('statistic_data.correlationType IS NULL')
