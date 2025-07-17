@@ -25,12 +25,12 @@ export class StatisticDataService {
   async findDaily(statisticId: string, datePoint: string): Promise<StatisticDataReadDto[]> {
     try {
       const reportDayTyped = new Date(datePoint.split(' ')[0]);
-      const reportDayMinus7Days = new Date(reportDayTyped.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const reportDayMinus6Days = new Date(reportDayTyped.getTime() - 6 * 24 * 60 * 60 * 1000);
       const statisticDatas = await this.statisticDataRepository
         .createQueryBuilder('statistic_data')
         .where('statistic_data.statisticId = :statisticId', { statisticId })
-        .andWhere('statistic_data.valueDate >= :reportDayTyped', { reportDayTyped })
-        .andWhere('statistic_data.valueDate < :reportDayMinus7Days', { reportDayMinus7Days })
+        .andWhere('statistic_data.valueDate <= :reportDayTyped', { reportDayTyped })
+        .andWhere('statistic_data.valueDate >= :reportDayMinus6Days', { reportDayMinus6Days })
         .andWhere('statistic_data.correlationType IS NULL')
         .orderBy('statistic_data.valueDate', 'ASC')
         .getMany()
