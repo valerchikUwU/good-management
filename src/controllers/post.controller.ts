@@ -93,6 +93,22 @@ export class PostController {
     return user.posts;
   }
 
+  @Get('myPostsInOrganization/:organizationId')
+@ApiOperation({ summary: 'Получить все посты текущего пользователя в организации' })
+@ApiResponse({ status: 200, description: 'Список постов пользователя', type: [PostReadDto] })
+async getMyPostsInOrganization(
+  @Param('organizationId') organizationId: string,
+  @Req() req: ExpressRequest, // Получаем запрос для доступа к пользователю
+  @Query('relations') relations?: string[],
+): Promise<PostReadDto[]> {
+  const user = req.user as ReadUserDto; // Предполагается, что пользователь есть в запросе
+  return this.postService.findUserPostsByOrganization(
+    organizationId,
+    user.id, // Используем ID авторизованного пользователя
+    relations,
+  );
+}
+
   @Get(':organizationId/contacts')
   @UseGuards(PermissionsGuard)
   @ModuleAccess(Modules.POST)

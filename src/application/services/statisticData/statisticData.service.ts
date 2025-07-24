@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -311,24 +312,68 @@ export class StatisticDataService {
     }
   }
 
-  async create(
-    statisticDataCreateDto: StatisticDataCreateDto,
-  ): Promise<string> {
-    try {
-      const statisticData = new StatisticData();
-      statisticData.value = statisticDataCreateDto.value;
-      statisticData.valueDate = statisticDataCreateDto.valueDate;
-      statisticData.correlationType = statisticDataCreateDto.correlationType;
-      statisticData.statistic = statisticDataCreateDto.statistic;
-      const createdStatisticDataId =
-        await this.statisticDataRepository.insert(statisticData);
+  // async create(
+  //   statisticDataCreateDto: StatisticDataCreateDto,
+  // ): Promise<string> {
+  //   try {
+  //     const statisticData = new StatisticData();
+  //     statisticData.value = statisticDataCreateDto.value;
+  //     statisticData.valueDate = statisticDataCreateDto.valueDate;
+  //     statisticData.correlationType = statisticDataCreateDto.correlationType;
+  //     statisticData.statistic = statisticDataCreateDto.statistic;
+  //     const createdStatisticDataId =
+  //       await this.statisticDataRepository.insert(statisticData);
 
-      return createdStatisticDataId.identifiers[0].id;
-    } catch (err) {
-      this.logger.error(err);
-      throw new InternalServerErrorException('Ошибка при создании данных!');
+  //     return createdStatisticDataId.identifiers[0].id;
+  //   } catch (err) {
+  //     this.logger.error(err);
+  //     throw new InternalServerErrorException('Ошибка при создании данных!');
+  //   }
+  // }
+
+  async create(
+  statisticDataCreateDto: StatisticDataCreateDto,
+): Promise<string> {
+  try {
+    const query = this.statisticDataRepository
+      .createQueryBuilder('statisticData')
+      .where('DATE(statisticData.valueDate) = DATE(:valueDate)', {
+        valueDate: statisticDataCreateDto.valueDate
+      });
+
+    // Особое сравнение для NULL
+    if (statisticDataCreateDto.correlationType === null) {
+      query.andWhere('statisticData.correlationType IS NULL');
+    } else {
+      query.andWhere('statisticData.correlationType = :correlationType', {
+        correlationType: statisticDataCreateDto.correlationType,
+      });
     }
+
+    const existingData = await query.getOne();
+
+    if (existingData) {
+      throw new BadRequestException(
+        'Запись с указанной датой и типом корреляции уже существует.',
+      );
+    }
+
+    const statisticData = new StatisticData();
+    statisticData.value = statisticDataCreateDto.value;
+    statisticData.valueDate = statisticDataCreateDto.valueDate;
+    statisticData.correlationType = statisticDataCreateDto.correlationType;
+    statisticData.statistic = statisticDataCreateDto.statistic;
+    
+    const createdStatisticDataId = await this.statisticDataRepository.insert(statisticData);
+    return createdStatisticDataId.identifiers[0].id;
+  } catch (err) {
+    if (err instanceof BadRequestException) {
+      throw err;
+    }
+    this.logger.error(err);
+    throw new InternalServerErrorException('Ошибка при создании данных!');
   }
+}
 
   async update(
     statisticDataUpdateDto: StatisticDataUpdateDto,
