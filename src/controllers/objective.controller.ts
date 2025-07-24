@@ -31,6 +31,10 @@ import {
   findAllObjectivesExample,
   findOneObjectiveExample,
 } from 'src/constants/swagger-examples/objective/objective-examples';
+import { ActionAccess } from 'src/decorators/action-access.decorator';
+import { ModuleAccess } from 'src/decorators/module-access.decorator';
+import { Modules, Actions } from 'src/domains/roleSetting.entity';
+import { PermissionsGuard } from 'src/guards/permission.guard';
 
 @ApiTags('Objective')
 @ApiBearerAuth('access-token')
@@ -44,6 +48,9 @@ export class ObjectiveController {
   ) {}
 
   @Get(':organizationId')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.OBJECTIVE)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Все краткосрочные цели в организации' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -73,6 +80,9 @@ export class ObjectiveController {
   }
 
   @Patch(':objectiveId/update')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.OBJECTIVE)
+  @ActionAccess(Actions.UPDATE)
   @ApiOperation({ summary: 'Обновить краткосрочную цель по ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -153,6 +163,9 @@ export class ObjectiveController {
   }
 
   @Get(':strategyId/objective')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.OBJECTIVE)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Получить цель по ID стратегии' })
   @ApiResponse({
     status: HttpStatus.OK,

@@ -35,6 +35,10 @@ import {
   findAllPoliciesExample,
   findOnePolicyExample,
 } from 'src/constants/swagger-examples/policy/policy-examples';
+import { ModuleAccess } from 'src/decorators/module-access.decorator';
+import { PermissionsGuard } from 'src/guards/permission.guard';
+import { Actions, Modules } from 'src/domains/roleSetting.entity';
+import { ActionAccess } from 'src/decorators/action-access.decorator';
 
 @ApiTags('Policy')
 @ApiBearerAuth('access-token')
@@ -46,7 +50,7 @@ export class PolicyController {
     private readonly organizationService: OrganizationService,
     private readonly producerService: ProducerService,
     @Inject('winston') private readonly logger: Logger,
-  ) {}
+  ) { }
 
   @Get(':organizationId')
   @ApiOperation({ summary: 'Все политики в организации' })
@@ -91,7 +95,11 @@ export class PolicyController {
     };
   }
 
+
   @Patch(':policyId/update')
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POLICY)
+  @ActionAccess(Actions.UPDATE)
   @ApiOperation({ summary: 'Обновить политику по Id' })
   @ApiBody({
     description: 'ДТО для обновления политики',
@@ -173,9 +181,9 @@ export class PolicyController {
   }
 
   @Get(':policyId/policy')
-  // @UseGuards(PermissionsGuard)
-  // @ModuleAccess(Modules.POLICY)
-  // @ActionAccess(Actions.READ)
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POLICY)
+  @ActionAccess(Actions.READ)
   @ApiOperation({ summary: 'Получить политику по ID' })
   @ApiResponse({
     status: HttpStatus.OK,
@@ -205,6 +213,10 @@ export class PolicyController {
   }
 
   @Post('new')
+
+  @UseGuards(PermissionsGuard)
+  @ModuleAccess(Modules.POLICY)
+  @ActionAccess(Actions.CREATE)
   @ApiOperation({ summary: 'Создать политику' })
   @ApiBody({
     description: 'ДТО для создания политики',

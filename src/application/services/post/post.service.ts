@@ -132,7 +132,67 @@ export class PostService {
       );
     }
   }
+  
+async findUserPostsByOrganization(
+  organizationId: string,
+  userId: string,
+  relations?: string[],
+): Promise<PostReadDto[]> {
+  try {
+    // Логируем параметры запроса для отладки
+    this.logger.debug(`Fetching posts for user ${userId} in organization ${organizationId}`);
 
+    const posts = await this.postRepository.find({
+      where: {
+        organization: { id: organizationId },
+        user: { id: userId }, // Ищем посты конкретного пользователя
+        isArchive: false, // Только неархивные посты
+      },
+      relations: relations ?? ['user', 'organization'], // Дефолтные relations
+    });
+
+    this.logger.debug(`Found ${posts.length} posts for user ${userId}`);
+
+    return posts.map(post => this.mapPostToDto(post));
+    
+  } catch (err) {
+    this.logger.error(`Failed to fetch posts for user ${userId}`, err);
+    throw new InternalServerErrorException('Ошибка при получении постов пользователя');
+  }
+}
+// Вынесенный метод для маппинга сущности в DTO
+private mapPostToDto(post: Post): PostReadDto {
+  return {
+    id: post.id,
+    postName: post.postName,
+    divisionName: post.divisionName,
+    divisionNumber: post.divisionNumber,
+    parentId: post.parentId,
+    product: post.product,
+    purpose: post.purpose,
+    isDefault: post.isDefault,
+    isArchive: post.isArchive,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    user: post.user,
+    policy: post.policy,
+    statistics: post.statistics,
+    organization: post.organization,
+    account: post.account,
+    convert: post.convert,
+    historiesUsersToPost: post.historiesUsersToPost,
+    targetHolders: post.targetHolders,
+    convertToPosts: post.convertToPosts,
+    messages: post.messages,
+    controlPanels: post.controlPanels,
+    role: post.role,
+    goals: post.goals,
+    policies: post.policies,
+    strategies: post.strategies,
+    projects: post.projects,
+    groupToPosts: post.groupToPosts,
+  };
+}
   async findAllWithUserForOrganization(
     organizationId: string,
     userId: string,

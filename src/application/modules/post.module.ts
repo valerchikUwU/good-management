@@ -11,6 +11,7 @@ import { QueueModule } from './queue.module';
 import { GroupModule } from './group.module';
 import { HistoryUsersToPostModule } from './historyUsersToPost.module';
 import { RoleModule } from './role.module';
+import { RoleSettingModule } from './roleSetting.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { RoleModule } from './role.module';
     OrganizationModule,
     forwardRef(() => QueueModule),
     GroupModule,
+    RoleSettingModule,
     HistoryUsersToPostModule,
     RoleModule,
   ],
