@@ -29,10 +29,14 @@
 
 ## Стек проекта
 
-- Node.js v18+ (лучше всего LTS)
-- npm v11+
+- Node.js v18+
+- Redis
+- RabbitMQ
+- NestJS
+- TS
+- Socket.io
+- Nginx
 - Docker
-- Docker compose
 
 В контейнерах запускается БД (PostgreSQL), Redis, RabbitMQ, Nginx exporter (для экспортера нужна аппка для трекинга ошибок и состояния сервера: как настроить prometheus + grafana https://habr.com/ru/companies/doubletapp/articles/736602/) и главная аппка 
 
